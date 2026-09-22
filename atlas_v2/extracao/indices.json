@@ -1,0 +1,101 @@
+{
+  "_leia": [
+    "Configuração do 4_indices_municipais.py.",
+    "Cada bloco descreve um arquivo oficial baixado para extracao/fontes/.",
+    "'campos' mapeia o nome do indicador no Atlas -> nome da coluna no arquivo.",
+    "Se um nome de coluna não bater, o script imprime as colunas reais do arquivo",
+    "e para. Ajuste aqui e rode de novo — não é preciso mexer no código.",
+    "Para desligar uma fonte, use \"ativo\": false."
+  ],
+  "fontes": [
+    {
+      "id": "idhm",
+      "ativo": true,
+      "rotulo": "IDHM — Atlas do Desenvolvimento Humano no Brasil",
+      "publicador": "PNUD, IPEA e Fundação João Pinheiro",
+      "onde_obter": "atlasbrasil.org.br — seção Consultas / Acervo, download da planilha de municípios",
+      "arquivo": "idhm*.xlsx",
+      "planilha": null,
+      "cabecalho": 0,
+      "coluna_codigo": "Codmun7",
+      "coluna_nome": "Município",
+      "filtro_ano": {"coluna": "ANO", "valor": 2010},
+      "ano": 2010,
+      "campos": {
+        "idhm": "IDHM",
+        "idhm_renda": "IDHM_R",
+        "idhm_educacao": "IDHM_E",
+        "idhm_longevidade": "IDHM_L",
+        "idhm_esperanca_vida": "ESPVIDA"
+      },
+      "faixas": {
+        "idhm": [0, 1], "idhm_renda": [0, 1], "idhm_educacao": [0, 1],
+        "idhm_longevidade": [0, 1], "idhm_esperanca_vida": [40, 95]
+      }
+    },
+    {
+      "id": "ivs",
+      "ativo": true,
+      "rotulo": "IVS — Atlas da Vulnerabilidade Social",
+      "publicador": "IPEA",
+      "onde_obter": "ivs.ipea.gov.br — download da base de municípios",
+      "arquivo": "ivs*.xlsx",
+      "planilha": null,
+      "cabecalho": 0,
+      "coluna_codigo": "Codmun7",
+      "coluna_nome": "Município",
+      "filtro_ano": {"coluna": "ANO", "valor": 2010},
+      "ano": 2010,
+      "campos": {
+        "ivs": "IVS",
+        "ivs_infraestrutura": "IVS_INFRAESTRUTURA_URBANA",
+        "ivs_capital_humano": "IVS_CAPITAL_HUMANO",
+        "ivs_renda_trabalho": "IVS_RENDA_E_TRABALHO"
+      },
+      "faixas": {"ivs": [0, 1], "ivs_infraestrutura": [0, 1], "ivs_capital_humano": [0, 1], "ivs_renda_trabalho": [0, 1]}
+    },
+    {
+      "id": "idese",
+      "ativo": true,
+      "rotulo": "IDESE — Índice de Desenvolvimento Socioeconômico do RS",
+      "publicador": "DEE/SPGG-RS (sucessor da FEE)",
+      "onde_obter": "dee.rs.gov.br — seção IDESE, planilha por município",
+      "arquivo": "idese*.xlsx",
+      "planilha": null,
+      "cabecalho": 0,
+      "coluna_codigo": null,
+      "coluna_nome": "Município",
+      "filtro_ano": null,
+      "ano": null,
+      "campos": {
+        "idese": "IDESE",
+        "idese_educacao": "Educação",
+        "idese_renda": "Renda",
+        "idese_saude": "Saúde"
+      },
+      "faixas": {"idese": [0, 1], "idese_educacao": [0, 1], "idese_renda": [0, 1], "idese_saude": [0, 1]}
+    },
+    {
+      "id": "firjan",
+      "ativo": false,
+      "rotulo": "IFDM e IFGF — índices FIRJAN",
+      "publicador": "Sistema FIRJAN",
+      "onde_obter": "firjan.com.br — publicações IFDM e IFGF",
+      "licenca": "ATENÇÃO: confira os termos de uso da FIRJAN antes de redistribuir os valores dentro do pacote do Atlas.",
+      "arquivo": "firjan*.xlsx",
+      "planilha": null,
+      "cabecalho": 0,
+      "coluna_codigo": null,
+      "coluna_nome": "Município",
+      "filtro_ano": null,
+      "ano": null,
+      "campos": {
+        "ifdm": "IFDM",
+        "ifdm_emprego_renda": "Emprego e Renda",
+        "ifdm_educacao": "Educação",
+        "ifdm_saude": "Saúde"
+      },
+      "faixas": {"ifdm": [0, 1], "ifdm_emprego_renda": [0, 1], "ifdm_educacao": [0, 1], "ifdm_saude": [0, 1]}
+    }
+  ]
+}
