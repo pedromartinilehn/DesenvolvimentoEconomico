@@ -1,353 +1,283 @@
 # Desenvolvimento socioeconômico no entorno das lojas — RMPA
 
-Análise da base do Atlas RMPA v2 para desenhar projetos de desenvolvimento comunitário
-no entorno das 20 unidades.
+**Versão 2.** Substitui a primeira análise. Refeita sobre a base completa, com um modelo que não
+depende da média de cada raio. A seção 2 lista o que mudou. Apresentação correspondente: o deck
+"Entorno das lojas — desenvolvimento socioeconômico na RMPA".
 
-## Base e método
+## 1. Base e método
 
-- **Censo 2022 (IBGE), por setor censitário** — população, cor/raça, idade, alfabetização,
-  domicílios, saneamento, rendimento da pessoa responsável, favelas e comunidades urbanas.
-  São 90 indicadores no nível setor, que é a base do cálculo de entorno.
-- **Censo 2010 (IBGE)** — trabalho, informalidade, previdência, renda domiciliar per capita,
-  pobreza, Gini e escolaridade de 25+. São taxas de 2010 atribuídas ao território de 2022.
-- **CNES 2026 e Censo Escolar/INEP 2025** — 567 estabelecimentos de saúde e 1.650 escolas
-  georreferenciados.
-- **SICONFI/STN 2024 e SSP/RS 2025** — finanças e segurança, nível municipal.
+**Base.** 4.722 setores censitários do Censo 2022 nos sete municípios (2.383.002 habitantes); 1.650
+escolas (Censo Escolar 2025); 567 estabelecimentos de saúde (CNES 2026); indicadores municipais do
+SICONFI 2024 e da SSP/RS 2025. Trabalho, renda domiciliar, pobreza e escolaridade de adultos vêm do
+**Censo 2010**, levados aos setores de 2022 pela área de ponderação — servem para ordenar
+territórios, não para dimensionar programas.
 
-Agreguei por raio somando os setores cujo ponto representativo cai dentro do círculo. As
-taxas de 2010 eu agreguei por **média ponderada pela população de 2022** — é um cálculo meu,
-não um valor publicado. Os clusters usam **união de setores**, sem dupla contagem.
+**Por que não a média.** A mediana da renda do responsável entre os setores, ponderada pela
+população, é **R$ 2.825**; a média, **R$ 4.374** — 55% acima, puxada por poucos setores muito
+ricos. Os 20 entornos de 2 km têm renda média acima da mediana regional. Comparar entornos pela
+média faz todas as lojas parecerem estar em área de renda média ou alta.
 
-**Três limites que valem para tudo o que segue:**
+**O modelo.**
 
-1. Os indicadores de trabalho, renda domiciliar, pobreza e escolaridade adulta são de **2010**.
-   Servem para **ordenar** territórios, não para dimensionar programas hoje.
-2. O raio é euclidiano. Acessibilidade real (ônibus, Trensurb, barreiras físicas) não está na base.
-3. Setores de borda entram inteiros ou ficam de fora.
+1. **Quintil de renda.** Cada setor é classificado pela renda do responsável. Os limites, ponderados
+   pela população da região: Q1 até R$ 1.947 · Q2 até R$ 2.497 · Q3 até R$ 3.387 · Q4 até
+   R$ 5.795 · Q5 acima.
+2. **Bolsões.** Setores do Q1 a até 600 m uns dos outros formam um bolsão.
+3. **Loja mais próxima.** Cada bolsão conta uma vez, atribuído à loja de venda mais próxima
+   (aeroporto e unidade administrativa excluídos). Isso evita a dupla contagem: 22 pares de
+   unidades estão a menos de 4 km entre si, e os 20 raios de 2 km somados dariam 1,4 milhão de
+   pessoas, 59% da região.
 
----
+## 2. O que mudou em relação à primeira versão
 
-## Retrato: os 20 entornos contra a região
+| primeira versão | o que a reanálise mostra |
+|---|---|
+| Saneamento não é problema no entorno | Não é na média do raio. **Nos setores do Q1, 10,4% dos domicílios têm esgoto inadequado, contra 0,4% no Q5**; 104 mil pessoas vivem em setores do Q1 com menos de 80% de esgoto adequado |
+| O público dos programas mora no anel de 2 a 5 km | Vale para 11 das 20 unidades. Em Barrasul, Teresópolis, Center Lar e na unidade administrativa, o anel é *mais rico* que o núcleo — a comunidade está dentro dos 2 km |
+| Todos os anéis têm mais população preta ou parda | 15 de 20 |
+| 14 de 20 entornos acima da renda média regional | 13 de 20 — e os 20 acima da mediana |
+| Agrupamento "Arco Norte de Porto Alegre" | Barrasul e Teresópolis ficam na zona sul. O agrupamento por loja deu lugar aos bolsões |
 
-Raio de 2 km. Referência: soma dos 4.722 setores dos 7 municípios.
+A causa comum: a primeira versão media cada entorno pela média do raio, que mistura setores ricos e
+pobres e esconde os bolsões.
 
-| | RMPA | menor entorno | maior entorno |
-|---|---:|---|---|
-| renda da pessoa responsável | R$ 4.374 | R$ 2.865 (LJ Sapucaia) | R$ 8.453 (SH Iguatemi) |
-| % preta ou parda | 23,8% | 10,4% (Wallig) | 32,3% (Loja Adm POA) |
-| % crianças 0–14 | 17,0% | 7,2% (Otávio Rocha) | 17,0% (Sapucaia, do Vale, Adm) |
-| % 60 anos ou mais | 20,0% | 18,7% (do Vale) | 29,9% (SH Total) |
-| % em favelas e comunidades | 9,3% | 0,0% | 24,2% (SH Barrasul) |
-| pobreza 2010 | 15,8% | 4,6% (Wallig) | 17,6% (Sapucaia) |
-| sem fundamental, 25+ (2010) | 34,3% | 10,5% (SH Total) | 45,0% (Sapucaia) |
-| superior completo, 25+ (2010) | 16,4% | 4,6% | 49,1% (SH Total) |
+## 3. Onde a rede está
 
-**14 dos 20 entornos têm renda acima da média regional.** A rede está, em regra, no lado
-mais rico do território.
+Moradores a até 2, 3 e 5 km das 18 lojas de venda, contados uma vez, por quintil de renda da região:
 
----
+| raio | moradores | Q1 | Q2 | Q3 | Q4 | Q5 |
+|---|---:|---:|---:|---:|---:|---:|
+| 2 km | 874.621 | 8,4% | 8,5% | 15,6% | 30,5% | 37,0% |
+| 3 km | 1.349.636 | 11,8% | 13,2% | 18,9% | 26,0% | 30,1% |
+| 5 km | 1.948.800 | 16,1% | 18,0% | 20,8% | 22,5% | 22,7% |
 
-## Achado 1 — onde o problema **não** está
+**A 2 km, 67% dos moradores estão nos dois quintis mais ricos.** Os dois mais pobres somam 148 mil
+pessoas a 2 km e 663 mil a 5 km. Na região, cada quintil tem 20% da população.
 
-Isto é o mais importante para não desenhar o projeto errado.
+### Quatro tipos de entorno
 
-| indicador | faixa nos 20 entornos | RMPA |
-|---|---|---:|
-| esgotamento sanitário adequado | 95,7% – 99,8% | 96,1% |
-| domicílios em cortiço ou estrutura degradada | 0,0% – 0,7% | 0,1% |
-| analfabetismo (15+) | 0,5% – 2,7% | 1,9% |
-| abastecimento de água por rede | acima de 98% em todos | — |
+| tipo | critério (raio de 2 km) | unidades |
+|---|---|---|
+| 1 · Comunidade colada à loja | 16% a 26% dos moradores no Q1 | SH Barrasul, Loja Adm Porto Alegre, SH Bourbon Teresópolis, SH Center Lar |
+| 2 · Bolsão grande a 2–5 km | até 5% no Q1; bolsão de 14 mil ou mais adiante | SH Bourbon Ipiranga, SH Park Canoas, SH Canoas, SH Iguatemi POA |
+| 3 · Renda baixa-média difusa | renda média 8% a 34% abaixo da região | LJ Sapucaia do Sul, SH do Vale, LJ Guaíba, LJ Esteio, SH Gravataí |
+| 4 · Centro de renda alta | no máximo 2% no Q1 | LJ Otávio Rocha, SH Praia de Belas, SH João Pessoa, SH Total, SH Bourbon Wallig, CC Canoas |
 
-Saneamento, moradia precária e alfabetização **não são o gargalo** em nenhum dos 20 entornos,
-nem nos mais pobres. Projetos de infraestrutura sanitária ou de alfabetização de adultos
-resolveriam um problema que já está resolvido.
+### Cada unidade, raio de 2 km
 
-Vale para equipamentos também: as UBS por habitante são **maiores** nos entornos pobres
-(Barrasul 2,04/10 mil, Esteio 1,88, Sapucaia 1,78) do que nos ricos (Praia de Belas 0,12,
-João Pessoa 0,29, SH Total 0,38). A atenção básica do SUS está onde deve estar. Há 58 CAPS
-e 111 UBS no conjunto dos raios.
+Comparada ao **próprio município** e à região. "Setores de borda" é a parcela dos moradores em
+setores que a circunferência corta — a incerteza do número daquele raio.
 
----
+| unidade | município | moradores | renda média | vs. município | vs. região | no quintil mais pobre | setores de borda | tipo |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| SH Barrasul | Porto Alegre | 49.111 | R$ 4.881 | -8% | +12% | 26% | 30% | 1 |
+| Loja Adm Porto Alegre | Porto Alegre | 84.986 | R$ 4.826 | -9% | +10% | 25% | 28% | 1 |
+| SH Bourbon Teresópolis | Porto Alegre | 82.122 | R$ 4.271 | -20% | -2% | 20% | 25% | 1 |
+| SH Center Lar | Porto Alegre | 75.305 | R$ 4.330 | -19% | -1% | 16% | 31% | 1 |
+| LJ Guaíba | Guaíba | 19.298 | R$ 3.423 | +25% | -22% | 14% | 34% | 3 |
+| LJ Sapucaia do Sul | Sapucaia do Sul | 72.924 | R$ 2.865 | +8% | -34% | 14% | 28% | 3 |
+| LJ Esteio | Esteio | 37.168 | R$ 3.625 | +15% | -17% | 11% | 22% | 3 |
+| SH do Vale | Cachoeirinha | 63.083 | R$ 2.996 | 0% | -32% | 9% | 36% | 3 |
+| Aero Salgado Filho | Porto Alegre | 28.738 | R$ 5.183 | -3% | +18% | 8% | 69% | — |
+| SH Bourbon Ipiranga | Porto Alegre | 104.927 | R$ 6.992 | +31% | +60% | 5% | 28% | 2 |
+| SH Canoas | Canoas | 57.183 | R$ 5.006 | +41% | +14% | 4% | 32% | 2 |
+| SH Gravataí | Gravataí | 19.421 | R$ 4.039 | +47% | -8% | 4% | 62% | 3 |
+| SH Iguatemi POA | Porto Alegre | 91.301 | R$ 8.453 | +59% | +93% | 2% | 28% | 2 |
+| LJ Otávio Rocha | Porto Alegre | 85.449 | R$ 7.102 | +34% | +62% | 2% | 12% | 4 |
+| SH Total | Porto Alegre | 105.225 | R$ 8.361 | +57% | +91% | 1% | 20% | 4 |
+| CC Canoas | Canoas | 55.262 | R$ 5.353 | +50% | +22% | 1% | 41% | 4 |
+| SH Park Canoas | Canoas | 49.017 | R$ 6.261 | +76% | +43% | 1% | 41% | 2 |
+| SH Praia de Belas | Porto Alegre | 86.536 | R$ 7.063 | +33% | +61% | 1% | 17% | 4 |
+| SH Bourbon Wallig | Porto Alegre | 93.875 | R$ 7.217 | +36% | +65% | 1% | 20% | 4 |
+| SH João Pessoa | Porto Alegre | 138.728 | R$ 7.352 | +38% | +68% | 0% | 19% | 4 |
 
-## Achado 2 — onde o problema **está**
+A LJ Guaíba ilustra por que o termo de comparação importa: contra a região está 22% abaixo; contra
+o próprio município, 25% acima. A loja fica no centro de Guaíba, e a pobreza do município está em
+outro lugar.
 
-A carência é de **capital humano e de inserção no trabalho**, não de infraestrutura.
+## 4. Onde estão as comunidades
 
-| | Trensurb Norte | Vale/Gravataí | Guaíba | Centro-sul POA |
+**323.725 pessoas em setores do Q1 vivem a até 5 km de alguma unidade**, em 123 bolsões — 68% de
+toda a população do Q1 da região (476.553). Os 25 bolsões com 2 mil moradores ou mais somam
+264.346 pessoas. É uma população jovem: 25% tem de 15 a 29 anos e 23%, até 14.
+
+### Os 25 bolsões com 2 mil moradores ou mais
+
+| # | território | município | moradores | crianças 0–14 | jovens 15–29 | renda média | em favela | sem fund. 25+ (2010) | loja de venda mais próxima |
+|---:|---|---|---:|---:|---:|---:|---:|---:|---|
+| 1 | Mário Quintana, Rubem Berta, Passo das Pedras | Porto Alegre | 38.555 | 8.951 | 9.805 | R$ 1.623 | 45% | 39% | SH Center Lar · 3,9 km |
+| 2 | Vila São José, Coronel Aparício Borges, Partenon | Porto Alegre | 34.346 | 8.223 | 8.958 | R$ 1.669 | 76% | 40% | SH Bourbon Ipiranga · 3,0 km |
+| 3 | Guajuviras | Canoas | 21.514 | 5.646 | 5.512 | R$ 1.490 | 18% | 52% | SH Park Canoas · 4,1 km |
+| 4 | Santa Tereza, Cristal, Nonoai | Porto Alegre | 20.987 | 4.902 | 5.509 | R$ 1.578 | 82% | 21% | SH Barrasul · 2,0 km |
+| 5 | Harmonia, Mathias Velho | Canoas | 16.094 | 3.352 | 3.874 | R$ 1.803 | 2% | 58% | SH Canoas · 3,3 km |
+| 6 | Santa Rosa de Lima, Sarandi | Porto Alegre | 15.821 | 3.318 | 3.736 | R$ 1.639 | 8% | 42% | SH Center Lar · 2,6 km |
+| 7 | Bom Jesus, Jardim Carvalho | Porto Alegre | 14.778 | 3.799 | 3.933 | R$ 1.560 | 98% | 30% | SH Iguatemi POA · 2,4 km |
+| 8 | Vila Anair A, Caí | Cachoeirinha | 13.674 | 2.847 | 3.272 | R$ 1.676 | 44% | 42% | SH do Vale · 2,1 km |
+| 9 | Farrapos, Humaitá | Porto Alegre | 12.940 | 3.207 | 3.522 | R$ 1.562 | 52% | 43% | SH Bourbon Wallig · 4,7 km |
+| 10 | — | Sapucaia do Sul | 11.983 | 2.899 | 3.101 | R$ 1.693 | 0% | 57% | LJ Sapucaia do Sul · 2,0 km |
+| 11 | Sarandi | Porto Alegre | 7.877 | 1.618 | 1.691 | R$ 1.715 | 100% | 51% | SH Center Lar · 1,6 km |
+| 12 | Fátima | Canoas | 6.173 | 1.570 | 1.605 | R$ 1.755 | 33% | 39% | CC Canoas · 3,9 km |
+| 13 | Parque Primavera, Jardim Planalto, Santo Inácio | Esteio | 5.659 | 1.400 | 1.507 | R$ 1.632 | 15% | 59% | LJ Esteio · 4,1 km |
+| 14 | Tom Jobim | Gravataí | 4.534 | 1.198 | 1.206 | R$ 1.571 | 89% | 41% | SH do Vale · 4,2 km |
+| 15 | Santa Rita | Guaíba | 4.470 | 927 | 1.014 | R$ 1.764 | 34% | 46% | LJ Guaíba · 2,5 km |
+| 16 | Rincão da Madalena | Gravataí | 4.442 | 1.203 | 1.240 | R$ 1.508 | 100% | 43% | SH Gravataí · 3,9 km |
+| 17 | Sarandi | Porto Alegre | 4.165 | 976 | 1.068 | R$ 1.544 | 76% | 46% | SH Center Lar · 1,4 km |
+| 18 | Morro Santana | Porto Alegre | 4.048 | 982 | 1.077 | R$ 1.678 | 86% | 44% | SH Iguatemi POA · 3,9 km |
+| 19 | Niterói | Canoas | 3.925 | 911 | 952 | R$ 1.815 | 0% | 54% | SH Park Canoas · 4,9 km |
+| 20 | São José, Liberdade | Esteio | 3.666 | 774 | 887 | R$ 1.788 | 0% | 36% | LJ Esteio · 2,1 km |
+| 21 | Rio Branco | Canoas | 3.364 | 741 | 815 | R$ 1.738 | 0% | 51% | CC Canoas · 5,4 km |
+| 22 | Jardim Carvalho, Agronomia | Porto Alegre | 3.039 | 770 | 769 | R$ 1.583 | 100% | 45% | SH Bourbon Ipiranga · 4,4 km |
+| 23 | Canarinho | Cachoeirinha + Gravataí | 2.946 | 719 | 740 | R$ 1.502 | 45% | 43% | SH do Vale · 4,6 km |
+| 24 | Partenon | Porto Alegre | 2.825 | 600 | 685 | R$ 1.652 | 98% | 29% | SH Bourbon Ipiranga · 1,3 km |
+| 25 | Costa e Silva | Porto Alegre | 2.521 | 657 | 677 | R$ 1.508 | 65% | 36% | SH Center Lar · 1,8 km |
+
+Territórios sem bairro são municípios para os quais o IBGE não publica divisão de bairros.
+
+### Por loja de venda mais próxima, sem dupla contagem
+
+| loja | moradores | bolsões | crianças 0–14 | jovens 15–29 |
 |---|---:|---:|---:|---:|
-| sem fundamental, 25+ (2010) | 39,6% | 39,3% | **42,9%** | 24,8% |
-| superior completo, 25+ (2010) | 9,2% | **6,3%** | 7,4% | 28,6% |
-| desocupação (2010) | 6,5% | **7,4%** | 7,1% | 5,5% |
-| sem previdência (2010) | 22,8% | 24,0% | **25,5%** | 22,6% |
-| pobreza (2010) | 16,6% | 16,7% | **18,4%** | 11,8% |
-| renda da pessoa responsável (2022) | R$ 3.355 | **R$ 2.920** | R$ 3.001 | R$ 6.094 |
+| SH Center Lar | 68.939 | 5 | 15.520 | 16.977 |
+| SH Bourbon Ipiranga | 40.210 | 3 | 9.593 | 10.412 |
+| SH Park Canoas | 25.439 | 2 | 6.557 | 6.464 |
+| SH do Vale | 21.154 | 3 | 4.764 | 5.218 |
+| SH Barrasul | 20.987 | 1 | 4.902 | 5.509 |
+| SH Iguatemi POA | 18.826 | 2 | 4.781 | 5.010 |
+| SH Canoas | 16.094 | 1 | 3.352 | 3.874 |
+| SH Bourbon Wallig | 12.940 | 1 | 3.207 | 3.522 |
+| LJ Sapucaia do Sul | 11.983 | 1 | 2.899 | 3.101 |
+| CC Canoas | 9.537 | 2 | 2.311 | 2.420 |
+| LJ Esteio | 9.325 | 2 | 2.174 | 2.394 |
+| LJ Guaíba | 4.470 | 1 | 927 | 1.014 |
+| SH Gravataí | 4.442 | 1 | 1.203 | 1.240 |
 
-Clusters em raio de 5 km, união de setores.
+### Dois perfis de carência
 
-A distância em escolaridade superior é de **6,3% a 28,6% — quase cinco vezes**. Em
-escolaridade fundamental incompleta, de 24,8% a 42,9%.
+| | Porto Alegre (12 bolsões) | Canoas, Sapucaia e Esteio (8 bolsões) |
+|---|---|---|
+| moradores em favela | 8% a 100% — 11 dos 12 com 45% ou mais | 0% a 33% |
+| adultos sem fundamental (2010) | 21% a 51% | 36% a 59% — 6 dos 8 com 51% ou mais |
+| população preta ou parda | 32% a 61% | 27% a 39% |
+| desocupação (2010) | 5% a 8% | 4% a 11% — Guajuviras, 10,6%, a maior dos 123 bolsões |
+| natureza da carência | concentrada em favelas: moradia, regularização, serviços | escolaridade e trabalho, fora das favelas |
 
-**Informalidade é a armadilha analítica desta base.** A taxa é quase plana: 32% a 38% em
-todos os entornos, e o valor mais alto é do **SH Total** (38,6%), o mais rico. O que muda não
-é a taxa, é a natureza: no entorno rico, "conta própria" é profissional autônomo; no
-periférico, é trabalho precário. A base de 2010 não distingue os dois. **Não use
-informalidade para priorizar território.**
+Um mesmo projeto não serve aos dois.
 
----
+## 5. O que falta
 
-## Achado 3 — a rede está no lado rico de uma fronteira
+### Saneamento, dentro dos bolsões
 
-O dado mais acionável do conjunto. Comparando a renda no raio de 1 km e no de 5 km:
-
-| loja | R$ 1 km | R$ 5 km | Δ | pop. no anel 2–5 km | renda no anel |
-|---|---:|---:|---:|---:|---:|
-| SH Park Canoas | 9.850 | 3.818 | **−61%** | 233 mil | R$ 3.275 |
-| CC Canoas | 6.962 | 3.882 | **−44%** | 220 mil | R$ 3.481 |
-| LJ Guaíba | 5.060 | 3.001 | **−41%** | 51 mil | R$ 2.837 |
-| SH Iguatemi POA | 10.585 | 7.134 | −33% | 418 mil | R$ 6.847 |
-| LJ Esteio | 4.380 | 3.048 | −30% | 150 mil | R$ 2.900 |
-| SH Canoas | 5.605 | 3.902 | −30% | 205 mil | R$ 3.572 |
-
-Essas unidades têm um anel imediato de renda alta cercado por território muito mais pobre.
-**Todos os 20 anéis de 2–5 km são mais pobres que o núcleo de 2 km em composição racial**
-(19% a 27% de população preta ou parda, contra 10% a 32% no núcleo).
-
-Ou seja: o público dos programas **não mora no raio de 2 km — mora no anel seguinte.**
-Desenhar o alcance pelo raio curto exclui exatamente quem se quer alcançar.
-
----
-
-## Achado 4 — a capacidade municipal é inversa à necessidade
-
-Despesa empenhada em assistência social por habitante, SICONFI/STN 2024:
-
-| município | R$/hab | pobreza 2010 no entorno |
-|---|---:|---:|
-| **Sapucaia do Sul** | **57** | 17,6% (a maior de todas) |
-| Gravataí | 117 | 11,2% |
-| Cachoeirinha | 120 | — |
-| Canoas | 134 | 10,0–10,5% |
-| Esteio | 252 | 10,9% |
-| Porto Alegre | 284 | 8,4–15,4% |
-| Guaíba | 421 | 15,4% |
-
-**Sapucaia do Sul tem o entorno mais pobre da rede e o menor gasto em assistência social por
-habitante — sete vezes abaixo de Guaíba.** É onde um programa privado tem o maior valor
-marginal, porque há menos estrutura pública para complementar. É também onde há menos
-contraparte institucional para se apoiar — os dois lados da mesma moeda.
-
----
-
-## Clusters e as comunidades nomeadas
-
-União de setores, sem dupla contagem. Os raios das lojas se sobrepõem muito: 22 pares de
-unidades estão a menos de 4 km entre si, e a soma dos 20 entornos de 2 km dá 1,4 milhão de
-pessoas — 59% da população regional, com repetição.
-
-### 1. Eixo Trensurb Norte — Esteio, Sapucaia do Sul, Canoas
-5 unidades · **520.040 moradores** em 5 km · R$ 3.355 · 93.924 crianças de 0–14
-Pior escolaridade adulta do conjunto (39,6% sem fundamental, 9,2% com superior).
-2,12 escolas públicas por mil crianças. 16 comunidades, 11.340 moradores.
-Conectado por trilho — o único cluster com transporte de alta capacidade.
-
-### 2. Arco Norte de Porto Alegre — Center Lar, Barrasul, Bourbon Teresópolis, Loja Adm
-4 unidades · **291.524 moradores** em 2 km, 938.663 em 5 km
-**42 comunidades e 59.291 moradores em favelas dentro de 2 km — 20,3% do entorno.**
-Em 5 km são 87 comunidades e 129.837 moradores.
-Menor oferta de escola pública por criança de toda a rede: **1,82 por mil**.
-É a maior concentração de população em comunidades a curta distância de uma unidade.
-
-Comunidades dentro de 2 km, por unidade:
-- **SH Barrasul** (12, 11.880 moradores): Vila Gaúcha · Vila Figueira · Vila Cruzeiro do Sul · Vila Arapeí · Ecológica · Vila Cristal · Vila N. Sra. das Graças · Arabutã Pedreira · Vila Mato Grosso · Vila Orfanatrófio II · Vila Caí · Irmã Ermelinda
-- **Loja Adm POA** (12, 18.806): Vila Divinéia/Vila Pinto/Vila Mato Sampaio · Colina do Prado · Vila Sudeste · Ceres · Ocup. Ernesto Pellanda · Beco da Aquiles · Beco Vila da Paz · Vila Santa Helena · Vila Brasília I e II · Vila Juliano Moreira · Vila São Judas Tadeu
-- **SH Bourbon Teresópolis** (11, 16.673): Vila Santa Clara · Colina Verde · Vila Maria da Conceição · Vila Tronco · Vila Orfanatrófio I · Vila Glorinha · Vila Graciliano · Vila Jardim Marabá · Vila Jardim Europa II · Vila Chácara Sperb · Vila Mariano de Matos II
-- **SH Center Lar** (7, 11.932): Vila Minuano · Dique do Sarandi · Vila Nova Brasília · Vila Asa Branca · Vila Ipê/São Borja · Vila Esperança Cordeiro · Vila Amazônia
-
-### 3. Vale / Gravataí — SH do Vale, SH Gravataí
-2 unidades · **335.859 moradores** em 5 km · **R$ 2.920, a menor renda de todos os clusters**
-Maior desocupação (7,4%) e menor escolaridade superior (6,3%) da rede.
-
-### 4. Guaíba
-1 unidade · 70.219 moradores em 5 km · R$ 3.001
-Maior pobreza (18,4%) e pior escolaridade fundamental (42,9%). **17,2% do entorno de 2 km
-mora em comunidades** — 5 comunidades, 3.315 moradores: Chega Mais · Ipê · Vila Esperança ·
-Mato Alto · Vila dos Brigadianos.
-Escala pequena, carência aguda, e o município com o **maior** gasto em assistência por
-habitante (R$ 421) — ou seja, há contraparte pública forte.
-
----
-
-## Frentes de projeto que os dados sustentam
-
-Derivadas do Achado 2, na ordem em que a base as sustenta.
-
-**1. Conclusão da educação básica de adultos.** 39% a 43% dos adultos de 25+ nos clusters
-periféricos não concluíram o fundamental (2010). É o maior desnível medido e o que mais
-trava a entrada em emprego formal. Público: EJA, certificação, ENCCEJA.
-
-**2. Qualificação técnica e profissionalizante — não superior.** Escolaridade superior de
-6,3% a 9,2% nos clusters periféricos. Fechar essa distância via universidade é um horizonte
-de década; qualificação técnica opera em meses. Faltam dados para dizer *em quê* — ver lacuna 9.
-
-**3. Formalização e previdência.** 22,8% a 25,5% sem contribuição previdenciária, 18% a 25%
-por conta própria. Apoio a MEI, regularização e acesso a crédito.
-
-**4. Primeira infância e contraturno.** 93.924 crianças de 0–14 no Trensurb Norte, 140.434 no
-Arco Norte, 60.407 no Vale/Gravataí. A oferta de escola pública por criança é a mais baixa
-justamente onde há mais crianças (1,73 a 2,12 por mil, contra 2,29 no centro-sul de POA).
-**Atenção:** é contagem de estabelecimentos, não de vagas — ver lacuna 5.
-
-**5. Jovens de 15 a 29.** 19% a 21% da população em todos os clusters — cerca de 110 mil no
-Trensurb Norte em 5 km. É a faixa de transição escola-trabalho, e a base não permite
-identificar quem está fora de ambos — ver lacuna 11.
-
----
-
-## Alinhamento comercial
-
-*Seção separada, como combinado — não entra nos critérios da análise acima.*
-
-O Achado 3 é onde as duas lógicas convergem. As unidades com queda acentuada de renda entre
-1 km e 5 km têm, no anel de 2–5 km, uma população grande, próxima e de baixa renda que ainda
-não é base de consumo:
-
-| unidade | pop. no anel 2–5 km | renda no anel | sem fundamental |
+| indicador (Censo 2022) | setores do Q1 | setores do Q5 | região |
 |---|---:|---:|---:|
-| SH Iguatemi POA | 418 mil | R$ 6.847 | 21,5% |
-| SH Park Canoas | 233 mil | R$ 3.275 | 37,7% |
-| CC Canoas | 220 mil | R$ 3.481 | 37,0% |
-| SH Canoas | 205 mil | R$ 3.572 | 37,0% |
-| SH do Vale | 185 mil | R$ 2.769 | 40,4% |
-| LJ Esteio | 150 mil | R$ 2.900 | 41,9% |
+| esgoto inadequado | 10,4% | 0,4% | 3,0% |
+| sem abastecimento pela rede geral | 6,3% | 0,6% | 4,5% |
+| analfabetismo, 15 anos ou mais | 4,1% | 0,5% | 1,9% |
+| moradores por domicílio | 2,83 | 2,22 | 2,48 |
 
-**O Eixo Trensurb Norte é onde as duas lógicas mais se sobrepõem:** 520 mil pessoas, cinco
-unidades já instaladas, pior escolaridade da rede, e transporte de trilho que torna o
-deslocamento até as lojas viável. Renda e consumo crescendo ali chegam à loja por um caminho
-que já existe.
+104.221 pessoas vivem em setores do Q1 com menos de 80% de esgoto adequado; nos 10% piores setores
+do Q1 o esgoto adequado não passa de 45%. Nos setores de favela, o esgoto inadequado é 12,1%.
 
-**Onde elas divergem, e vale dizer com clareza:** Guaíba tem a maior carência relativa e o
-menor retorno comercial — 70 mil pessoas, uma unidade. Sapucaia do Sul tem o entorno mais
-pobre e a menor capacidade pública de contraparte. Um programa escolhido só por retorno de
-consumo não iria a nenhum dos dois; um escolhido só por impacto iria aos dois primeiro. A
-decisão é de peso entre os dois critérios, e é melhor que seja explícita.
+### Capital humano
 
----
+A distância está na escolaridade de adultos: nos bolsões de Canoas, Sapucaia e Esteio, de 36% a 59%
+dos adultos de 25 anos ou mais não concluíram o fundamental (2010); na região, 34,3%.
 
-## Lacunas de dados
+### Os sete municípios
 
-### Bloqueadores — sem isto não se dimensiona nem se avalia um programa
+| município | população | renda média | no Q1 | em favela | sem fund. 25+ (2010) | assistência R$/hab | trabalho R$/hab |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Porto Alegre | 1.332.845 | R$ 5.317 | 22% | 13,2% | 26,5% | 284 | 2 |
+| Canoas | 347.657 | R$ 3.560 | 18% | 2,3% | 38,3% | 134 | 107 |
+| Gravataí | 265.074 | R$ 2.740 | 14% | 4,2% | 42,8% | 117 | 0 |
+| Sapucaia do Sul | 132.107 | R$ 2.648 | 18% | 1,2% | 45,7% | **57** | 1 |
+| Cachoeirinha | 136.258 | R$ 3.008 | 16% | 6,9% | 37,5% | 120 | 2 |
+| Guaíba | 92.924 | R$ 2.728 | 25% | 14,9% | 44,3% | 421 | 0 |
+| Esteio | 76.137 | R$ 3.139 | 16% | 3,5% | 38,3% | 252 | 14 |
 
-**1. Todo o bloco de trabalho e renda é de 2010 — 16 anos de defasagem.**
-Desocupação, informalidade, emprego formal, conta própria, previdência, renda domiciliar
-per capita, pobreza, Gini e escolaridade de 25+. Entre 2010 e hoje passaram duas recessões,
-a pandemia e a enchente de 2024. **Ordenam territórios; não medem nada hoje.**
-→ RAIS e Novo CAGED (município, CNAE, ocupação, faixa salarial, admissões e desligamentos
-mensais); PNAD Contínua (recorte metropolitano); amostra do Censo 2022 quando o IBGE liberar.
+Sem fundamental: valor municipal oficial de 2010. Assistência e trabalho: despesa empenhada em 2024
+(SICONFI) sobre a população estimada de 2026; gasto classificado em outras funções não aparece.
 
-**2. Não há CadÚnico.** É *a* base operacional de focalização: famílias cadastradas, renda
-declarada, composição familiar, por CRAS e por bairro. Sem ela não há lista de beneficiários,
-linha de base nem medição de resultado.
-→ CECAD/VIS Data (municipal, público); desagregação por setor mediante acordo com o município.
+**Sapucaia do Sul tem o entorno de loja mais pobre da rede e o menor gasto em assistência social
+por habitante** — sete vezes menos que Guaíba. Na função trabalho, só Canoas gasta de forma
+relevante. Onde a rede pública é mais fina, um programa privado pesa mais — e encontra menos
+contraparte.
 
-**3. Não há Bolsa Família nem BPC.** Beneficiários e valores por município e bairro.
-→ VIS Data/MDS.
+## 6. Frentes de projeto
 
-**4. Não há a rede socioassistencial.** CRAS, CREAS, centros de convivência, equipes e
-serviços. Sem isso não se sabe quais comunidades têm cobertura nem com quem fazer parceria.
-→ Censo SUAS/MDS.
+| frente | onde | o número que a sustenta |
+|---|---|---|
+| Educação de adultos | bolsões de Canoas, Sapucaia e Esteio | 36% a 59% dos adultos sem fundamental (2010) |
+| Trabalho e renda | Guajuviras, Canoas | 10,6% de desocupação em 2010, a maior dos 123 bolsões |
+| Primeira infância | todos os bolsões | 23% dos moradores têm até 14 anos; falta o dado de creche |
+| Saneamento nas favelas | bolsões de Porto Alegre | 104 mil pessoas em setores do Q1 com menos de 80% de esgoto adequado |
+| Juventude de 15 a 29 anos | todos os bolsões | 25% dos moradores; falta saber quantos estão fora da escola e do trabalho |
 
-**5. Escolas são pontos, sem matrícula nem etapa.** "Escolas por mil crianças" conta prédios,
-não vagas — uma escola grande e uma pequena pesam igual. Também não há separação de creche,
-pré-escola, fundamental, médio e EJA. **Creche é o determinante mais direto da participação
-das mulheres no mercado de trabalho**, e é justamente o que falta ver.
-→ Microdados do Censo Escolar/INEP, que o Atlas já usa para os pontos: basta trazer matrículas
-por etapa e a lista de turmas de EJA.
+### Territórios candidatos
 
-**6. Não há resultado educacional.** IDEB, SAEB, abandono, reprovação, distorção idade-série.
-Sem isso não se distingue falta de escola de escola que não funciona.
-→ INEP, por código de escola — junção direta com os pontos que já existem na base.
+Critério: os quatro maiores bolsões.
 
-**7. A renda de 2022 é só a da pessoa responsável.** Não há distribuição de renda domiciliar
-nem faixas de rendimento por setor. A média esconde a dispersão, e é a dispersão que importa.
-→ Tabelas de classes de rendimento do Censo 2022 por setor.
+| território | município | moradores | destaque | loja de venda |
+|---|---|---:|---|---|
+| Mário Quintana e Rubem Berta | Porto Alegre | 38.555 | 8.951 crianças; 45% em favela | SH Center Lar, 3,9 km |
+| Vila São José e Partenon | Porto Alegre | 34.346 | 8.223 crianças; 76% em favela | SH Bourbon Ipiranga, 3,0 km |
+| Guajuviras | Canoas | 21.514 | 52% sem fundamental; 10,6% de desocupação (2010) | SH Park Canoas, 4,1 km |
+| Santa Tereza e Cristal | Porto Alegre | 20.987 | 82% em favela | SH Barrasul, 2,0 km |
 
-### Importantes — mudam o desenho dos projetos
+Sapucaia do Sul (11.983 moradores, 57% sem fundamental, a 2,0 km da loja) sobe se o peso for a baixa
+capacidade pública local. A escolha final depende de três dados que faltam: famílias no CadÚnico
+por bolsão, localização dos CRAS e vagas de creche e EJA.
 
-**8. Não há onde estão os empregos.** Estabelecimentos por CNAE e porte, por bairro. Sem isso,
-qualificação profissional é chute: não se sabe qual setor contrata ali.
-→ CEMPRE/IBGE e RAIS por município e CNAE.
+## 7. Lacunas de dados e melhorias possíveis
 
-**9. Não há acessibilidade real.** Linhas de ônibus, estações da Trensurb, tempo de
-deslocamento. O raio de 2 km é euclidiano e ignora o Guaíba, a BR-116 e a ferrovia como
-barreiras. Uma comunidade a 1,5 km em linha reta pode estar a 40 minutos.
-→ GTFS da EPTC e das prefeituras; estações da Trensurb; isócronas em vez de círculos.
+### Bloqueadores — sem eles não se dimensiona nem se avalia um projeto
 
-**10. Não há acesso digital.** Domicílios com internet e com computador, por setor —
-está no Censo 2022 e não foi trazido. Determina se um programa pode ter componente digital.
-→ Agregados do Censo 2022 por setor.
+1. **Trabalho e renda só existem para 2010.** → RAIS e Novo CAGED (município, atividade, ocupação,
+   salário, admissões e desligamentos); PNAD Contínua (recorte metropolitano); amostra do Censo 2022
+   quando liberada.
+2. **Sem CadÚnico, Bolsa Família e BPC.** É a base de focalização: famílias, renda declarada,
+   composição, por CRAS. → CECAD e VIS Data (MDS); desagregação por setor mediante acordo municipal.
+3. **Sem a rede de assistência.** CRAS, CREAS, serviços e equipes. → Censo SUAS.
+4. **Escolas sem matrícula, sem etapa e sem creche.** "Escolas por criança" conta prédios, não vagas.
+   → Censo Escolar; o script de extração precisa passar a guardar o código INEP de cada escola.
+5. **Sem resultado educacional.** → IDEB e SAEB por escola, pela mesma chave.
+6. **Renda só como média do responsável.** → faixas de rendimento do Censo 2022 por setor.
 
-**11. Não há jovens fora da escola e fora do trabalho.** Os 15–29 são 19% a 21% da população
-dos clusters, mas não dá para saber quem está estudando, trabalhando, ambos ou nenhum.
-→ PNAD Contínua (metropolitano) e amostra do Censo 2022.
+### Importantes — mudam o desenho do projeto
 
-**12. Nada é desagregado por sexo além da contagem populacional.** Participação, ocupação,
-renda e escolaridade por sexo mudariam completamente o desenho de um programa de renda.
-→ Censo 2010 já traz; RAIS e PNADC também.
-
-**13. Segurança só existe no nível municipal.** Porto Alegre com 173 homicídios e 28.283
-furtos em 2025 não diz nada sobre a Vila Tronco ou o Dique do Sarandi. A SSP/RS e o
-Observatório da PMPA publicam por bairro e por região.
-→ Indicadores criminais por bairro.
-
-**14. Falta a despesa municipal em educação.** O Atlas traz saúde, assistência, segurança,
-trabalho e agricultura, mas não educação (função 12 do SICONFI). É a maior rubrica social
-dos municípios e a que mais importa para as frentes 1 e 4.
-→ Mesma chamada de API que já busca as demais funções — acréscimo trivial.
-
-**15. Não há habitação.** Déficit, regularização fundiária, programas em curso.
-→ DEMHAB/PMPA e secretarias municipais.
-
-**16. Não há saúde de desfecho.** Mortalidade infantil, nascidos vivos de mães adolescentes,
-internações sensíveis à atenção básica, cobertura da Estratégia Saúde da Família. Há a rede
-instalada (CNES), não o resultado.
-→ SIM, SINASC, SIH e e-SUS/SISAB, por município e por bairro.
+7. Onde estão os empregos, por atividade → RAIS e CEMPRE.
+8. Acesso real por ônibus e Trensurb → GTFS e estações; isócronas no lugar do raio.
+9. Internet e computador nos domicílios → agregados do Censo 2022.
+10. Jovens fora da escola e do trabalho → PNAD Contínua.
+11. Recortes por sexo em trabalho, renda e escolaridade.
+12. Violência por bairro → SSP/RS e prefeituras (a base só tem o municipal).
+13. Habitação: déficit e regularização fundiária → prefeituras.
+14. Saúde de desfecho: mortalidade infantil, mães adolescentes, internações evitáveis → SIM, SINASC,
+    SIH, SISAB.
+15. Vínculo SUS dos estabelecimentos de saúde → CNES (o script atual não extrai).
 
 ### Desejáveis
 
-**17.** Série histórica: a base é uma fotografia. Sem 2000–2010–2022 não se sabe se um
-território está melhorando ou piorando — e isso muda onde investir.
-**18.** Impacto da enchente de 2024 por setor: atingiu diretamente vários dos territórios
-deste recorte e não aparece em lugar nenhum da base.
-**19.** Contorno das comunidades: o Atlas tem os setores classificados como FCU, mas não os
-polígonos oficiais das 125 comunidades de POA.
-**20.** Associações, ONGs e lideranças por comunidade — não é dado estatístico, é o que
-viabiliza a execução.
+16. Série histórica 2000–2010–2022, para saber se cada território melhora ou piora.
+17. Efeito da enchente de 2024 por setor.
+18. Polígonos oficiais das comunidades.
+19. Organizações comunitárias e lideranças por bolsão.
 
-### Limitações que dado novo não resolve
+### Já preparado no código
 
-**21.** Setor de borda entra inteiro ou fica de fora do raio.
-**22.** As taxas de 2010 foram copiadas da área de ponderação para o setor de 2022: o método
-é do próprio Atlas e está documentado. Contagens não foram copiadas, só taxas.
-**23.** O IBGE omite células com poucos casos: as contagens de indígenas e quilombolas por
-setor são piso, não total.
-**24.** Os raios se sobrepõem fortemente. Qualquer soma entre unidades conta gente duas vezes —
-por isso os clusters aqui usam união de setores.
+- Despesa municipal em educação, com educação infantil, fundamental e EJA — falta executar o script.
+- IDHM, IVS, IDESE e FIRJAN — faltam as planilhas oficiais.
 
----
+## 8. Limites
 
-## O que não dá para decidir com esta base
+- **Borda do raio.** De 12% a 69% dos moradores de um raio de 2 km vivem em setores cortados pela
+  borda (mediana 28%). Vale o padrão entre raios, não o número de um raio isolado.
+- **Resolução de 2010.** As taxas de 2010 vêm de cerca de 100 áreas de ponderação; um raio de 2 km
+  contém de 3 a 10.
+- **2010 ordena, não mede.** Correlação de postos entre a renda de 2022 e os indicadores de 2010, setor
+  a setor: 0,70 (renda per capita), 0,69 (escolaridade), 0,65 (pobreza).
+- **Distância em linha reta.** O raio e a atribuição de bolsões ignoram o Guaíba, a BR-116 e a
+  ferrovia.
+- **Os indicadores de 2010 são anteriores à pandemia e à enchente de 2024.**
 
-Dá para dizer **onde** atuar: a ordenação dos territórios é robusta, porque combina renda de
-2022 (atual), composição racial e etária de 2022 e localização de comunidades de 2022.
-
-Não dá para dizer **quanto** nem **em quê**, com a base atual:
-
-- quantas famílias em cada comunidade, e em que faixa de renda — falta CadÚnico;
-- quantas vagas de creche faltam — falta matrícula por etapa;
-- quais ocupações contratam no território — falta RAIS/CEMPRE;
-- quantos jovens estão fora da escola e do trabalho — falta PNADC/amostra 2022;
-- se a situação melhorou ou piorou desde 2010 — falta série histórica.
-
-**As lacunas 1, 2 e 5 são as que mais rendem por esforço:** RAIS/CAGED e CadÚnico são
-públicas e de obtenção direta, e as matrículas do Censo Escolar vêm do mesmo arquivo que o
-Atlas já processa para os pontos das escolas.
+Bases tabuladas: `entorno-lojas.csv` (20 unidades × 4 raios × 34 colunas) e
+`bolsoes-quintil-inferior.csv` (123 bolsões, com coordenadas).
