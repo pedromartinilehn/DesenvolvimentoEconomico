@@ -14,9 +14,12 @@ Porto Alegre para sete municípios, mas partes do código ainda tratam "todos os
 se fossem Porto Alegre. O resultado são números da região inteira exibidos com rótulo de POA,
 um percentual de 178,6% e um "NaN" no painel de abertura.
 
+> **Atualização:** os seis itens pontuais da seção 7 foram corrigidos — ver lá. Restam a
+> classificação por quantis (2.7), os resquícios de "Atlas de POA" (2.8) e os itens estruturais.
+
 | | achados |
 |---|---:|
-| erros visíveis na interface | 8 |
+| erros visíveis na interface | 8 (6 corrigidos) |
 | problemas de dados e cadastro | 4 |
 | limitações de modelo a declarar | 4 |
 | lacunas no pipeline de extração | 6 |
@@ -202,15 +205,27 @@ Não há teste automatizado no repositório. A sonda de 16,6 KB usada para valid
 
 ## 7. Correções recomendadas, por ordem
 
-1. Parar de sobrescrever `MUN` no boot, ou recalcular filtrando `muni === 'Porto Alegre'` — resolve 2.1.
-2. Trocar `MUN.pop` por `MUN.pop_2022` — resolve 2.2.
-3. Denominador da cobertura: a população do conjunto exibido, não a de POA — resolve 2.3 e 2.4.
-4. Comparação do entorno contra o município da loja **e** contra a RMPA, com rótulos corretos — resolve 2.5.
-5. Gravar o município das unidades Renner no `dados-pontos.js` — resolve 3.1 e sustenta o item 4.
-6. "Equipamentos no raio", sem "públicos", até haver o vínculo SUS — resolve 2.6.
+1. ✅ **Corrigido.** Os agregados de `MUN` no boot e o retrato do painel de abertura passam a somar
+   só os 94 bairros de Porto Alegre — resolve 2.1. O painel mostra agora R$ 5.317,39 de renda,
+   175.519 moradores em favela (13,2%) e 2.004 indígenas, os valores de POA.
+2. ✅ **Corrigido.** `MUN.pop` → `MUN.pop_2022` — resolve 2.2. O texto passa a dizer "2.791
+   moradores… ficam em 1.330.054, e não em 1.332.845".
+3. ✅ **Corrigido.** O selo de cobertura usa como denominador a população do conjunto desenhado,
+   já com o filtro de município; a participação no município (`pop_pct_mun`) usa a população do
+   município do próprio território — resolve 2.3 e 2.4. As participações somam 100% em cada um
+   dos sete municípios.
+4. ✅ **Corrigido.** O painel de entorno compara com o município da loja **e** com a região, cada
+   comparação na sua linha, ambas somadas sobre os setores — resolve 2.5. LJ Guaíba: "+25% vs.
+   Guaíba · −22% vs. região". Texto de rodapé e ficha de metodologia atualizados.
+5. ✅ **Corrigido.** O bloco `lojas` de `dados-pontos.js` ganhou o campo `m`, por ponto-no-polígono;
+   a Loja Adm Porto Alegre, fora da malha, recebe o município do setor mais próximo — resolve 3.1.
+6. ✅ **Corrigido.** "Equipamentos no raio — públicos e privados" — resolve 2.6.
 7. Classe própria para zero, e quantis só entre os valores positivos — resolve 2.7.
 8. Guardar o código INEP no script 3 e a gestão/vínculo SUS no script 2.
 9. Interpolação areal no entorno.
 10. Métrica de mediana ou de quintil ao lado da média de renda.
 
-Os itens 1 a 6 são correções pontuais de código.
+Verificação das correções: sonda de 16,6 KB comparando antes e depois — contagens, somas de
+indicadores, quebras de classe, os 100 resultados de entorno, buscas e painéis. As únicas
+diferenças são os quatro textos de interface corrigidos; nenhum número de dado mudou. Zero erros
+de página, na versão com pasta e no `atlas-rmpa.html`.

@@ -601,6 +601,7 @@ let map,camada,camadaBase=null,camadaFCU=null,ATLAS_DB=null;
 let MUNICIPAL_2010={}, METODO_EST='';
 let PONTOS=null, MUNIS_LISTA=null, camadasPonto={}, focoLoja=null, camadaRaio=null;
 let RAW_SETORES=null, RAW_NUCLEO=null, RAW_EST=null;
+let POP_MUNI={};                       /* população do Censo 2022 por município */
 let camadaPorId=null, destacadas=[];   /* id -> camada, e as camadas realçadas */
 const estaDestacada=l=>destacadas.indexOf(l)>=0;
 function iniciaMapa(){
@@ -757,17 +758,21 @@ function tooltipHTML(p){
 /* ──────────────────────────────────────────── 10. PROVENIÊNCIA + LEGENDA */
 function renderProv(){
   const i=indAtual(), f=FONTES[i.fonte]||{}, n=NIVEIS[S.nivel];
-  const g=S.geo[S.nivel];
+  /* o conjunto desenhado (já com o filtro de município), não a camada inteira */
+  const g=S._g||S.geo[S.nivel];
   let cob='';
   if(g&&i.status!=='pend'&&S.nivel!=='municipio'){
     const tot=g.features.length;
-    let com=0,pc=0;                       /* antes: duas varreduras separadas */
+    let com=0,pc=0,pt=0;                  /* antes: duas varreduras separadas */
     for(let k=0;k<tot;k++){
-      const q=g.features[k].properties;
-      if(valor(q)!=null){com++;pc+=(+q.pop_2022||0);}
+      const q=g.features[k].properties, pq=+q.pop_2022||0;
+      pt+=pq;
+      if(valor(q)!=null){com++;pc+=pq;}
     }
+    /* denominador: a população desse mesmo conjunto. Antes era a de Porto Alegre,
+       o que dava até 178,6% nos níveis que cobrem os sete municípios. */
     let extra='';
-    if(com<tot&&pc>0)extra=` · ${fmtN(100*pc/MUN.pop_2022,'pct1')} da população`;
+    if(com<tot&&pc>0&&pt>0)extra=` · ${fmtN(100*pc/pt,'pct1')} da população`;
     cob=`<span class="selo ${com===tot?'s-ok':'s-pend'}"><i class="dot"></i>${nf.format(com)} de ${nf.format(tot)} ${n.plural} com dado${extra}</span>`;
   }
   const alerta = i.status==='pend'
@@ -972,9 +977,11 @@ function aberturaHTML(){
   ${coberturaHTML()}`;
 }
 
-/* agregados do município calculados a partir dos 94 bairros */
+/* agregados do município calculados a partir dos 94 bairros de Porto Alegre
+   (a camada de bairros também traz os outros seis municípios) */
 function retratoHTML(){
-  const f=S.geo.bairro.features, T=k=>f.reduce((a,x)=>a+(x.properties[k]||0),0);
+  const f=S.geo.bairro.features.filter(x=>x.properties.muni===MUN.nome),
+    T=k=>f.reduce((a,x)=>a+(x.properties[k]||0),0);
   const rc=T('raca_branca')+T('raca_preta')+T('raca_amarela')+T('raca_parda')+T('raca_indigena');
   const dp=T('dppo');
   const linhas=[
@@ -997,8 +1004,8 @@ function retratoHTML(){
       Somas dos 94 bairros, calculadas sobre os agregados por setor censitário do Censo 2022.
       Os blocos de pessoas e domicílios não são publicados para ${MUN.setores_sem_pessoas} setores
       especiais (quartel, unidade prisional, alojamento, convento, hospital), com
-      ${nf.format(MUN.pop-MUN.pop_reportada)} moradores no total — por isso alguns denominadores
-      ficam em ${nf.format(MUN.pop_reportada)}, e não em ${nf.format(MUN.pop)}.</p>`;
+      ${nf.format(MUN.pop_2022-MUN.pop_reportada)} moradores no total — por isso alguns denominadores
+      ficam em ${nf.format(MUN.pop_reportada)}, e não em ${nf.format(MUN.pop_2022)}.</p>`;
 }
 function coberturaHTML(){
   const t=IND.length, ok=IND.filter(i=>i.status==='ok').length,
@@ -1090,7 +1097,7 @@ const BLOCOS=[
 function perfilHTML(id){
   const f=feature(id); if(!f)return aberturaHTML();
   const p=f.properties, isSetor=S.nivel==='setor';
-  const pctMun=p.pop_2022?(100*p.pop_2022/MUN.pop_2022):null;
+  const pctMun=p.pop_pct_mun??null;
 
   let html=`<div class="terr-h">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
@@ -1099,7 +1106,7 @@ function perfilHTML(id){
     <h2>${esc(p.nome)}</h2>
     <div class="sub">
       ${isSetor?`<span class="chip acc">${esc(p.bairro)}</span><span class="chip mono">${esc(p.id)}</span>`
-        :`<span class="chip acc">${fmtN(pctMun,'pct2')} da cidade</span>`}
+        :`<span class="chip acc">${fmtN(pctMun,'pct2')} de ${esc(p.muni||'—')}</span>`}
       ${p.area_km2!=null?`<span class="chip">${fmtN(+p.area_km2,'dec2')} km²</span>`:''}
     </div>
     <div class="btn-row">
@@ -1541,7 +1548,7 @@ const FORMULAS=[
  ['Rendimento médio do responsável — nível bairro','R$/mês','média ponderada dos setores, peso = número de responsáveis em DPPO. O peso correto seria o número de responsáveis COM rendimento, que o IBGE não publica em separado. É aproximação, identificada como cálculo do Atlas.','Censo 2022','ok'],
  ['Óbitos por mil habitantes','por mil','óbitos declarados ÷ população × 1.000. Acumulado de 43 meses (jan/2019 a jul/2022), NÃO é taxa anual.','Censo 2022','ok'],
  ['Entorno da loja','—','soma dos setores cujo ponto representativo cai dentro do raio. Setor cortado pela borda entra inteiro ou fica de fora. Taxas são recalculadas sobre os totais somados, nunca é média de taxas.','Censo 2022','ok'],
- ['Comparação "vs. POA" no painel de entorno','%','(valor do entorno − valor de Porto Alegre) ÷ valor de Porto Alegre × 100','Censo 2022','ok'],
+ ['Comparações no painel de entorno','%','(valor do entorno − valor de referência) ÷ valor de referência × 100. Duas referências: o município da loja e a região (sete municípios), ambas somadas sobre os setores censitários.','Censo 2022','ok'],
  ['Indicadores de trabalho, renda, pobreza e desigualdade','vários','taxa da área de ponderação do Censo 2010 atribuída ao setor de 2022 cujo ponto representativo cai dentro dela. No nível de bairro, média ponderada pela população dos setores.','Censo 2010, amostra','est'],
  ['Índice de Gini','índice','Gini ponderado do rendimento domiciliar per capita, calculado sobre os registros da amostra de cada área de ponderação.','Censo 2010, amostra','est'],
  ['Linhas de pobreza','%','½ e ¼ do salário mínimo de julho/2010 (R$ 510,00) de rendimento domiciliar per capita.','Censo 2010, amostra','est'],
@@ -2140,37 +2147,49 @@ function abreEntorno(i,raio){
   };
   if(window.innerWidth<=960)$('#panel').classList.add('open');
 }
-/* O agregado de Porto Alegre não muda: calculado uma vez, não a cada abertura. */
-let REFS_CIDADE=null;
-function refsCidade(){
-  if(REFS_CIDADE)return REFS_CIDADE;
-  const CIDADE=S.geo.bairro.features.reduce((a,f)=>{
+/* Termos de comparação do painel de entorno, somados sobre os setores:
+   o município da loja e a região (os sete municípios). Constantes: calculados
+   uma vez por chave. Antes havia um só termo, rotulado "POA" mas somado sobre
+   os bairros dos sete municípios. */
+const REFS={};
+function refs(muni){
+  const chave=muni||'__regiao';
+  if(REFS[chave])return REFS[chave];
+  const fs=garanteSetores().features.filter(f=>!muni||f.properties.muni===muni);
+  const a=fs.reduce((a,f)=>{
     const q=f.properties;
     a.pop+=q.pop||0; a.pp+=q.raca_preta_parda||0; a.rc+=q._raca_total||0;
     a.id+=q.idosos_60||0; a.cr+=q.criancas_0_14||0;
     a.dppo+=q.dppo||0; a.esg+=q.esg_adequado||0; a.fcu+=q.fcu_pop||0;
-    a.rn+=(q.resp_renda||0)*(q.resp_n||0); a.rd+=q.resp_n||0;
+    if(q.resp_renda!=null&&q.resp_n){a.rn+=q.resp_renda*q.resp_n; a.rd+=q.resp_n;}
     a.a15+=q.alfab_15||0; a.p15+=q.pop_15||0;
     return a;},{pop:0,pp:0,rc:0,id:0,cr:0,dppo:0,esg:0,fcu:0,rn:0,rd:0,a15:0,p15:0});
-  REFS_CIDADE={
-    pct_preta_parda:100*CIDADE.pp/CIDADE.rc, pct_idosos_60:100*CIDADE.id/CIDADE.pop,
-    pct_criancas_0_14:100*CIDADE.cr/CIDADE.pop, pct_esgoto_adequado:100*CIDADE.esg/CIDADE.dppo,
-    pct_fcu:100*CIDADE.fcu/CIDADE.pop, resp_renda:CIDADE.rn/CIDADE.rd,
-    taxa_alfabetizacao:100*CIDADE.a15/CIDADE.p15
+  if(!a.pop)return null;
+  return REFS[chave]={
+    pct_preta_parda:100*a.pp/a.rc, pct_idosos_60:100*a.id/a.pop,
+    pct_criancas_0_14:100*a.cr/a.pop, pct_esgoto_adequado:100*a.esg/a.dppo,
+    pct_fcu:100*a.fcu/a.pop, resp_renda:a.rn/a.rd,
+    taxa_alfabetizacao:100*a.a15/a.p15
   };
-  return REFS_CIDADE;
 }
 function entornoHTML(i){
   const L0=PONTOS.lojas[i], R=entorno(L0.x,L0.y,S.raio), p=R.soma;
-  const refs=refsCidade();
+  const refMun=L0.muni?refs(L0.muni):null, refReg=refs(null);
   const linha=(rot,id,fmt,inverso)=>{
-    const v=p[id], r=refs[id];
+    const v=p[id];
     if(v==null)return '';
+    const rm=refMun&&refMun[id], rr=refReg&&refReg[id];
+    /* diferença arredondada; zero sai "0%", nunca "-0%" */
+    const pct=r=>{const d=Math.round(100*(v-r)/r); return (d>0?'+':'')+nf.format(d||0)+'%';};
     let dif='';
-    if(r){
-      const d=100*(v-r)/r, bom=inverso?d<0:d>0;
-      dif=`<span class="u" style="color:${Math.abs(d)<5?'var(--txt3)':(bom?'var(--ok)':'var(--pend)')}">
-        ${d>0?'+':''}${fmtN(d,'dec0')}% vs. POA</span>`;
+    if(rm){
+      /* a cor segue a comparação com o município da loja, a leitura principal;
+         cada comparação numa linha, para não espremer a coluna do rótulo */
+      const d=100*(v-rm)/rm, bom=inverso?d<0:d>0;
+      dif=`<span class="u" style="color:${Math.abs(d)<5?'var(--txt3)':(bom?'var(--ok)':'var(--pend)')}">${pct(rm)} vs. ${esc(L0.muni)}</span>`+
+        (rr?`<span class="u">${pct(rr)} vs. região</span>`:'');
+    }else if(rr){
+      dif=`<span class="u">${pct(rr)} vs. região</span>`;
     }
     return `<div class="row"><div class="k">${esc(rot)}</div>
       <div class="v"><span class="num">${fmtN(v,fmt)}</span>${dif}</div></div>`;
@@ -2210,7 +2229,7 @@ function entornoHTML(i){
   <div class="row"><div class="k">Domicílios sem banheiro</div>
     <div class="v"><span class="num">${fmtN(p.ban_nenhum,'int')}</span></div></div>
 
-  <h3 class="sec">Equipamentos públicos no raio</h3>
+  <h3 class="sec">Equipamentos no raio <span class="chip tag">públicos e privados</span></h3>
   <div class="row"><div class="k">Escolas
     <span class="selo s-ok"><i class="dot"></i>Censo Escolar/INEP · 2025</span></div>
     <div class="v"><span class="num">${R.escolas.length}</span></div></div>
@@ -2237,8 +2256,8 @@ function entornoHTML(i){
   <p style="font-size:11px;color:var(--txt3);line-height:1.6">
     Soma de <b>${p._n} setores censitários</b> cujo ponto representativo cai dentro do raio,
     em ${esc(R.soma._munis.join(', '))}. É uma aproximação por setor inteiro: setores cortados
-    pela borda entram por completo ou ficam de fora. As comparações são contra o total de
-    Porto Alegre.</p>
+    pela borda entram por completo ou ficam de fora. As comparações são contra o município
+    da loja e contra a região — os sete municípios —, ambos somados sobre os setores.</p>
   `:`<div class="note warn">Nenhum setor censitário dentro do raio.
     Esta loja está fora dos 7 municípios com base censitária carregada
     (${MUNIS_LISTA?esc(MUNIS_LISTA.nomes.join(', ')):''}).</div>`}`;
@@ -2359,7 +2378,9 @@ const raz=(a,b)=>(a==null||b==null||!b)?null:Math.round(1000*a/b)/10;
 const raz2=(a,b)=>(a==null||b==null||!b)?null:Math.round(100*a/b)/100;
 function derivados(p){
   p.pop_2022=p.pop; p.dens_hab_km2=p.dens_hab; p.dens_dom_km2=p.dens_dom;
-  p.pop_pct_mun = p.pop==null?null:Math.round(1e5*p.pop/MUN.pop_2022)/1000;
+  /* sobre o município do próprio território — antes era sempre Porto Alegre */
+  const popMun=POP_MUNI[p.muni]||(p.muni===MUN.nome?MUN.pop_2022:null);
+  p.pop_pct_mun = (p.pop==null||!popMun)?null:Math.round(1e5*p.pop/popMun)/1000;
   const sx=(p.pop_h??0)+(p.pop_m??0);
   if(p.pop_h!=null&&p.pop_m!=null){
     p.pct_homens=raz(p.pop_h,sx); p.pct_mulheres=raz(p.pop_m,sx);
@@ -2439,6 +2460,14 @@ function montaGeo(){
   ATLAS_DB={nucleo:N,bairros:B,setores:T,pontos:window.ATLAS_PONTOS||null};
   const P=N.prec, C=N.campos, E=N.escalas;
   MUNIS_LISTA=N.munis;
+
+  /* população de cada município, antes dos bairros: derivados() precisa dela */
+  POP_MUNI={};
+  const MM=window.ATLAS_MUNICIPIOS, ip=C.indexOf('pop');
+  if(MM&&ip>=0){
+    const pops=decCol(MM.valores.pop,E[ip],MM.nomes.length);
+    MM.nomes.forEach((n,i)=>{if(pops[i])POP_MUNI[n]=pops[i];});
+  }
 
   /* --- bairros de Porto Alegre --- */
   const XE=window.ATLAS_EST||{campos:[],escalas:[],setores:{},bairros:{}};
@@ -2688,7 +2717,9 @@ function ligaEventos(){
   try{ montaGeo(); }
   catch(err){ telaDeErro(err); return; }
   (function(){                    /* agregados do município derivados da própria base */
-    const f=S.geo.bairro.features;
+    /* A camada de bairros cobre os sete municípios; MUN descreve só Porto Alegre.
+       Somar todos os bairros aqui gravava totais da região com rótulo de POA. */
+    const f=S.geo.bairro.features.filter(x=>x.properties.muni===MUN.nome);
     let num=0,den=0,fcu=0,fcuN=new Set(),pop=0,rep=0,semP=0;
     f.forEach(x=>{const p=x.properties;
       pop+=p.pop||0; fcu+=p.fcu_pop||0; (p._fcu||[]).forEach(n=>fcuN.add(n));
