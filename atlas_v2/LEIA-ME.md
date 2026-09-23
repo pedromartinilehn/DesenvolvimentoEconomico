@@ -20,6 +20,34 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Setores censitários são decodificados somente quando necessários, reduzindo o custo da abertura.
 - O visual foi redesenhado em tema claro, com hierarquia editorial e melhor contraste.
 
+### Interface (revisão de setembro de 2026)
+
+- Nenhuma tela mostra "aguardando integração". Um indicador aparece na lista só se tem valor no
+  mapa. O cartão de PIB do painel de abertura agora mostra o valor do IBGE.
+- Quando o IBGE não publica um dado para um setor ou bairro (sigilo, setor especial ou sem
+  moradores), o perfil mostra o valor do bairro ou do município que o contém. A linha diz de onde
+  veio o número, em cinza: o valor é de referência, não do setor.
+- 89 indicadores de bairro e setor com valor nos sete municípios passam a ter também o nível
+  município: o mapa municipal vai de 52 para 141 indicadores. O perfil municipal lista todas as
+  categorias com valor e não tem bloco vazio.
+- A legenda separa as ausências por motivo: setor especial ou sem moradores, fora da cobertura
+  da fonte, sob sigilo do IBGE.
+- Quando os zeros são pelo menos 20% dos valores, eles ganham classe própria na legenda. Isso
+  resolve o item 2.7 da auditoria. Quebras repetidas não viram mais classes vazias: favela por
+  setor, onde quase todo valor é 0% ou 100%, fica com duas classes.
+- Rampas azul, verde e laranja recalibradas: uma cor cada, clara para escura, com o tom mais
+  claro visível sobre o fundo do mapa. Os pontos têm um anel claro em volta; as lojas ficam em
+  terracota e maiores.
+- Cabeçalho reorganizado, com os níveis em botões segmentados, a busca, os filtros e um menu
+  "Mais" para metodologia, cobertura, fontes e integração. A lista de indicadores tem filtro por
+  texto. Legenda e camadas recolhem; no celular começam recolhidas, lado a lado.
+- A comparação dos sete municípios tem barras na cor da classe do mapa.
+- As malhas de bairro e município perderam as frestas: buracos de menos de 5 ha deixados pela
+  dissolução dos setores. Porto Alegre tinha 1.225 dessas frestas. Buracos maiores ficam.
+  Com isso, 4 escolas e 2 estabelecimentos de saúde que caíam nas frestas passam a contar para
+  o bairro em volta: Centro, Estância Velha e Mathias Velho (Canoas), Gravataí e Cachoeirinha.
+  Nenhum outro número mudou (verificado por sonda antes/depois, incluindo os 100 entornos).
+
 ## Desempenho
 
 Os arquivos de dados são baixados em paralelo, cada camada do mapa tem um renderer só e é

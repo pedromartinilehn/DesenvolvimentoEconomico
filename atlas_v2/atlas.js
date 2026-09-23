@@ -86,12 +86,18 @@ const NIVEIS = {
 };
 
 /* ────────────────────────────────────────────── 3. RAMPAS CROMÁTICAS ─── */
+/* Um matiz por rampa, luminosidade crescente (OKLCH) e a cor mais clara com
+   contraste ≥ 2:1 sobre o fundo do mapa: nenhuma classe some no fundo.
+   Validadas com o validate_palette da skill de visualização (--ordinal). */
 const RAMPAS = {
-  agua:['#EEF6FA','#C9E4EE','#96CEDF','#58AEC8','#2788A9','#086785','#084B63'],
-  terra:['#F4F7E8','#DDE9B8','#BED67B','#91B84A','#648F30','#466B24','#304A1B'],
-  brasa:['#FFF2E9','#FFD8C3','#F7AD87','#E77C55','#C94E35','#9F3327','#71231E']
+  agua:['#73ace7','#5398dd','#3284d0','#1271be','#025ea4','#004d87','#003c6b'],
+  terra:['#7fb880','#62a765','#46954c','#2e8237','#1b6f26','#115b1c','#0c4715'],
+  brasa:['#e09074','#d47756','#c55f3a','#b14a22','#9a380f','#802c06','#652104']
 };
-const RAMPA_NOMES={agua:'Água (sequencial azul)',terra:'Terra (sequencial ocre)',brasa:'Brasa (sequencial quente)'};
+const RAMPA_NOMES={agua:'Azul',terra:'Verde',brasa:'Laranja'};
+/* cores de interface fixas do mapa (as mesmas variáveis do atlas.css) */
+const COR={tinta:'#15212E',terracota:'#C2502A',papel:'#FBFAF7',semdado:'#DAD6CC',contorno:'#B9B4A8',
+  cat:['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4']};
 
 /* ────────────────────────────────────────── 4. CATÁLOGO DE INDICADORES ─ */
 /* status: ok = dado oficial carregado | mun = existe só no nível municipal
@@ -123,7 +129,7 @@ const slugId=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
 /* ---- 4.1 INDICADORES DO CENSO 2022 — CARREGADOS ----------------------- */
 ind({id:'pop',cat:'visao',n:'População residente',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua',obs:'Total de pessoas recenseadas. Soma exatamente 1.332.845 no município.'});
 ind({id:'dens_hab',cat:'visao',n:'Densidade demográfica',u:'hab/km²',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec1',ramp:'brasa',obs:'População dividida pela área do polígono do território.'});
-ind({id:'area_km2',cat:'visao',n:'Área do polígono',u:'km²',fonte:'SMURB',ano:2016,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'terra',obs:'Bairros: malha SMUrb (Lei 12.112/2016), 472,81 km² no total. Setores: área do IBGE, 495,39 km². A área municipal do IBGE é 496,83 km² — a malha de bairros não recobre toda a lâmina d’água. Medidas de produtores distintos, nunca somadas entre si.'});
+ind({id:'area_km2',cat:'visao',n:'Área do polígono',u:'km²',fonte:'SMURB',ano:2016,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'terra',obs:'Porto Alegre — bairros: malha SMUrb (Lei 12.112/2016), 94 bairros, 472,81 km² no total. Setores: área do IBGE, 495,39 km². A área municipal do IBGE é 496,83 km² — a malha de bairros não recobre toda a lâmina d’água. Medidas de produtores distintos, nunca somadas entre si.'});
 ind({id:'pop_pct_mun',cat:'visao',n:'Participação na população do município',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro'],status:'ok',fmt:'pct2',ramp:'agua'});
 ind({id:'pop_h',cat:'demografia',n:'População masculina',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'pop_m',cat:'demografia',n:'População feminina',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
@@ -508,6 +514,12 @@ const S={
 /* ─────────────────────────────────────────────────── 7. UTILITÁRIOS ──── */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const nf=new Intl.NumberFormat('pt-BR');
+const NIVEL_CURTO={municipio:'município',bairro:'bairro',setor:'setor'};
+/* unidade ao lado de um valor já formatado em reais: tira o "R$" repetido */
+const unid=i=>!i.u?'':(/^brl/.test(i.fmt||'')&&/^R\$/.test(i.u))
+  ?i.u.replace(/^R\$\s*/,'').replace(/^\//,'por ')
+  :(/^pct/.test(i.fmt||'')&&i.u==='%')?'':i.u;
+const listaPt=a=>a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' e '+a[a.length-1];
 const fmtN=(v,f)=>{
   if(v==null||v===''||Number.isNaN(v))return '—';
   switch(f){
@@ -519,6 +531,10 @@ const fmtN=(v,f)=>{
     case 'pct1':return v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
     case 'pct2':return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
     case 'brl': return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    case 'brl0':return 'R$ '+nf.format(Math.round(v));
+    case 'brlc':{ /* compacto, para valores da ordem de milhões e bilhões */
+      const a=Math.abs(v), d1=x=>x.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+      return a>=1e9?'R$ '+d1(v/1e9)+' bi':a>=1e6?'R$ '+d1(v/1e6)+' mi':'R$ '+nf.format(Math.round(v));}
     default:    return nf.format(v);
   }
 };
@@ -615,14 +631,14 @@ function iniciaMapa(){
   L.control.zoom({position:'topright'}).addTo(map);
   const Fit=L.Control.extend({options:{position:'topright'},
     onAdd(){const a=L.DomUtil.create('a','leaflet-bar leaflet-control fit-btn');
-      a.href='#'; a.title='Enquadrar Porto Alegre'; a.setAttribute('role','button');
+      a.href='#'; a.title='Enquadrar o mapa'; a.setAttribute('role','button');
       a.innerHTML='⤢';
       L.DomEvent.on(a,'click',e=>{L.DomEvent.stop(e);ajustaMapa(true);});
       return a;}});
   map.addControl(new Fit());
   map.attributionControl.setPrefix('');
   map.attributionControl.addAttribution(
-    'Malhas: SMUrb/PMPA (Lei 12.112/2016) · IBGE 2022 — Dados: IBGE/ObservaPOA');
+    'Malhas: IBGE 2022 · SMUrb/PMPA — Dados: IBGE, INEP, DATASUS, SICONFI, SSP/RS');
 }
 function baseOn(on){
   if(on&&!camadaBase){
@@ -651,7 +667,16 @@ function calculaEscala(g){
   }
   ord.sort((a,b)=>a-b);
   S._vals=vals; S._ord=ord;
-  S._brk=quebrasDe(ord,S.classes,S.metodo);
+  /* Com muitos zeros (favelas por setor: 91%), os quantis colapsam em 0,0,0,0.
+     Zero vira uma classe própria e as quebras são feitas entre os positivos. */
+  const zeros=ord.length?ord.filter(v=>v===0).length:0;
+  if(zeros>=0.2*ord.length&&ord.length-zeros>=S.classes)
+    S._brk=[0].concat(quebrasDe(ord.slice(zeros),S.classes-1,S.metodo));
+  else S._brk=quebrasDe(ord,S.classes,S.metodo);
+  /* quebras repetidas ou iguais ao máximo só criam classes vazias na legenda
+     (favela por setor: quase todo valor é 0% ou 100%) */
+  const mx=ord.length?ord[ord.length-1]:null;
+  S._brk=S._brk.filter((b,k,a)=>(k===0||b!==a[k-1])&&(mx==null||b<mx));
   S._ramp=S.ramp||i.ramp||'agua';
   S._cores=escalaCores(S._ramp,S._brk.length+1);   /* antes: por feição */
   return vals;
@@ -659,10 +684,10 @@ function calculaEscala(g){
 function estiloFeicao(f){
   const setor=S.nivel==='setor';
   const c=corDe(valor(f.properties),S._brk,S._ramp,S._cores);
-  return {fillColor:c||'#CAD5D9', fillOpacity:c?.88:.42,
-    color: setor?'#A6B5BA':'#7F939A',
-    weight: setor?.35:.8, opacity:.9,
-    dashArray: c?null:'2,2'};
+  return {fillColor:c||COR.semdado, fillOpacity:c?.92:.7,
+    color: c?COR.papel:COR.contorno,
+    weight: setor?.4:1, opacity:setor?.75:1,
+    dashArray: c?null:'2,3'};
 }
 function geoDoNivel(){
   const nivel=S.nivel;
@@ -706,7 +731,7 @@ function desenhaMapa(){
     if(!l||!l.setStyle||estaDestacada(l))return;
     /* no nível setor, realçar obrigaria o canvas a redesenhar os 4.722 polígonos
        a cada passagem do mouse; ali o tooltip já dá o retorno visual */
-    if(S.nivel!=='setor'){l.setStyle({weight:2.2,color:'#0057B8'});l.bringToFront&&l.bringToFront();}
+    if(S.nivel!=='setor'){l.setStyle({weight:2.4,color:COR.tinta,opacity:1});l.bringToFront&&l.bringToFront();}
   });
   camada.on('mouseout',e=>{
     const l=e.propagatedFrom||e.layer;
@@ -740,8 +765,8 @@ function marcaSelecao(){
     const l=camadaPorId.get(id);
     if(l&&l.setStyle){l.setStyle(est);destacadas.push(l);}
   };
-  if(S.sel)destaca(S.sel,{color:'#7FE3F5',weight:2.6,opacity:1});
-  S.cmp.forEach(id=>{if(id!==S.sel)destaca(id,{color:'#D9A036',weight:2,opacity:1});});
+  if(S.sel)destaca(S.sel,{color:COR.tinta,weight:3,opacity:1});
+  S.cmp.forEach(id=>{if(id!==S.sel)destaca(id,{color:COR.terracota,weight:2.6,opacity:1});});
 }
 function tooltipHTML(p){
   const i=indAtual(), v=valor(p);
@@ -750,7 +775,7 @@ function tooltipHTML(p){
     ? [['População (2022)','pop_2022','int'],['Densidade','dens_hab_km2','dec1'],['Área','area_km2','dec2']]
     : [['População (2022)','pop_2022','int'],['Domicílios','dom_total','int'],['Moradores/dom.','moradores_dom','dec2']];
   extras.forEach(([n,k,f])=>{ if(k!==S.indId) linhas.push([n, p[k]==null?'sem dado':fmtN(+p[k],f)]); });
-  return `<b>${esc(p.nome)}${p.bairro&&S.nivel==='setor'?` <span style="color:#94A8B7;font-weight:400">· ${esc(p.bairro)}</span>`:''}</b>`+
+  return `<b>${esc(p.nome)}${p.bairro&&S.nivel==='setor'?` <span class="tt-sub">· ${esc(p.bairro)}</span>`:''}</b>`+
     linhas.map(([k,val])=>`<div class="kv"><span>${esc(k)}</span><span class="num">${esc(val)}</span></div>`).join('')+
     `<div class="hint">clique para o perfil completo</div>`;
 }
@@ -772,7 +797,8 @@ function renderProv(){
     /* denominador: a população desse mesmo conjunto. Antes era a de Porto Alegre,
        o que dava até 178,6% nos níveis que cobrem os sete municípios. */
     let extra='';
-    if(com<tot&&pc>0&&pt>0)extra=` · ${fmtN(100*pc/pt,'pct1')} da população`;
+    if(com<tot&&pc>0&&pt>0){const r=100*pc/pt;
+      extra=` · ${r>=99.95?'mais de 99,9%':fmtN(r,'pct1')} da população`;}
     cob=`<span class="selo ${com===tot?'s-ok':'s-pend'}"><i class="dot"></i>${nf.format(com)} de ${nf.format(tot)} ${n.plural} com dado${extra}</span>`;
   }
   const alerta = i.status==='pend'
@@ -784,16 +810,15 @@ function renderProv(){
     : i.status==='imp'
     ? `<span class="warn" style="color:var(--imp)">◆ carregado de arquivo do usuário — o Atlas não valida a origem</span>`
     : i.status==='est'
-    ? `<span class="warn" style="color:var(--est)">◆ REFERÊNCIA HISTÓRICA 2010 — atribuída espacialmente ao território de 2022. Ver Metodologia.</span>`:'';
+    ? `<span class="warn" style="color:var(--est)">◆ Referência histórica do Censo 2010, atribuída ao território de 2022 — ver Metodologia</span>`:'';
   $('#prov').innerHTML=`
-    <span class="ttl">${esc(i.n)}</span>
-    <div class="meta">${selo(i,S.nivel)}<span class="chip">${esc(n.ab)}</span>${cob}</div>
-    ${alerta}
-    <span class="spacer"></span>
-    <div class="ramp-sel">${Object.keys(RAMPAS).map(r=>{
+    <div class="prov-hd"><span class="ttl">${esc(i.n)}</span>
+    <div class="ramp-sel" role="group" aria-label="Cor do mapa">${Object.keys(RAMPAS).map(r=>{
       const cs=escalaCores(r,5);
-      return `<button data-ramp="${r}" title="${esc(RAMPA_NOMES[r])}" aria-pressed="${(S.ramp||i.ramp)===r}"
-        style="background:linear-gradient(90deg,${cs.join(',')})"></button>`;}).join('')}</div>`;
+      return `<button data-ramp="${r}" title="${esc(RAMPA_NOMES[r])}" aria-label="${esc(RAMPA_NOMES[r])}" aria-pressed="${(S.ramp||i.ramp)===r}"
+        style="background:linear-gradient(90deg,${cs.join(',')})"></button>`;}).join('')}</div></div>
+    <div class="meta">${selo(i,S.nivel)}<span class="chip">${esc(n.ab)}</span>${cob}</div>
+    ${alerta}`;
   $$('#prov .ramp-sel button').forEach(b=>b.onclick=()=>{S.ramp=b.dataset.ramp;repintaMapa();});
 }
 function renderLegenda(){
@@ -808,24 +833,32 @@ function renderLegenda(){
     return;
   }
   const brk=S._brk||[], cores=S._cores||escalaCores(S._ramp||i.ramp,brk.length+1);
-  const g=S.geo[S.nivel]||{features:[]};
-  /* sem filtro de município a camada desenhada é esta mesma, e calculaEscala
-     já ordenou os valores — antes a legenda ordenava tudo de novo */
-  const vals=(S.muniFiltro==null&&S._ord&&S._g===g)?S._ord
+  /* o conjunto desenhado (com o filtro de município); calculaEscala já ordenou */
+  const g=S._g||S.geo[S.nivel]||{features:[]};
+  const vals=(S._ord&&S._g===g)?S._ord
     :g.features.map(f=>valor(f.properties)).filter(v=>v!=null).sort((a,b)=>a-b);
-  const semDado=g.features.length-vals.length;
   const rot=[];
   for(let k=0;k<cores.length;k++){
     const lo=k===0?vals[0]:brk[k-1], hi=k===cores.length-1?vals[vals.length-1]:brk[k];
-    rot.push(`<div class="lrow"><i class="lsw" style="background:${cores[k]}"></i>
-      <span>${fmtN(lo,i.fmt)} – ${fmtN(hi,i.fmt)}</span></div>`);
+    /* reais em faixas: sem centavos, que só poluem a leitura */
+    const fl=i.fmt==='brl'?'brl0':i.fmt, zero=brk[0]===0;
+    const faixa=(lo===hi||(k===0&&zero))?fmtN(k===0&&zero?0:lo,fl)
+      :k===1&&zero&&lo===0?`acima de 0 até ${fmtN(hi,fl)}`:`${fmtN(lo,fl)} – ${fmtN(hi,fl)}`;
+    rot.push(`<div class="lrow"><i class="lsw" style="background:${cores[k]}"></i><span>${faixa}</span></div>`);
   }
-  el.innerHTML=`<h4>${esc(i.n)}</h4><div class="un">${esc(i.u||'')} · ${NIVEIS[S.nivel].ab} · ${i.ano}</div>
+  /* por que falta valor: sem moradores, fonte que não cobre o município, ou sigilo */
+  const nulos=g.features.filter(f=>valor(f.properties)==null);
+  const nSemMor=nulos.filter(f=>!f.properties.pop).length;
+  const nForaFonte=nulos.filter(f=>f.properties.pop&&!cobre(S.nivel,f.properties.muni,i.id)).length;
+  const nSigilo=nulos.length-nSemMor-nForaFonte;
+  const motivos=[[nSemMor,'setor especial ou sem moradores'],[nForaFonte,'fora da cobertura da fonte'],
+    [nSigilo,'sob sigilo estatístico do IBGE']].filter(x=>x[0]>0);
+  el.classList.toggle('min',!!S.legMin);
+  el.innerHTML=`<button class="lg-hd" id="lgToggle" aria-expanded="${!S.legMin}"><h4>${esc(i.n)}</h4><span class="lg-chev" aria-hidden="true"></span></button>
+    <div class="lg-body"><div class="un">${esc(i.u||'')} · ${esc(NIVEIS[S.nivel].n.toLowerCase())} · ${i.ano}</div>
     ${rot.reverse().join('')}
-    ${semDado?`<div class="lrow"><i class="lsw" style="background:#26333F;border-style:dashed"></i>
-      <span>sem dado (${nf.format(semDado)})</span></div>
-      <div style="font-size:10px;color:var(--txt3);line-height:1.5;margin-top:5px">
-        Vazios concentrados na periferia — ver <b>Fontes</b>.</div>`:''}
+    ${motivos.map(([n,t])=>`<div class="lrow nd"><i class="lsw nodata"></i>
+      <span>${esc(t)} · ${nf.format(n)}</span></div>`).join('')}
     <div class="foot"><span class="eyebrow">Classificação</span>
       <div class="class-sel">
         <button data-m="quantil" aria-pressed="${S.metodo==='quantil'}">quantis</button>
@@ -833,7 +866,9 @@ function renderLegenda(){
       </div>
       <div class="class-sel" style="margin-top:4px">
         ${[4,5,6,7].map(k=>`<button data-k="${k}" aria-pressed="${S.classes===k}">${k}</button>`).join('')}
-      </div></div>`;
+      </div></div></div>`;
+  $('#lgToggle').onclick=()=>{S.legMin=!S.legMin;el.classList.toggle('min',S.legMin);
+    $('#lgToggle').setAttribute('aria-expanded',String(!S.legMin));};
   $$('#legend [data-m]').forEach(b=>b.onclick=()=>{S.metodo=b.dataset.m;repintaMapa();});
   $$('#legend [data-k]').forEach(b=>b.onclick=()=>{S.classes=+b.dataset.k;repintaMapa();});
 }
@@ -841,23 +876,28 @@ function renderLegenda(){
 /* ───────────────────────────────────────────────── 11. SIDEBAR / CATS ── */
 function renderCats(){
   $('#cats').innerHTML=CATS.map(c=>{
-    const inds=IND.filter(i=>i.cat===c.id);
-    const ok=inds.filter(i=>i.status!=='pend').length;
+    /* status "mun" (valor só de Porto Alegre) e "pend" não têm mapa: ficam fora da lista */
+    const inds=IND.filter(i=>i.cat===c.id&&i.status!=='mun'&&i.status!=='pend');
+    if(!inds.length)return '';
+    const ok=inds.length;
     return `<div class="cat${c.id===S.cat?' open':''}" data-cat="${c.id}">
-      <button><span>${esc(c.n)}</span>
-        <span class="cnt">${ok}/${inds.length}</span><span class="chev">▶</span></button>
+      <button aria-expanded="${c.id===S.cat}"><span class="cn">${esc(c.n)}</span>
+        <span class="cnt">${ok}</span><span class="chev" aria-hidden="true"></span></button>
       <div class="inds">${inds.map(i=>{
-        const dis=i.status==='pend'||i.status==='mun';
-        return `<button class="ind${i.id===S.indId?' on':''}${dis?' dis':''}" data-ind="${i.id}">
-          <span class="nm">${esc(i.n)}</span>${selo(i)}
-          <span class="lvl">${i.niveis.map(n=>NIVEIS[n].ab[0]).join('')}</span></button>`;
+        const f=(FONTES[i.fonte]||{}).s||i.fonte;
+        return `<button class="ind${i.id===S.indId?' on':''} st-${i.status}" data-ind="${i.id}"
+          data-busca="${esc(norm(i.n+' '+c.n))}">
+          <span class="nm">${esc(i.n)}</span>
+          <span class="meta"><i class="dot"></i>${esc(f)} · ${i.ano||''}${i.status==='est'?' · histórico':''}${i.status==='ext'?' · não oficial':''}
+            <span class="lvl">${listaPt(['municipio','bairro','setor'].filter(n=>i.niveis.includes(n)).map(n=>NIVEL_CURTO[n]))}</span></span></button>`;
       }).join('')}</div></div>`;
   }).join('');
   $$('.cat>button').forEach(b=>b.onclick=()=>{
     const c=b.parentElement; const wasOpen=c.classList.contains('open');
-    $$('.cat').forEach(x=>x.classList.remove('open'));
-    if(!wasOpen){c.classList.add('open');S.cat=c.dataset.cat;}
+    $$('.cat').forEach(x=>{x.classList.remove('open');x.firstElementChild.setAttribute('aria-expanded','false');});
+    if(!wasOpen){c.classList.add('open');b.setAttribute('aria-expanded','true');S.cat=c.dataset.cat;}
   });
+  const n=$('#nInd'); if(n)n.textContent=nf.format($$('.ind').length);
   $$('.ind').forEach(b=>b.onclick=()=>escolheIndicador(b.dataset.ind));
 }
 function escolheIndicador(id){
@@ -897,28 +937,35 @@ function painelMunicipiosHTML(){
   if(S.sel){
     const f=feature(S.sel);if(!f)return aberturaHTML();
     const p=f.properties;
-    const blocos=[
-      ['Saúde','saude'],['Assistência social','assistencia'],['Segurança','seguranca'],
-      ['Emprego e trabalho','trabalho'],['Finanças públicas','financas'],['Agro','agro']
-    ];
-    return `<div class="terr-h"><button class="btn" id="btnVoltar">← Sete municípios</button>
-      <span class="eyebrow">Perfil municipal</span><h2>${esc(p.nome)}</h2>
-      <div class="sub"><span class="chip acc">${fmtN(p.pop_est_2026,'int')} habitantes · 2026</span></div></div>
-      ${blocos.map(([titulo,cat])=>{
-        const itens=IND.filter(x=>x.cat===cat&&x.niveis.includes('municipio')&&x.status!=='pend'&&p[x.id]!=null);
-        return `<h3 class="sec">${titulo}<span class="chip tag">${itens.length}</span></h3>`+
+    /* todas as categorias com valor para este município; nenhum bloco vazio */
+    const hab=p.pop_est_2026!=null?`${fmtN(p.pop_est_2026,'int')} habitantes · 2026`
+      :p.pop!=null?`${fmtN(p.pop,'int')} habitantes · 2022`:'';
+    return `<div class="terr-h"><div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+      <button class="btn" id="btnVoltar" style="padding:3px 8px;font-size:11px">← Sete municípios</button>
+      <span class="eyebrow">Perfil municipal</span></div><h2>${esc(p.nome)}</h2>
+      ${hab?`<div class="sub"><span class="chip acc">${hab}</span></div>`:''}</div>
+      ${CATS.map(c=>{
+        const itens=IND.filter(x=>x.cat===c.id&&x.niveis.includes('municipio')&&x.status!=='pend'&&p[x.id]!=null);
+        if(!itens.length)return '';
+        return `<h3 class="sec">${esc(c.n)}<span class="chip tag">${itens.length}</span></h3>`+
           itens.map(x=>`<div class="row"><div class="k">${esc(x.n)}${selo(x,'municipio')}</div>
-            <div class="v"><span class="num">${fmtN(+p[x.id],x.fmt)}</span><span class="u">${esc(x.u)}</span></div></div>`).join('');
+            <div class="v"><span class="num">${fmtN(+p[x.id],x.fmt)}</span><span class="u">${esc(unid(x))}</span></div></div>`).join('');
       }).join('')}`;
   }
   const fs=g.features.filter(f=>S.muniFiltro==null||f.properties.muni_id===S.muniFiltro);
   const arr=fs.map(f=>({f,v:valor(f.properties)})).sort((a,b)=>(b.v??-Infinity)-(a.v??-Infinity));
+  const mx=Math.max(0,...arr.map(a=>a.v??0));
   return `<div class="terr-h"><span class="eyebrow">Comparação metropolitana</span>
     <h2>Sete municípios da RMPA</h2><div class="sub"><span class="chip acc">dados com fonte e ano</span></div></div>
     <h3 class="sec">${esc(i.n)}</h3>
-    ${arr.map(({f,v})=>`<button class="row muni-row" data-goto="${esc(f.properties.id)}">
-      <div class="k"><b>${esc(f.properties.nome)}</b></div><div class="v"><span class="num">${fmtN(v,i.fmt)}</span>
-      <span class="u">${esc(i.u)}</span></div></button>`).join('')}
+    ${arr.map(({f,v})=>{
+      /* barra de magnitude na cor da classe do mapa: liga a lista ao mapa */
+      const w=v!=null&&mx>0&&v>0?Math.max(2,100*v/mx):0, cor=corDe(v,S._brk||[],S._ramp||i.ramp,S._cores);
+      return `<button class="row muni-row" data-goto="${esc(f.properties.id)}">
+      <div class="k"><b>${esc(f.properties.nome)}</b>
+        ${v!=null?`<span class="barra" aria-hidden="true"><i style="width:${w.toFixed(1)}%;background:${cor||COR.semdado}"></i></span>`:''}</div>
+      <div class="v"><span class="num">${fmtN(v,i.fmt)}</span>
+      <span class="u">${esc(unid(i))}</span></div></button>`;}).join('')}
     <div class="note" style="margin-top:14px">Clique em um município para ver, em uma única ficha,
       saúde, assistência, segurança, emprego, finanças e agro.</div>`;
 }
@@ -933,21 +980,21 @@ function aberturaHTML(){
   const kpis=[
     ['População','pop_2022',MUN.pop_2022,'int','Censo/IBGE · 2022'],
     ['Área','area_km2',MUN.area_km2,'dec2','SMUrb/IBGE · 2016',' km²'],
-    ['PIB','__pib',null,null,'IBGE · 2023'],
-    ['PIB per capita','m_pib_pc',MUN.m_pib_pc,'brl','IBGE · 2023'],
-    ['Rendimento médio do responsável','m_resp_renda',MUN.m_resp_renda,'brl','Censo/IBGE · 2022'],
+    ['PIB','__pib',(((RAW_NUCLEO||{}).pib||{}).municipios||{})[MUN.nome]
+      ?RAW_NUCLEO.pib.municipios[MUN.nome].pib*1000:null,'brlc',
+      'IBGE · '+((((RAW_NUCLEO||{}).pib)||{}).ano_pib||2023)],
+    ['PIB per capita','m_pib_pc',MUN.m_pib_pc,'brl0','IBGE · 2023'],
+    ['Rendimento médio do responsável','m_resp_renda',MUN.m_resp_renda,'brl0','Censo/IBGE · 2022'],
     ['IDHM','m_idhm',MUN.m_idhm,'dec3','Atlas Brasil · 2010']
   ];
-  const cards=kpis.map(([lb,id,val,f,src,suf])=>{
-    if(val==null)return `<div class="kpi pend"><span class="lb">${esc(lb)}</span>
-      <span class="vl">Aguardando integração</span>
-      <span class="selo s-pend"><i class="dot"></i>${esc(src)}</span></div>`;
+  /* só entra o que tem valor: o painel nunca exibe cartão vazio */
+  const cards=kpis.filter(k=>k[2]!=null).map(([lb,id,val,f,src,suf])=>{
     return `<div class="kpi"><span class="lb">${esc(lb)}</span>
       <span class="vl">${fmtN(val,f)}${suf?`<small>${suf}</small>`:''}</span>
       <span class="selo s-ok"><i class="dot"></i>${esc(src)}</span></div>`;
   }).join('');
 
-  const municipais=IND.filter(i=>i.status==='mun');
+  const municipais=IND.filter(i=>i.status==='mun'&&MUN[i.id]!=null);
   return `
   <div class="terr-h">
     <span class="eyebrow">Atlas socioeconômico interativo</span>
@@ -965,7 +1012,7 @@ function aberturaHTML(){
     Estes indicadores não têm representatividade abaixo do município e por isso
     <b>não são rateados entre bairros</b>.</p>
   ${municipais.map(i=>`<div class="row"><div class="k">${esc(i.n)}${selo(i)}</div>
-     <div class="v"><span class="num">${fmtN(MUN[i.id],i.fmt)}</span><span class="u">${esc(i.u)}</span></div></div>`).join('')}
+     <div class="v"><span class="num">${fmtN(MUN[i.id],i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`).join('')}
 
   <h3 class="sec">Evolução histórica</h3>
   ${serieHTML('idhm')}
@@ -1010,10 +1057,10 @@ function retratoHTML(){
 function coberturaHTML(){
   const t=IND.length, ok=IND.filter(i=>i.status==='ok').length,
     ext=IND.filter(i=>i.status==='ext').length, imp=IND.filter(i=>i.status==='imp').length,
-    mun=IND.filter(i=>i.status==='mun').length, p=t-ok-ext-mun-imp;
-  const seg=[[ok,'var(--ok)','oficial territorial'],[mun,'var(--mun)','só município'],
-    [imp,'var(--imp)','arquivo do usuário'],[ext,'var(--sim)','não oficial'],
-    [p,'rgba(183,106,0,.25)','sem valor carregado']].filter(x=>x[0]>0);
+    mun=IND.filter(i=>i.status==='mun').length, est=IND.filter(i=>i.status==='est').length;
+  const seg=[[ok,'var(--ok)','oficial, Censo 2022 e fontes recentes'],[est,'var(--est)','histórico, Censo 2010'],
+    [mun,'var(--mun)','só Porto Alegre'],[imp,'var(--imp)','arquivo do usuário'],
+    [ext,'var(--sim)','não oficial']].filter(x=>x[0]>0);
   return `<div style="display:flex;height:9px;border-radius:5px;overflow:hidden;margin-bottom:9px">
     ${seg.map(([n,c])=>`<div style="width:${100*n/t}%;background:${c}"></div>`).join('')}</div>
     ${seg.map(([n,c,l])=>`<div class="row" style="padding:4px 0"><div class="k">
@@ -1033,9 +1080,9 @@ function serieHTML(k){
   const py=v=>h-pad.b-(v-y0)/((y1-y0)||1)*(h-pad.t-pad.b);
   const d=s.pts.map((p,i)=>(i?'L':'M')+px(p[0])+' '+py(p[1])).join(' ');
   return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(s.n)}">
-    <line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="#22323F"/>
-    <path d="${d}" fill="none" stroke="#34A0B8" stroke-width="2"/>
-    ${s.pts.map(p=>`<circle cx="${px(p[0])}" cy="${py(p[1])}" r="3.4" fill="#34A0B8"/>
+    <line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="var(--line2)"/>
+    <path d="${d}" fill="none" stroke="${COR.cat[0]}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    ${s.pts.map(p=>`<circle cx="${px(p[0])}" cy="${py(p[1])}" r="4.5" fill="${COR.cat[0]}" stroke="var(--bg2)" stroke-width="2"/>
       <text x="${px(p[0])}" y="${py(p[1])-9}" text-anchor="middle" class="val">${fmtN(p[1],'dec3')}</text>
       <text x="${px(p[0])}" y="${h-6}" text-anchor="middle">${p[0]}</text>`).join('')}
   </svg>
@@ -1054,17 +1101,17 @@ function distribuicaoHTML(){
       <div class="k" style="flex:1">
         <div style="display:flex;justify-content:space-between;gap:9px;margin-bottom:3px">
           <span>${esc(o.n)}</span><span class="num" style="color:var(--txt)">${fmtN(o.v,i.fmt)}</span></div>
-        <div style="height:5px;background:#16222C;border-radius:3px;overflow:hidden">
+        <div class="trilho">
           <div style="height:100%;width:${Math.max(1,100*o.v/mx)}%;background:${corDe(o.v,S._brk||[],S._ramp||i.ramp)}"></div>
         </div></div></div>`;
   const soma=arr.reduce((a,o)=>a+o.v,0), med=arr[Math.floor(arr.length/2)].v;
   return `<h3 class="sec">Distribuição — ${esc(i.n)}</h3>
     <div class="row"><div class="k">Mediana entre ${NIVEIS[S.nivel].plural}</div>
-      <div class="v"><span class="num">${fmtN(med,i.fmt)}</span><span class="u">${esc(i.u)}</span></div></div>
+      <div class="v"><span class="num">${fmtN(med,i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>
     <div class="row"><div class="k">Amplitude (máx ÷ mín)</div>
       <div class="v"><span class="num">${arr[arr.length-1].v?fmtN(arr[0].v/arr[arr.length-1].v,'dec1')+'×':'—'}</span></div></div>
     ${/pessoas|domic|vínculos/.test(i.u)?`<div class="row"><div class="k">Soma</div>
-      <div class="v"><span class="num">${fmtN(soma,'int')}</span><span class="u">${esc(i.u)}</span></div></div>`:''}
+      <div class="v"><span class="num">${fmtN(soma,'int')}</span><span class="u">${esc(unid(i))}</span></div></div>`:''}
     <h3 class="sec">Maiores valores</h3>${top.map(barra).join('')}
     <h3 class="sec">Menores valores</h3>${bot.map(barra).join('')}
     <div class="btn-row"><button class="btn" id="btnRankAqui">Ver ranking completo</button></div>`;
@@ -1094,6 +1141,29 @@ const BLOCOS=[
   {t:'Vulnerabilidade e assistência',cats:['vulner','assistencia']},
   {t:'Ambiente urbano',cats:['ambiente']}
 ];
+/* A fonte cobre este município neste nível? (ex.: o geoclimate só cobre POA).
+   Indicador que a fonte não cobre não é "faltante": nem aparece no perfil. */
+const COBRE={};
+function cobre(nivel,muni,id){
+  const k=nivel+'|'+muni+'|'+id;
+  if(!(k in COBRE)){const g=S.geo[nivel];
+    COBRE[k]=!!g&&g.features.some(f=>f.properties.muni===muni&&f.properties[id]!=null);}
+  return COBRE[k];
+}
+/* Territórios que contêm este: setor → bairro → município. Onde falta um valor,
+   o perfil mostra o do território que o contém, com o nome dele no rótulo. */
+function continentes(p){
+  const out=[];
+  if(S.nivel==='setor'&&p.bairro&&S.geo.bairro){
+    const b=S.geo.bairro.features.find(x=>x.properties.muni===p.muni&&x.properties.nome===p.bairro);
+    if(b)out.push({p:b.properties,rot:'do bairro '+b.properties.nome});
+  }
+  if(S.nivel!=='municipio'&&S.geo.municipio){
+    const m=S.geo.municipio.features.find(x=>x.properties.nome===p.muni);
+    if(m)out.push({p:m.properties,rot:'de '+p.muni});
+  }
+  return out;
+}
 function perfilHTML(id){
   const f=feature(id); if(!f)return aberturaHTML();
   const p=f.properties, isSetor=S.nivel==='setor';
@@ -1101,11 +1171,11 @@ function perfilHTML(id){
 
   let html=`<div class="terr-h">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
-      <button class="btn" id="btnVoltar" style="padding:3px 8px;font-size:11px">← Porto Alegre</button>
+      <button class="btn" id="btnVoltar" style="padding:3px 8px;font-size:11px">← Visão geral</button>
       <span class="eyebrow">${isSetor?'Setor censitário':'Bairro'}</span></div>
     <h2>${esc(p.nome)}</h2>
     <div class="sub">
-      ${isSetor?`<span class="chip acc">${esc(p.bairro)}</span><span class="chip mono">${esc(p.id)}</span>`
+      ${isSetor?`<span class="chip acc">${esc(p.bairro||p.muni||'')}</span><span class="chip mono">${esc(p.id)}</span>`
         :`<span class="chip acc">${fmtN(pctMun,'pct2')} de ${esc(p.muni||'—')}</span>`}
       ${p.area_km2!=null?`<span class="chip">${fmtN(+p.area_km2,'dec2')} km²</span>`:''}
     </div>
@@ -1113,12 +1183,21 @@ function perfilHTML(id){
       <button class="btn pri" id="btnAddCmp">Comparar com outro território</button>
     </div></div>`;
 
+  if(isSetor&&!p.pop){
+    const c=continentes(p)[0];
+    html+=`<div class="note">${p.pop===0
+        ?'O Censo 2022 não registrou moradores neste setor.'
+        :'O IBGE não publica os dados de pessoas deste setor: é um setor especial (quartel, hospital, alojamento) ou está sob sigilo.'}
+      Onde falta o dado do setor, a linha mostra o valor ${c?esc(c.rot):'do município'} e traz essa indicação.</div>`;
+  }
   BLOCOS.forEach(b=>{
     const inds=IND.filter(i=>b.cats.includes(i.cat)&&i.niveis.includes(S.nivel));
     if(!inds.length)return;
     const disp=inds.filter(i=>i.status!=='pend'&&p[i.id]!=null);
-    const falt=inds.filter(i=>!disp.includes(i));
-    html+=`<h3 class="sec">${esc(b.t)}<span class="chip tag">${disp.length}/${inds.length}</span></h3>`;
+    /* faltantes que a fonte cobre neste município: recebem o valor do continente */
+    const falt=inds.filter(i=>!disp.includes(i)&&i.status!=='pend'&&cobre(S.nivel,p.muni,i.id));
+    if(!disp.length&&!falt.length)return;
+    html+=`<h3 class="sec">${esc(b.t)}<span class="chip tag">${disp.length+falt.length}</span></h3>`;
     if(disp.length){
       html+=disp.map(i=>{
         const om=p._omit&&p._omit[i.id];
@@ -1126,19 +1205,23 @@ function perfilHTML(id){
           ${om?`<div style="font-size:10px;color:var(--pend);margin-top:2px">
             soma parcial — IBGE omitiu ${om} setor${om>1?'es':''}</div>`:''}</div>
         <div class="v"><span class="num">${fmtN(+p[i.id],i.fmt)}</span>
-        <span class="u">${esc(i.u)}</span></div></div>`;}).join('');
+        <span class="u">${esc(unid(i))}</span></div></div>`;}).join('');
     }
     if(b.t==='Perfil populacional')html+=piramideHTML(p);
     if(b.t==='Perfil racial')html+=racaHTML(p);
     if(falt.length){
-      const porFonte={};
-      falt.forEach(i=>{const k=i.fonte;(porFonte[k]=porFonte[k]||[]).push(i);});
-      html+=`<div class="empty" style="margin-top:9px"><div class="hd">
-        <span class="selo s-pend"><i class="dot"></i>aguardando integração</span>
-        <b style="margin-left:auto;font-family:var(--mono);font-size:11px">${falt.length}</b></div>
-        <p>${esc(falt.slice(0,6).map(i=>i.n).join(' · '))}${falt.length>6?` e mais ${falt.length-6}`:''}</p>
-        <div class="src">${Object.keys(porFonte).map(k=>
-          `${esc((FONTES[k]||{}).s||k)} · ${porFonte[k].length} indicador${porFonte[k].length>1?'es':''}`).join('<br>')}</div></div>`;
+      const cont=continentes(p), aqui=isSetor?'este setor':S.nivel==='bairro'?'este bairro':'este município';
+      html+=falt.map(i=>{
+        let ref=null; for(const c of cont){if(c.p[i.id]!=null){ref=c;break;}}
+        return ref
+          ?`<div class="row ref"><div class="k">${esc(i.n)}${selo(i,S.nivel)}
+              <span class="ref-note">IBGE não publica para ${aqui} · valor ${esc(ref.rot)}</span></div>
+            <div class="v"><span class="num">${fmtN(+ref.p[i.id],i.fmt)}</span>
+            <span class="u">${esc(unid(i))}</span></div></div>`
+          :`<div class="row ref"><div class="k">${esc(i.n)}${selo(i,S.nivel)}
+              <span class="ref-note">IBGE não publica para ${aqui} nem para o território que o contém</span></div>
+            <div class="v"><span class="num">—</span></div></div>`;
+      }).join('');
     }
   });
 
@@ -1165,52 +1248,61 @@ function perfilHTML(id){
 const FAIXAS_ID=['0-4','5-9','10-14','15-19','20-24','25-29','30-39','40-49','50-59','60-69','70+'];
 
 /* pirâmide etária — bairros têm sexo × idade; setores, só idade */
-function piramideHTML(p){
+function piramideHTML(p,deOnde){
   const temPir=Array.isArray(p._pir)&&p._pir.some(v=>v>0);
   const idade=FAIXAS_ID.map((_,i)=>p['id'+i]);
-  if(!temPir&&idade.every(v=>v==null))
-    return graficoVazio('Pirâmide etária','Censo 2022 — bloco não publicado para este setor');
+  if(!temPir&&idade.every(v=>v==null)){
+    /* bloco não publicado: mostra o do território que contém, com o nome dele */
+    for(const c of continentes(p)){
+      const ok=(Array.isArray(c.p._pir)&&c.p._pir.some(v=>v>0))||FAIXAS_ID.some((_,i)=>c.p['id'+i]!=null);
+      if(ok)return piramideHTML(c.p,c.rot);
+    }
+    return '';
+  }
   const w=340,h=190,pad={l:34,r:6,t:14,b:16},bh=(h-pad.t-pad.b)/11-2;
   const meio=(w-pad.l-pad.r)/2+pad.l;
   const H=temPir?p._pir.slice(0,11):idade.map(()=>0);
   const M=temPir?p._pir.slice(11):idade;
-  const mx=Math.max(...H,...M,1), esc=(w-pad.l-pad.r)/2/mx;
+  const mx=Math.max(...H,...M,1), kx=(w-pad.l-pad.r)/2/mx;
   const barras=FAIXAS_ID.map((f,i)=>{
     const y=pad.t+(11-1-i)*(bh+2);
-    const wh=(H[i]||0)*esc, wm=(M[i]||0)*esc;
-    return `<rect x="${meio-wh}" y="${y}" width="${wh}" height="${bh}" fill="#34A0B8" rx="1">
+    const wh=(H[i]||0)*kx, wm=(M[i]||0)*kx;
+    return `<rect x="${meio-wh}" y="${y}" width="${wh}" height="${bh}" fill="${COR.cat[0]}" rx="2">
         <title>Homens ${f}: ${nf.format(H[i]||0)}</title></rect>
-      <rect x="${meio}" y="${y}" width="${wm}" height="${bh}" fill="#C4A369" rx="1">
+      <rect x="${meio}" y="${y}" width="${wm}" height="${bh}" fill="${temPir?COR.cat[1]:COR.cat[0]}" rx="2">
         <title>${temPir?'Mulheres':'Pessoas'} ${f}: ${nf.format(M[i]||0)}</title></rect>
       <text x="0" y="${y+bh-1}" class="lbl">${f}</text>`;
   }).join('');
   return `<div style="margin-top:9px">
     <div style="display:flex;justify-content:space-between;align-items:baseline">
-      <span class="eyebrow">${temPir?'Pirâmide etária':'Distribuição por idade'}</span>
-      ${temPir?`<span class="eyebrow" style="letter-spacing:.06em">
-        <i style="display:inline-block;width:7px;height:7px;background:#34A0B8;border-radius:2px"></i> homens
-        &nbsp;<i style="display:inline-block;width:7px;height:7px;background:#C4A369;border-radius:2px"></i> mulheres
-      </span>`:''}
+      <span class="eyebrow">${temPir?'Pirâmide etária':'Distribuição por idade'}${deOnde?' '+esc(deOnde):''}</span>
+      ${temPir?`<span class="leg-mini"><i style="background:${COR.cat[0]}"></i>homens
+        <i style="background:${COR.cat[1]}"></i>mulheres</span>`:''}
     </div>
     <svg class="chart" viewBox="0 0 ${w} ${h}" style="margin-top:5px">
-      ${barras}<line x1="${meio}" y1="${pad.t-3}" x2="${meio}" y2="${h-pad.b}" stroke="#22323F"/>
+      ${barras}<line x1="${meio}" y1="${pad.t-3}" x2="${meio}" y2="${h-pad.b}" stroke="var(--line2)"/>
     </svg>
     <div class="selo s-ok"><i class="dot"></i>Censo/IBGE · 2022${temPir?'':' · sem recorte por sexo neste nível'}</div>
   </div>`;
 }
 
 /* composição por cor ou raça */
-const CORES_RACA={raca_branca:['Branca','#8FB3C4'],raca_preta:['Preta','#6B4A38'],
-  raca_parda:['Parda','#C4A369'],raca_amarela:['Amarela','#D9C293'],
-  raca_indigena:['Indígena','#A9834A']};
-function racaHTML(p){
+/* Paleta categórica da skill de visualização, em ordem fixa: a cor segue o grupo,
+   nunca a posição. Antes eram tons de pele, uma codificação que não se usa. */
+const CORES_RACA={raca_branca:['Branca',COR.cat[0]],raca_preta:['Preta',COR.cat[1]],
+  raca_parda:['Parda',COR.cat[2]],raca_amarela:['Amarela',COR.cat[3]],
+  raca_indigena:['Indígena',COR.cat[4]]};
+function racaHTML(p,deOnde){
   const ks=Object.keys(CORES_RACA), tot=p._raca_total;
-  if(!tot)return graficoVazio('Composição por cor ou raça','Censo 2022 — bloco não publicado para este setor');
-  const seg=ks.map(k=>({k,n:CORES_RACA[k][0],c:CORES_RACA[k][1],v:p[k]||0}))
-    .filter(o=>o.v>0).sort((a,b)=>b.v-a.v);
+  if(!tot){
+    for(const c of continentes(p))if(c.p._raca_total)return racaHTML(c.p,c.rot);
+    return '';
+  }
+  /* ordem fixa (a validada para vizinhos), não por tamanho */
+  const seg=ks.map(k=>({k,n:CORES_RACA[k][0],c:CORES_RACA[k][1],v:p[k]||0})).filter(o=>o.v>0);
   const om=p._omit&&(p._omit.raca_branca||p._omit.raca_indigena||p._omit.raca_amarela);
-  return `<div style="margin-top:9px"><span class="eyebrow">Composição por cor ou raça</span>
-    <div style="display:flex;height:16px;border-radius:4px;overflow:hidden;margin:6px 0 8px">
+  return `<div style="margin-top:9px"><span class="eyebrow">Composição por cor ou raça${deOnde?' '+esc(deOnde):''}</span>
+    <div class="empilhada">
       ${seg.map(o=>`<div title="${esc(o.n)}: ${fmtN(100*o.v/tot,'pct1')}"
         style="width:${100*o.v/tot}%;background:${o.c}"></div>`).join('')}</div>
     ${seg.map(o=>`<div class="row" style="padding:4px 0"><div class="k">
@@ -1493,7 +1585,8 @@ function renderRank(){
 
 /* ────────────────────────────────────── 16. MATRIZ DE DISPONIBILIDADE ── */
 function renderMatriz(){
-  const nv=['municipio','regiao','bairro','setor'];
+  /* a malha das regiões do OP não está no pacote: coluna sem nenhum dado, fica de fora */
+  const nv=['municipio','bairro','setor'];
   const st=i=>{
     const out={};
     nv.forEach(n=>{
@@ -2077,9 +2170,9 @@ function buscar(t){
 
 /* ────────────────────────────── camadas de pontos ────────────────────── */
 const ESTILO_PONTO={
-  escolas:{cor:'#4FB477',r:3.4,rot:'Escolas'},
-  saude:{cor:'#34A0B8',r:3.8,rot:'Saúde'},
-  lojas:{cor:'#D94F4F',r:7,rot:'Lojas Renner'}
+  escolas:{cor:'#4a3aa7',r:3.6,rot:'Escolas'},
+  saude:{cor:'#1baf7a',r:3.8,rot:'Saúde'},
+  lojas:{cor:'#C2502A',r:7,rot:'Lojas Renner'}
 };
 /* Um renderer por camada — jamais um por marcador.
    Criar L.canvas()/L.svg() dentro do laço inseria um elemento <canvas> por
@@ -2108,8 +2201,9 @@ function constroiPontos(chave){
   PONTOS[chave].forEach((p,i)=>{
     const m=L.circleMarker([p.y,p.x],{
       renderer:rend,
-      radius:e.r, fillColor:e.cor, color:loja?'#fff':'#4D636B',
-      weight:loja?2:.6, fillOpacity:loja?1:.85, opacity:1, className:loja?'mk-loja':''
+      /* anel da cor do papel em volta do ponto: separa do polígono embaixo */
+      radius:e.r, fillColor:e.cor, color:COR.papel,
+      weight:loja?2.5:1.2, fillOpacity:1, opacity:1, className:loja?'mk-loja':''
     });
     m.bindTooltip(()=>tooltipPontoHTML(p,loja),{className:'tt',sticky:true,direction:'top'});
     if(loja)m.on('click',()=>abreEntorno(i));
@@ -2133,8 +2227,8 @@ function abreEntorno(i,raio){
   S.loja=i; S.raio=raio||S.raio||1;
   focoLoja=L0;
   if(camadaRaio){map.removeLayer(camadaRaio);camadaRaio=null;}
-  camadaRaio=L.circle([L0.y,L0.x],{radius:S.raio*1000,color:'#D94F4F',weight:1.6,
-    fillColor:'#D94F4F',fillOpacity:.07,dashArray:'4,4',pane:'atlasSobre'}).addTo(map);
+  camadaRaio=L.circle([L0.y,L0.x],{radius:S.raio*1000,color:COR.terracota,weight:2,
+    fillColor:COR.terracota,fillOpacity:.06,dashArray:'6,5',pane:'atlasSobre'}).addTo(map);
   map.fitBounds(camadaRaio.getBounds(),{padding:[40,40]});
   S.sel=null;
   $('#panelBody').innerHTML=entornoHTML(i);
@@ -2265,19 +2359,20 @@ function entornoHTML(i){
 
 function renderCamadas(){
   const n=k=>PONTOS&&PONTOS[k]?PONTOS[k].length:0;
-  $('#layers').innerHTML=`<span class="eyebrow">Camadas</span>
-    <label class="lay"><input type="checkbox" id="lay-lojas" ${S.camadas.lojas?'checked':''}>
-      <b style="color:#E88">Lojas Renner</b>
-      <span class="selo s-ok"><i class="dot"></i>${n('lojas')}</span></label>
-    <label class="lay"><input type="checkbox" id="lay-escolas" ${S.camadas.escolas?'checked':''}>
-      Escolas<span class="selo s-ok"><i class="dot"></i>${nf.format(n('escolas'))}</span></label>
-    <label class="lay"><input type="checkbox" id="lay-saude" ${S.camadas.saude?'checked':''}>
-      Unidades de saúde<span class="selo s-ok"><i class="dot"></i>${n('saude')}</span></label>
-    <label class="lay"><input type="checkbox" id="lay-fcu" ${S.camadas.fcu?'checked':''}>
-      Favelas e comunidades<span class="selo s-ok"><i class="dot"></i>IBGE</span></label>
-    <div style="height:1px;background:var(--line);margin:6px 0"></div>
-    <label class="lay"><input type="checkbox" id="lay-base" ${S.camadas.base?'checked':''}>
-      Mapa base<span class="selo s-mun"><i class="dot"></i>opcional</span></label>`;
+  const item=(id,rot,qtd,amostra)=>`<label class="lay"><input type="checkbox" id="lay-${id}" ${S.camadas[id]?'checked':''}>
+      ${amostra}<span class="lay-n">${rot}</span><span class="lay-q">${qtd}</span></label>`;
+  const pt=c=>`<i class="sw-pt" style="background:${c}"></i>`;
+  const el=$('#layers'); el.classList.toggle('min',!!S.layMin);
+  el.innerHTML=`<button class="lg-hd" id="layToggle" aria-expanded="${!S.layMin}"><span class="eyebrow">Camadas</span><span class="lg-chev" aria-hidden="true"></span></button>
+    <div class="lg-body">
+    ${item('lojas','Lojas Renner',n('lojas'),pt(ESTILO_PONTO.lojas.cor))}
+    ${item('escolas','Escolas',nf.format(n('escolas')),pt(ESTILO_PONTO.escolas.cor))}
+    ${item('saude','Unidades de saúde',n('saude'),pt(ESTILO_PONTO.saude.cor))}
+    ${item('fcu','Favelas e comunidades','IBGE','<i class="sw-area"></i>')}
+    <div class="lay-sep"></div>
+    ${item('base','Mapa de fundo','opcional','<i class="sw-base"></i>')}</div>`;
+  $('#layToggle').onclick=()=>{S.layMin=!S.layMin;el.classList.toggle('min',S.layMin);
+    $('#layToggle').setAttribute('aria-expanded',String(!S.layMin));};
   $('#lay-base').onchange=e=>{S.camadas.base=e.target.checked;baseOn(e.target.checked);};
   $('#lay-fcu').onchange=e=>{S.camadas.fcu=e.target.checked;fcuOn(e.target.checked);};
   ['lojas','escolas','saude'].forEach(k=>{
@@ -2294,7 +2389,7 @@ function fcuOn(on){
     const fs=S.geo.setor.features.filter(f=>f.properties._fcuNome);
     camadaFCU=L.geoJSON({type:'FeatureCollection',features:fs},{
       renderer:L.canvas({padding:.4,pane:'atlasSobre'}),
-      style:{fillColor:'#C0559B',fillOpacity:.2,color:'#E081BE',weight:1,opacity:.85}
+      style:{fillColor:'#9B2C6F',fillOpacity:.16,color:'#9B2C6F',weight:1.2,opacity:.9}
     });
     camadaFCU.bindTooltip(l=>{
       const p=(l.feature||l).properties||{};
@@ -2357,8 +2452,20 @@ function decRing(str,prec){
   }
   return out;
 }
-function decGeom(mp,prec){
-  const polys=mp.map(poly=>poly.map(r=>decRing(r,prec)));
+/* área aproximada de um anel, em km² (latitude da RMPA, ~30° S) */
+function areaKm2(r){
+  let a=0; for(let i=0,j=r.length-1;i<r.length;j=i++)a+=r[j][0]*r[i][1]-r[i][0]*r[j][1];
+  return Math.abs(a/2)*111.32*111.32*0.866;
+}
+/* frestas: buracos com menos de 5 ha que a dissolução dos setores deixa nas malhas
+   de bairro e município. Só servem para desenhar pontos brancos no mapa; os buracos
+   maiores (que podem ser território sem setor) ficam como estão. */
+const FRESTA_KM2=0.05;
+function decGeom(mp,prec,semFrestas){
+  const polys=mp.map(poly=>{
+    const rs=poly.map(r=>decRing(r,prec));
+    return semFrestas?rs.filter((r,k)=>k===0||areaKm2(r)>=FRESTA_KM2):rs;
+  });
   return polys.length===1?{type:'Polygon',coordinates:polys[0]}
                          :{type:'MultiPolygon',coordinates:polys};
 }
@@ -2488,7 +2595,7 @@ function montaGeo(){
     p._pir=B.piramide[i]; p._fcu=B.fcu_nomes[i]; p.fcu_n=B.fcu_nomes[i].length;
     p._omit={};
     for(const k in (B.omissoes||{})){const v=B.omissoes[k][i]; if(v)p._omit[k]=v;}
-    return {type:'Feature',properties:derivados(p),geometry:decGeom(B.geom[i],P)};
+    return {type:'Feature',properties:derivados(p),geometry:decGeom(B.geom[i],P,true)};
   })};
 
   /* Setores são decodificados apenas quando o usuário abre o nível setor,
@@ -2518,7 +2625,8 @@ function montaGeo(){
       const codMun=String(N.munis.ids[M.muni_id[i]]);
       Object.assign(p,((window.ATLAS_SERVICOS||{}).municipios||{})[codMun]||{});
       Object.assign(p,((window.ATLAS_INDICES||{}).municipios||{})[codMun]||{});
-      return {type:'Feature',properties:derivados(p),geometry:decGeom(M.geom[i],P)};
+      /* sem as frestas da dissolução dos setores (Porto Alegre tinha 1.225) */
+      return {type:'Feature',properties:derivados(p),geometry:decGeom(M.geom[i],P,true)};
     })};
   }
 
@@ -2563,7 +2671,7 @@ function garanteSetores(){
     const p={id:cod,nome:'Setor '+cod.slice(-6),muni:N.munis.nomes[mi],muni_id:mi};
     for(let k=0;k<TODOS.length;k++){const c=TODOS[k],v=colS[c][i];if(v!=null)p[c]=v;}
     if(bairroS[i]){p.bairro=bairroS[i];p.bairro_id=slugDe(bairroS[i]);}
-    if(fcuS[i]){p._fcuNome=fcuS[i];p.fcu_n=1;}
+    if(fcuS[i]){p._fcuNome=fcuS[i];p.fcu_n=1;} else p.fcu_n=0;
     p._cx=cent[i][0];p._cy=cent[i][1];
     return {type:'Feature',properties:derivados(p),geometry:decGeom(g,P)};
   })};
@@ -2676,7 +2784,7 @@ function ligaEventos(){
   $$('#segNivel button').forEach(b=>b.onclick=()=>{
     const i=indAtual();
     if(!i.niveis.includes(b.dataset.nivel)){
-      const alt=IND.find(x=>x.status!=='pend'&&x.niveis.includes(b.dataset.nivel));
+      const alt=IND.find(x=>x.status!=='pend'&&x.status!=='mun'&&x.niveis.includes(b.dataset.nivel));
       if(alt){S.indId=alt.id;S.ramp=null;$$('.ind').forEach(x=>x.classList.toggle('on',x.dataset.ind===alt.id));}
     }
     setNivel(b.dataset.nivel);
@@ -2695,6 +2803,27 @@ function ligaEventos(){
     sl.onchange=e=>{if(e.target.value!==''){abreEntorno(+e.target.value);e.target.value='';}};
   }
   const bl=$('#btnLojas'); if(bl)bl.onclick=()=>{renderLojas();abreModal('mdLojas');};
+  /* menu "Mais": metodologia, cobertura, fontes, integrar dados */
+  const bm=$('#btnMais'), mm=$('#menuMais');
+  if(bm&&mm){
+    const fecha=()=>{mm.classList.remove('show');bm.setAttribute('aria-expanded','false');};
+    bm.onclick=e=>{e.stopPropagation();const ab=!mm.classList.contains('show');
+      mm.classList.toggle('show',ab);bm.setAttribute('aria-expanded',String(ab));};
+    mm.querySelectorAll('button').forEach(b=>b.addEventListener('click',fecha));
+    document.addEventListener('click',e=>{if(!mm.contains(e.target)&&e.target!==bm)fecha();});
+  }
+  /* filtro da lista de indicadores: abre as categorias que têm resultado */
+  const fi=$('#filtroInd');
+  if(fi)fi.oninput=()=>{
+    const q=norm(fi.value);
+    $$('.cat').forEach(c=>{
+      let tem=0;
+      c.querySelectorAll('.ind').forEach(b=>{const ok=!q||b.dataset.busca.includes(q);b.hidden=!ok;if(ok)tem++;});
+      c.hidden=!!q&&!tem; c.classList.toggle('open',q?tem>0:c.dataset.cat===S.cat);
+    });
+  };
+  /* no celular, legenda e camadas começam recolhidas para o mapa aparecer */
+  if(window.innerWidth<=620){S.legMin=true;S.layMin=true;renderCamadas();}
   $('#btnAnalise').onclick=()=>abreModal('mdAnalise');
   $('#btnMetodo').onclick=()=>abreModal('mdMetodo');
   $('#btnMatriz').onclick=()=>abreModal('mdMatriz');
@@ -2731,11 +2860,25 @@ function ligaEventos(){
     MUN.pop_reportada=rep; MUN.setores_sem_pessoas=semP;
   })();
   iniciaMapa();
+  estendeAoMunicipio();
   verificaCatalogo();
   renderCats(); renderCamadas(); ligaEventos();
   desenhaMapa(); renderPainel(); vigiaTamanho();
   ['lojas','escolas','saude'].forEach(k=>{if(S.camadas[k])pontosOn(k,true);});
 })();
+
+/* Os municípios são somas dos setores e trazem os mesmos campos do Censo e as
+   taxas de 2010. Onde os sete têm valor, o indicador passa a ter mapa também no
+   nível município — em vez de a troca de nível levar a um indicador vazio. */
+function estendeAoMunicipio(){
+  const M=S.geo.municipio; if(!M)return;
+  IND.forEach(i=>{
+    if(i.niveis.includes('municipio')||!i.niveis.includes('bairro'))return;
+    if(i.status!=='ok'&&i.status!=='est')return;
+    if(i.id==='pop_pct_mun')return;             /* seria 100% nos sete */
+    if(M.features.every(f=>f.properties[i.id]!=null))i.niveis=i.niveis.concat('municipio');
+  });
+}
 
 /* Integridade do catálogo: um indicador que se declara carregado mas não tem
    nenhum valor é removido da interface. O Atlas não anuncia ficha vazia como
@@ -2776,7 +2919,7 @@ function telaDeErro(err){
   const faltando=esperado.filter(([,v])=>!window[v]);
   document.body.innerHTML=`<div style="max-width:640px;margin:8vh auto;padding:26px;
       font-family:var(--sans);color:var(--txt)">
-    <span class="eyebrow">Atlas POA</span>
+    <span class="eyebrow">Atlas RMPA</span>
     <h1 style="font-size:22px;margin:8px 0 14px;letter-spacing:-.02em">
       Os dados não foram carregados</h1>
     ${faltando.length?`<div class="note warn">

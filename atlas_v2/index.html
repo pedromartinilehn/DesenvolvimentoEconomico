@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Atlas Socioeconômico Interativo — Região Metropolitana de Porto Alegre</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
 <link rel="stylesheet" href="atlas.css">
 <style id="boot-guarda-css">
 /* Estilo mínimo embutido: vale mesmo se atlas.css não carregar, para que a
@@ -31,50 +34,57 @@
 <div id="app">
   <!-- ═════════════════════════════════════════════════════════ TOPO ═══ -->
   <header>
-    <button class="btn mobile-only" id="btnSide" aria-label="Indicadores">☰</button>
-    <div class="brand"><b>Atlas Metropolitano</b><span>RMPA · evidências territoriais</span></div>
+    <button class="ibtn mobile-only" id="btnSide" aria-label="Abrir lista de indicadores">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="brand"><b><span class="b-long">Atlas Metropolitano</span><span class="b-short">Atlas RMPA</span></b><span>Região Metropolitana de Porto Alegre</span></div>
 
     <div class="seg" id="segNivel" role="group" aria-label="Nível geográfico">
       <button data-nivel="municipio" aria-pressed="false">Município</button>
-
-      <button data-nivel="bairro" aria-pressed="true">Bairros</button>
-      <button data-nivel="setor" aria-pressed="false">Setores</button>
+      <button data-nivel="bairro" aria-pressed="true">Bairro</button>
+      <button data-nivel="setor" aria-pressed="false">Setor</button>
     </div>
 
     <div class="search">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="q" placeholder="Buscar bairro, setor ou loja" autocomplete="off" aria-label="Buscar território">
+      <input id="q" type="search" placeholder="Buscar bairro, setor ou loja" autocomplete="off" aria-label="Buscar território">
       <div class="sugg" id="sugg" style="display:none"></div>
     </div>
 
     <div class="tools">
-      <select id="selMuni" class="btn" style="padding:5px 8px;background:var(--bg3)"></select>
-      <select id="selLoja" class="btn store-select" aria-label="Analisar entorno de uma loja">
+      <select id="selMuni" class="sel" aria-label="Filtrar por município"></select>
+      <select id="selLoja" class="sel store-select" aria-label="Analisar o entorno de uma loja">
         <option value="">Entorno de uma loja…</option>
       </select>
-      <button id="btnLojas">Lojas</button>
-      <button id="btnAnalise"><span class="lbl">Análise</span><span class="mobile-only">⇄</span></button>
-      <button id="btnMetodo"><span class="lbl">Metodologia</span><span class="mobile-only">§</span></button>
-      <button id="btnMatriz"><span class="lbl">Cobertura</span><span class="mobile-only">▦</span></button>
-      <button id="btnFontes"><span class="lbl">Fontes</span><span class="mobile-only">ⓘ</span></button>
-      <button id="btnDados" class="pri"><span class="lbl">Integrar dados</span><span class="mobile-only">↑</span></button>
+      <button id="btnLojas" class="tbtn">Lojas</button>
+      <button id="btnAnalise" class="tbtn">Análise</button>
+      <div class="menu-wrap">
+        <button id="btnMais" class="tbtn" aria-haspopup="true" aria-expanded="false">Mais
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="menu" id="menuMais" role="menu">
+          <button id="btnMetodo" role="menuitem">Metodologia</button>
+          <button id="btnMatriz" role="menuitem">Cobertura dos dados</button>
+          <button id="btnFontes" role="menuitem">Fontes</button>
+          <button id="btnDados" role="menuitem">Integrar dados</button>
+        </div>
+      </div>
     </div>
   </header>
 
   <!-- ══════════════════════════════════════════════════════ SIDEBAR ═══ -->
   <nav id="side">
     <div class="side-h">
-      <span class="eyebrow">Indicadores</span>
-      <div style="display:flex;gap:9px;margin-top:6px;flex-wrap:wrap">
-        <span class="selo s-ok"><i class="dot"></i>oficial</span>
-        <span class="selo s-mun"><i class="dot"></i>só município</span>
-        <span class="selo s-est"><i class="dot"></i>histórico</span>
+      <div class="side-title"><span>Indicadores</span><span class="side-n" id="nInd"></span></div>
+      <input id="filtroInd" class="filtro" type="search" placeholder="Filtrar indicadores" aria-label="Filtrar indicadores">
+      <div class="side-key">
+        <span class="k-ok"><i class="dot"></i>oficial</span>
+        <span class="k-est"><i class="dot"></i>histórico, 2010</span>
+        <span class="k-ext"><i class="dot"></i>não oficial</span>
       </div>
     </div>
     <div id="cats"></div>
-    <div class="side-foot">Saúde, assistência, segurança, emprego, finanças e agro
-      têm cobertura municipal nos sete municípios. Dados históricos são identificados pelo ano.</div>
+    <div class="side-foot">Todo valor traz fonte, ano e nível geográfico. Onde um território não
+      tem dado publicado, o Atlas mostra o do território que o contém, com o nome dele.</div>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════════ MAPA ═══ -->
@@ -94,7 +104,7 @@
 
 <!-- ══════════════════════════════════════════════════════════ MODAIS ═══ -->
 <div class="modal" id="mdLojas"><div class="mbox wide">
-  <div class="mhead"><h2>Lojas Renner — RS I</h2>
+  <div class="mhead"><h2>Unidades Renner</h2>
     <span class="chip">20 unidades</span><button class="x" data-close>×</button></div>
   <div class="mbody" id="lojasBody"></div></div></div>
 

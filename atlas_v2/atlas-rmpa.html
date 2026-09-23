@@ -5,371 +5,440 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Atlas Socioeconômico Interativo — Região Metropolitana de Porto Alegre</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
 <style>
-/* ============================================================ TOKENS ===== */
+/* ═══════════════════════════════════════════════════════════════════════
+   Atlas Metropolitano RMPA — folha de estilo
+   Identidade: papel creme, tinta azul-marinho, terracota para as lojas e
+   destaques. Títulos de território em Source Serif 4; interface e números em
+   IBM Plex Sans, com algarismos tabulares nas colunas.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────── tokens ── */
 :root{
-  --atlas-css-ok:1;   /* usado pela guarda de inicialização */
-  --bg:#EEF2F3; --bg2:#FFFFFF; --bg3:#F6F8F8; --bg4:#E7EEF0;
-  --line:#D8E0E3; --line2:#BFCBD0;
-  --txt:#152B34; --txt2:#50666F; --txt3:#778A92;
-  --acc:#0057B8; --acc2:#087A8C; --accsoft:rgba(0,87,184,.10);
-  --ok:#16835A; --pend:#B76A00; --est:#A45120; --mun:#657985; --sim:#9B3C70; --imp:#6557C7; --err:#BB3E35;
-  --map:#DDE6E8; --nodata:#CAD5D9;
-  --sans:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  --mono:'SFMono-Regular',Consolas,'Liberation Mono',monospace;
-  --side:286px; --panel:372px; --top:52px;
-  --sh:0 10px 32px rgba(32,57,66,.16);
+  --atlas-css-ok:1;                 /* lido pela guarda de inicialização */
+
+  --bg:#F4F2ED;  --bg2:#FCFBF8;  --bg3:#F7F5F0;  --bg4:#ECE9E2;
+  --line:#E4E0D7; --line2:#D2CDC1;
+  --txt:#15212E; --txt2:#46505A; --txt3:#61686E;
+
+  --acc:#1D5C96;  --acc2:#15212E;  --accsoft:rgba(21,33,46,.06);
+  --terra:#C2502A; --terra-t:#A8421F; --terra-soft:#F6E8E1;
+
+  --ok:#2F7D4F; --pend:#9A5A06; --est:#A8421F; --mun:#6B7278;
+  --sim:#9B2C6F; --imp:#5B4BC4; --err:#B42318;
+
+  --map:#F1EFEA; --nodata:#DAD6CC; --contorno:#B9B4A8;
+
+  --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --serif:'Source Serif 4',Georgia,'Times New Roman',serif;
+  --mono:var(--sans);               /* a interface não usa monoespaçada */
+
+  --side:304px; --panel:392px; --top:60px;
+  --r:10px;
+  --sh:0 1px 2px rgba(21,33,46,.06),0 8px 24px rgba(21,33,46,.09);
+  --sh2:0 2px 6px rgba(21,33,46,.08),0 24px 60px rgba(21,33,46,.18);
 }
+
+/* ───────────────────────────────────────────────────────────────── base ── */
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{
-  background:var(--bg);color:var(--txt);font-family:var(--sans);
-  font-size:13px;line-height:1.45;overflow:hidden;
-  -webkit-font-smoothing:antialiased;
-}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px;
+  line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 button,input,select{font:inherit;color:inherit}
 button{background:none;border:none;cursor:pointer}
-::-webkit-scrollbar{width:9px;height:9px}
+[hidden]{display:none!important}
+::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--line2);border-radius:5px}
-::-webkit-scrollbar-thumb:hover{background:#9AABB1}
-:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:3px solid var(--bg2)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:6px}
 
-/* micro-tipografia de dados — assinatura do projeto */
-.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.eyebrow{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;
-  text-transform:uppercase;color:var(--txt3);font-weight:500}
-.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+.num,.mono{font-variant-numeric:tabular-nums}
+.num{font-weight:600;color:var(--txt)}
+.eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--txt3)}
 
-/* ================================================ SELO DE PROVENIÊNCIA ==== */
-.selo{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);
-  font-size:9.5px;letter-spacing:.05em;color:var(--txt3);white-space:nowrap;
-  text-transform:uppercase}
-.selo .dot{width:6px;height:6px;border-radius:50%;flex:none;background:var(--txt3)}
-.selo.s-ok .dot{background:var(--ok)}
-.selo.s-pend .dot{background:var(--pend)}
+/* ──────────────────────────────────────────────── selo de proveniência ── */
+.selo{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--txt3);
+  white-space:nowrap;font-weight:400}
+.selo .dot,.meta .dot,.side-key .dot{width:7px;height:7px;border-radius:50%;flex:none;
+  background:var(--txt3);display:inline-block}
+.selo.s-ok .dot,.st-ok .dot,.k-ok .dot{background:var(--ok)}
+.selo.s-est .dot,.st-est .dot,.k-est .dot{background:var(--est)}
+.selo.s-ext .dot,.selo.s-sim .dot,.st-ext .dot,.k-ext .dot{background:var(--sim)}
+.selo.s-imp .dot,.st-imp .dot{background:var(--imp)}
 .selo.s-mun .dot{background:var(--mun)}
-.selo.s-ext .dot{background:var(--sim)}
-.selo.s-sim .dot{background:var(--sim)}
-.selo.s-imp .dot{background:var(--imp)}
-.selo.s-est .dot{background:var(--est)}
-.selo.s-est{color:var(--est);font-weight:600}
-.mcell.est{background:rgba(224,131,61,.5)}
-.selo.s-imp{color:#9A90D8}
-.selo.s-ok{color:var(--ok)}.selo.s-pend{color:var(--pend)}.selo.s-ext{color:var(--sim)}
+.selo.s-pend .dot{background:var(--pend)}
+.selo.s-est{color:var(--est);font-weight:500}
+.selo.s-ext{color:var(--sim)}
+.selo.s-pend{color:var(--pend)}
 
-/* ======================================================== ESTRUTURA ====== */
-#app{display:grid;height:100%;
-  grid-template-columns:var(--side) 1fr var(--panel);
-  grid-template-rows:var(--top) 1fr;
-  grid-template-areas:"top top top" "side map panel"}
+/* ─────────────────────────────────────────────────────────── estrutura ── */
+#app{display:grid;height:100%;grid-template-columns:var(--side) 1fr var(--panel);
+  grid-template-rows:var(--top) 1fr;grid-template-areas:"top top top" "side map panel"}
 
-/* --------------------------------------------------------------- topo --- */
-header{grid-area:top;display:flex;align-items:center;gap:14px;padding:0 14px;
-  background:var(--bg2);border-top:3px solid var(--acc);border-bottom:1px solid var(--line);z-index:800}
-.brand{display:flex;align-items:baseline;gap:9px;flex:none}
-.brand b{font-size:14.5px;font-weight:750;letter-spacing:-.02em;color:#0A3C60}
-.brand span{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
-  color:var(--acc);text-transform:uppercase}
-.seg{display:flex;border:1px solid var(--line2);border-radius:6px;overflow:hidden;flex:none}
-.seg button{padding:5px 11px;font-size:11.5px;color:var(--txt2);
-  border-right:1px solid var(--line2);transition:.14s}
-.seg button:last-child{border-right:none}
-.seg button:hover:not(:disabled){background:var(--bg4);color:var(--txt)}
-.seg button[aria-pressed=true]{background:var(--acc2);color:#fff;font-weight:600}
-.seg button:disabled{opacity:.35;cursor:not-allowed}
-.search{position:relative;flex:1;max-width:280px;min-width:120px}
-.search input{width:100%;background:var(--bg);border:1px solid var(--line2);
-  border-radius:6px;padding:6px 10px 6px 28px;font-size:12.5px}
+/* ─────────────────────────────────────────────────────────────── topo ── */
+header{grid-area:top;display:flex;align-items:center;gap:12px;padding:0 16px;
+  background:var(--bg2);border-bottom:1px solid var(--line);z-index:800;min-width:0}
+.brand{display:flex;flex-direction:column;justify-content:center;flex:none;line-height:1.15;
+  padding-right:4px}
+.brand b{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--txt)}
+.brand>span{font-size:11.5px;color:var(--txt3)}
+.brand b{white-space:nowrap}
+.brand .b-short{display:none}
+
+.seg{display:flex;gap:2px;padding:3px;background:var(--bg4);border-radius:10px;flex:none}
+.seg button{height:30px;padding:0 13px;border-radius:7px;font-size:13px;font-weight:500;
+  color:var(--txt2);transition:background .14s,color .14s}
+.seg button:hover:not(:disabled){color:var(--txt);background:rgba(255,255,255,.55)}
+.seg button[aria-pressed=true]{background:var(--bg2);color:var(--txt);font-weight:600;
+  box-shadow:0 1px 2px rgba(21,33,46,.12),0 0 0 1px rgba(21,33,46,.04)}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+
+.search{position:relative;flex:1 1 260px;min-width:150px;max-width:380px}
+.search input{width:100%;height:36px;background:var(--bg3);border:1px solid var(--line2);
+  border-radius:9px;padding:0 12px 0 34px;font-size:13.5px;transition:border-color .14s,background .14s}
+.search input:focus{background:var(--bg2);border-color:var(--txt3);outline:none;
+  box-shadow:0 0 0 3px rgba(29,92,150,.14)}
 .search input::placeholder{color:var(--txt3)}
-.search svg{position:absolute;left:8px;top:7px;color:var(--txt3)}
-.sugg{position:absolute;top:34px;left:0;right:0;background:var(--bg3);
-  border:1px solid var(--line2);border-radius:6px;max-height:320px;overflow:auto;
-  box-shadow:var(--sh);z-index:900}
-.sugg div{padding:6px 10px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
-.sugg div:hover,.sugg div.on{background:var(--accsoft)}
-.sugg small{color:var(--txt3);font-family:var(--mono);font-size:10px}
-.sugg div:hover small,.sugg div.on small{color:var(--acc)}
-.tools{display:flex;gap:5px;margin-left:auto;flex:none}
-.tools button{padding:5px 10px;border:1px solid var(--line2);border-radius:6px;
-  font-size:11.5px;color:var(--txt2);transition:.14s;white-space:nowrap}
-.tools button:hover{background:var(--bg4);color:var(--txt);border-color:var(--acc2)}
-.tools button.on{background:var(--acc2);border-color:var(--acc);color:#fff}
-.store-select{max-width:210px;background:#F0F7FB!important;border-color:#9EBFD3!important;
-  color:#0A4F78!important;font-weight:650}
+.search svg{position:absolute;left:11px;top:10.5px;color:var(--txt3);pointer-events:none}
+.sugg{position:absolute;top:42px;left:0;right:0;background:var(--bg2);border:1px solid var(--line2);
+  border-radius:12px;max-height:360px;overflow:auto;box-shadow:var(--sh2);z-index:900;padding:6px}
+.sugg div{padding:8px 10px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;
+  border-radius:7px;font-size:13.5px}
+.sugg div:hover,.sugg div.on{background:var(--bg4)}
+.sugg small{color:var(--txt3);font-size:12px;white-space:nowrap}
 
-/* ------------------------------------------------------------ sidebar --- */
+.tools{display:flex;align-items:center;gap:6px;margin-left:auto;flex:none}
+.sel{height:36px;max-width:190px;padding:0 30px 0 12px;border:1px solid var(--line2);border-radius:9px;
+  background:var(--bg2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2346505A' stroke-width='2.4'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+  -webkit-appearance:none;appearance:none;font-size:13px;color:var(--txt);cursor:pointer;
+  text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.sel:hover{border-color:var(--txt3)}
+.store-select{max-width:220px;border-color:#E3B8A5;background-color:var(--terra-soft);
+  color:var(--terra-t);font-weight:600}
+.store-select:hover{border-color:var(--terra)}
+.tbtn{height:36px;padding:0 12px;border-radius:9px;font-size:13.5px;font-weight:500;color:var(--txt2);
+  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:background .14s,color .14s}
+.tbtn:hover,.tbtn[aria-expanded=true]{background:var(--bg4);color:var(--txt)}
+.ibtn{width:38px;height:38px;border-radius:9px;display:inline-flex;align-items:center;
+  justify-content:center;color:var(--txt);border:1px solid var(--line2);flex:none}
+.ibtn:hover{background:var(--bg4)}
+.menu-wrap{position:relative}
+.menu{position:absolute;right:0;top:44px;min-width:210px;background:var(--bg2);border:1px solid var(--line2);
+  border-radius:12px;box-shadow:var(--sh2);padding:6px;display:none;z-index:950}
+.menu.show{display:block}
+.menu button{display:block;width:100%;text-align:left;padding:9px 12px;border-radius:7px;
+  font-size:13.5px;color:var(--txt)}
+.menu button:hover{background:var(--bg4)}
+
+/* ──────────────────────────────────────────────────────── barra lateral ── */
 #side{grid-area:side;background:var(--bg2);border-right:1px solid var(--line);
   overflow-y:auto;display:flex;flex-direction:column}
-.side-h{padding:11px 14px 8px;border-bottom:1px solid var(--line);position:sticky;
-  top:0;background:var(--bg2);z-index:5}
-.side-foot{padding:13px;font-size:10.5px;color:var(--txt3);line-height:1.6;
-  border-top:1px solid var(--line);background:#F8FAFA}
-.cat{border-bottom:1px solid var(--line)}
-.cat>button{width:100%;display:flex;align-items:center;gap:8px;padding:9px 13px;
-  text-align:left;font-size:12.5px;color:var(--txt2);transition:.13s}
-.cat>button:hover{background:var(--bg3);color:var(--txt)}
-.cat.open>button{color:var(--txt);font-weight:600;background:var(--bg3)}
-.cat .chev{margin-left:auto;color:var(--txt3);transition:transform .18s;font-size:10px}
-.cat.open .chev{transform:rotate(90deg)}
-.cat .cnt{font-family:var(--mono);font-size:9.5px;color:var(--txt3);
-  background:var(--bg4);padding:1px 5px;border-radius:3px}
-.inds{display:none;padding:2px 0 8px;background:#F8FAFA}
-.cat.open .inds{display:block}
-.ind{width:100%;text-align:left;padding:6px 13px 6px 30px;display:block;
-  border-left:2px solid transparent;transition:.13s;position:relative}
-.ind:hover{background:var(--bg3)}
-.ind.on{background:var(--accsoft);border-left-color:var(--acc)}
-.ind .nm{font-size:12px;color:var(--txt2);display:block;line-height:1.3}
-.ind.on .nm{color:var(--txt);font-weight:500}
-.ind.dis .nm{color:var(--txt3)}
-.ind .selo{margin-top:2px}
-.ind .lvl{position:absolute;right:10px;top:7px;font-family:var(--mono);font-size:9px;
-  color:var(--txt3);letter-spacing:.06em}
+.side-h{padding:16px 16px 12px;border-bottom:1px solid var(--line);position:sticky;top:0;
+  background:var(--bg2);z-index:5;display:flex;flex-direction:column;gap:10px}
+.side-title{display:flex;align-items:baseline;justify-content:space-between}
+.side-title span:first-child{font-size:15px;font-weight:600}
+.side-n{font-size:12px;color:var(--txt3)}
+.filtro{height:36px;width:100%;border:1px solid var(--line2);border-radius:9px;background:var(--bg3);
+  padding:0 12px;font-size:13.5px}
+.filtro:focus{outline:none;background:var(--bg2);border-color:var(--txt3);box-shadow:0 0 0 3px rgba(29,92,150,.14)}
+.side-key{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--txt3)}
+.side-key span{display:inline-flex;align-items:center;gap:6px}
+.side-foot{margin-top:auto;padding:14px 16px;font-size:12px;color:var(--txt3);line-height:1.55;
+  border-top:1px solid var(--line);background:var(--bg3)}
 
-/* ---------------------------------------------------------------- mapa -- */
+.cat{border-bottom:1px solid var(--line)}
+.cat>button{width:100%;display:flex;align-items:center;gap:8px;padding:11px 16px;text-align:left;
+  font-size:14px;font-weight:500;color:var(--txt);transition:background .13s}
+.cat>button:hover{background:var(--bg3)}
+.cat.open>button{background:var(--bg3);font-weight:600}
+.cat .cn{flex:1}
+.cat .cnt{font-size:12px;color:var(--txt3);font-weight:500;font-variant-numeric:tabular-nums}
+.cat .chev{width:8px;height:8px;border-right:1.8px solid var(--txt3);border-bottom:1.8px solid var(--txt3);
+  transform:rotate(-45deg);transition:transform .18s;margin:0 2px 0 6px}
+.cat.open .chev{transform:rotate(45deg)}
+.inds{display:none;padding:2px 0 10px;background:var(--bg3)}
+.cat.open .inds{display:block}
+.ind{width:100%;text-align:left;padding:8px 16px 8px 26px;display:flex;flex-direction:column;gap:3px;
+  border-left:3px solid transparent;transition:background .13s}
+.ind:hover{background:var(--bg4)}
+.ind.on{background:var(--bg2);border-left-color:var(--terra)}
+.ind .nm{font-size:13.5px;color:var(--txt2);line-height:1.35}
+.ind.on .nm{color:var(--txt);font-weight:600}
+.ind .meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--txt3)}
+.ind .lvl{flex-basis:100%;font-size:11.5px;color:var(--txt3);opacity:.85}
+
+/* ──────────────────────────────────────────────────────────────── mapa ── */
 #mapwrap{grid-area:map;position:relative;background:var(--map);overflow:hidden}
 #map{position:absolute;inset:0;background:var(--map)}
 .leaflet-container{background:var(--map);font-family:var(--sans)}
-.leaflet-control-zoom a{background:var(--bg3)!important;color:var(--txt)!important;
-  border-color:var(--line2)!important}
+.leaflet-bar{border:none!important;box-shadow:var(--sh)!important;border-radius:10px!important;overflow:hidden}
+.leaflet-control-zoom a{background:var(--bg2)!important;color:var(--txt)!important;
+  border-color:var(--line)!important;width:36px!important;height:36px!important;line-height:34px!important;
+  font-size:18px!important}
 .leaflet-control-zoom a:hover{background:var(--bg4)!important}
-.fit-btn{background:var(--bg3);color:var(--txt);border:1px solid var(--line2);
-  width:30px;height:30px;line-height:28px;text-align:center;font-size:15px;
-  text-decoration:none;display:block;border-radius:4px;margin-top:6px}
+.fit-btn{background:var(--bg2);color:var(--txt);width:36px;height:36px;line-height:36px;text-align:center;
+  font-size:16px;text-decoration:none;display:block;border-radius:10px;margin-top:8px;box-shadow:var(--sh)}
 .fit-btn:hover{background:var(--bg4)}
-.leaflet-control-attribution{background:rgba(255,255,255,.88)!important;
-  color:var(--txt3)!important;font-size:9.5px!important;font-family:var(--mono)}
+.leaflet-control-attribution{background:rgba(252,251,248,.9)!important;color:var(--txt3)!important;
+  font-size:10.5px!important;border-radius:6px 0 0 0}
 .leaflet-control-attribution a{color:var(--txt2)!important}
+.mk-loja{filter:drop-shadow(0 1px 1.5px rgba(21,33,46,.35))}
 
-/* barra de proveniência — assinatura */
-.prov{position:absolute;top:0;left:0;right:0;z-index:600;display:flex;
-  align-items:center;gap:12px;padding:7px 13px;background:rgba(255,255,255,.94);
-  border-bottom:1px solid var(--line);backdrop-filter:blur(6px);flex-wrap:wrap}
-.prov .ttl{font-size:13px;font-weight:600;letter-spacing:-.01em}
-.prov .meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.prov .warn{color:var(--pend);font-size:11px;display:flex;align-items:center;gap:5px}
-.prov .spacer{flex:1}
-.ramp-sel{display:flex;gap:3px;align-items:center}
-.ramp-sel button{width:38px;height:13px;border-radius:2px;border:1px solid transparent;
-  opacity:.55;transition:.15s}
-.ramp-sel button:hover{opacity:.9}
-.ramp-sel button[aria-pressed=true]{opacity:1;border-color:var(--txt2)}
+/* cartão do indicador (proveniência) */
+.prov{position:absolute;top:14px;left:14px;right:72px;z-index:600;display:flex;flex-direction:column;
+  gap:7px;padding:12px 16px;background:rgba(252,251,248,.97);border:1px solid var(--line);
+  border-radius:14px;box-shadow:var(--sh);max-width:880px}
+.prov-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.prov .ttl{font-size:16px;font-weight:600;letter-spacing:-.005em;color:var(--txt);line-height:1.3}
+.prov .ramp-sel{flex:none;margin-top:2px}
+.prov .meta{display:flex;gap:8px 12px;align-items:center;flex-wrap:wrap}
+.prov .chip{font-size:11.5px}
+.prov .warn{color:var(--pend);font-size:12.5px;display:flex;align-items:center;gap:6px}
+.ramp-sel{display:flex;gap:6px;align-items:center}
+.ramp-sel button{width:40px;height:14px;border-radius:7px;opacity:.5;transition:opacity .15s,box-shadow .15s}
+.ramp-sel button:hover{opacity:.85}
+.ramp-sel button[aria-pressed=true]{opacity:1;box-shadow:0 0 0 2px var(--bg2),0 0 0 3.5px var(--txt)}
 
-/* legenda */
-.legend{position:absolute;left:13px;bottom:22px;z-index:600;background:rgba(255,255,255,.94);
-  border:1px solid var(--line2);border-radius:8px;padding:11px 12px;min-width:212px;
-  max-width:250px;backdrop-filter:blur(6px);box-shadow:var(--sh)}
-.legend h4{font-size:11.5px;font-weight:600;margin-bottom:2px;line-height:1.3}
-.legend .un{font-family:var(--mono);font-size:9.5px;color:var(--txt3);margin-bottom:8px;
-  text-transform:uppercase;letter-spacing:.06em}
-.lrow{display:flex;align-items:center;gap:7px;padding:1.5px 0;cursor:default}
-.lsw{width:20px;height:11px;border-radius:2px;flex:none;border:1px solid rgba(255,255,255,.09)}
-.lrow span{font-family:var(--mono);font-size:10.5px;color:var(--txt2);
-  font-variant-numeric:tabular-nums}
-.legend .foot{margin-top:8px;padding-top:7px;border-top:1px solid var(--line)}
-.class-sel{display:flex;gap:4px;margin-top:7px}
-.class-sel button{flex:1;font-family:var(--mono);font-size:9.5px;padding:3px 0;
-  border:1px solid var(--line2);border-radius:4px;color:var(--txt3)}
-.class-sel button[aria-pressed=true]{background:var(--acc2);color:#fff;border-color:var(--acc)}
+/* legenda e camadas: cartões recolhíveis */
+.legend,.layers{position:absolute;bottom:18px;z-index:600;background:rgba(252,251,248,.97);
+  border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:12px 14px}
+.legend{left:14px;width:264px}
+.layers{right:14px;width:236px}
+.lg-hd{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left}
+.lg-hd h4{font-size:14px;font-weight:600;line-height:1.3;color:var(--txt)}
+.lg-chev{width:8px;height:8px;border-right:1.8px solid var(--txt3);border-bottom:1.8px solid var(--txt3);
+  transform:rotate(45deg);flex:none;margin-top:-3px;transition:transform .18s}
+.min .lg-chev{transform:rotate(-135deg);margin-top:3px}
+.min .lg-body{display:none}
+.lg-body{margin-top:6px}
+.legend .un{font-size:12px;color:var(--txt3);margin-bottom:10px}
+.lrow{display:flex;align-items:center;gap:9px;padding:2.5px 0}
+.lsw{width:24px;height:13px;border-radius:3px;flex:none}
+.lsw.nodata{background:var(--nodata);border:1px dashed var(--contorno)}
+.lrow span{font-size:12.5px;color:var(--txt2);font-variant-numeric:tabular-nums}
+.lrow.nd span{color:var(--txt3)}
+.legend .foot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.class-sel{display:flex;gap:4px;margin-top:6px;padding:3px;background:var(--bg4);border-radius:9px}
+.class-sel button{flex:1;font-size:12px;font-weight:500;height:26px;border-radius:6px;color:var(--txt2)}
+.class-sel button[aria-pressed=true]{background:var(--bg2);color:var(--txt);font-weight:600;
+  box-shadow:0 1px 2px rgba(21,33,46,.12)}
+.lay{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:13px;color:var(--txt);cursor:pointer}
+.lay input{accent-color:var(--txt);width:15px;height:15px;flex:none;cursor:pointer}
+.lay-n{flex:1}
+.lay-q{font-size:12px;color:var(--txt3);font-variant-numeric:tabular-nums}
+.lay-sep{height:1px;background:var(--line);margin:6px 0}
+.sw-pt{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:0 0 0 2px var(--bg2),0 0 0 3px var(--line2)}
+.sw-area{width:16px;height:11px;border-radius:2px;flex:none;background:rgba(155,44,111,.16);border:1.5px solid #9B2C6F}
+.sw-base{width:16px;height:11px;border-radius:2px;flex:none;background:var(--bg4);border:1px solid var(--line2)}
 
-/* camadas */
-.layers{position:absolute;right:13px;bottom:22px;z-index:600;background:rgba(255,255,255,.94);
-  border:1px solid var(--line2);border-radius:8px;padding:10px 12px;width:206px;
-  backdrop-filter:blur(6px);box-shadow:var(--sh)}
-.layers .eyebrow{margin-bottom:6px;display:block}
-.lay{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:11.5px;color:var(--txt2)}
-.lay input{accent-color:var(--acc);width:13px;height:13px}
-.lay.dis{color:var(--txt3)}
-.lay .selo{margin-left:auto}
-
-/* tooltip do mapa */
-.leaflet-tooltip.tt{background:rgba(255,255,255,.98);border:1px solid var(--line2);
-  border-radius:7px;color:var(--txt);box-shadow:var(--sh);padding:9px 11px;
-  font-family:var(--sans);font-size:12px;max-width:250px;white-space:normal}
+/* dica ao passar o mouse */
+.leaflet-tooltip.tt{background:var(--bg2);border:1px solid var(--line2);border-radius:10px;color:var(--txt);
+  box-shadow:var(--sh2);padding:10px 12px;font-family:var(--sans);font-size:12.5px;max-width:280px;white-space:normal}
 .leaflet-tooltip.tt:before{display:none}
-.tt b{display:block;font-size:12.5px;margin-bottom:5px;letter-spacing:-.01em}
-.tt .kv{display:flex;justify-content:space-between;gap:14px;padding:1.5px 0;
-  font-size:11.5px;color:var(--txt2)}
+.tt b{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+.tt .tt-sub{font-weight:400;color:var(--txt3)}
+.tt .kv{display:flex;justify-content:space-between;gap:16px;padding:2px 0;color:var(--txt2)}
 .tt .kv .num{color:var(--txt)}
-.tt .hint{margin-top:6px;padding-top:5px;border-top:1px solid var(--line);
-  font-family:var(--mono);font-size:9px;color:var(--acc);letter-spacing:.08em;
-  text-transform:uppercase}
+.tt .hint{margin-top:7px;padding-top:6px;border-top:1px solid var(--line);font-size:12px;color:var(--terra-t)}
 
-/* --------------------------------------------------------------- painel - */
-#panel{grid-area:panel;background:var(--bg2);border-left:1px solid var(--line);
-  overflow-y:auto;position:relative}
-.p-pad{padding:15px 16px 40px}
-.hero-kpi{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
-  border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:11px 0 14px}
-.kpi{background:var(--bg3);padding:10px 11px;min-height:74px;display:flex;
-  flex-direction:column;justify-content:space-between}
-.kpi .lb{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;
-  text-transform:uppercase;color:var(--txt3);line-height:1.3}
-.kpi .vl{font-family:var(--mono);font-size:19px;font-weight:600;
-  font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin:4px 0 3px}
-.kpi.pend .vl{font-size:11.5px;font-weight:500;color:var(--pend);letter-spacing:0;
-  line-height:1.3;font-family:var(--sans)}
-.kpi .vl small{font-size:12px;color:var(--txt2);font-weight:400}
+/* ─────────────────────────────────────────────────────────────── painel ── */
+#panel{grid-area:panel;background:var(--bg2);border-left:1px solid var(--line);overflow-y:auto;position:relative}
+.p-pad{padding:20px 22px 48px}
+.terr-h{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:6px}
+.terr-h h2{font-family:var(--serif);font-size:28px;font-weight:600;letter-spacing:-.01em;line-height:1.15;
+  margin:8px 0 10px;color:var(--txt)}
+.terr-h .sub{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{display:inline-flex;align-items:center;font-size:12px;font-weight:500;padding:3px 10px;border-radius:999px;
+  background:var(--bg4);color:var(--txt2);white-space:nowrap}
+.chip.acc{background:var(--terra-soft);color:var(--terra-t)}
+.chip.tag{padding:1px 8px;font-size:11.5px}
+.chip.mono{font-variant-numeric:tabular-nums}
 
-h3.sec{font-size:11px;font-family:var(--mono);letter-spacing:.13em;text-transform:uppercase;
-  color:var(--txt3);margin:20px 0 9px;padding-bottom:6px;border-bottom:1px solid var(--line);
-  display:flex;align-items:center;gap:8px}
+.hero-kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 16px}
+.kpi{background:var(--bg3);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+  display:flex;flex-direction:column;gap:4px;min-height:84px}
+.kpi .lb{font-size:12px;font-weight:500;color:var(--txt3);line-height:1.3}
+.kpi .vl{white-space:nowrap;font-size:21px;font-weight:600;letter-spacing:-.01em;color:var(--txt);font-variant-numeric:tabular-nums;line-height:1.2}
+.kpi .vl small{font-size:13px;color:var(--txt3);font-weight:500;margin-left:2px}
+
+h3.sec{font-size:13.5px;font-weight:600;color:var(--txt);margin:26px 0 8px;padding-bottom:8px;
+  border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
 h3.sec:first-child{margin-top:0}
 h3.sec .tag{margin-left:auto}
 
-.row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
-  padding:7px 0;border-bottom:1px solid var(--line)}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:9px 0;
+  border-bottom:1px solid var(--line)}
 .row:last-child{border-bottom:none}
-.muni-row{width:100%;text-align:left;color:inherit}
-.muni-row:hover{background:var(--accsoft)}
-.row .k{font-size:12px;color:var(--txt2);flex:1;line-height:1.35}
-.row .k .selo{margin-top:2px}
-.row .v{text-align:right;flex:none}
-.row .v .num{font-size:13.5px}
-.row .v .u{font-family:var(--mono);font-size:9.5px;color:var(--txt3);display:block}
-.row.np .v{font-size:11px;color:var(--pend);font-style:normal;max-width:120px;text-align:right}
+.row .k{font-size:13px;color:var(--txt2);flex:1;line-height:1.4;display:flex;flex-direction:column;gap:3px;
+  align-items:flex-start}
+.row .v{text-align:right;flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.row .v .num{font-size:14.5px}
+.row .v .u{font-size:12px;color:var(--txt3);display:block;line-height:1.35}
+.row.ref .v .num{color:var(--txt2);font-weight:500}
+.ref-note{font-size:12px;color:var(--txt3);line-height:1.4}
+.row.np .v{font-size:12px;color:var(--pend);max-width:130px}
+.muni-row{width:100%;text-align:left;color:inherit;border-radius:6px}
+.muni-row:hover{background:var(--bg3)}
+.muni-row .k{flex:1;min-width:0}
+.barra{display:block;align-self:stretch;height:8px;margin-top:5px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.barra i{display:block;height:100%;border-radius:4px}
 
-.terr-h{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:4px}
-.terr-h h2{font-size:21px;font-weight:700;letter-spacing:-.025em;line-height:1.15;margin:5px 0 6px}
-.terr-h .sub{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.chip{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;
-  padding:2.5px 7px;border-radius:4px;background:var(--bg4);color:var(--txt2);
-  border:1px solid var(--line2)}
-.chip.acc{background:var(--accsoft);color:var(--acc);border-color:var(--acc2)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;
-  border:1px solid var(--line2);border-radius:6px;font-size:12px;color:var(--txt2);transition:.14s}
-.btn:hover{background:var(--bg4);color:var(--txt);border-color:var(--acc2)}
-.btn.pri{background:var(--acc2);border-color:var(--acc);color:#fff;font-weight:500}
-.btn.pri:hover{background:var(--acc)}
-.btn-row{display:flex;gap:7px;margin:12px 0 4px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 14px;
+  border:1px solid var(--line2);border-radius:9px;background:var(--bg2);font-size:13px;font-weight:500;
+  color:var(--txt);transition:background .14s,border-color .14s}
+.btn:hover{background:var(--bg4)}
+.btn.pri{background:var(--txt);border-color:var(--txt);color:var(--bg2)}
+.btn.pri:hover{background:#24344A}
+.btn-row{display:flex;gap:8px;margin:14px 0 4px;flex-wrap:wrap}
 
-/* estado vazio / pendente */
-.empty{border:1px dashed var(--line2);border-radius:8px;padding:13px;background:var(--bg3)}
-.empty .hd{display:flex;align-items:center;gap:7px;margin-bottom:6px}
-.empty .hd b{font-size:12px;font-weight:600}
-.empty p{font-size:11.5px;color:var(--txt3);line-height:1.5}
-.empty .src{margin-top:8px;padding-top:7px;border-top:1px solid var(--line);
-  font-family:var(--mono);font-size:10px;color:var(--txt3);line-height:1.5}
+.note{border:1px solid var(--line);border-left:3px solid var(--acc);background:var(--bg3);padding:11px 14px;
+  border-radius:8px;font-size:13px;color:var(--txt2);line-height:1.55;margin:10px 0 14px}
+.note b{color:var(--txt)}
+.note.warn{border-left-color:var(--pend)}
 
-/* gráficos */
+.empty{border:1px dashed var(--line2);border-radius:10px;padding:14px;background:var(--bg3)}
+.empty .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.empty p{font-size:12.5px;color:var(--txt3);line-height:1.5}
+.empty .src{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:12px;color:var(--txt3)}
+
+/* gráficos do painel */
 .chart{width:100%;display:block}
-.chart text{font-family:var(--mono);font-size:9.5px;fill:var(--txt3)}
-.chart .lbl{font-family:var(--sans);font-size:10.5px;fill:var(--txt2)}
+.chart text{font-family:var(--sans);font-size:11px;fill:var(--txt3)}
+.chart .lbl{font-size:11.5px;fill:var(--txt2)}
 .chart .val{fill:var(--txt);font-weight:600}
-.frame-empty{border:1px dashed var(--line2);border-radius:6px;height:132px;display:flex;
-  align-items:center;justify-content:center;flex-direction:column;gap:5px;
-  background:repeating-linear-gradient(45deg,#F4F7F7,#F4F7F7 7px,#EDF2F3 7px,#EDF2F3 14px)}
-.frame-empty .t{font-family:var(--mono);font-size:10px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--pend)}
-.frame-empty .s{font-size:10.5px;color:var(--txt3)}
+.trilho{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.empilhada{display:flex;gap:2px;height:14px;border-radius:4px;overflow:hidden;margin:8px 0 10px}
+.leg-mini{font-size:12px;color:var(--txt3);display:inline-flex;align-items:center;gap:5px}
+.leg-mini i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-left:8px}
+.frame-empty{border:1px dashed var(--line2);border-radius:8px;height:120px;display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:5px;background:var(--bg3)}
+.frame-empty .t{font-size:12px;font-weight:600;color:var(--txt3)}
+.frame-empty .s{font-size:12px;color:var(--txt3)}
 
-/* --------------------------------------------------------------- modal -- */
-.modal{position:fixed;inset:0;z-index:2000;display:none;align-items:center;
-  justify-content:center;padding:22px;background:rgba(17,37,46,.48);backdrop-filter:blur(3px)}
+/* ─────────────────────────────────────────────────────────────── modais ── */
+.modal{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;
+  padding:24px;background:rgba(21,33,46,.42);backdrop-filter:blur(3px)}
 .modal.show{display:flex}
-.mbox{background:var(--bg2);border:1px solid var(--line2);border-radius:11px;
-  width:100%;max-width:940px;max-height:88vh;display:flex;flex-direction:column;
-  box-shadow:0 22px 60px rgba(22,47,58,.28)}
-.mbox.wide{max-width:1180px}
-.mhead{display:flex;align-items:center;gap:12px;padding:13px 17px;
-  border-bottom:1px solid var(--line);flex:none}
-.mhead h2{font-size:15px;font-weight:600;letter-spacing:-.01em}
-.mhead .x{margin-left:auto;color:var(--txt3);font-size:19px;line-height:1;padding:2px 6px}
-.mhead .x:hover{color:var(--txt)}
-.mbody{padding:17px;overflow:auto}
+.mbox{background:var(--bg2);border-radius:16px;width:100%;max-width:960px;max-height:88vh;
+  display:flex;flex-direction:column;box-shadow:var(--sh2);overflow:hidden}
+.mbox.wide{max-width:1200px}
+.mhead{display:flex;align-items:center;gap:12px;padding:18px 24px;border-bottom:1px solid var(--line);flex:none}
+.mhead h2{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-.01em}
+.mhead .x{margin-left:auto;color:var(--txt3);font-size:24px;line-height:1;width:36px;height:36px;border-radius:9px}
+.mhead .x:hover{color:var(--txt);background:var(--bg4)}
+.mbody{padding:22px 24px;overflow:auto;font-size:13.5px}
 
-table.tb{width:100%;border-collapse:collapse;font-size:12px}
-table.tb th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--txt3);padding:7px 9px;border-bottom:1px solid var(--line2);
-  position:sticky;top:0;background:var(--bg2);z-index:2}
-table.tb td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
-table.tb td.n{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+table.tb{width:100%;border-collapse:collapse;font-size:13px}
+table.tb th{text-align:left;font-size:12px;font-weight:600;color:var(--txt3);padding:9px 10px;
+  border-bottom:1px solid var(--line2);position:sticky;top:0;background:var(--bg2);z-index:2}
+table.tb td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tb td.n{text-align:right;font-variant-numeric:tabular-nums}
 table.tb tr:hover td{background:var(--bg3)}
 table.tb .best{color:var(--ok);font-weight:600}
 table.tb .worst{color:var(--pend)}
 
-.matrix{width:100%;border-collapse:collapse;font-size:11.5px}
-.matrix th{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--txt3);padding:6px 5px;text-align:center;border-bottom:1px solid var(--line2)}
+.matrix{width:100%;border-collapse:collapse;font-size:13px}
+.matrix th{font-size:12px;font-weight:600;color:var(--txt3);padding:8px 6px;text-align:center;
+  border-bottom:1px solid var(--line2)}
 .matrix th:first-child{text-align:left;width:44%}
-.matrix td{padding:4px 5px;border-bottom:1px solid var(--line);text-align:center}
+.matrix td{padding:6px;border-bottom:1px solid var(--line);text-align:center}
 .matrix td:first-child{text-align:left;color:var(--txt2)}
-.mcell{display:inline-block;width:15px;height:15px;border-radius:3px;background:var(--bg4)}
-.mcell.ok{background:var(--ok)}.mcell.pend{background:rgba(217,160,54,.28);
-  border:1px solid rgba(217,160,54,.55)}
-.mcell.mun{background:rgba(130,150,171,.3)}.mcell.na{background:#E7ECEE}
-.mcell.ext{background:rgba(192,85,155,.35)}
-.mcell.imp{background:rgba(139,123,232,.55)}
+.mcell{display:inline-block;width:16px;height:16px;border-radius:4px;background:var(--bg4)}
+.mcell.ok{background:var(--ok)}
+.mcell.est{background:var(--est)}
+.mcell.pend{background:#F3E2BE;border:1px solid #D9B46A}
+.mcell.mun{background:#C9CDD1}
+.mcell.na{background:var(--bg4)}
+.mcell.ext{background:#D7A9C3}
+.mcell.imp{background:#B9B0EC}
 
-.drop{border:2px dashed var(--line2);border-radius:10px;padding:26px;text-align:center;
-  background:var(--bg3);transition:.16s}
-.drop.over{border-color:var(--acc);background:var(--accsoft)}
-.drop b{display:block;font-size:13px;margin-bottom:5px}
-.drop p{font-size:11.5px;color:var(--txt3);line-height:1.6}
+.drop{border:2px dashed var(--line2);border-radius:12px;padding:28px;text-align:center;background:var(--bg3);transition:.16s}
+.drop.over{border-color:var(--acc);background:#EEF3F8}
+.drop b{display:block;font-size:14px;margin-bottom:6px}
+.drop p{font-size:13px;color:var(--txt3);line-height:1.6}
 
-.src-card{border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:var(--bg3);
-  margin-bottom:8px}
-.src-card .hd{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
-.src-card .hd b{font-size:12.5px}
-.src-card p{font-size:11.5px;color:var(--txt3);line-height:1.55}
-.src-card a{color:var(--acc);text-decoration:none;font-family:var(--mono);font-size:10.5px}
+.src-card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg3);margin-bottom:10px}
+.src-card .hd{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
+.src-card .hd b{font-size:14px}
+.src-card p{font-size:13px;color:var(--txt2);line-height:1.55}
+.src-card a{color:var(--acc);text-decoration:none;font-size:12.5px;word-break:break-all}
 .src-card a:hover{text-decoration:underline}
 
-.note{border-left:3px solid var(--acc2);background:#F1F7F8;padding:10px 13px;
-  border-radius:0 6px 6px 0;font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:14px}
-.note b{color:var(--txt)}
-.note.warn{border-left-color:var(--pend)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.cmp-slot{border:1px solid var(--line2);border-radius:7px;padding:9px 11px;background:var(--bg3);
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cmp-slot{border:1px solid var(--line2);border-radius:10px;padding:10px 12px;background:var(--bg3);
   display:flex;align-items:center;gap:9px}
-.cmp-slot .n{font-size:12.5px;font-weight:600;flex:1}
-.cmp-slot .rm{color:var(--txt3);font-size:15px;padding:0 4px}
+.cmp-slot .n{font-size:13.5px;font-weight:600;flex:1}
+.cmp-slot .rm{color:var(--txt3);font-size:17px;padding:0 4px}
 .cmp-slot .rm:hover{color:var(--err)}
-.cmp-slot.ph{border-style:dashed;color:var(--txt3);font-size:12px;justify-content:center}
+.cmp-slot.ph{border-style:dashed;color:var(--txt3);font-size:13px;justify-content:center}
 
-/* toast */
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);
-  background:var(--bg4);border:1px solid var(--line2);border-radius:8px;padding:10px 16px;
-  font-size:12.5px;z-index:3000;opacity:0;transition:.28s;box-shadow:var(--sh);max-width:90vw}
+/* aviso flutuante */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--txt);
+  color:var(--bg2);border-radius:10px;padding:11px 18px;font-size:13.5px;z-index:3000;opacity:0;
+  transition:.28s;box-shadow:var(--sh2);max-width:90vw}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#toast.err{border-color:var(--err);color:#F2C4BB}
-#toast.ok{border-color:var(--ok)}
+#toast.err{background:var(--err)}
 
 .mobile-only{display:none}
 #backdrop{display:none}
 
-/* ---------------------------------------------------------- responsivo -- */
-@media(max-width:1180px){:root{--panel:328px;--side:250px}}
+/* ─────────────────────────────────────────────────────────── responsivo ── */
+@media(max-width:1440px){.brand>span{display:none}}
+@media(max-width:1320px){
+  :root{--panel:360px;--side:280px}
+  .sel{max-width:160px}.store-select{max-width:190px}
+}
+@media(max-width:1160px){
+  #btnLojas{display:none}
+  .search{min-width:130px}
+}
 @media(max-width:960px){
-  #app{grid-template-columns:1fr;grid-template-rows:var(--top) 1fr;
-    grid-template-areas:"top" "map"}
-  #side{position:fixed;top:var(--top);bottom:0;left:0;width:290px;z-index:1200;
-    transform:translateX(-101%);transition:transform .24s;box-shadow:var(--sh)}
+  :root{--top:108px}
+  #app{grid-template-columns:1fr;grid-template-rows:var(--top) 1fr;grid-template-areas:"top" "map"}
+  header{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:56px 44px;
+    align-items:center;gap:0 10px;padding:0 12px 8px}
+  #btnSide{grid-column:1;grid-row:1}
+  .brand{grid-column:2;grid-row:1}
+  .brand b{font-size:17px}
+  .seg{grid-column:3;grid-row:1}
+  .search{grid-column:1/3;grid-row:2;max-width:none;min-width:0}
+  .tools{grid-column:3;grid-row:2;margin-left:0}
+  #selMuni,#btnAnalise{display:none}
+  .store-select{max-width:132px}
+  #side{position:fixed;top:var(--top);bottom:0;left:0;width:300px;max-width:88vw;z-index:1200;
+    transform:translateX(-101%);transition:transform .24s;box-shadow:var(--sh2)}
   #side.open{transform:none}
-  #panel{position:fixed;left:0;right:0;bottom:0;top:auto;height:62vh;z-index:1150;
-    border-left:none;border-top:1px solid var(--line2);border-radius:13px 13px 0 0;
-    transform:translateY(101%);transition:transform .26s;box-shadow:0 -10px 34px rgba(32,57,66,.20)}
+  #panel{position:fixed;left:0;right:0;bottom:0;top:auto;height:64vh;z-index:1150;border-left:none;
+    border-top:1px solid var(--line2);border-radius:18px 18px 0 0;transform:translateY(101%);
+    transition:transform .26s;box-shadow:0 -12px 36px rgba(21,33,46,.18)}
   #panel.open{transform:none}
-  #panel:before{content:"";position:absolute;top:6px;left:50%;transform:translateX(-50%);
-    width:34px;height:3px;border-radius:2px;background:var(--line2)}
-  .p-pad{padding-top:18px}
+  #panel:before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);
+    width:40px;height:4px;border-radius:2px;background:var(--line2)}
+  .p-pad{padding-top:24px}
   .mobile-only{display:inline-flex}
-  #backdrop.show{display:block;position:fixed;inset:0;top:var(--top);
-    background:rgba(17,37,46,.38);z-index:1100}
-  .layers{bottom:auto;top:104px;width:180px}
-  .legend{bottom:14px;min-width:180px}
-  .brand span{display:none}
-  .tools .lbl{display:none}
+  #backdrop.show{display:block;position:fixed;inset:0;top:var(--top);background:rgba(21,33,46,.36);z-index:1100}
+  .prov{top:10px;left:10px;right:58px;padding:10px 12px}
+  .prov .ttl{font-size:14.5px}
+  .layers{top:auto;bottom:12px;right:10px;width:210px}
+  .legend{bottom:12px;left:10px;width:230px}
   .grid2{grid-template-columns:1fr}
 }
 @media(max-width:620px){
-  .search{max-width:none}
-  .prov .meta{display:none}
-  .layers{display:none}
-  .mbox{max-height:92vh}
-  .mbody{padding:13px}
-  .store-select{display:none}
+  .seg button{padding:0 9px;font-size:12.5px}
+  .prov .meta .chip,.prov .ramp-sel{display:none}
+  .brand .b-long{display:none}.brand .b-short{display:inline}
+  /* legenda e camadas lado a lado, acima da atribuição (que quebra em duas linhas) */
+  .leaflet-control-attribution{font-size:9.5px!important}
+  .legend{bottom:40px;width:auto;max-width:calc(100% - 20px);right:auto}
+  .legend.min{max-width:calc(56% - 14px)}
+  .legend.min .lg-hd h4{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .layers{bottom:40px;width:calc(44% - 14px);min-width:0}
+  .legend:not(.min)~.layers{display:none}
+  .mbox{max-height:92vh;border-radius:14px}
+  .mbody{padding:16px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
@@ -399,50 +468,57 @@ table.tb .worst{color:var(--pend)}
 <div id="app">
   <!-- ═════════════════════════════════════════════════════════ TOPO ═══ -->
   <header>
-    <button class="btn mobile-only" id="btnSide" aria-label="Indicadores">☰</button>
-    <div class="brand"><b>Atlas Metropolitano</b><span>RMPA · evidências territoriais</span></div>
+    <button class="ibtn mobile-only" id="btnSide" aria-label="Abrir lista de indicadores">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="brand"><b><span class="b-long">Atlas Metropolitano</span><span class="b-short">Atlas RMPA</span></b><span>Região Metropolitana de Porto Alegre</span></div>
 
     <div class="seg" id="segNivel" role="group" aria-label="Nível geográfico">
       <button data-nivel="municipio" aria-pressed="false">Município</button>
-
-      <button data-nivel="bairro" aria-pressed="true">Bairros</button>
-      <button data-nivel="setor" aria-pressed="false">Setores</button>
+      <button data-nivel="bairro" aria-pressed="true">Bairro</button>
+      <button data-nivel="setor" aria-pressed="false">Setor</button>
     </div>
 
     <div class="search">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="q" placeholder="Buscar bairro, setor ou loja" autocomplete="off" aria-label="Buscar território">
+      <input id="q" type="search" placeholder="Buscar bairro, setor ou loja" autocomplete="off" aria-label="Buscar território">
       <div class="sugg" id="sugg" style="display:none"></div>
     </div>
 
     <div class="tools">
-      <select id="selMuni" class="btn" style="padding:5px 8px;background:var(--bg3)"></select>
-      <select id="selLoja" class="btn store-select" aria-label="Analisar entorno de uma loja">
+      <select id="selMuni" class="sel" aria-label="Filtrar por município"></select>
+      <select id="selLoja" class="sel store-select" aria-label="Analisar o entorno de uma loja">
         <option value="">Entorno de uma loja…</option>
       </select>
-      <button id="btnLojas">Lojas</button>
-      <button id="btnAnalise"><span class="lbl">Análise</span><span class="mobile-only">⇄</span></button>
-      <button id="btnMetodo"><span class="lbl">Metodologia</span><span class="mobile-only">§</span></button>
-      <button id="btnMatriz"><span class="lbl">Cobertura</span><span class="mobile-only">▦</span></button>
-      <button id="btnFontes"><span class="lbl">Fontes</span><span class="mobile-only">ⓘ</span></button>
-      <button id="btnDados" class="pri"><span class="lbl">Integrar dados</span><span class="mobile-only">↑</span></button>
+      <button id="btnLojas" class="tbtn">Lojas</button>
+      <button id="btnAnalise" class="tbtn">Análise</button>
+      <div class="menu-wrap">
+        <button id="btnMais" class="tbtn" aria-haspopup="true" aria-expanded="false">Mais
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="menu" id="menuMais" role="menu">
+          <button id="btnMetodo" role="menuitem">Metodologia</button>
+          <button id="btnMatriz" role="menuitem">Cobertura dos dados</button>
+          <button id="btnFontes" role="menuitem">Fontes</button>
+          <button id="btnDados" role="menuitem">Integrar dados</button>
+        </div>
+      </div>
     </div>
   </header>
 
   <!-- ══════════════════════════════════════════════════════ SIDEBAR ═══ -->
   <nav id="side">
     <div class="side-h">
-      <span class="eyebrow">Indicadores</span>
-      <div style="display:flex;gap:9px;margin-top:6px;flex-wrap:wrap">
-        <span class="selo s-ok"><i class="dot"></i>oficial</span>
-        <span class="selo s-mun"><i class="dot"></i>só município</span>
-        <span class="selo s-est"><i class="dot"></i>histórico</span>
+      <div class="side-title"><span>Indicadores</span><span class="side-n" id="nInd"></span></div>
+      <input id="filtroInd" class="filtro" type="search" placeholder="Filtrar indicadores" aria-label="Filtrar indicadores">
+      <div class="side-key">
+        <span class="k-ok"><i class="dot"></i>oficial</span>
+        <span class="k-est"><i class="dot"></i>histórico, 2010</span>
+        <span class="k-ext"><i class="dot"></i>não oficial</span>
       </div>
     </div>
     <div id="cats"></div>
-    <div class="side-foot">Saúde, assistência, segurança, emprego, finanças e agro
-      têm cobertura municipal nos sete municípios. Dados históricos são identificados pelo ano.</div>
+    <div class="side-foot">Todo valor traz fonte, ano e nível geográfico. Onde um território não
+      tem dado publicado, o Atlas mostra o do território que o contém, com o nome dele.</div>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════════ MAPA ═══ -->
@@ -462,7 +538,7 @@ table.tb .worst{color:var(--pend)}
 
 <!-- ══════════════════════════════════════════════════════════ MODAIS ═══ -->
 <div class="modal" id="mdLojas"><div class="mbox wide">
-  <div class="mhead"><h2>Lojas Renner — RS I</h2>
+  <div class="mhead"><h2>Unidades Renner</h2>
     <span class="chip">20 unidades</span><button class="x" data-close>×</button></div>
   <div class="mbody" id="lojasBody"></div></div></div>
 
@@ -592,12 +668,18 @@ const NIVEIS = {
 };
 
 /* ────────────────────────────────────────────── 3. RAMPAS CROMÁTICAS ─── */
+/* Um matiz por rampa, luminosidade crescente (OKLCH) e a cor mais clara com
+   contraste ≥ 2:1 sobre o fundo do mapa: nenhuma classe some no fundo.
+   Validadas com o validate_palette da skill de visualização (--ordinal). */
 const RAMPAS = {
-  agua:['#EEF6FA','#C9E4EE','#96CEDF','#58AEC8','#2788A9','#086785','#084B63'],
-  terra:['#F4F7E8','#DDE9B8','#BED67B','#91B84A','#648F30','#466B24','#304A1B'],
-  brasa:['#FFF2E9','#FFD8C3','#F7AD87','#E77C55','#C94E35','#9F3327','#71231E']
+  agua:['#73ace7','#5398dd','#3284d0','#1271be','#025ea4','#004d87','#003c6b'],
+  terra:['#7fb880','#62a765','#46954c','#2e8237','#1b6f26','#115b1c','#0c4715'],
+  brasa:['#e09074','#d47756','#c55f3a','#b14a22','#9a380f','#802c06','#652104']
 };
-const RAMPA_NOMES={agua:'Água (sequencial azul)',terra:'Terra (sequencial ocre)',brasa:'Brasa (sequencial quente)'};
+const RAMPA_NOMES={agua:'Azul',terra:'Verde',brasa:'Laranja'};
+/* cores de interface fixas do mapa (as mesmas variáveis do atlas.css) */
+const COR={tinta:'#15212E',terracota:'#C2502A',papel:'#FBFAF7',semdado:'#DAD6CC',contorno:'#B9B4A8',
+  cat:['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4']};
 
 /* ────────────────────────────────────────── 4. CATÁLOGO DE INDICADORES ─ */
 /* status: ok = dado oficial carregado | mun = existe só no nível municipal
@@ -629,7 +711,7 @@ const slugId=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
 /* ---- 4.1 INDICADORES DO CENSO 2022 — CARREGADOS ----------------------- */
 ind({id:'pop',cat:'visao',n:'População residente',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua',obs:'Total de pessoas recenseadas. Soma exatamente 1.332.845 no município.'});
 ind({id:'dens_hab',cat:'visao',n:'Densidade demográfica',u:'hab/km²',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec1',ramp:'brasa',obs:'População dividida pela área do polígono do território.'});
-ind({id:'area_km2',cat:'visao',n:'Área do polígono',u:'km²',fonte:'SMURB',ano:2016,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'terra',obs:'Bairros: malha SMUrb (Lei 12.112/2016), 472,81 km² no total. Setores: área do IBGE, 495,39 km². A área municipal do IBGE é 496,83 km² — a malha de bairros não recobre toda a lâmina d’água. Medidas de produtores distintos, nunca somadas entre si.'});
+ind({id:'area_km2',cat:'visao',n:'Área do polígono',u:'km²',fonte:'SMURB',ano:2016,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'terra',obs:'Porto Alegre — bairros: malha SMUrb (Lei 12.112/2016), 94 bairros, 472,81 km² no total. Setores: área do IBGE, 495,39 km². A área municipal do IBGE é 496,83 km² — a malha de bairros não recobre toda a lâmina d’água. Medidas de produtores distintos, nunca somadas entre si.'});
 ind({id:'pop_pct_mun',cat:'visao',n:'Participação na população do município',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro'],status:'ok',fmt:'pct2',ramp:'agua'});
 ind({id:'pop_h',cat:'demografia',n:'População masculina',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'pop_m',cat:'demografia',n:'População feminina',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
@@ -1014,6 +1096,12 @@ const S={
 /* ─────────────────────────────────────────────────── 7. UTILITÁRIOS ──── */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const nf=new Intl.NumberFormat('pt-BR');
+const NIVEL_CURTO={municipio:'município',bairro:'bairro',setor:'setor'};
+/* unidade ao lado de um valor já formatado em reais: tira o "R$" repetido */
+const unid=i=>!i.u?'':(/^brl/.test(i.fmt||'')&&/^R\$/.test(i.u))
+  ?i.u.replace(/^R\$\s*/,'').replace(/^\//,'por ')
+  :(/^pct/.test(i.fmt||'')&&i.u==='%')?'':i.u;
+const listaPt=a=>a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' e '+a[a.length-1];
 const fmtN=(v,f)=>{
   if(v==null||v===''||Number.isNaN(v))return '—';
   switch(f){
@@ -1025,6 +1113,10 @@ const fmtN=(v,f)=>{
     case 'pct1':return v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
     case 'pct2':return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
     case 'brl': return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    case 'brl0':return 'R$ '+nf.format(Math.round(v));
+    case 'brlc':{ /* compacto, para valores da ordem de milhões e bilhões */
+      const a=Math.abs(v), d1=x=>x.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+      return a>=1e9?'R$ '+d1(v/1e9)+' bi':a>=1e6?'R$ '+d1(v/1e6)+' mi':'R$ '+nf.format(Math.round(v));}
     default:    return nf.format(v);
   }
 };
@@ -1121,14 +1213,14 @@ function iniciaMapa(){
   L.control.zoom({position:'topright'}).addTo(map);
   const Fit=L.Control.extend({options:{position:'topright'},
     onAdd(){const a=L.DomUtil.create('a','leaflet-bar leaflet-control fit-btn');
-      a.href='#'; a.title='Enquadrar Porto Alegre'; a.setAttribute('role','button');
+      a.href='#'; a.title='Enquadrar o mapa'; a.setAttribute('role','button');
       a.innerHTML='⤢';
       L.DomEvent.on(a,'click',e=>{L.DomEvent.stop(e);ajustaMapa(true);});
       return a;}});
   map.addControl(new Fit());
   map.attributionControl.setPrefix('');
   map.attributionControl.addAttribution(
-    'Malhas: SMUrb/PMPA (Lei 12.112/2016) · IBGE 2022 — Dados: IBGE/ObservaPOA');
+    'Malhas: IBGE 2022 · SMUrb/PMPA — Dados: IBGE, INEP, DATASUS, SICONFI, SSP/RS');
 }
 function baseOn(on){
   if(on&&!camadaBase){
@@ -1157,7 +1249,16 @@ function calculaEscala(g){
   }
   ord.sort((a,b)=>a-b);
   S._vals=vals; S._ord=ord;
-  S._brk=quebrasDe(ord,S.classes,S.metodo);
+  /* Com muitos zeros (favelas por setor: 91%), os quantis colapsam em 0,0,0,0.
+     Zero vira uma classe própria e as quebras são feitas entre os positivos. */
+  const zeros=ord.length?ord.filter(v=>v===0).length:0;
+  if(zeros>=0.2*ord.length&&ord.length-zeros>=S.classes)
+    S._brk=[0].concat(quebrasDe(ord.slice(zeros),S.classes-1,S.metodo));
+  else S._brk=quebrasDe(ord,S.classes,S.metodo);
+  /* quebras repetidas ou iguais ao máximo só criam classes vazias na legenda
+     (favela por setor: quase todo valor é 0% ou 100%) */
+  const mx=ord.length?ord[ord.length-1]:null;
+  S._brk=S._brk.filter((b,k,a)=>(k===0||b!==a[k-1])&&(mx==null||b<mx));
   S._ramp=S.ramp||i.ramp||'agua';
   S._cores=escalaCores(S._ramp,S._brk.length+1);   /* antes: por feição */
   return vals;
@@ -1165,10 +1266,10 @@ function calculaEscala(g){
 function estiloFeicao(f){
   const setor=S.nivel==='setor';
   const c=corDe(valor(f.properties),S._brk,S._ramp,S._cores);
-  return {fillColor:c||'#CAD5D9', fillOpacity:c?.88:.42,
-    color: setor?'#A6B5BA':'#7F939A',
-    weight: setor?.35:.8, opacity:.9,
-    dashArray: c?null:'2,2'};
+  return {fillColor:c||COR.semdado, fillOpacity:c?.92:.7,
+    color: c?COR.papel:COR.contorno,
+    weight: setor?.4:1, opacity:setor?.75:1,
+    dashArray: c?null:'2,3'};
 }
 function geoDoNivel(){
   const nivel=S.nivel;
@@ -1212,7 +1313,7 @@ function desenhaMapa(){
     if(!l||!l.setStyle||estaDestacada(l))return;
     /* no nível setor, realçar obrigaria o canvas a redesenhar os 4.722 polígonos
        a cada passagem do mouse; ali o tooltip já dá o retorno visual */
-    if(S.nivel!=='setor'){l.setStyle({weight:2.2,color:'#0057B8'});l.bringToFront&&l.bringToFront();}
+    if(S.nivel!=='setor'){l.setStyle({weight:2.4,color:COR.tinta,opacity:1});l.bringToFront&&l.bringToFront();}
   });
   camada.on('mouseout',e=>{
     const l=e.propagatedFrom||e.layer;
@@ -1246,8 +1347,8 @@ function marcaSelecao(){
     const l=camadaPorId.get(id);
     if(l&&l.setStyle){l.setStyle(est);destacadas.push(l);}
   };
-  if(S.sel)destaca(S.sel,{color:'#7FE3F5',weight:2.6,opacity:1});
-  S.cmp.forEach(id=>{if(id!==S.sel)destaca(id,{color:'#D9A036',weight:2,opacity:1});});
+  if(S.sel)destaca(S.sel,{color:COR.tinta,weight:3,opacity:1});
+  S.cmp.forEach(id=>{if(id!==S.sel)destaca(id,{color:COR.terracota,weight:2.6,opacity:1});});
 }
 function tooltipHTML(p){
   const i=indAtual(), v=valor(p);
@@ -1256,7 +1357,7 @@ function tooltipHTML(p){
     ? [['População (2022)','pop_2022','int'],['Densidade','dens_hab_km2','dec1'],['Área','area_km2','dec2']]
     : [['População (2022)','pop_2022','int'],['Domicílios','dom_total','int'],['Moradores/dom.','moradores_dom','dec2']];
   extras.forEach(([n,k,f])=>{ if(k!==S.indId) linhas.push([n, p[k]==null?'sem dado':fmtN(+p[k],f)]); });
-  return `<b>${esc(p.nome)}${p.bairro&&S.nivel==='setor'?` <span style="color:#94A8B7;font-weight:400">· ${esc(p.bairro)}</span>`:''}</b>`+
+  return `<b>${esc(p.nome)}${p.bairro&&S.nivel==='setor'?` <span class="tt-sub">· ${esc(p.bairro)}</span>`:''}</b>`+
     linhas.map(([k,val])=>`<div class="kv"><span>${esc(k)}</span><span class="num">${esc(val)}</span></div>`).join('')+
     `<div class="hint">clique para o perfil completo</div>`;
 }
@@ -1278,7 +1379,8 @@ function renderProv(){
     /* denominador: a população desse mesmo conjunto. Antes era a de Porto Alegre,
        o que dava até 178,6% nos níveis que cobrem os sete municípios. */
     let extra='';
-    if(com<tot&&pc>0&&pt>0)extra=` · ${fmtN(100*pc/pt,'pct1')} da população`;
+    if(com<tot&&pc>0&&pt>0){const r=100*pc/pt;
+      extra=` · ${r>=99.95?'mais de 99,9%':fmtN(r,'pct1')} da população`;}
     cob=`<span class="selo ${com===tot?'s-ok':'s-pend'}"><i class="dot"></i>${nf.format(com)} de ${nf.format(tot)} ${n.plural} com dado${extra}</span>`;
   }
   const alerta = i.status==='pend'
@@ -1290,16 +1392,15 @@ function renderProv(){
     : i.status==='imp'
     ? `<span class="warn" style="color:var(--imp)">◆ carregado de arquivo do usuário — o Atlas não valida a origem</span>`
     : i.status==='est'
-    ? `<span class="warn" style="color:var(--est)">◆ REFERÊNCIA HISTÓRICA 2010 — atribuída espacialmente ao território de 2022. Ver Metodologia.</span>`:'';
+    ? `<span class="warn" style="color:var(--est)">◆ Referência histórica do Censo 2010, atribuída ao território de 2022 — ver Metodologia</span>`:'';
   $('#prov').innerHTML=`
-    <span class="ttl">${esc(i.n)}</span>
-    <div class="meta">${selo(i,S.nivel)}<span class="chip">${esc(n.ab)}</span>${cob}</div>
-    ${alerta}
-    <span class="spacer"></span>
-    <div class="ramp-sel">${Object.keys(RAMPAS).map(r=>{
+    <div class="prov-hd"><span class="ttl">${esc(i.n)}</span>
+    <div class="ramp-sel" role="group" aria-label="Cor do mapa">${Object.keys(RAMPAS).map(r=>{
       const cs=escalaCores(r,5);
-      return `<button data-ramp="${r}" title="${esc(RAMPA_NOMES[r])}" aria-pressed="${(S.ramp||i.ramp)===r}"
-        style="background:linear-gradient(90deg,${cs.join(',')})"></button>`;}).join('')}</div>`;
+      return `<button data-ramp="${r}" title="${esc(RAMPA_NOMES[r])}" aria-label="${esc(RAMPA_NOMES[r])}" aria-pressed="${(S.ramp||i.ramp)===r}"
+        style="background:linear-gradient(90deg,${cs.join(',')})"></button>`;}).join('')}</div></div>
+    <div class="meta">${selo(i,S.nivel)}<span class="chip">${esc(n.ab)}</span>${cob}</div>
+    ${alerta}`;
   $$('#prov .ramp-sel button').forEach(b=>b.onclick=()=>{S.ramp=b.dataset.ramp;repintaMapa();});
 }
 function renderLegenda(){
@@ -1314,24 +1415,32 @@ function renderLegenda(){
     return;
   }
   const brk=S._brk||[], cores=S._cores||escalaCores(S._ramp||i.ramp,brk.length+1);
-  const g=S.geo[S.nivel]||{features:[]};
-  /* sem filtro de município a camada desenhada é esta mesma, e calculaEscala
-     já ordenou os valores — antes a legenda ordenava tudo de novo */
-  const vals=(S.muniFiltro==null&&S._ord&&S._g===g)?S._ord
+  /* o conjunto desenhado (com o filtro de município); calculaEscala já ordenou */
+  const g=S._g||S.geo[S.nivel]||{features:[]};
+  const vals=(S._ord&&S._g===g)?S._ord
     :g.features.map(f=>valor(f.properties)).filter(v=>v!=null).sort((a,b)=>a-b);
-  const semDado=g.features.length-vals.length;
   const rot=[];
   for(let k=0;k<cores.length;k++){
     const lo=k===0?vals[0]:brk[k-1], hi=k===cores.length-1?vals[vals.length-1]:brk[k];
-    rot.push(`<div class="lrow"><i class="lsw" style="background:${cores[k]}"></i>
-      <span>${fmtN(lo,i.fmt)} – ${fmtN(hi,i.fmt)}</span></div>`);
+    /* reais em faixas: sem centavos, que só poluem a leitura */
+    const fl=i.fmt==='brl'?'brl0':i.fmt, zero=brk[0]===0;
+    const faixa=(lo===hi||(k===0&&zero))?fmtN(k===0&&zero?0:lo,fl)
+      :k===1&&zero&&lo===0?`acima de 0 até ${fmtN(hi,fl)}`:`${fmtN(lo,fl)} – ${fmtN(hi,fl)}`;
+    rot.push(`<div class="lrow"><i class="lsw" style="background:${cores[k]}"></i><span>${faixa}</span></div>`);
   }
-  el.innerHTML=`<h4>${esc(i.n)}</h4><div class="un">${esc(i.u||'')} · ${NIVEIS[S.nivel].ab} · ${i.ano}</div>
+  /* por que falta valor: sem moradores, fonte que não cobre o município, ou sigilo */
+  const nulos=g.features.filter(f=>valor(f.properties)==null);
+  const nSemMor=nulos.filter(f=>!f.properties.pop).length;
+  const nForaFonte=nulos.filter(f=>f.properties.pop&&!cobre(S.nivel,f.properties.muni,i.id)).length;
+  const nSigilo=nulos.length-nSemMor-nForaFonte;
+  const motivos=[[nSemMor,'setor especial ou sem moradores'],[nForaFonte,'fora da cobertura da fonte'],
+    [nSigilo,'sob sigilo estatístico do IBGE']].filter(x=>x[0]>0);
+  el.classList.toggle('min',!!S.legMin);
+  el.innerHTML=`<button class="lg-hd" id="lgToggle" aria-expanded="${!S.legMin}"><h4>${esc(i.n)}</h4><span class="lg-chev" aria-hidden="true"></span></button>
+    <div class="lg-body"><div class="un">${esc(i.u||'')} · ${esc(NIVEIS[S.nivel].n.toLowerCase())} · ${i.ano}</div>
     ${rot.reverse().join('')}
-    ${semDado?`<div class="lrow"><i class="lsw" style="background:#26333F;border-style:dashed"></i>
-      <span>sem dado (${nf.format(semDado)})</span></div>
-      <div style="font-size:10px;color:var(--txt3);line-height:1.5;margin-top:5px">
-        Vazios concentrados na periferia — ver <b>Fontes</b>.</div>`:''}
+    ${motivos.map(([n,t])=>`<div class="lrow nd"><i class="lsw nodata"></i>
+      <span>${esc(t)} · ${nf.format(n)}</span></div>`).join('')}
     <div class="foot"><span class="eyebrow">Classificação</span>
       <div class="class-sel">
         <button data-m="quantil" aria-pressed="${S.metodo==='quantil'}">quantis</button>
@@ -1339,7 +1448,9 @@ function renderLegenda(){
       </div>
       <div class="class-sel" style="margin-top:4px">
         ${[4,5,6,7].map(k=>`<button data-k="${k}" aria-pressed="${S.classes===k}">${k}</button>`).join('')}
-      </div></div>`;
+      </div></div></div>`;
+  $('#lgToggle').onclick=()=>{S.legMin=!S.legMin;el.classList.toggle('min',S.legMin);
+    $('#lgToggle').setAttribute('aria-expanded',String(!S.legMin));};
   $$('#legend [data-m]').forEach(b=>b.onclick=()=>{S.metodo=b.dataset.m;repintaMapa();});
   $$('#legend [data-k]').forEach(b=>b.onclick=()=>{S.classes=+b.dataset.k;repintaMapa();});
 }
@@ -1347,23 +1458,28 @@ function renderLegenda(){
 /* ───────────────────────────────────────────────── 11. SIDEBAR / CATS ── */
 function renderCats(){
   $('#cats').innerHTML=CATS.map(c=>{
-    const inds=IND.filter(i=>i.cat===c.id);
-    const ok=inds.filter(i=>i.status!=='pend').length;
+    /* status "mun" (valor só de Porto Alegre) e "pend" não têm mapa: ficam fora da lista */
+    const inds=IND.filter(i=>i.cat===c.id&&i.status!=='mun'&&i.status!=='pend');
+    if(!inds.length)return '';
+    const ok=inds.length;
     return `<div class="cat${c.id===S.cat?' open':''}" data-cat="${c.id}">
-      <button><span>${esc(c.n)}</span>
-        <span class="cnt">${ok}/${inds.length}</span><span class="chev">▶</span></button>
+      <button aria-expanded="${c.id===S.cat}"><span class="cn">${esc(c.n)}</span>
+        <span class="cnt">${ok}</span><span class="chev" aria-hidden="true"></span></button>
       <div class="inds">${inds.map(i=>{
-        const dis=i.status==='pend'||i.status==='mun';
-        return `<button class="ind${i.id===S.indId?' on':''}${dis?' dis':''}" data-ind="${i.id}">
-          <span class="nm">${esc(i.n)}</span>${selo(i)}
-          <span class="lvl">${i.niveis.map(n=>NIVEIS[n].ab[0]).join('')}</span></button>`;
+        const f=(FONTES[i.fonte]||{}).s||i.fonte;
+        return `<button class="ind${i.id===S.indId?' on':''} st-${i.status}" data-ind="${i.id}"
+          data-busca="${esc(norm(i.n+' '+c.n))}">
+          <span class="nm">${esc(i.n)}</span>
+          <span class="meta"><i class="dot"></i>${esc(f)} · ${i.ano||''}${i.status==='est'?' · histórico':''}${i.status==='ext'?' · não oficial':''}
+            <span class="lvl">${listaPt(['municipio','bairro','setor'].filter(n=>i.niveis.includes(n)).map(n=>NIVEL_CURTO[n]))}</span></span></button>`;
       }).join('')}</div></div>`;
   }).join('');
   $$('.cat>button').forEach(b=>b.onclick=()=>{
     const c=b.parentElement; const wasOpen=c.classList.contains('open');
-    $$('.cat').forEach(x=>x.classList.remove('open'));
-    if(!wasOpen){c.classList.add('open');S.cat=c.dataset.cat;}
+    $$('.cat').forEach(x=>{x.classList.remove('open');x.firstElementChild.setAttribute('aria-expanded','false');});
+    if(!wasOpen){c.classList.add('open');b.setAttribute('aria-expanded','true');S.cat=c.dataset.cat;}
   });
+  const n=$('#nInd'); if(n)n.textContent=nf.format($$('.ind').length);
   $$('.ind').forEach(b=>b.onclick=()=>escolheIndicador(b.dataset.ind));
 }
 function escolheIndicador(id){
@@ -1403,28 +1519,35 @@ function painelMunicipiosHTML(){
   if(S.sel){
     const f=feature(S.sel);if(!f)return aberturaHTML();
     const p=f.properties;
-    const blocos=[
-      ['Saúde','saude'],['Assistência social','assistencia'],['Segurança','seguranca'],
-      ['Emprego e trabalho','trabalho'],['Finanças públicas','financas'],['Agro','agro']
-    ];
-    return `<div class="terr-h"><button class="btn" id="btnVoltar">← Sete municípios</button>
-      <span class="eyebrow">Perfil municipal</span><h2>${esc(p.nome)}</h2>
-      <div class="sub"><span class="chip acc">${fmtN(p.pop_est_2026,'int')} habitantes · 2026</span></div></div>
-      ${blocos.map(([titulo,cat])=>{
-        const itens=IND.filter(x=>x.cat===cat&&x.niveis.includes('municipio')&&x.status!=='pend'&&p[x.id]!=null);
-        return `<h3 class="sec">${titulo}<span class="chip tag">${itens.length}</span></h3>`+
+    /* todas as categorias com valor para este município; nenhum bloco vazio */
+    const hab=p.pop_est_2026!=null?`${fmtN(p.pop_est_2026,'int')} habitantes · 2026`
+      :p.pop!=null?`${fmtN(p.pop,'int')} habitantes · 2022`:'';
+    return `<div class="terr-h"><div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+      <button class="btn" id="btnVoltar" style="padding:3px 8px;font-size:11px">← Sete municípios</button>
+      <span class="eyebrow">Perfil municipal</span></div><h2>${esc(p.nome)}</h2>
+      ${hab?`<div class="sub"><span class="chip acc">${hab}</span></div>`:''}</div>
+      ${CATS.map(c=>{
+        const itens=IND.filter(x=>x.cat===c.id&&x.niveis.includes('municipio')&&x.status!=='pend'&&p[x.id]!=null);
+        if(!itens.length)return '';
+        return `<h3 class="sec">${esc(c.n)}<span class="chip tag">${itens.length}</span></h3>`+
           itens.map(x=>`<div class="row"><div class="k">${esc(x.n)}${selo(x,'municipio')}</div>
-            <div class="v"><span class="num">${fmtN(+p[x.id],x.fmt)}</span><span class="u">${esc(x.u)}</span></div></div>`).join('');
+            <div class="v"><span class="num">${fmtN(+p[x.id],x.fmt)}</span><span class="u">${esc(unid(x))}</span></div></div>`).join('');
       }).join('')}`;
   }
   const fs=g.features.filter(f=>S.muniFiltro==null||f.properties.muni_id===S.muniFiltro);
   const arr=fs.map(f=>({f,v:valor(f.properties)})).sort((a,b)=>(b.v??-Infinity)-(a.v??-Infinity));
+  const mx=Math.max(0,...arr.map(a=>a.v??0));
   return `<div class="terr-h"><span class="eyebrow">Comparação metropolitana</span>
     <h2>Sete municípios da RMPA</h2><div class="sub"><span class="chip acc">dados com fonte e ano</span></div></div>
     <h3 class="sec">${esc(i.n)}</h3>
-    ${arr.map(({f,v})=>`<button class="row muni-row" data-goto="${esc(f.properties.id)}">
-      <div class="k"><b>${esc(f.properties.nome)}</b></div><div class="v"><span class="num">${fmtN(v,i.fmt)}</span>
-      <span class="u">${esc(i.u)}</span></div></button>`).join('')}
+    ${arr.map(({f,v})=>{
+      /* barra de magnitude na cor da classe do mapa: liga a lista ao mapa */
+      const w=v!=null&&mx>0&&v>0?Math.max(2,100*v/mx):0, cor=corDe(v,S._brk||[],S._ramp||i.ramp,S._cores);
+      return `<button class="row muni-row" data-goto="${esc(f.properties.id)}">
+      <div class="k"><b>${esc(f.properties.nome)}</b>
+        ${v!=null?`<span class="barra" aria-hidden="true"><i style="width:${w.toFixed(1)}%;background:${cor||COR.semdado}"></i></span>`:''}</div>
+      <div class="v"><span class="num">${fmtN(v,i.fmt)}</span>
+      <span class="u">${esc(unid(i))}</span></div></button>`;}).join('')}
     <div class="note" style="margin-top:14px">Clique em um município para ver, em uma única ficha,
       saúde, assistência, segurança, emprego, finanças e agro.</div>`;
 }
@@ -1439,21 +1562,21 @@ function aberturaHTML(){
   const kpis=[
     ['População','pop_2022',MUN.pop_2022,'int','Censo/IBGE · 2022'],
     ['Área','area_km2',MUN.area_km2,'dec2','SMUrb/IBGE · 2016',' km²'],
-    ['PIB','__pib',null,null,'IBGE · 2023'],
-    ['PIB per capita','m_pib_pc',MUN.m_pib_pc,'brl','IBGE · 2023'],
-    ['Rendimento médio do responsável','m_resp_renda',MUN.m_resp_renda,'brl','Censo/IBGE · 2022'],
+    ['PIB','__pib',(((RAW_NUCLEO||{}).pib||{}).municipios||{})[MUN.nome]
+      ?RAW_NUCLEO.pib.municipios[MUN.nome].pib*1000:null,'brlc',
+      'IBGE · '+((((RAW_NUCLEO||{}).pib)||{}).ano_pib||2023)],
+    ['PIB per capita','m_pib_pc',MUN.m_pib_pc,'brl0','IBGE · 2023'],
+    ['Rendimento médio do responsável','m_resp_renda',MUN.m_resp_renda,'brl0','Censo/IBGE · 2022'],
     ['IDHM','m_idhm',MUN.m_idhm,'dec3','Atlas Brasil · 2010']
   ];
-  const cards=kpis.map(([lb,id,val,f,src,suf])=>{
-    if(val==null)return `<div class="kpi pend"><span class="lb">${esc(lb)}</span>
-      <span class="vl">Aguardando integração</span>
-      <span class="selo s-pend"><i class="dot"></i>${esc(src)}</span></div>`;
+  /* só entra o que tem valor: o painel nunca exibe cartão vazio */
+  const cards=kpis.filter(k=>k[2]!=null).map(([lb,id,val,f,src,suf])=>{
     return `<div class="kpi"><span class="lb">${esc(lb)}</span>
       <span class="vl">${fmtN(val,f)}${suf?`<small>${suf}</small>`:''}</span>
       <span class="selo s-ok"><i class="dot"></i>${esc(src)}</span></div>`;
   }).join('');
 
-  const municipais=IND.filter(i=>i.status==='mun');
+  const municipais=IND.filter(i=>i.status==='mun'&&MUN[i.id]!=null);
   return `
   <div class="terr-h">
     <span class="eyebrow">Atlas socioeconômico interativo</span>
@@ -1471,7 +1594,7 @@ function aberturaHTML(){
     Estes indicadores não têm representatividade abaixo do município e por isso
     <b>não são rateados entre bairros</b>.</p>
   ${municipais.map(i=>`<div class="row"><div class="k">${esc(i.n)}${selo(i)}</div>
-     <div class="v"><span class="num">${fmtN(MUN[i.id],i.fmt)}</span><span class="u">${esc(i.u)}</span></div></div>`).join('')}
+     <div class="v"><span class="num">${fmtN(MUN[i.id],i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`).join('')}
 
   <h3 class="sec">Evolução histórica</h3>
   ${serieHTML('idhm')}
@@ -1516,10 +1639,10 @@ function retratoHTML(){
 function coberturaHTML(){
   const t=IND.length, ok=IND.filter(i=>i.status==='ok').length,
     ext=IND.filter(i=>i.status==='ext').length, imp=IND.filter(i=>i.status==='imp').length,
-    mun=IND.filter(i=>i.status==='mun').length, p=t-ok-ext-mun-imp;
-  const seg=[[ok,'var(--ok)','oficial territorial'],[mun,'var(--mun)','só município'],
-    [imp,'var(--imp)','arquivo do usuário'],[ext,'var(--sim)','não oficial'],
-    [p,'rgba(183,106,0,.25)','sem valor carregado']].filter(x=>x[0]>0);
+    mun=IND.filter(i=>i.status==='mun').length, est=IND.filter(i=>i.status==='est').length;
+  const seg=[[ok,'var(--ok)','oficial, Censo 2022 e fontes recentes'],[est,'var(--est)','histórico, Censo 2010'],
+    [mun,'var(--mun)','só Porto Alegre'],[imp,'var(--imp)','arquivo do usuário'],
+    [ext,'var(--sim)','não oficial']].filter(x=>x[0]>0);
   return `<div style="display:flex;height:9px;border-radius:5px;overflow:hidden;margin-bottom:9px">
     ${seg.map(([n,c])=>`<div style="width:${100*n/t}%;background:${c}"></div>`).join('')}</div>
     ${seg.map(([n,c,l])=>`<div class="row" style="padding:4px 0"><div class="k">
@@ -1539,9 +1662,9 @@ function serieHTML(k){
   const py=v=>h-pad.b-(v-y0)/((y1-y0)||1)*(h-pad.t-pad.b);
   const d=s.pts.map((p,i)=>(i?'L':'M')+px(p[0])+' '+py(p[1])).join(' ');
   return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(s.n)}">
-    <line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="#22323F"/>
-    <path d="${d}" fill="none" stroke="#34A0B8" stroke-width="2"/>
-    ${s.pts.map(p=>`<circle cx="${px(p[0])}" cy="${py(p[1])}" r="3.4" fill="#34A0B8"/>
+    <line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="var(--line2)"/>
+    <path d="${d}" fill="none" stroke="${COR.cat[0]}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    ${s.pts.map(p=>`<circle cx="${px(p[0])}" cy="${py(p[1])}" r="4.5" fill="${COR.cat[0]}" stroke="var(--bg2)" stroke-width="2"/>
       <text x="${px(p[0])}" y="${py(p[1])-9}" text-anchor="middle" class="val">${fmtN(p[1],'dec3')}</text>
       <text x="${px(p[0])}" y="${h-6}" text-anchor="middle">${p[0]}</text>`).join('')}
   </svg>
@@ -1560,17 +1683,17 @@ function distribuicaoHTML(){
       <div class="k" style="flex:1">
         <div style="display:flex;justify-content:space-between;gap:9px;margin-bottom:3px">
           <span>${esc(o.n)}</span><span class="num" style="color:var(--txt)">${fmtN(o.v,i.fmt)}</span></div>
-        <div style="height:5px;background:#16222C;border-radius:3px;overflow:hidden">
+        <div class="trilho">
           <div style="height:100%;width:${Math.max(1,100*o.v/mx)}%;background:${corDe(o.v,S._brk||[],S._ramp||i.ramp)}"></div>
         </div></div></div>`;
   const soma=arr.reduce((a,o)=>a+o.v,0), med=arr[Math.floor(arr.length/2)].v;
   return `<h3 class="sec">Distribuição — ${esc(i.n)}</h3>
     <div class="row"><div class="k">Mediana entre ${NIVEIS[S.nivel].plural}</div>
-      <div class="v"><span class="num">${fmtN(med,i.fmt)}</span><span class="u">${esc(i.u)}</span></div></div>
+      <div class="v"><span class="num">${fmtN(med,i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>
     <div class="row"><div class="k">Amplitude (máx ÷ mín)</div>
       <div class="v"><span class="num">${arr[arr.length-1].v?fmtN(arr[0].v/arr[arr.length-1].v,'dec1')+'×':'—'}</span></div></div>
     ${/pessoas|domic|vínculos/.test(i.u)?`<div class="row"><div class="k">Soma</div>
-      <div class="v"><span class="num">${fmtN(soma,'int')}</span><span class="u">${esc(i.u)}</span></div></div>`:''}
+      <div class="v"><span class="num">${fmtN(soma,'int')}</span><span class="u">${esc(unid(i))}</span></div></div>`:''}
     <h3 class="sec">Maiores valores</h3>${top.map(barra).join('')}
     <h3 class="sec">Menores valores</h3>${bot.map(barra).join('')}
     <div class="btn-row"><button class="btn" id="btnRankAqui">Ver ranking completo</button></div>`;
@@ -1600,6 +1723,29 @@ const BLOCOS=[
   {t:'Vulnerabilidade e assistência',cats:['vulner','assistencia']},
   {t:'Ambiente urbano',cats:['ambiente']}
 ];
+/* A fonte cobre este município neste nível? (ex.: o geoclimate só cobre POA).
+   Indicador que a fonte não cobre não é "faltante": nem aparece no perfil. */
+const COBRE={};
+function cobre(nivel,muni,id){
+  const k=nivel+'|'+muni+'|'+id;
+  if(!(k in COBRE)){const g=S.geo[nivel];
+    COBRE[k]=!!g&&g.features.some(f=>f.properties.muni===muni&&f.properties[id]!=null);}
+  return COBRE[k];
+}
+/* Territórios que contêm este: setor → bairro → município. Onde falta um valor,
+   o perfil mostra o do território que o contém, com o nome dele no rótulo. */
+function continentes(p){
+  const out=[];
+  if(S.nivel==='setor'&&p.bairro&&S.geo.bairro){
+    const b=S.geo.bairro.features.find(x=>x.properties.muni===p.muni&&x.properties.nome===p.bairro);
+    if(b)out.push({p:b.properties,rot:'do bairro '+b.properties.nome});
+  }
+  if(S.nivel!=='municipio'&&S.geo.municipio){
+    const m=S.geo.municipio.features.find(x=>x.properties.nome===p.muni);
+    if(m)out.push({p:m.properties,rot:'de '+p.muni});
+  }
+  return out;
+}
 function perfilHTML(id){
   const f=feature(id); if(!f)return aberturaHTML();
   const p=f.properties, isSetor=S.nivel==='setor';
@@ -1607,11 +1753,11 @@ function perfilHTML(id){
 
   let html=`<div class="terr-h">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
-      <button class="btn" id="btnVoltar" style="padding:3px 8px;font-size:11px">← Porto Alegre</button>
+      <button class="btn" id="btnVoltar" style="padding:3px 8px;font-size:11px">← Visão geral</button>
       <span class="eyebrow">${isSetor?'Setor censitário':'Bairro'}</span></div>
     <h2>${esc(p.nome)}</h2>
     <div class="sub">
-      ${isSetor?`<span class="chip acc">${esc(p.bairro)}</span><span class="chip mono">${esc(p.id)}</span>`
+      ${isSetor?`<span class="chip acc">${esc(p.bairro||p.muni||'')}</span><span class="chip mono">${esc(p.id)}</span>`
         :`<span class="chip acc">${fmtN(pctMun,'pct2')} de ${esc(p.muni||'—')}</span>`}
       ${p.area_km2!=null?`<span class="chip">${fmtN(+p.area_km2,'dec2')} km²</span>`:''}
     </div>
@@ -1619,12 +1765,21 @@ function perfilHTML(id){
       <button class="btn pri" id="btnAddCmp">Comparar com outro território</button>
     </div></div>`;
 
+  if(isSetor&&!p.pop){
+    const c=continentes(p)[0];
+    html+=`<div class="note">${p.pop===0
+        ?'O Censo 2022 não registrou moradores neste setor.'
+        :'O IBGE não publica os dados de pessoas deste setor: é um setor especial (quartel, hospital, alojamento) ou está sob sigilo.'}
+      Onde falta o dado do setor, a linha mostra o valor ${c?esc(c.rot):'do município'} e traz essa indicação.</div>`;
+  }
   BLOCOS.forEach(b=>{
     const inds=IND.filter(i=>b.cats.includes(i.cat)&&i.niveis.includes(S.nivel));
     if(!inds.length)return;
     const disp=inds.filter(i=>i.status!=='pend'&&p[i.id]!=null);
-    const falt=inds.filter(i=>!disp.includes(i));
-    html+=`<h3 class="sec">${esc(b.t)}<span class="chip tag">${disp.length}/${inds.length}</span></h3>`;
+    /* faltantes que a fonte cobre neste município: recebem o valor do continente */
+    const falt=inds.filter(i=>!disp.includes(i)&&i.status!=='pend'&&cobre(S.nivel,p.muni,i.id));
+    if(!disp.length&&!falt.length)return;
+    html+=`<h3 class="sec">${esc(b.t)}<span class="chip tag">${disp.length+falt.length}</span></h3>`;
     if(disp.length){
       html+=disp.map(i=>{
         const om=p._omit&&p._omit[i.id];
@@ -1632,19 +1787,23 @@ function perfilHTML(id){
           ${om?`<div style="font-size:10px;color:var(--pend);margin-top:2px">
             soma parcial — IBGE omitiu ${om} setor${om>1?'es':''}</div>`:''}</div>
         <div class="v"><span class="num">${fmtN(+p[i.id],i.fmt)}</span>
-        <span class="u">${esc(i.u)}</span></div></div>`;}).join('');
+        <span class="u">${esc(unid(i))}</span></div></div>`;}).join('');
     }
     if(b.t==='Perfil populacional')html+=piramideHTML(p);
     if(b.t==='Perfil racial')html+=racaHTML(p);
     if(falt.length){
-      const porFonte={};
-      falt.forEach(i=>{const k=i.fonte;(porFonte[k]=porFonte[k]||[]).push(i);});
-      html+=`<div class="empty" style="margin-top:9px"><div class="hd">
-        <span class="selo s-pend"><i class="dot"></i>aguardando integração</span>
-        <b style="margin-left:auto;font-family:var(--mono);font-size:11px">${falt.length}</b></div>
-        <p>${esc(falt.slice(0,6).map(i=>i.n).join(' · '))}${falt.length>6?` e mais ${falt.length-6}`:''}</p>
-        <div class="src">${Object.keys(porFonte).map(k=>
-          `${esc((FONTES[k]||{}).s||k)} · ${porFonte[k].length} indicador${porFonte[k].length>1?'es':''}`).join('<br>')}</div></div>`;
+      const cont=continentes(p), aqui=isSetor?'este setor':S.nivel==='bairro'?'este bairro':'este município';
+      html+=falt.map(i=>{
+        let ref=null; for(const c of cont){if(c.p[i.id]!=null){ref=c;break;}}
+        return ref
+          ?`<div class="row ref"><div class="k">${esc(i.n)}${selo(i,S.nivel)}
+              <span class="ref-note">IBGE não publica para ${aqui} · valor ${esc(ref.rot)}</span></div>
+            <div class="v"><span class="num">${fmtN(+ref.p[i.id],i.fmt)}</span>
+            <span class="u">${esc(unid(i))}</span></div></div>`
+          :`<div class="row ref"><div class="k">${esc(i.n)}${selo(i,S.nivel)}
+              <span class="ref-note">IBGE não publica para ${aqui} nem para o território que o contém</span></div>
+            <div class="v"><span class="num">—</span></div></div>`;
+      }).join('');
     }
   });
 
@@ -1671,52 +1830,61 @@ function perfilHTML(id){
 const FAIXAS_ID=['0-4','5-9','10-14','15-19','20-24','25-29','30-39','40-49','50-59','60-69','70+'];
 
 /* pirâmide etária — bairros têm sexo × idade; setores, só idade */
-function piramideHTML(p){
+function piramideHTML(p,deOnde){
   const temPir=Array.isArray(p._pir)&&p._pir.some(v=>v>0);
   const idade=FAIXAS_ID.map((_,i)=>p['id'+i]);
-  if(!temPir&&idade.every(v=>v==null))
-    return graficoVazio('Pirâmide etária','Censo 2022 — bloco não publicado para este setor');
+  if(!temPir&&idade.every(v=>v==null)){
+    /* bloco não publicado: mostra o do território que contém, com o nome dele */
+    for(const c of continentes(p)){
+      const ok=(Array.isArray(c.p._pir)&&c.p._pir.some(v=>v>0))||FAIXAS_ID.some((_,i)=>c.p['id'+i]!=null);
+      if(ok)return piramideHTML(c.p,c.rot);
+    }
+    return '';
+  }
   const w=340,h=190,pad={l:34,r:6,t:14,b:16},bh=(h-pad.t-pad.b)/11-2;
   const meio=(w-pad.l-pad.r)/2+pad.l;
   const H=temPir?p._pir.slice(0,11):idade.map(()=>0);
   const M=temPir?p._pir.slice(11):idade;
-  const mx=Math.max(...H,...M,1), esc=(w-pad.l-pad.r)/2/mx;
+  const mx=Math.max(...H,...M,1), kx=(w-pad.l-pad.r)/2/mx;
   const barras=FAIXAS_ID.map((f,i)=>{
     const y=pad.t+(11-1-i)*(bh+2);
-    const wh=(H[i]||0)*esc, wm=(M[i]||0)*esc;
-    return `<rect x="${meio-wh}" y="${y}" width="${wh}" height="${bh}" fill="#34A0B8" rx="1">
+    const wh=(H[i]||0)*kx, wm=(M[i]||0)*kx;
+    return `<rect x="${meio-wh}" y="${y}" width="${wh}" height="${bh}" fill="${COR.cat[0]}" rx="2">
         <title>Homens ${f}: ${nf.format(H[i]||0)}</title></rect>
-      <rect x="${meio}" y="${y}" width="${wm}" height="${bh}" fill="#C4A369" rx="1">
+      <rect x="${meio}" y="${y}" width="${wm}" height="${bh}" fill="${temPir?COR.cat[1]:COR.cat[0]}" rx="2">
         <title>${temPir?'Mulheres':'Pessoas'} ${f}: ${nf.format(M[i]||0)}</title></rect>
       <text x="0" y="${y+bh-1}" class="lbl">${f}</text>`;
   }).join('');
   return `<div style="margin-top:9px">
     <div style="display:flex;justify-content:space-between;align-items:baseline">
-      <span class="eyebrow">${temPir?'Pirâmide etária':'Distribuição por idade'}</span>
-      ${temPir?`<span class="eyebrow" style="letter-spacing:.06em">
-        <i style="display:inline-block;width:7px;height:7px;background:#34A0B8;border-radius:2px"></i> homens
-        &nbsp;<i style="display:inline-block;width:7px;height:7px;background:#C4A369;border-radius:2px"></i> mulheres
-      </span>`:''}
+      <span class="eyebrow">${temPir?'Pirâmide etária':'Distribuição por idade'}${deOnde?' '+esc(deOnde):''}</span>
+      ${temPir?`<span class="leg-mini"><i style="background:${COR.cat[0]}"></i>homens
+        <i style="background:${COR.cat[1]}"></i>mulheres</span>`:''}
     </div>
     <svg class="chart" viewBox="0 0 ${w} ${h}" style="margin-top:5px">
-      ${barras}<line x1="${meio}" y1="${pad.t-3}" x2="${meio}" y2="${h-pad.b}" stroke="#22323F"/>
+      ${barras}<line x1="${meio}" y1="${pad.t-3}" x2="${meio}" y2="${h-pad.b}" stroke="var(--line2)"/>
     </svg>
     <div class="selo s-ok"><i class="dot"></i>Censo/IBGE · 2022${temPir?'':' · sem recorte por sexo neste nível'}</div>
   </div>`;
 }
 
 /* composição por cor ou raça */
-const CORES_RACA={raca_branca:['Branca','#8FB3C4'],raca_preta:['Preta','#6B4A38'],
-  raca_parda:['Parda','#C4A369'],raca_amarela:['Amarela','#D9C293'],
-  raca_indigena:['Indígena','#A9834A']};
-function racaHTML(p){
+/* Paleta categórica da skill de visualização, em ordem fixa: a cor segue o grupo,
+   nunca a posição. Antes eram tons de pele, uma codificação que não se usa. */
+const CORES_RACA={raca_branca:['Branca',COR.cat[0]],raca_preta:['Preta',COR.cat[1]],
+  raca_parda:['Parda',COR.cat[2]],raca_amarela:['Amarela',COR.cat[3]],
+  raca_indigena:['Indígena',COR.cat[4]]};
+function racaHTML(p,deOnde){
   const ks=Object.keys(CORES_RACA), tot=p._raca_total;
-  if(!tot)return graficoVazio('Composição por cor ou raça','Censo 2022 — bloco não publicado para este setor');
-  const seg=ks.map(k=>({k,n:CORES_RACA[k][0],c:CORES_RACA[k][1],v:p[k]||0}))
-    .filter(o=>o.v>0).sort((a,b)=>b.v-a.v);
+  if(!tot){
+    for(const c of continentes(p))if(c.p._raca_total)return racaHTML(c.p,c.rot);
+    return '';
+  }
+  /* ordem fixa (a validada para vizinhos), não por tamanho */
+  const seg=ks.map(k=>({k,n:CORES_RACA[k][0],c:CORES_RACA[k][1],v:p[k]||0})).filter(o=>o.v>0);
   const om=p._omit&&(p._omit.raca_branca||p._omit.raca_indigena||p._omit.raca_amarela);
-  return `<div style="margin-top:9px"><span class="eyebrow">Composição por cor ou raça</span>
-    <div style="display:flex;height:16px;border-radius:4px;overflow:hidden;margin:6px 0 8px">
+  return `<div style="margin-top:9px"><span class="eyebrow">Composição por cor ou raça${deOnde?' '+esc(deOnde):''}</span>
+    <div class="empilhada">
       ${seg.map(o=>`<div title="${esc(o.n)}: ${fmtN(100*o.v/tot,'pct1')}"
         style="width:${100*o.v/tot}%;background:${o.c}"></div>`).join('')}</div>
     ${seg.map(o=>`<div class="row" style="padding:4px 0"><div class="k">
@@ -1999,7 +2167,8 @@ function renderRank(){
 
 /* ────────────────────────────────────── 16. MATRIZ DE DISPONIBILIDADE ── */
 function renderMatriz(){
-  const nv=['municipio','regiao','bairro','setor'];
+  /* a malha das regiões do OP não está no pacote: coluna sem nenhum dado, fica de fora */
+  const nv=['municipio','bairro','setor'];
   const st=i=>{
     const out={};
     nv.forEach(n=>{
@@ -2583,9 +2752,9 @@ function buscar(t){
 
 /* ────────────────────────────── camadas de pontos ────────────────────── */
 const ESTILO_PONTO={
-  escolas:{cor:'#4FB477',r:3.4,rot:'Escolas'},
-  saude:{cor:'#34A0B8',r:3.8,rot:'Saúde'},
-  lojas:{cor:'#D94F4F',r:7,rot:'Lojas Renner'}
+  escolas:{cor:'#4a3aa7',r:3.6,rot:'Escolas'},
+  saude:{cor:'#1baf7a',r:3.8,rot:'Saúde'},
+  lojas:{cor:'#C2502A',r:7,rot:'Lojas Renner'}
 };
 /* Um renderer por camada — jamais um por marcador.
    Criar L.canvas()/L.svg() dentro do laço inseria um elemento <canvas> por
@@ -2614,8 +2783,9 @@ function constroiPontos(chave){
   PONTOS[chave].forEach((p,i)=>{
     const m=L.circleMarker([p.y,p.x],{
       renderer:rend,
-      radius:e.r, fillColor:e.cor, color:loja?'#fff':'#4D636B',
-      weight:loja?2:.6, fillOpacity:loja?1:.85, opacity:1, className:loja?'mk-loja':''
+      /* anel da cor do papel em volta do ponto: separa do polígono embaixo */
+      radius:e.r, fillColor:e.cor, color:COR.papel,
+      weight:loja?2.5:1.2, fillOpacity:1, opacity:1, className:loja?'mk-loja':''
     });
     m.bindTooltip(()=>tooltipPontoHTML(p,loja),{className:'tt',sticky:true,direction:'top'});
     if(loja)m.on('click',()=>abreEntorno(i));
@@ -2639,8 +2809,8 @@ function abreEntorno(i,raio){
   S.loja=i; S.raio=raio||S.raio||1;
   focoLoja=L0;
   if(camadaRaio){map.removeLayer(camadaRaio);camadaRaio=null;}
-  camadaRaio=L.circle([L0.y,L0.x],{radius:S.raio*1000,color:'#D94F4F',weight:1.6,
-    fillColor:'#D94F4F',fillOpacity:.07,dashArray:'4,4',pane:'atlasSobre'}).addTo(map);
+  camadaRaio=L.circle([L0.y,L0.x],{radius:S.raio*1000,color:COR.terracota,weight:2,
+    fillColor:COR.terracota,fillOpacity:.06,dashArray:'6,5',pane:'atlasSobre'}).addTo(map);
   map.fitBounds(camadaRaio.getBounds(),{padding:[40,40]});
   S.sel=null;
   $('#panelBody').innerHTML=entornoHTML(i);
@@ -2771,19 +2941,20 @@ function entornoHTML(i){
 
 function renderCamadas(){
   const n=k=>PONTOS&&PONTOS[k]?PONTOS[k].length:0;
-  $('#layers').innerHTML=`<span class="eyebrow">Camadas</span>
-    <label class="lay"><input type="checkbox" id="lay-lojas" ${S.camadas.lojas?'checked':''}>
-      <b style="color:#E88">Lojas Renner</b>
-      <span class="selo s-ok"><i class="dot"></i>${n('lojas')}</span></label>
-    <label class="lay"><input type="checkbox" id="lay-escolas" ${S.camadas.escolas?'checked':''}>
-      Escolas<span class="selo s-ok"><i class="dot"></i>${nf.format(n('escolas'))}</span></label>
-    <label class="lay"><input type="checkbox" id="lay-saude" ${S.camadas.saude?'checked':''}>
-      Unidades de saúde<span class="selo s-ok"><i class="dot"></i>${n('saude')}</span></label>
-    <label class="lay"><input type="checkbox" id="lay-fcu" ${S.camadas.fcu?'checked':''}>
-      Favelas e comunidades<span class="selo s-ok"><i class="dot"></i>IBGE</span></label>
-    <div style="height:1px;background:var(--line);margin:6px 0"></div>
-    <label class="lay"><input type="checkbox" id="lay-base" ${S.camadas.base?'checked':''}>
-      Mapa base<span class="selo s-mun"><i class="dot"></i>opcional</span></label>`;
+  const item=(id,rot,qtd,amostra)=>`<label class="lay"><input type="checkbox" id="lay-${id}" ${S.camadas[id]?'checked':''}>
+      ${amostra}<span class="lay-n">${rot}</span><span class="lay-q">${qtd}</span></label>`;
+  const pt=c=>`<i class="sw-pt" style="background:${c}"></i>`;
+  const el=$('#layers'); el.classList.toggle('min',!!S.layMin);
+  el.innerHTML=`<button class="lg-hd" id="layToggle" aria-expanded="${!S.layMin}"><span class="eyebrow">Camadas</span><span class="lg-chev" aria-hidden="true"></span></button>
+    <div class="lg-body">
+    ${item('lojas','Lojas Renner',n('lojas'),pt(ESTILO_PONTO.lojas.cor))}
+    ${item('escolas','Escolas',nf.format(n('escolas')),pt(ESTILO_PONTO.escolas.cor))}
+    ${item('saude','Unidades de saúde',n('saude'),pt(ESTILO_PONTO.saude.cor))}
+    ${item('fcu','Favelas e comunidades','IBGE','<i class="sw-area"></i>')}
+    <div class="lay-sep"></div>
+    ${item('base','Mapa de fundo','opcional','<i class="sw-base"></i>')}</div>`;
+  $('#layToggle').onclick=()=>{S.layMin=!S.layMin;el.classList.toggle('min',S.layMin);
+    $('#layToggle').setAttribute('aria-expanded',String(!S.layMin));};
   $('#lay-base').onchange=e=>{S.camadas.base=e.target.checked;baseOn(e.target.checked);};
   $('#lay-fcu').onchange=e=>{S.camadas.fcu=e.target.checked;fcuOn(e.target.checked);};
   ['lojas','escolas','saude'].forEach(k=>{
@@ -2800,7 +2971,7 @@ function fcuOn(on){
     const fs=S.geo.setor.features.filter(f=>f.properties._fcuNome);
     camadaFCU=L.geoJSON({type:'FeatureCollection',features:fs},{
       renderer:L.canvas({padding:.4,pane:'atlasSobre'}),
-      style:{fillColor:'#C0559B',fillOpacity:.2,color:'#E081BE',weight:1,opacity:.85}
+      style:{fillColor:'#9B2C6F',fillOpacity:.16,color:'#9B2C6F',weight:1.2,opacity:.9}
     });
     camadaFCU.bindTooltip(l=>{
       const p=(l.feature||l).properties||{};
@@ -2863,8 +3034,20 @@ function decRing(str,prec){
   }
   return out;
 }
-function decGeom(mp,prec){
-  const polys=mp.map(poly=>poly.map(r=>decRing(r,prec)));
+/* área aproximada de um anel, em km² (latitude da RMPA, ~30° S) */
+function areaKm2(r){
+  let a=0; for(let i=0,j=r.length-1;i<r.length;j=i++)a+=r[j][0]*r[i][1]-r[i][0]*r[j][1];
+  return Math.abs(a/2)*111.32*111.32*0.866;
+}
+/* frestas: buracos com menos de 5 ha que a dissolução dos setores deixa nas malhas
+   de bairro e município. Só servem para desenhar pontos brancos no mapa; os buracos
+   maiores (que podem ser território sem setor) ficam como estão. */
+const FRESTA_KM2=0.05;
+function decGeom(mp,prec,semFrestas){
+  const polys=mp.map(poly=>{
+    const rs=poly.map(r=>decRing(r,prec));
+    return semFrestas?rs.filter((r,k)=>k===0||areaKm2(r)>=FRESTA_KM2):rs;
+  });
   return polys.length===1?{type:'Polygon',coordinates:polys[0]}
                          :{type:'MultiPolygon',coordinates:polys};
 }
@@ -2994,7 +3177,7 @@ function montaGeo(){
     p._pir=B.piramide[i]; p._fcu=B.fcu_nomes[i]; p.fcu_n=B.fcu_nomes[i].length;
     p._omit={};
     for(const k in (B.omissoes||{})){const v=B.omissoes[k][i]; if(v)p._omit[k]=v;}
-    return {type:'Feature',properties:derivados(p),geometry:decGeom(B.geom[i],P)};
+    return {type:'Feature',properties:derivados(p),geometry:decGeom(B.geom[i],P,true)};
   })};
 
   /* Setores são decodificados apenas quando o usuário abre o nível setor,
@@ -3024,7 +3207,8 @@ function montaGeo(){
       const codMun=String(N.munis.ids[M.muni_id[i]]);
       Object.assign(p,((window.ATLAS_SERVICOS||{}).municipios||{})[codMun]||{});
       Object.assign(p,((window.ATLAS_INDICES||{}).municipios||{})[codMun]||{});
-      return {type:'Feature',properties:derivados(p),geometry:decGeom(M.geom[i],P)};
+      /* sem as frestas da dissolução dos setores (Porto Alegre tinha 1.225) */
+      return {type:'Feature',properties:derivados(p),geometry:decGeom(M.geom[i],P,true)};
     })};
   }
 
@@ -3069,7 +3253,7 @@ function garanteSetores(){
     const p={id:cod,nome:'Setor '+cod.slice(-6),muni:N.munis.nomes[mi],muni_id:mi};
     for(let k=0;k<TODOS.length;k++){const c=TODOS[k],v=colS[c][i];if(v!=null)p[c]=v;}
     if(bairroS[i]){p.bairro=bairroS[i];p.bairro_id=slugDe(bairroS[i]);}
-    if(fcuS[i]){p._fcuNome=fcuS[i];p.fcu_n=1;}
+    if(fcuS[i]){p._fcuNome=fcuS[i];p.fcu_n=1;} else p.fcu_n=0;
     p._cx=cent[i][0];p._cy=cent[i][1];
     return {type:'Feature',properties:derivados(p),geometry:decGeom(g,P)};
   })};
@@ -3182,7 +3366,7 @@ function ligaEventos(){
   $$('#segNivel button').forEach(b=>b.onclick=()=>{
     const i=indAtual();
     if(!i.niveis.includes(b.dataset.nivel)){
-      const alt=IND.find(x=>x.status!=='pend'&&x.niveis.includes(b.dataset.nivel));
+      const alt=IND.find(x=>x.status!=='pend'&&x.status!=='mun'&&x.niveis.includes(b.dataset.nivel));
       if(alt){S.indId=alt.id;S.ramp=null;$$('.ind').forEach(x=>x.classList.toggle('on',x.dataset.ind===alt.id));}
     }
     setNivel(b.dataset.nivel);
@@ -3201,6 +3385,27 @@ function ligaEventos(){
     sl.onchange=e=>{if(e.target.value!==''){abreEntorno(+e.target.value);e.target.value='';}};
   }
   const bl=$('#btnLojas'); if(bl)bl.onclick=()=>{renderLojas();abreModal('mdLojas');};
+  /* menu "Mais": metodologia, cobertura, fontes, integrar dados */
+  const bm=$('#btnMais'), mm=$('#menuMais');
+  if(bm&&mm){
+    const fecha=()=>{mm.classList.remove('show');bm.setAttribute('aria-expanded','false');};
+    bm.onclick=e=>{e.stopPropagation();const ab=!mm.classList.contains('show');
+      mm.classList.toggle('show',ab);bm.setAttribute('aria-expanded',String(ab));};
+    mm.querySelectorAll('button').forEach(b=>b.addEventListener('click',fecha));
+    document.addEventListener('click',e=>{if(!mm.contains(e.target)&&e.target!==bm)fecha();});
+  }
+  /* filtro da lista de indicadores: abre as categorias que têm resultado */
+  const fi=$('#filtroInd');
+  if(fi)fi.oninput=()=>{
+    const q=norm(fi.value);
+    $$('.cat').forEach(c=>{
+      let tem=0;
+      c.querySelectorAll('.ind').forEach(b=>{const ok=!q||b.dataset.busca.includes(q);b.hidden=!ok;if(ok)tem++;});
+      c.hidden=!!q&&!tem; c.classList.toggle('open',q?tem>0:c.dataset.cat===S.cat);
+    });
+  };
+  /* no celular, legenda e camadas começam recolhidas para o mapa aparecer */
+  if(window.innerWidth<=620){S.legMin=true;S.layMin=true;renderCamadas();}
   $('#btnAnalise').onclick=()=>abreModal('mdAnalise');
   $('#btnMetodo').onclick=()=>abreModal('mdMetodo');
   $('#btnMatriz').onclick=()=>abreModal('mdMatriz');
@@ -3237,11 +3442,25 @@ function ligaEventos(){
     MUN.pop_reportada=rep; MUN.setores_sem_pessoas=semP;
   })();
   iniciaMapa();
+  estendeAoMunicipio();
   verificaCatalogo();
   renderCats(); renderCamadas(); ligaEventos();
   desenhaMapa(); renderPainel(); vigiaTamanho();
   ['lojas','escolas','saude'].forEach(k=>{if(S.camadas[k])pontosOn(k,true);});
 })();
+
+/* Os municípios são somas dos setores e trazem os mesmos campos do Censo e as
+   taxas de 2010. Onde os sete têm valor, o indicador passa a ter mapa também no
+   nível município — em vez de a troca de nível levar a um indicador vazio. */
+function estendeAoMunicipio(){
+  const M=S.geo.municipio; if(!M)return;
+  IND.forEach(i=>{
+    if(i.niveis.includes('municipio')||!i.niveis.includes('bairro'))return;
+    if(i.status!=='ok'&&i.status!=='est')return;
+    if(i.id==='pop_pct_mun')return;             /* seria 100% nos sete */
+    if(M.features.every(f=>f.properties[i.id]!=null))i.niveis=i.niveis.concat('municipio');
+  });
+}
 
 /* Integridade do catálogo: um indicador que se declara carregado mas não tem
    nenhum valor é removido da interface. O Atlas não anuncia ficha vazia como
@@ -3282,7 +3501,7 @@ function telaDeErro(err){
   const faltando=esperado.filter(([,v])=>!window[v]);
   document.body.innerHTML=`<div style="max-width:640px;margin:8vh auto;padding:26px;
       font-family:var(--sans);color:var(--txt)">
-    <span class="eyebrow">Atlas POA</span>
+    <span class="eyebrow">Atlas RMPA</span>
     <h1 style="font-size:22px;margin:8px 0 14px;letter-spacing:-.02em">
       Os dados não foram carregados</h1>
     ${faltando.length?`<div class="note warn">

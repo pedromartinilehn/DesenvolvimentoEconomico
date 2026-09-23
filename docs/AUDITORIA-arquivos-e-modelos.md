@@ -112,12 +112,16 @@ No nível setor, 91% dos setores têm zero morador em favela. As quebras por qua
 `[0, 0, 0, 0]`: o mapa perde as classes e a legenda repete "0 – 0". O mesmo ocorre com
 domicílios sem banheiro (99,7% zeros), precários (96,8%), indígenas (90,8%) e quilombolas (97,5%).
 
-### 2.8 Resquícios de "Atlas de Porto Alegre" — **baixa**
+### 2.8 Resquícios de "Atlas de Porto Alegre" — **baixa** · ✅ corrigido (set/2026)
 
 Enquadramento inicial e botão "Enquadrar Porto Alegre" só cobrem POA; a atribuição do mapa cita
 apenas SMUrb/PMPA e ObservaPOA; a tela de erro diz "Atlas POA"; a observação do indicador de
 área diz que os bairros somam 472,81 km² — hoje somam 1.577,75 km², porque incluem os outros
 municípios; mensagem de indicador municipal diz "disponível apenas para Porto Alegre".
+
+*Situação:* botão "Enquadrar o mapa"; atribuição com IBGE, SMUrb/PMPA, INEP, DATASUS, SICONFI e
+SSP/RS; tela de erro "Atlas RMPA"; a observação de área diz que 472,81 km² são os 94 bairros de
+Porto Alegre; indicadores só de Porto Alegre saíram da lista do mapa e ficam no painel de abertura.
 
 ---
 
@@ -220,7 +224,9 @@ Não há teste automatizado no repositório. A sonda de 16,6 KB usada para valid
 5. ✅ **Corrigido.** O bloco `lojas` de `dados-pontos.js` ganhou o campo `m`, por ponto-no-polígono;
    a Loja Adm Porto Alegre, fora da malha, recebe o município do setor mais próximo — resolve 3.1.
 6. ✅ **Corrigido.** "Equipamentos no raio — públicos e privados" — resolve 2.6.
-7. Classe própria para zero, e quantis só entre os valores positivos — resolve 2.7.
+7. ✅ **Corrigido (set/2026).** Classe própria para zero quando os zeros são ≥20% dos valores, e
+   quantis só entre os positivos — resolve 2.7. Quebras repetidas são descartadas: favela no
+   nível setor, quase toda em 0% ou 100%, fica com as classes "0,0%" e "acima de 0 até 100,0%".
 8. Guardar o código INEP no script 3 e a gestão/vínculo SUS no script 2.
 9. Interpolação areal no entorno.
 10. Métrica de mediana ou de quintil ao lado da média de renda.
