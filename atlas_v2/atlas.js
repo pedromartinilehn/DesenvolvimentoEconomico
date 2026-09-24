@@ -621,6 +621,10 @@ let POP_MUNI={};                       /* população do Censo 2022 por municíp
 let camadaPorId=null, destacadas=[];   /* id -> camada, e as camadas realçadas */
 const estaDestacada=l=>destacadas.indexOf(l)>=0;
 function iniciaMapa(){
+  /* Até 3 px de deslocamento entre apertar e soltar o botão o Leaflet conta como
+     clique; acima disso vira arrasto e o clique se perde. Mouse trêmulo e touchpad
+     passam de 3 px com facilidade. */
+  L.Draggable.prototype.options.clickTolerance=6;
   map=L.map('map',{zoomControl:false,attributionControl:true,minZoom:9,maxZoom:18,
     preferCanvas:false});
   /* Ordem de empilhamento por pane. Antes os pontos eram recriados depois de
@@ -629,6 +633,7 @@ function iniciaMapa(){
   map.createPane('atlasPontos').style.zIndex=480;  /* escolas, saúde, lojas */
   map.fitBounds([[-30.2694,-51.3032],[-29.9308,-51.0114]]);
   L.control.zoom({position:'topright'}).addTo(map);
+  ligaCliqueDoMapa();
   const Fit=L.Control.extend({options:{position:'topright'},
     onAdd(){const a=L.DomUtil.create('a','leaflet-bar leaflet-control fit-btn');
       a.href='#'; a.title='Enquadrar o mapa'; a.setAttribute('role','button');
@@ -708,7 +713,8 @@ function sincronizaCamadas(){
 function desenhaMapa(){
   const nivel=S.nivel;
   if(camada){map.removeLayer(camada);camada=null;}
-  camadaPorId=null; destacadas=[];
+  camadaPorId=null; destacadas=[]; hoverReserva=null;
+  if(ttReserva&&map.hasLayer(ttReserva))map.closeTooltip(ttReserva);
   sincronizaCamadas();
   const g=geoDoNivel();
   S._g=g;
@@ -718,7 +724,7 @@ function desenhaMapa(){
   camadaPorId=new Map();
   camada=L.geoJSON(g,{
     renderer: nivel==='setor'?L.canvas({padding:.4}):L.svg({padding:.3}),
-    style:estiloFeicao,
+    style:estiloFeicao, bubblingMouseEvents:false,
     onEachFeature:(f,l)=>camadaPorId.set(f.properties.id,l)
   }).addTo(map);
 
@@ -727,6 +733,7 @@ function desenhaMapa(){
   camada.bindTooltip(l=>tooltipHTML((l.feature||l).properties||{}),
     {className:'tt',sticky:true,direction:'top'});
   camada.on('mouseover',e=>{
+    limpaHoverReserva();
     const l=e.propagatedFrom||e.layer;
     if(!l||!l.setStyle||estaDestacada(l))return;
     /* no nível setor, realçar obrigaria o canvas a redesenhar os 4.722 polígonos
@@ -1126,9 +1133,87 @@ function selecionar(id){
   const f=feature(id); if(!f)return;
   S.sel=id; marcaSelecao(); renderPainel();
   if(window.innerWidth<=960)$('#panel').classList.add('open');
-  try{
-    const l=L.geoJSON(f.geometry); map.fitBounds(l.getBounds(),{padding:[60,60],maxZoom:15});
-  }catch(e){}
+  try{ enquadraTerritorio(L.geoJSON(f.geometry).getBounds()); }catch(e){}
+}
+/* Área do mapa que não fica sob o cartão do indicador nem, no celular, sob o
+   painel. Se o território já está inteiro nela, o mapa não se mexe: antes cada
+   clique dava zoom, e o próximo bairro saía de baixo do cursor. */
+function areaLivre(){
+  const c=map.getSize(), prov=$('#prov'), pan=$('#panel');
+  const top=(prov&&prov.offsetParent?prov.offsetTop+prov.offsetHeight:0)+12;
+  const bottom=(window.innerWidth<=960&&pan&&pan.classList.contains('open'))?pan.offsetHeight+12:24;
+  return {x0:24,y0:top,x1:c.x-24,y1:c.y-bottom};
+}
+function enquadraTerritorio(b){
+  const A=areaLivre();
+  const p0=map.latLngToContainerPoint(b.getNorthWest()), p1=map.latLngToContainerPoint(b.getSouthEast());
+  const cabe=p0.x>=A.x0&&p0.y>=A.y0&&p1.x<=A.x1&&p1.y<=A.y1, visivel=(p1.x-p0.x)>24||(p1.y-p0.y)>24;
+  if(cabe&&visivel)return;
+  const c=map.getSize();
+  map.fitBounds(b,{paddingTopLeft:[A.x0,A.y0],paddingBottomRight:[c.x-A.x1,c.y-A.y1],maxZoom:15});
+}
+
+/* ───── clique e realce quando outra camada está por cima do coropleto ─────
+   Escolas, saúde e favelas são desenhadas em <canvas>. O canvas cobre o mapa
+   inteiro e recebe todo clique: com qualquer uma dessas camadas ligada,
+   nenhum bairro era clicável. O Leaflet repassa ao mapa o que não acerta um
+   ponto do canvas; aqui o mapa acha o território sob o cursor. */
+function bboxFeicao(f){
+  if(!f._bb){const b=L.geoJSON(f.geometry).getBounds();
+    f._bb=[b.getWest(),b.getSouth(),b.getEast(),b.getNorth()];}
+  return f._bb;
+}
+function dentroDoPoligono(x,y,polys){
+  for(const poly of polys){
+    let d=false;
+    for(const r of poly)for(let i=0,j=r.length-1;i<r.length;j=i++){
+      const xi=r[i][0],yi=r[i][1],xj=r[j][0],yj=r[j][1];
+      if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)d=!d;
+    }
+    if(d)return true;
+  }
+  return false;
+}
+function territorioEm(ll){
+  const g=S._g; if(!g||!camada)return null;
+  const x=ll.lng,y=ll.lat;
+  for(const f of g.features){
+    const b=bboxFeicao(f); if(x<b[0]||x>b[2]||y<b[1]||y>b[3])continue;
+    const geo=f.geometry, polys=geo.type==='Polygon'?[geo.coordinates]:geo.coordinates;
+    if(dentroDoPoligono(x,y,polys))return f;
+  }
+  return null;
+}
+let ttReserva=null, hoverReserva=null, quadroHover=0;
+function limpaHoverReserva(){
+  if(hoverReserva&&camada&&S.nivel!=='setor'&&!estaDestacada(hoverReserva)&&camada.hasLayer(hoverReserva))camada.resetStyle(hoverReserva);
+  hoverReserva=null;
+  if(ttReserva&&map.hasLayer(ttReserva))map.closeTooltip(ttReserva);
+}
+function ligaCliqueDoMapa(){
+  map.on('click',e=>{
+    const f=territorioEm(e.latlng);
+    if(f)selecionar(f.properties.id);
+  });
+  /* realce e tooltip do território quando o cursor está sobre um canvas vazio */
+  map.on('mousemove',e=>{
+    if(quadroHover)return;
+    quadroHover=requestAnimationFrame(()=>{
+      quadroHover=0;
+      const f=territorioEm(e.latlng), l=f&&camadaPorId&&camadaPorId.get(f.properties.id);
+      if(l!==hoverReserva){
+        limpaHoverReserva();
+        if(l&&S.nivel!=='setor'&&!estaDestacada(l)){l.setStyle({weight:2.4,color:COR.tinta,opacity:1});l.bringToFront&&l.bringToFront();}
+        hoverReserva=l||null;
+      }
+      if(f){
+        if(!ttReserva)ttReserva=L.tooltip({className:'tt',direction:'top',offset:[0,-8]});
+        ttReserva.setLatLng(e.latlng).setContent(tooltipHTML(f.properties));
+        if(!map.hasLayer(ttReserva))ttReserva.addTo(map);
+      }
+    });
+  });
+  map.on('mouseout',limpaHoverReserva);
 }
 const BLOCOS=[
   {t:'Perfil populacional',cats:['visao','demografia','idade']},
@@ -2203,10 +2288,12 @@ function constroiPontos(chave){
       renderer:rend,
       /* anel da cor do papel em volta do ponto: separa do polígono embaixo */
       radius:e.r, fillColor:e.cor, color:COR.papel,
-      weight:loja?2.5:1.2, fillOpacity:1, opacity:1, className:loja?'mk-loja':''
+      weight:loja?2.5:1.2, fillOpacity:1, opacity:1, className:loja?'mk-loja':'',
+      bubblingMouseEvents:!loja
     });
     m.bindTooltip(()=>tooltipPontoHTML(p,loja),{className:'tt',sticky:true,direction:'top'});
     if(loja)m.on('click',()=>abreEntorno(i));
+    m.on('mouseover',limpaHoverReserva);
     g.addLayer(m);
   });
   return g;
@@ -2228,7 +2315,8 @@ function abreEntorno(i,raio){
   focoLoja=L0;
   if(camadaRaio){map.removeLayer(camadaRaio);camadaRaio=null;}
   camadaRaio=L.circle([L0.y,L0.x],{radius:S.raio*1000,color:COR.terracota,weight:2,
-    fillColor:COR.terracota,fillOpacity:.06,dashArray:'6,5',pane:'atlasSobre'}).addTo(map);
+    fillColor:COR.terracota,fillOpacity:.06,dashArray:'6,5',pane:'atlasSobre',
+    interactive:false}).addTo(map);
   map.fitBounds(camadaRaio.getBounds(),{padding:[40,40]});
   S.sel=null;
   $('#panelBody').innerHTML=entornoHTML(i);
@@ -2398,6 +2486,7 @@ function fcuOn(on){
        <div class="kv"><span>População</span><span class="num">${fmtN(p.pop,'int')}</span></div>
        <div class="kv"><span>Domicílios</span><span class="num">${fmtN(p.dpo,'int')}</span></div>`;
     },{className:'tt',sticky:true,direction:'top'});
+    camadaFCU.on('mouseover',limpaHoverReserva);
   }
   if(!map.hasLayer(camadaFCU))camadaFCU.addTo(map);
 }
@@ -2841,6 +2930,8 @@ function ligaEventos(){
     $('#backdrop').classList.toggle('show',s.classList.contains('open'));
   };
   $('#backdrop').onclick=()=>{fecharSide();$('#panel').classList.remove('open');};
+  /* no celular o painel cobre 64% do mapa: precisa de um jeito de fechar */
+  $('#btnFechaPainel').onclick=()=>$('#panel').classList.remove('open');
 }
 (function boot(){
   try{ montaGeo(); }

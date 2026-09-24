@@ -372,6 +372,9 @@ table.tb .worst{color:var(--pend)}
 #toast.err{background:var(--err)}
 
 .mobile-only{display:none}
+.sheet-x{position:absolute;top:12px;right:12px;z-index:2;width:34px;height:34px;border-radius:50%;
+  align-items:center;justify-content:center;background:var(--bg3);color:var(--txt2);border:1px solid var(--line)}
+.sheet-x:hover{color:var(--txt)}
 #backdrop{display:none}
 
 /* ─────────────────────────────────────────────────────────── responsivo ── */
