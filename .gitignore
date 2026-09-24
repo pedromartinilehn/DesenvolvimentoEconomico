@@ -1,7 +1,7 @@
 # Planilhas baixadas das fontes de índices: grandes e, no caso da FIRJAN,
 # com termos de uso próprios. Cada um baixa as suas.
-atlas_v2/extracao/fontes/*
-!atlas_v2/extracao/fontes/.gitkeep
+atlas_v3/extracao/fontes/*
+!atlas_v3/extracao/fontes/.gitkeep
 
 __pycache__/
 *.pyc

@@ -6,13 +6,13 @@ Cachoeirinha, Guaíba e Esteio.
 
 ## Como abrir
 
-- **Mais simples:** `atlas_v2/atlas-rmpa.html` — versão standalone, com interface, dados e
+- **Mais simples:** `atlas_v3/atlas-rmpa.html` — versão standalone, com interface, dados e
   código embutidos.
 - **Para desenvolvimento:** mantenha `index.html`, `atlas.css`, `atlas.js` e a pasta `dados/`
   juntos, e sirva a pasta por HTTP.
 
 Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
-[`atlas_v2/LEIA-ME.md`](atlas_v2/LEIA-ME.md).
+[`atlas_v3/LEIA-ME.md`](atlas_v3/LEIA-ME.md).
 
 ## Documentos
 
@@ -39,7 +39,7 @@ Censo 2022 é de acesso controlado e não tem arquivo público.
 ## Atualização
 
 ```bash
-cd atlas_v2
+cd atlas_v3
 python3 extracao/2_atualiza_cnes.py --arquivo /caminho/healthfacilities_YYYYMM.parquet
 python3 extracao/3_atualiza_escolas.py --arquivo /caminho/schools_YYYY.parquet
 python3 extracao/1_servicos_municipais.py      # SICONFI, SSP/RS, contagens de equipamentos

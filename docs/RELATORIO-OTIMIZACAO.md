@@ -1,5 +1,8 @@
 # Atlas RMPA v2 — P0 e P1 implementados, com medição antes/depois
 
+> Documento sobre a versão 2 recebida. O que ele propõe está incorporado na versão 3,
+> em `atlas_v3/`; ver `atlas_v3/LEIA-ME.md`.
+
 Objetivo: maximizar a velocidade de processamento.
 Entrega: `Atlas_RMPA_v2_otimizado.zip` (mesma estrutura do pacote original).
 

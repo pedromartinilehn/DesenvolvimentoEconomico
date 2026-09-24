@@ -1,5 +1,8 @@
 # Auditoria do Atlas RMPA v2 — arquivos, dados e modelos
 
+> Documento sobre a versão 2 recebida. O que ele propõe está incorporado na versão 3,
+> em `atlas_v3/`; ver `atlas_v3/LEIA-ME.md`.
+
 Revisão completa do pacote: o que cada arquivo faz, se os dados são consistentes com o que o
 Atlas afirma sobre eles, se os modelos de cálculo estão corretos, e o que a tela efetivamente
 mostra. Cada problema abaixo foi reproduzido no navegador, sobre a base completa.

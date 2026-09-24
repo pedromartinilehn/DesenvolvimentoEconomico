@@ -1,4 +1,4 @@
-# Atlas Metropolitano RMPA — versão 2
+# Atlas Metropolitano RMPA — versão 3
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios:
 Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio.
@@ -10,7 +10,19 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
 - O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
 
-## O que mudou na versão 2
+## O que mudou na versão 3
+
+A versão 3 parte da versão 2 recebida e reúne quatro rodadas de trabalho, todas verificadas no
+navegador sobre a base completa, comparando antes e depois:
+
+1. **Desempenho:** abertura 3,3 vezes mais rápida e troca de indicador 12 vezes mais rápida. Detalhes em
+   "Desempenho", abaixo.
+2. **Correções:** os oito erros apontados em `docs/AUDITORIA-arquivos-e-modelos.md`.
+3. **Interface:** redesenho completo e nenhum painel vazio. Detalhes em "Interface", abaixo.
+4. **Clique:** bairros e setores voltam a ser selecionáveis com escolas, saúde ou favelas ligadas,
+   com o entorno de loja aberto e no celular. Detalhes em "Seleção por clique", abaixo.
+
+### Herdado da versão 2
 
 - Os antigos indicadores vazios deixaram de aparecer como se fossem disponibilidade futura.
 - Saúde, assistência, segurança, emprego, finanças e agro têm valores nos sete municípios.
@@ -20,7 +32,7 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Setores censitários são decodificados somente quando necessários, reduzindo o custo da abertura.
 - O visual foi redesenhado em tema claro, com hierarquia editorial e melhor contraste.
 
-### Interface (revisão de setembro de 2026)
+### Interface
 
 - Nenhuma tela mostra "aguardando integração". Um indicador aparece na lista só se tem valor no
   mapa. O cartão de PIB do painel de abertura agora mostra o valor do IBGE.
@@ -48,6 +60,18 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
   o bairro em volta: Centro, Estância Velha e Mathias Velho (Canoas), Gravataí e Cachoeirinha.
   Nenhum outro número mudou (verificado por sonda antes/depois, incluindo os 100 entornos).
 
+### Seleção por clique
+
+- Escolas, saúde e favelas são desenhadas em canvas, que cobre o mapa inteiro. Com qualquer uma
+  ligada, nenhum território era clicável (0 de 148 bairros). O mapa agora acha o território sob o
+  cursor quando o clique não acerta um ponto, com realce e tooltip.
+- O círculo do entorno da loja capturava o clique dos bairros dentro do raio; deixou de capturar.
+- Até 6 px de tremor entre apertar e soltar o botão ainda contam como clique (antes, 3 px).
+- Selecionar só move o mapa se o território não estiver inteiro à vista, descontando o cartão do
+  indicador e, no celular, o painel, que ganhou botão de fechar.
+- Teste automatizado: 148 de 148 bairros em cada cenário (padrão, cada camada ligada, todas
+  ligadas, entorno aberto, mouse com tremor de 5 px, celular) e 119 de 119 setores da amostra.
+
 ## Desempenho
 
 Os arquivos de dados são baixados em paralelo, cada camada do mapa tem um renderer só e é
@@ -61,7 +85,7 @@ Ver `docs/RELATORIO-OTIMIZACAO.md`.
 | Eixo | Indicadores principais | Fonte | Ano |
 |---|---|---|---|
 | Saúde | estabelecimentos, UBS, hospitais, CAPS; despesas em saúde e atenção básica | CNES/DATASUS; SICONFI/STN | 2026; 2024 |
-| Educação | escolas por rede; despesas em educação, ensino fundamental, educação infantil e EJA | Censo Escolar/INEP; SICONFI/STN | 2025; 2024 |
+| Educação | escolas por rede. Despesas em educação, ensino fundamental, educação infantil e EJA: o script de extração está pronto, mas ainda não foi executado | Censo Escolar/INEP; SICONFI/STN | 2025; — |
 | Assistência | despesas em assistência e assistência comunitária; pobreza histórica | SICONFI/STN; Censo/IBGE | 2024; 2010 |
 | Segurança | homicídios, furtos, roubos, veículos, estelionato e CVLI | SSP/RS | 2025 |
 | Emprego | desocupação, participação, informalidade, emprego formal, conta própria; despesa em trabalho | Censo/IBGE; SICONFI/STN | 2010; 2024 |
@@ -83,7 +107,7 @@ substituí-los ou complementá-los por RAIS/Novo CAGED e CadÚnico, sem alterar 
 ## Estrutura
 
 ```text
-atlas_v2/
+atlas_v3/
 ├── index.html
 ├── atlas.css
 ├── atlas.js
