@@ -19,7 +19,8 @@ Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 | arquivo | o que é |
 |---|---|
 | [`docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md`](docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md) | análise do entorno das 20 unidades para desenho de projetos de desenvolvimento comunitário: bolsões de baixa renda, carências, frentes de projeto e lacunas de dados (versão 2) |
-| [`docs/DIAGNOSTICO-REGIONAL-template-preenchido.docx`](docs/DIAGNOSTICO-REGIONAL-template-preenchido.docx) | template de diagnóstico regional do Instituto Renner preenchido com os dados do Atlas: tabelas por município, 5 mapas, SWOT e matriz de priorização |
+| [`docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx`](docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx) | template de diagnóstico regional do Instituto Renner com as seções 3, 4 e 5 respondidas (apresentação, escopo e metodologia) |
+| [`docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx`](docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx) | respostas guardadas de todas as seções do template (nome da regional e seções 6 a 15: tabelas por município, 5 mapas, rede de serviços, orçamento, atores, SWOT e priorização) |
 | [`docs/DIAGNOSTICO-REGIONAL-analise-do-template.md`](docs/DIAGNOSTICO-REGIONAL-analise-do-template.md) | análise das perguntas do template, cobertura do Atlas por seção e sugestões de dados e funções para completar o diagnóstico |
 | [`docs/APRESENTACAO-entorno-lojas.pptx`](docs/APRESENTACAO-entorno-lojas.pptx) | a análise em 21 slides de PowerPoint, com gráficos e tabelas editáveis e notas do apresentador |
 | [`docs/AUDITORIA-arquivos-e-modelos.md`](docs/AUDITORIA-arquivos-e-modelos.md) | auditoria dos arquivos, dos dados e dos modelos de cálculo, com os erros visíveis na interface |

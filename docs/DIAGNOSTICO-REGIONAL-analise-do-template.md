@@ -1,7 +1,13 @@
 # Template de diagnóstico regional do Instituto Renner: análise das perguntas e sugestões para o Atlas
 
-O template preenchido com os dados do Atlas está em
-[`DIAGNOSTICO-REGIONAL-template-preenchido.docx`](DIAGNOSTICO-REGIONAL-template-preenchido.docx).
+Há duas versões do template preenchido com os dados do Atlas:
+
+- [`DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx`](DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx):
+  a versão de entrega, só com as seções 3 (apresentação), 4 (escopo) e 5 (metodologia) respondidas;
+- [`DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx`](DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx):
+  as respostas guardadas de todas as seções, inclusive o nome da regional e as seções 6 a 15, para
+  usar nas próximas entregas.
+
 Este documento faz três coisas: analisa o que cada pergunta do template pede, mostra quanto o Atlas
 consegue responder e lista o que acrescentar ao Atlas para cobrir o template inteiro.
 
