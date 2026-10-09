@@ -19,6 +19,8 @@ Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 | arquivo | o que é |
 |---|---|
 | [`docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md`](docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md) | análise do entorno das 20 unidades para desenho de projetos de desenvolvimento comunitário: bolsões de baixa renda, carências, frentes de projeto e lacunas de dados (versão 2) |
+| [`docs/DIAGNOSTICO-REGIONAL-template-preenchido.docx`](docs/DIAGNOSTICO-REGIONAL-template-preenchido.docx) | template de diagnóstico regional do Instituto Renner preenchido com os dados do Atlas: tabelas por município, 5 mapas, SWOT e matriz de priorização |
+| [`docs/DIAGNOSTICO-REGIONAL-analise-do-template.md`](docs/DIAGNOSTICO-REGIONAL-analise-do-template.md) | análise das perguntas do template, cobertura do Atlas por seção e sugestões de dados e funções para completar o diagnóstico |
 | [`docs/APRESENTACAO-entorno-lojas.pptx`](docs/APRESENTACAO-entorno-lojas.pptx) | a análise em 21 slides de PowerPoint, com gráficos e tabelas editáveis e notas do apresentador |
 | [`docs/AUDITORIA-arquivos-e-modelos.md`](docs/AUDITORIA-arquivos-e-modelos.md) | auditoria dos arquivos, dos dados e dos modelos de cálculo, com os erros visíveis na interface |
 | [`docs/entorno-lojas.csv`](docs/entorno-lojas.csv) | 20 unidades × 4 raios × 34 colunas, com comparação ao próprio município e quintil de renda |
