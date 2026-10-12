@@ -1,0 +1,60 @@
+# B5. Matrículas por etapa, creche e EJA, por escola
+#
+#   Rscript extracao/R/03_censo_escolar_matriculas.R [ano]   (na pasta atlas_v3/)
+#
+# Fonte: microdados do Censo Escolar (INEP), pelo pacote educabR.
+# Função: educabR::get_censo_escolar(year, uf = "RS")
+# Host: download.inep.gov.br (um .zip nacional por ano)
+#
+# Até 2024 o arquivo de escolas traz as quantidades de matrícula por etapa.
+# A partir de 2025 o INEP separou as tabelas (Escola, Matricula, Docente,
+# Turma...): para esses anos, use educabR::list_censo_files(ano) e o argumento
+# file = "Matricula", e refaça a agregação por escola.
+#
+# A ligação com o Atlas é pelo código INEP da escola (co_entidade), o mesmo das
+# escolas já mapeadas.
+#
+# Saída: extracao/saida_R/censo_escolar_<ano>_matriculas_escolas.csv
+#        extracao/saida_R/censo_escolar_<ano>_matriculas_municipios.csv
+
+source("extracao/R/_comum.R")
+pacote("educabR"); pacote("dplyr")
+suppressPackageStartupMessages(library(dplyr))
+
+args <- commandArgs(trailingOnly = TRUE)
+ANO <- if (length(args)) as.integer(args[1]) else 2024L
+if (ANO >= 2025) stop("Para 2025 em diante o INEP separou as tabelas; veja o cabeçalho do script.", call. = FALSE)
+
+message("Censo Escolar ", ANO, " (educabR)…")
+esc <- educabR::get_censo_escolar(year = ANO, uf = "RS")
+
+# educabR padroniza os nomes em minúsculas. Nomes do dicionário do INEP:
+COLUNAS <- c(
+  "co_entidade", "no_entidade", "co_municipio", "tp_dependencia", "tp_situacao_funcionamento",
+  "qt_mat_bas",       # total da educação básica
+  "qt_mat_inf_cre",   # creche
+  "qt_mat_inf_pre",   # pré-escola
+  "qt_mat_fund_ai",   # fundamental, anos iniciais
+  "qt_mat_fund_af",   # fundamental, anos finais
+  "qt_mat_med",       # ensino médio
+  "qt_mat_eja"        # educação de jovens e adultos
+)
+exige_colunas(esc, COLUNAS, paste("Censo Escolar", ANO))
+
+esc <- esc |>
+  filter(as.character(co_municipio) %in% COD7) |>
+  select(all_of(COLUNAS))
+exige_municipios(esc$co_municipio, paste("Censo Escolar", ANO))
+
+# só escolas em atividade (tp_situacao_funcionamento = 1 no dicionário do INEP)
+ativas <- esc |> filter(tp_situacao_funcionamento == 1)
+message("  ", nrow(ativas), " escolas em atividade de ", nrow(esc))
+grava(ativas, sprintf("censo_escolar_%d_matriculas_escolas.csv", ANO))
+
+# tp_dependencia: 1 federal, 2 estadual, 3 municipal, 4 privada
+mun <- ativas |>
+  mutate(rede = ifelse(tp_dependencia == 4, "privada", "publica")) |>
+  group_by(co_municipio, rede) |>
+  summarise(across(starts_with("qt_mat_"), ~ sum(.x, na.rm = TRUE)), escolas = n(), .groups = "drop") |>
+  mutate(municipio = MUNICIPIOS[as.character(co_municipio)], .after = co_municipio)
+grava(mun, sprintf("censo_escolar_%d_matriculas_municipios.csv", ANO))

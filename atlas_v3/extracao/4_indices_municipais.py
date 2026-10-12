@@ -3,10 +3,11 @@
 
     python3 extracao/4_indices_municipais.py
 
-IDHM, IVS, IDESE e FIRJAN não têm API pública: são planilhas publicadas por
-cada instituição. Em vez de embutir um link que quebra a cada nova edição, este
-script lê os arquivos que você baixou para `extracao/fontes/` e usa o mapa de
-colunas de `extracao/indices.json`.
+IVS, IDESE e FIRJAN não têm API pública: são planilhas publicadas por cada
+instituição. O IDHM vem do espelho público da Base dos Dados, que o
+5_base_dos_dados.py baixa para `extracao/fontes/basedosdados/` (rode-o antes).
+Em vez de embutir um link que quebra a cada nova edição, este script lê os
+arquivos de `extracao/fontes/` e usa o mapa de colunas de `extracao/indices.json`.
 
 Quando um nome de coluna não bate, o script imprime as colunas reais do arquivo
 e para. Corrija o JSON e rode de novo — não é preciso mexer no código.
@@ -53,7 +54,7 @@ NOME_PARA_CODIGO = {norm(n): c for c, n in MUNICIPIOS.items()}
 
 
 def le_tabela(caminho: pathlib.Path, planilha, cabecalho: int) -> pd.DataFrame:
-    if caminho.suffix.lower() in {".csv", ".txt"}:
+    if caminho.name.lower().endswith((".csv", ".txt", ".csv.gz")):
         for sep in (";", ",", "\t"):
             for enc in ("utf-8-sig", "latin-1"):
                 try:

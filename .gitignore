@@ -6,3 +6,6 @@ atlas_v3/extracao/fontes/*
 __pycache__/
 *.pyc
 .DS_Store
+
+# Saídas dos scripts R de extração (extracao/R/): regeradas por quem roda
+atlas_v3/extracao/saida_R/

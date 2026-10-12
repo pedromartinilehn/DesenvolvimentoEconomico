@@ -437,6 +437,8 @@ table.tb .worst{color:var(--pend)}
 
 /* ─────────────────────────────── região, bolsões, diagnóstico (v3.1) ── */
 .sw-area.bol{background:rgba(251,250,247,.6);border-color:#15212E}
+.sw-area.risco{background:rgba(122,31,18,.14);border:1.5px dashed #7A1F12}
+.tt.tt-risco{min-width:236px}
 .muni-row.regiao{background:var(--bg3);border-radius:8px;cursor:default}
 .muni-row.regiao .ref-note{display:block}
 .menu-sep{height:1px;background:var(--line);margin:4px 0}

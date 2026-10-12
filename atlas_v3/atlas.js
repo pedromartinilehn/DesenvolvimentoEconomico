@@ -39,7 +39,8 @@ const FONTES = {
   RAIS:{n:'MTE — RAIS',s:'RAIS/MTE',u:'https://bi.mte.gov.br/bgcaged/',d:''},
   CAGED:{n:'MTE — Novo CAGED',s:'CAGED/MTE',u:'https://pdet.mte.gov.br/novo-caged',d:''},
   INEP:{n:'INEP — Censo Escolar',s:'Censo Escolar/INEP',u:'https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar',d:''},
-  IDEB:{n:'INEP — IDEB',s:'IDEB/INEP',u:'https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb',d:''},
+  IDEB:{n:'INEP — IDEB',s:'IDEB/INEP',u:'https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb',
+    d:'Valores por município lidos do espelho público da Base dos Dados (br_inep_ideb.municipio).'},
   SAEB:{n:'INEP — SAEB',s:'SAEB/INEP',u:'https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/saeb',d:''},
   SIM:{n:'DATASUS — SIM (Mortalidade)',s:'SIM/DATASUS',u:'https://datasus.saude.gov.br/',d:''},
   SINASC:{n:'DATASUS — SINASC (Nascidos vivos)',s:'SINASC/DATASUS',u:'https://datasus.saude.gov.br/',d:''},
@@ -50,7 +51,13 @@ const FONTES = {
   SINISA:{n:'Ministério das Cidades — SINISA',s:'SINISA/MCID',u:'https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/saneamento/sinisa',d:''},
   SICONFI:{n:'Tesouro Nacional — SICONFI / FINBRA',s:'SICONFI/STN',u:'https://siconfi.tesouro.gov.br/',d:''},
   ATLAS:{n:'PNUD / IPEA / FJP — Atlas do Desenvolvimento Humano',s:'Atlas Brasil',
-    u:'https://www.atlasbrasil.org.br/perfil/municipio/431490',d:'IDHM calculado sobre Censos Demográficos de 1991, 2000 e 2010.'},
+    u:'https://www.atlasbrasil.org.br/perfil/municipio/431490',d:'IDHM calculado sobre Censos Demográficos de 1991, 2000 e 2010. O IDHM dos sete municípios e os indicadores de vulnerabilidade de 2010 foram lidos do espelho público da Base dos Dados (tabela mundo_onu_adh.municipio), que republica o Atlas Brasil sem alterar os valores.'},
+  ANATEL:{n:'Anatel — Acessos de banda larga fixa',s:'Anatel',
+    u:'https://storage.googleapis.com/basedosdados-public/one-click-download/br_anatel_banda_larga_fixa/densidade_municipio/densidade_municipio.csv.gz',
+    d:'Densidade de banda larga fixa calculada pela Anatel: acessos por 100 habitantes. Lida do espelho público da Base dos Dados (br_anatel_banda_larga_fixa.densidade_municipio).'},
+  BATER:{n:'IBGE e CEMADEN — População em áreas de risco no Brasil (BATER)',s:'IBGE/CEMADEN',
+    u:'https://www.ibge.gov.br/geociencias/informacoes-ambientais/estudos-ambientais/21538-populacao-em-areas-de-risco-no-brasil.html',
+    d:'Áreas de risco de movimento de massa, inundação e enxurrada monitoradas pelo CEMADEN, ajustadas pelo IBGE à malha do Censo 2010 (setores ou faces de quadra). Só existem para os municípios monitorados pelo CEMADEN. Geometria do geobr (IPEA), lida do espelho público da Base dos Dados.'},
   SSPRS:{n:'SSP/RS — Indicadores criminais',s:'SSP/RS',u:'https://ssp.rs.gov.br/indicadores-criminais',d:''},
   IVS:{n:'IPEA — Atlas da Vulnerabilidade Social',s:'IVS/IPEA',u:'https://ivs.ipea.gov.br/',
     d:'Índice de Vulnerabilidade Social, construído sobre o Censo Demográfico. Três subíndices: infraestrutura urbana, capital humano, renda e trabalho. Quanto MAIOR o valor, MAIOR a vulnerabilidade.'},
@@ -279,6 +286,35 @@ munInd('ifdm','idh','IFDM','índice','FIRJAN',anoIdx('firjan'),'dec4','agua');
 munInd('ifdm_emprego_renda','idh','IFDM Emprego e renda','índice','FIRJAN',anoIdx('firjan'),'dec4','terra');
 munInd('ifdm_educacao','idh','IFDM Educação','índice','FIRJAN',anoIdx('firjan'),'dec4','agua');
 munInd('ifdm_saude','idh','IFDM Saúde','índice','FIRJAN',anoIdx('firjan'),'dec4','agua');
+
+/* ---- 4.3.2 COMPLEMENTOS MUNICIPAIS ------------------------------------
+   Vêm de dados/dados-complementares.js, gerado por extracao/5_base_dos_dados.py
+   a partir do espelho público da Base dos Dados. Valores oficiais, sem
+   estimativa: o que a fonte não traz, verificaCatalogo() tira da interface. */
+const COMP_F=((window.ATLAS_COMPLEMENTOS||{}).fontes)||{};
+const ADH10='Censo 2010, valor oficial do Atlas Brasil para o município. ';
+munInd('adh_vulner_pobreza','pobreza','Pessoas vulneráveis à pobreza','%','ATLAS',2010,'pct1','brasa',
+  ADH10+'Renda domiciliar per capita de até R$ 255 (meio salário mínimo de agosto de 2010). Inclui os pobres e os extremamente pobres.');
+munInd('adh_nemnem_vulner','vulner','Jovens de 15 a 24 anos que não estudam, não trabalham e são vulneráveis à pobreza','%','ATLAS',2010,'pct1','brasa',
+  ADH10+'Percentual sobre todos os jovens de 15 a 24 anos. Só conta quem também é vulnerável à pobreza: não é o total de jovens que não estudam nem trabalham.');
+munInd('adh_maes_chefes_sem_fund','vulner','Mães chefes de família sem fundamental completo e com filho menor de 15 anos','% das mães chefes de família','ATLAS',2010,'pct1','brasa',
+  ADH10+'Percentual sobre o total de mães chefes de família.');
+munInd('adh_dep_idosos_vulner','vulner','Pessoas em domicílios vulneráveis à pobreza e dependentes de idosos','%','ATLAS',2010,'pct2','brasa',ADH10);
+munInd('adh_desloc_1h_vulner','vulner','Pessoas vulneráveis à pobreza que levam mais de uma hora até o trabalho','%','ATLAS',2010,'pct2','brasa',
+  ADH10+'Percentual sobre as pessoas ocupadas que voltam do trabalho todos os dias.');
+munInd('adh_desocup_18_24','trabalho','Taxa de desocupação de 18 a 24 anos','%','ATLAS',2010,'pct1','brasa',ADH10);
+munInd('adh_creche_0_3','educacao','Crianças de 0 a 3 anos que frequentam creche ou escola','%','ATLAS',2010,'pct1','agua',ADH10);
+munInd('adh_fora_escola_4_5','educacao','Crianças de 4 e 5 anos fora da escola','%','ATLAS',2010,'pct1','brasa',
+  ADH10+'A pré-escola passou a ser obrigatória a partir de 2016: o valor de 2010 não descreve a situação atual.');
+munInd('adh_maes_15_17','saude','Mulheres de 15 a 17 anos que tiveram filhos','%','ATLAS',2010,'pct1','brasa',ADH10);
+
+const OBS_IDEB='Rede pública: escolas municipais, estaduais e federais. Escala de 0 a 10; combina a aprovação escolar com a nota do SAEB.';
+munInd('ideb_iniciais','educacao','IDEB dos anos iniciais do fundamental, rede pública','índice','IDEB',(COMP_F.ideb||{}).ano||null,'dec1','agua',OBS_IDEB);
+munInd('ideb_finais','educacao','IDEB dos anos finais do fundamental, rede pública','índice','IDEB',(COMP_F.ideb||{}).ano||null,'dec1','agua',OBS_IDEB);
+munInd('ideb_medio','educacao','IDEB do ensino médio, rede pública','índice','IDEB',(COMP_F.ideb||{}).ano||null,'dec1','agua',OBS_IDEB);
+
+munInd('banda_larga_100hab','ambiente','Acessos de banda larga fixa por 100 habitantes','acessos por 100 hab.','ANATEL',(COMP_F.anatel||{}).ano||null,'dec1','agua',
+  `Densidade calculada pela Anatel com a sua própria base populacional${COMP_F.anatel?`, referente a ${String(COMP_F.anatel.mes).padStart(2,'0')}/${COMP_F.anatel.ano}`:''}. A Anatel também divulga a densidade por 100 domicílios, que dá valores maiores: as duas medidas não se comparam. Mede contratos de internet fixa, não o acesso pelo celular.`);
 
 
 
@@ -523,7 +559,7 @@ const SERIES={
 const S={
   nivel:'bairro', indId:'pop', cat:'visao', ramp:null, classes:5, metodo:'quantil',
   sel:null, cmp:[], geo:{bairro:null,setor:null}, dados:{bairro:{},setor:{}},
-  camadas:{base:false,fcu:false,bolsoes:false,lojas:true,escolas:false,saude:false},
+  camadas:{base:false,fcu:false,risco:false,bolsoes:false,lojas:true,escolas:false,saude:false},
   loja:null, raio:1, muniFiltro:null, importados:[]
 };
 
@@ -629,7 +665,18 @@ function escalaCores(ramp,k){
 }
 
 /* ─────────────────────────────────────────────────────── 9. O MAPA ───── */
-let map,camada,camadaBase=null,camadaFCU=null,ATLAS_DB=null;
+let map,camada,camadaBase=null,camadaFCU=null,camadaRisco=null,ATLAS_DB=null;
+/* Um só canvas para as camadas de área sobre o mapa (favelas, áreas de risco e
+   bolsões). Com um canvas por camada, o de cima recebia todos os eventos do
+   mouse e o tooltip das camadas de baixo nunca aparecia. */
+let RENDER_SOBRE=null, sobreCamada=false;
+const rendererSobre=()=>RENDER_SOBRE||(RENDER_SOBRE=L.canvas({padding:.4,pane:'atlasSobre'}));
+/* com o cursor sobre uma dessas camadas, vale só o tooltip dela: o do
+   território de baixo (a reserva do mousemove do mapa) sai de cena */
+function marcaSobre(c){
+  c.on('mouseover',()=>{sobreCamada=true;limpaHoverReserva();});
+  c.on('mouseout remove',()=>{sobreCamada=false;});
+}
 let MUNICIPAL_2010={}, METODO_EST='';
 let PONTOS=null, MUNIS_LISTA=null, camadasPonto={}, focoLoja=null, camadaRaio=null;
 let RAW_SETORES=null, RAW_NUCLEO=null, RAW_EST=null;
@@ -731,6 +778,7 @@ function geoDoNivel(){
 function sincronizaCamadas(){
   ['lojas','escolas','saude'].forEach(k=>pontosOn(k,!!S.camadas[k]));
   fcuOn(!!S.camadas.fcu);
+  riscoOn(!!S.camadas.risco);
 }
 /* Reconstrói a camada — só quando muda a geometria exibida (nível ou filtro). */
 function desenhaMapa(){
@@ -980,7 +1028,7 @@ function painelMunicipiosHTML(){
       <div class="v"><span class="num">${fmtN(v,i.fmt)}</span>
       <span class="u">${esc(unid(i))}</span></div></button>`;}).join('')}
     ${S.muniFiltro==null?`<div class="row muni-row regiao"><div class="k"><b>Região (7 municípios)</b>
-      <span class="ref-note">${valor(regiaoProps())==null?'valor oficial de 2010 só existe por município':'somas e taxas recalculadas a partir das contagens'}</span></div>
+      <span class="ref-note">${valor(regiaoProps())==null?(i.ano===2010?'valor oficial de 2010 só existe por município':'a fonte publica por município; o valor não se soma entre eles'):'somas e taxas recalculadas a partir das contagens'}</span></div>
       <div class="v"><span class="num">${fmtN(valor(regiaoProps()),i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`:''}
     <div class="note" style="margin-top:14px">Clique em um município para ver, em uma única ficha,
       saúde, assistência, segurança, emprego, finanças e agro.</div>`;
@@ -1213,6 +1261,7 @@ function ligaCliqueDoMapa(){
     if(quadroHover)return;
     quadroHover=requestAnimationFrame(()=>{
       quadroHover=0;
+      if(sobreCamada){limpaHoverReserva();return;}
       const f=territorioEm(e.latlng), l=f&&camadaPorId&&camadaPorId.get(f.properties.id);
       if(l!==hoverReserva){
         limpaHoverReserva();
@@ -2470,6 +2519,7 @@ function renderCamadas(){
     ${item('escolas','Escolas',nf.format(n('escolas')),pt(ESTILO_PONTO.escolas.cor))}
     ${item('saude','Unidades de saúde',n('saude'),pt(ESTILO_PONTO.saude.cor))}
     ${item('fcu','Favelas e comunidades','IBGE','<i class="sw-area"></i>')}
+    ${AREAS_RISCO.length?item('risco','Áreas de risco (2010)',AREAS_RISCO.length,'<i class="sw-area risco"></i>'):''}
     ${item('bolsoes','Bolsões do quintil mais pobre',BOLSOES?nf.format(BOLSOES.length):'123','<i class="sw-area bol"></i>')}
     <div class="lay-sep"></div>
     ${item('base','Mapa de fundo','opcional','<i class="sw-base"></i>')}</div>`;
@@ -2477,6 +2527,7 @@ function renderCamadas(){
     $('#layToggle').setAttribute('aria-expanded',String(!S.layMin));};
   $('#lay-base').onchange=e=>{S.camadas.base=e.target.checked;baseOn(e.target.checked);};
   $('#lay-fcu').onchange=e=>{S.camadas.fcu=e.target.checked;fcuOn(e.target.checked);};
+  if($('#lay-risco'))$('#lay-risco').onchange=e=>{S.camadas.risco=e.target.checked;riscoOn(e.target.checked);};
   $('#lay-bolsoes').onchange=e=>{S.camadas.bolsoes=e.target.checked;bolsoesOn(e.target.checked);};
   ['lojas','escolas','saude'].forEach(k=>{
     $('#lay-'+k).onchange=e=>{S.camadas[k]=e.target.checked;pontosOn(k,e.target.checked);};
@@ -2491,7 +2542,7 @@ function fcuOn(on){
   if(!camadaFCU){
     const fs=S.geo.setor.features.filter(f=>f.properties._fcuNome);
     camadaFCU=L.geoJSON({type:'FeatureCollection',features:fs},{
-      renderer:L.canvas({padding:.4,pane:'atlasSobre'}),
+      renderer:rendererSobre(),
       style:{fillColor:'#9B2C6F',fillOpacity:.16,color:'#9B2C6F',weight:1.2,opacity:.9}
     });
     camadaFCU.bindTooltip(l=>{
@@ -2501,9 +2552,40 @@ function fcuOn(on){
        <div class="kv"><span>População</span><span class="num">${fmtN(p.pop,'int')}</span></div>
        <div class="kv"><span>Domicílios</span><span class="num">${fmtN(p.dpo,'int')}</span></div>`;
     },{className:'tt',sticky:true,direction:'top'});
-    camadaFCU.on('mouseover',limpaHoverReserva);
+    marcaSobre(camadaFCU);
   }
   if(!map.hasLayer(camadaFCU))camadaFCU.addTo(map);
+}
+
+/* Áreas de risco BATER (IBGE e CEMADEN, base 2010), de dados-complementares.js.
+   Só existem para municípios monitorados pelo CEMADEN: aqui, Porto Alegre e
+   Sapucaia do Sul. A ausência de polígono não quer dizer ausência de risco. */
+const AREAS_RISCO=((window.ATLAS_COMPLEMENTOS||{}).risco)||[];
+const ESTILO_RISCO={fillColor:'#7A1F12',fillOpacity:.14,color:'#7A1F12',weight:1.6,opacity:.95,dashArray:'5 3'};
+const RECORTE_RISCO={face:'faces de quadra',setor:'setores censitários'};
+const AJUSTE_RISCO={otima:'ótimo',boa:'bom',regular:'regular'};
+function riscoOn(on){
+  if(!on){ if(camadaRisco&&map.hasLayer(camadaRisco))map.removeLayer(camadaRisco); return; }
+  if(!AREAS_RISCO.length)return;
+  if(!camadaRisco){
+    const P=(window.ATLAS_COMPLEMENTOS||{}).prec||1e5;
+    const nomeMun=c=>{const k=MUNIS_LISTA?MUNIS_LISTA.ids.indexOf(+c):-1;return k>=0?MUNIS_LISTA.nomes[k]:c;};
+    camadaRisco=L.geoJSON({type:'FeatureCollection',features:AREAS_RISCO.map(a=>({type:'Feature',
+      properties:{cod:a.cod,muni:nomeMun(a.muni),origem:a.origem,acuracia:a.acuracia,obs:a.obs},
+      geometry:decGeom(a.geom,P)}))},{
+      renderer:rendererSobre(),style:ESTILO_RISCO});
+    camadaRisco.bindTooltip(l=>{
+      const p=(l.feature||l).properties||{};
+      return `<b>Área de risco ${esc(p.cod)}</b>
+       <div class="kv"><span>Município</span><span>${esc(p.muni)}</span></div>
+       <div class="kv"><span>Recorte</span><span>${esc(RECORTE_RISCO[p.origem]||p.origem||'—')}</span></div>
+       <div class="kv"><span>Ajuste</span><span>${esc(AJUSTE_RISCO[p.acuracia]||p.acuracia||'—')}</span></div>
+       ${p.obs?`<div class="kv"><span>Observação</span><span>${esc(p.obs)}</span></div>`:''}
+       <div class="hint">IBGE e CEMADEN · malha do Censo 2010</div>`;
+    },{className:'tt tt-risco',sticky:true,direction:'top'});
+    marcaSobre(camadaRisco);
+  }
+  if(!map.hasLayer(camadaRisco))camadaRisco.addTo(map);
 }
 
 /* ─────────────────────────────────────────────────────── 21. MODAIS ─── */
@@ -2744,6 +2826,7 @@ function montaGeo(){
       const codMun=String(N.munis.ids[M.muni_id[i]]);
       Object.assign(p,((window.ATLAS_SERVICOS||{}).municipios||{})[codMun]||{});
       Object.assign(p,((window.ATLAS_INDICES||{}).municipios||{})[codMun]||{});
+      Object.assign(p,((window.ATLAS_COMPLEMENTOS||{}).municipios||{})[codMun]||{});
       /* 2010 no município: o valor oficial, e não a média das áreas de ponderação
          (em Canoas, o Gini médio das áreas dá 0,452; o do município é 0,518) */
       const of=MUNICIPAL_2010[codMun]||{};
@@ -3069,7 +3152,7 @@ function bolsoesOn(on){
   if(!camadaBolsoes){
     const fs=S.geo.setor.features.filter(f=>B.porId.has(f.properties.id));
     camadaBolsoes=L.geoJSON({type:'FeatureCollection',features:fs},{
-      renderer:L.canvas({padding:.4,pane:'atlasSobre'}),
+      renderer:rendererSobre(),
       style:()=>Object.assign({},ESTILO_BOLSAO)
     });
     camadaBolsoes.bindTooltip(l=>{
@@ -3080,7 +3163,7 @@ function bolsoesOn(on){
         <div class="kv"><span>Loja de venda mais próxima</span><span>${esc(b.venda)} · ${fmtN(b.dist_venda,'dec1')} km</span></div>
         <div class="hint">clique para a ficha do bolsão</div>`;
     },{className:'tt',sticky:true,direction:'top'});
-    camadaBolsoes.on('mouseover',limpaHoverReserva);
+    marcaSobre(camadaBolsoes);
     camadaBolsoes.on('click',e=>{
       const l=e.propagatedFrom||e.layer, k=l&&l.feature?B.porId.get(l.feature.properties.id):null;
       if(k!=null){L.DomEvent.stop(e);abreBolsao(k);}
@@ -3232,6 +3315,7 @@ function exportaMapa(){
   c.fillStyle='#F1EFEA'; c.fillRect(0,0,W,H);
   (S._g||{features:[]}).features.forEach(ft=>pinta(ft.geometry,estiloFeicao(ft)));
   if(S.camadas.fcu&&camadaFCU)camadaFCU.eachLayer(l=>pinta(l.feature.geometry,{fillColor:'#9B2C6F',fillOpacity:.16,color:'#9B2C6F',weight:1.2,opacity:.9}));
+  if(S.camadas.risco&&camadaRisco){c.setLineDash([5,3]);camadaRisco.eachLayer(l=>pinta(l.feature.geometry,ESTILO_RISCO));c.setLineDash([]);}
   if(S.camadas.bolsoes&&camadaBolsoes)camadaBolsoes.eachLayer(l=>pinta(l.feature.geometry,l.options));
   if(camadaRaio&&map.hasLayer(camadaRaio)){
     const ll=camadaRaio.getLatLng(), p0=map.latLngToContainerPoint(ll);
@@ -3278,15 +3362,17 @@ const TABELAS_DIAG=[
   {sec:'6',t:'População, densidade e estrutura etária',c:['pop','pop_est_2026','dens_hab','pct_criancas_0_14','pct_jovens_15_29','pct_idosos_60','idx_envelhecimento']},
   {sec:'6',t:'Composição e grupos populacionais',c:['pct_mulheres','pct_preta_parda','pct_preta','indigenas','quilombolas','pct_fcu']},
   {sec:'7',t:'Pobreza, renda, desigualdade e trabalho (Censo 2010, valores municipais oficiais)',c:['est_pobreza','est_extrema_pobreza','est_rdpc','est_gini','est_desocupacao','est_informalidade','est_conta_propria']},
+  {sec:'7',t:'Juventude, famílias e vulnerabilidade (Atlas Brasil, Censo 2010)',c:['adh_vulner_pobreza','adh_nemnem_vulner','adh_desocup_18_24','adh_maes_chefes_sem_fund','adh_dep_idosos_vulner','adh_desloc_1h_vulner']},
   {sec:'7',t:'Renda e economia: dados recentes',c:['resp_renda','pib_pc','pct_vab_ind','pct_vab_serv','pct_vab_adm']},
-  {sec:'8',t:'Dimensões da vulnerabilidade: indicadores-chave',c:['pct_fcu','pct_agua_rede','pct_esgoto_inadequado','taxa_analfabetismo','est_sem_fundamental_25','ubs_10mil','cvli_100mil']},
+  {sec:'8',t:'Dimensões da vulnerabilidade: indicadores-chave',c:['pct_fcu','pct_agua_rede','pct_esgoto_inadequado','taxa_analfabetismo','est_sem_fundamental_25','ubs_10mil','cvli_100mil','banda_larga_100hab']},
+  {sec:'8',t:'Educação e desenvolvimento humano',c:['idhm','idhm_educacao','ideb_iniciais','ideb_finais','ideb_medio','adh_creche_0_3','adh_fora_escola_4_5']},
   {sec:'10',t:'Rede de serviços registrada',c:['cnes_ubs','ubs_10mil','cnes_caps','cnes_hospitais','inep_escolas_publicas','inep_escolas_privadas']},
   {sec:'11',t:'Orçamento municipal para políticas sociais',c:['fin_receita_total','fin_transf_pct','gasto_saude_hab','gasto_atencao_basica_hab','gasto_assistencia_hab','gasto_seguranca_hab','gasto_trabalho_hab']},
 ];
 const AUSENTES_DIAG={
-  '6':'Não estão no Atlas: famílias chefiadas por mulheres, famílias monoparentais, idosos que vivem sozinhos, pessoas com deficiência, migrantes, população em situação de rua, famílias no Cadastro Único e no Bolsa Família.',
-  '7':'Não estão no Atlas: desocupação de jovens e de mulheres, jovens que não estudam nem trabalham, dependência de transferências, microempreendedores, renda e pobreza de 2022.',
-  '8':'Não estão no Atlas: mobilidade, segurança alimentar, riscos climáticos, inclusão digital, documentação e acesso a direitos, cultura e lazer.',
+  '6':'Não estão no Atlas: total de famílias chefiadas por mulheres (há só as mães chefes sem fundamental, de 2010), famílias monoparentais, idosos que vivem sozinhos, pessoas com deficiência, migrantes, população em situação de rua, famílias no Cadastro Único e no Bolsa Família.',
+  '7':'Não estão no Atlas: desocupação de mulheres, total de jovens que não estudam nem trabalham (há só os vulneráveis à pobreza, de 2010), dependência de transferências, microempreendedores, renda e pobreza de 2022.',
+  '8':'Não estão no Atlas: mobilidade, segurança alimentar, documentação e acesso a direitos, cultura e lazer. Riscos climáticos só em parte: a camada de áreas de risco é a BATER de 2010 (Porto Alegre e Sapucaia do Sul); faltam a setorização do Serviço Geológico do Brasil e a mancha da enchente de 2024.',
   '10':'Não estão no Atlas: CRAS, CREAS, Centro POP, creches e vagas, transferências de renda por família, restaurantes populares, programas habitacionais, organizações comunitárias.',
   '11':'Não estão no Atlas: despesa em educação, equipes técnicas, conselhos e sistemas de informação.'
 };

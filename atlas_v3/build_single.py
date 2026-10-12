@@ -12,7 +12,7 @@ import re, pathlib, sys
 D = pathlib.Path(__file__).parent
 ARQS = ['dados-nucleo.js', 'dados-bairros.js', 'dados-municipios.js',
         'dados-setores.js', 'dados-estimados.js', 'dados-servicos.js', 'dados-pontos.js',
-        'dados-indices.js']
+        'dados-indices.js', 'dados-complementares.js']
 
 html = (D / 'index.html').read_text(encoding='utf-8')
 
@@ -25,7 +25,7 @@ html = html.replace('<link rel="stylesheet" href="atlas.css">',
 # No standalone tudo fica embutido, então as tags <script defer> dos dados e o
 # preload do atlas.js não têm o que fazer: saem antes de embutir o conteúdo.
 html = re.sub(r'<link rel="preload" as="script" href="atlas\.js">\n', '', html)
-html = re.sub(r'<!--[^>]*?Os sete arquivos de dados.*?-->\n', '', html, flags=re.S)
+html = re.sub(r'<!--[^>]*?Os arquivos de dados baixam.*?-->\n', '', html, flags=re.S)
 html, nd = re.subn(r'<script defer src="dados/dados-[a-z]+\.js"></script>\n', '', html)
 if nd != len(ARQS):
     sys.exit(f'ERRO: esperava {len(ARQS)} tags defer de dados, removi {nd}')
@@ -58,6 +58,7 @@ for marca, rotulo in [('ATLAS_NUCLEO', 'dados-nucleo'), ('ATLAS_SETORES', 'dados
                       ('ATLAS_MUNICIPIOS', 'dados-municipios'),
                       ('ATLAS_EST', 'dados-estimados'), ('ATLAS_PONTOS', 'dados-pontos'),
                       ('ATLAS_SERVICOS', 'dados-servicos'),
+                      ('ATLAS_COMPLEMENTOS', 'dados-complementares'),
                       ('function montaGeo', 'atlas.js'), ('--atlas-css-ok', 'atlas.css')]:
     if marca not in html:
         sys.exit(f'ERRO: {rotulo} não entrou no arquivo final')

@@ -84,13 +84,16 @@ O template tem 15 seções de quatro tipos:
 
 Ordenadas por prioridade. "Esforço" considera o trabalho de extração e de interface.
 
-### Situação em outubro de 2026 (Atlas versão 3.1)
+### Situação em outubro de 2026 (Atlas versão 3.2)
+
+Como extrair cada dado que falta, com scripts R: [EXTRACAO-dados-faltantes.md](EXTRACAO-dados-faltantes.md).
 
 | Situação | Itens |
 |---|---|
-| ✅ **Feito** | A1, A2, A3, A4, C2 |
-| ◐ **Feito em parte** | A5: as tabelas saem para os sete municípios ou para o município filtrado; o recorte por bairros e por bolsões fica para depois |
-| ⛔ **Bloqueado por acesso à rede** | B1 a B15: o ambiente onde o Atlas foi atualizado não alcança os servidores do IBGE, do Tesouro (SICONFI), do DATASUS e do gov.br. Nenhum desses dados foi preenchido com valor estimado |
+| ✅ **Feito** | A1, A2, A3, A4, C2; B10 (banda larga fixa, Anatel, junho de 2024) |
+| ◐ **Feito em parte** | A5: as tabelas saem para os sete municípios ou para o município filtrado; o recorte por bairros e por bolsões fica para depois. **B2**: nove indicadores de 2010 do Atlas Brasil por município (jovens vulneráveis que não estudam nem trabalham, mães chefes sem fundamental, desocupação de 18 a 24 anos e outros); por área de ponderação, o script R está pronto. **B5**: IDEB 2023 da rede pública; as matrículas por etapa dependem do script R. **B9**: áreas de risco BATER de 2010 no mapa; a mancha de 2024 e a setorização do SGB dependem do script R e de download manual. **B14**: IDHM 2010 e componentes; IVS, IDESE, IFDM e despesa em educação seguem pendentes |
+| 📄 **Script R pronto, falta rodar fora deste ambiente** | B2, B3, B5, B6, B7, B8, B9, B11, B13, B14 (despesa em educação) |
+| ✋ **Download manual** | B1 (VIS DATA e CECAD), B4 e B15 (Censo SUAS, MUNIC), B12 (Mapa das OSCs), IVS, IDESE e IFDM |
 | ⏳ **Pendente** | C1 (precisa dos dados de 2010 por setor) e C3 (precisa de um lugar compartilhado para guardar as notas de campo) |
 
 O que mudou no Atlas, por item:

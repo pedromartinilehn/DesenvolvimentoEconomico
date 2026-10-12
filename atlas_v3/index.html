@@ -89,7 +89,7 @@
     <div id="cats"></div>
     <div class="side-foot">Todo valor traz fonte, ano e nível geográfico. Onde um território não
       tem dado publicado, o Atlas mostra o do território que o contém, com o nome dele.
-      <span class="ver">Versão 3.1 · outubro de 2026</span></div>
+      <span class="ver">Versão 3.2 · outubro de 2026</span></div>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════════ MAPA ═══ -->
@@ -147,7 +147,7 @@
   <div class="mbody" id="dadosBody"></div></div></div>
 <link rel="preload" as="script" href="atlas.js">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<!-- Os sete arquivos de dados baixam em paralelo. `defer` preserva a ordem de
+<!-- Os arquivos de dados baixam em paralelo. `defer` preserva a ordem de
      execução, que era a única razão de existir o carregador em cadeia: antes
      cada arquivo só começava a baixar quando o anterior terminava, somando
      oito idas e voltas em série. -->
@@ -159,6 +159,7 @@
 <script defer src="dados/dados-servicos.js"></script>
 <script defer src="dados/dados-pontos.js"></script>
 <script defer src="dados/dados-indices.js"></script>
+<script defer src="dados/dados-complementares.js"></script>
 <script id="carregador">
 /* Fecha o carregamento depois que os scripts `defer` já rodaram (eles executam
    antes do DOMContentLoaded). No layout normal, só acrescenta o atlas.js — que
@@ -167,10 +168,10 @@
 (function () {
   var ARQS = ['dados-nucleo.js', 'dados-bairros.js', 'dados-municipios.js',
               'dados-setores.js', 'dados-estimados.js', 'dados-servicos.js', 'dados-pontos.js',
-              'dados-indices.js'];
+              'dados-indices.js', 'dados-complementares.js'];
   var GLOBAIS = ['ATLAS_NUCLEO', 'ATLAS_BAIRROS', 'ATLAS_MUNICIPIOS',
                  'ATLAS_SETORES', 'ATLAS_EST', 'ATLAS_SERVICOS', 'ATLAS_PONTOS',
-                 'ATLAS_INDICES'];
+                 'ATLAS_INDICES', 'ATLAS_COMPLEMENTOS'];
   window.__ATLAS_ORIGEM = window.__ATLAS_ORIGEM || {};
 
   function carregaAtlas() {

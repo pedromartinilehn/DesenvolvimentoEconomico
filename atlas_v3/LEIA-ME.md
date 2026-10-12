@@ -1,4 +1,4 @@
-# Atlas Metropolitano RMPA — versão 3
+# Atlas Metropolitano RMPA — versão 3.2
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios:
 Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio.
@@ -9,6 +9,25 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Para desenvolvimento: mantenha `index.html`, `atlas.css`, `atlas.js` e a pasta `dados/` juntos.
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
 - O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
+
+## O que mudou na versão 3.2
+
+Dados que faltavam, extraídos de fonte pública e sem nenhum valor estimado:
+
+- **IDHM de 2010** e seus componentes, e nove indicadores de vulnerabilidade do Atlas Brasil
+  (jovens que não estudam, não trabalham e são vulneráveis; mães chefes de família sem fundamental;
+  desocupação de 18 a 24 anos; creche de 0 a 3 anos, entre outros), por município.
+- **IDEB 2023** da rede pública (anos iniciais, anos finais, ensino médio), por município.
+- **Banda larga fixa** (Anatel, junho de 2024), acessos por 100 habitantes, por município.
+- **Áreas de risco BATER** (IBGE e CEMADEN, base 2010): camada nova no mapa, com 18 áreas em Porto
+  Alegre e 7 em Sapucaia do Sul.
+- O painel *Diagnóstico regional* ganhou as tabelas "Juventude, famílias e vulnerabilidade" e
+  "Educação e desenvolvimento humano".
+- Favelas, áreas de risco e bolsões passam a dividir um só canvas no mapa: antes, a camada de cima
+  escondia o tooltip das de baixo.
+
+Os dados vêm do espelho público da Base dos Dados, pelo `extracao/5_base_dos_dados.py`. Para o
+que ainda falta há scripts R prontos em `extracao/R/`. Ver `docs/EXTRACAO-dados-faltantes.md`.
 
 ## O que mudou na versão 3
 
@@ -108,7 +127,7 @@ Ver `docs/RELATORIO-OTIMIZACAO.md`.
 | Eixo | Indicadores principais | Fonte | Ano |
 |---|---|---|---|
 | Saúde | estabelecimentos, UBS, hospitais, CAPS; despesas em saúde e atenção básica | CNES/DATASUS; SICONFI/STN | 2026; 2024 |
-| Educação | escolas por rede. Despesas em educação, ensino fundamental, educação infantil e EJA: o script de extração está pronto, mas ainda não foi executado | Censo Escolar/INEP; SICONFI/STN | 2025; — |
+| Educação | escolas por rede; IDEB da rede pública; creche e pré-escola em 2010. Despesas em educação: os scripts estão prontos (Python e R), mas o servidor do Tesouro estava bloqueado | Censo Escolar/INEP; IDEB/INEP; Atlas Brasil; SICONFI/STN | 2025; 2023; 2010; — |
 | Assistência | despesas em assistência e assistência comunitária; pobreza histórica | SICONFI/STN; Censo/IBGE | 2024; 2010 |
 | Segurança | homicídios, furtos, roubos, veículos, estelionato e CVLI | SSP/RS | 2025 |
 | Emprego | desocupação, participação, informalidade, emprego formal, conta própria; despesa em trabalho | Censo/IBGE; SICONFI/STN | 2010; 2024 |
@@ -144,13 +163,17 @@ atlas_v3/
 │   ├── dados-estimados.js
 │   ├── dados-servicos.js
 │   ├── dados-pontos.js
-│   └── dados-indices.js
+│   ├── dados-indices.js
+│   └── dados-complementares.js
 └── extracao/
     ├── 1_servicos_municipais.py
     ├── 2_atualiza_cnes.py
     ├── 3_atualiza_escolas.py
     ├── 4_indices_municipais.py
+    ├── 5_base_dos_dados.py
     ├── indices.json
+    ├── R/                 (scripts R para os dados que faltam; ver docs/EXTRACAO-dados-faltantes.md)
+    ├── saida_R/           (saídas dos scripts R, não versionadas)
     └── fontes/            (planilhas baixadas, não versionadas)
 ```
 
@@ -162,18 +185,25 @@ Os scripts em `extracao/` regeneram os dados integrados:
 python3 extracao/2_atualiza_cnes.py --arquivo /caminho/healthfacilities_YYYYMM.parquet
 python3 extracao/3_atualiza_escolas.py --arquivo /caminho/schools_YYYY.parquet
 python3 extracao/1_servicos_municipais.py
+python3 extracao/5_base_dos_dados.py
 python3 extracao/4_indices_municipais.py
 python3 build_single.py
 ```
+
+O `5_base_dos_dados.py` baixa do espelho público da Base dos Dados (Google Cloud Storage, sem
+conta) os arquivos gratuitos do Atlas Brasil, do IDEB, da Anatel e das áreas de risco do geobr, e
+grava `dados/dados-complementares.js`. Ele também deixa em `extracao/fontes/basedosdados/` o
+arquivo do Atlas Brasil que o `4_indices_municipais.py` usa para o IDHM, por isso roda antes.
 
 Os dois scripts de pontos precisam de `pandas` e `pyarrow`. O script municipal usa a API pública
 do SICONFI e os arquivos oficiais de segurança; consulte o cabeçalho de cada script.
 
 ### Índices sintéticos municipais
 
-IDHM, IVS, IDESE e FIRJAN não têm API pública — são planilhas publicadas por cada instituição.
-O script `4_indices_municipais.py` lê os arquivos que você baixar para `extracao/fontes/`,
-guiado pelo mapa de colunas em `extracao/indices.json`:
+IVS, IDESE e FIRJAN não têm API pública: são planilhas publicadas por cada instituição. O IDHM
+vem do espelho da Base dos Dados (ver acima), e a planilha do Atlas Brasil continua aceita. O
+script `4_indices_municipais.py` lê os arquivos de `extracao/fontes/`, guiado pelo mapa de colunas
+em `extracao/indices.json`:
 
 | índice | publicador | onde obter | periodicidade |
 |---|---|---|---|
