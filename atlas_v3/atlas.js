@@ -8,6 +8,10 @@
      MAPA / UI / INGESTAO
    ══════════════════════════════════════════════════════════════════════════ */
 
+/* O texto deste arquivo como chegou, antes de o Atlas mexer na página. A central de
+   extração (seção 27) parte dele para gerar o Atlas com os dados extraídos dentro. */
+const HTML_ORIGINAL=(()=>{try{return document.documentElement.outerHTML;}catch(e){return null;}})();
+
 /* ─────────────────────────────────── 0. DADOS QUE JÁ VIERAM DAS FONTES ─── */
 /* O Atlas busca parte dos dados direto nas fontes, pelo próprio navegador
    (seção 26), sem script nem arquivo intermediário. O que já foi baixado e
@@ -888,7 +892,7 @@ function geoDoNivel(){
 /* Mantém as camadas de pontos e a de FCU em sincronia com S.camadas.
    Elas não dependem do indicador, então nunca são reconstruídas aqui. */
 function sincronizaCamadas(){
-  ['lojas','escolas','saude','acolhimento'].forEach(k=>pontosOn(k,!!S.camadas[k]));
+  chavesPonto().forEach(k=>pontosOn(k,!!S.camadas[k]));
   fcuOn(!!S.camadas.fcu);
   riscoOn(!!S.camadas.risco);
 }
@@ -2149,7 +2153,9 @@ function renderMetodo(){
   <h3 class="sec">Código de extração</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
     Parte da atualização roda no próprio navegador: em <b>Mais → Dados e fontes</b>, o Atlas busca e
-    confere as fontes que permitem leitura direta. O resto está nos scripts da pasta
+    confere as fontes que permitem leitura direta, e em <b>Mais → Extrair dados</b> qualquer pessoa
+    traz dados novos sem instalar programa (OpenStreetMap, tabelas do IBGE e arquivos baixados do
+    INEP, do IBGE, do CNES ou de outra fonte nacional). O resto está nos scripts da pasta
     <b>extracao/</b>, que acompanham o pacote. Cada um traz no cabeçalho a fonte, as conferências e o que
     a saída não significa, e para com erro em vez de completar dado que falta. O passo a passo está em
     <b>docs/COMO-FAZER-AS-EXTRACOES.md</b>.</p>
@@ -2306,7 +2312,9 @@ function renderFontes(){
 
 /* ──────────────────────────────────────────────── 18. INGESTÃO DE DADOS  */
 function renderDados(){
-  $('#dadosBody').innerHTML=aoVivoHTML()+`
+  $('#dadosBody').innerHTML=`<div class="note"><b>Mais dados, sem instalar nada.</b> Censo Escolar, Censo 2010,
+      equipes do CNES, tabelas do IBGE, OpenStreetMap e qualquer arquivo nacional com código de município:
+      <button class="btn" id="btnIrExtrair" style="margin-left:6px">Extrair dados</button></div>`+aoVivoHTML()+`
     <h3 class="sec">Carregar um arquivo seu</h3>
     <div class="note">Carregue arquivos <b>GeoJSON</b> (malhas) ou <b>CSV</b> (indicadores).
       O arquivo fica apenas no seu navegador — nada é enviado para servidor.</div>
@@ -2873,6 +2881,7 @@ function renderCamadas(){
     ${item('escolas','Escolas',nf.format(n('escolas')),pt(ESTILO_PONTO.escolas.cor))}
     ${item('saude','Unidades de saúde',n('saude'),pt(ESTILO_PONTO.saude.cor))}
     ${n('acolhimento')?item('acolhimento','Comunidades terapêuticas e residenciais',n('acolhimento'),pt(ESTILO_PONTO.acolhimento.cor)):''}
+    ${chavesPonto().filter(k=>k.startsWith('xt_')).map(k=>item(k,ESTILO_PONTO[k].rot,nf.format(n(k)),pt(ESTILO_PONTO[k].cor))).join('')}
     ${item('fcu','Favelas e comunidades','IBGE','<i class="sw-area"></i>')}
     ${AREAS_RISCO.length?item('risco','Áreas de risco (2010)',AREAS_RISCO.length,'<i class="sw-area risco"></i>'):''}
     ${item('bolsoes','Bolsões do quintil mais pobre',BOLSOES?nf.format(BOLSOES.length):'123','<i class="sw-area bol"></i>')}
@@ -2884,7 +2893,7 @@ function renderCamadas(){
   $('#lay-fcu').onchange=e=>{S.camadas.fcu=e.target.checked;fcuOn(e.target.checked);};
   if($('#lay-risco'))$('#lay-risco').onchange=e=>{S.camadas.risco=e.target.checked;riscoOn(e.target.checked);};
   $('#lay-bolsoes').onchange=e=>{S.camadas.bolsoes=e.target.checked;bolsoesOn(e.target.checked);};
-  ['lojas','escolas','saude','acolhimento'].forEach(k=>{
+  chavesPonto().forEach(k=>{
     if($('#lay-'+k))$('#lay-'+k).onchange=e=>{S.camadas[k]=e.target.checked;pontosOn(k,e.target.checked);};
   });
 }
@@ -2978,6 +2987,7 @@ function abreModal(id){
   if(id==='mdDados')renderDados();
   if(id==='mdDiag')renderDiag();
   if(id==='mdBolsoes')renderBolsoes();
+  if(id==='mdExtrair')renderExtrair();
   $('#'+id).classList.add('show');
 }
 function fechaModais(){$$('.modal').forEach(m=>m.classList.remove('show'));}
@@ -3435,6 +3445,7 @@ function ligaEventos(){
   $('#btnMatriz').onclick=()=>abreModal('mdMatriz');
   $('#btnFontes').onclick=()=>abreModal('mdFontes');
   $('#btnDados').onclick=()=>abreModal('mdDados');
+  const bx=$('#btnExtrair'); if(bx)bx.onclick=()=>abreModal('mdExtrair');
   $('#btnDiag').onclick=()=>abreModal('mdDiag');
   $('#btnBolsoes').onclick=()=>abreModal('mdBolsoes');
   $('#btnExportar').onclick=exportaMapa;
@@ -4312,11 +4323,1086 @@ function aoVivoHTML(){
       Para esses, os scripts de <code>extracao/</code> continuam valendo.</p>`;
 }
 function ligaAoVivoHTML(){
+  const ir=$('#btnIrExtrair'); if(ir)ir.onclick=()=>{fechaModais();abreModal('mdExtrair');};
   const a=$('#avAgora'); if(a)a.onclick=()=>aoVivoAtualiza(null,true);
   const t=$('#avAuto'); if(t)t.onchange=e=>{AO_VIVO.auto=e.target.checked;
     try{localStorage.setItem(AO_VIVO_CHAVE+'_auto',e.target.checked?'1':'0');}catch(err){}};
   const l=$('#avLimpa'); if(l)l.onclick=()=>{try{localStorage.removeItem(AO_VIVO_CHAVE);}catch(e){}
     toast('Dados das fontes apagados deste navegador. A página volta aos dados embarcados.');setTimeout(()=>location.reload(),900);};
+}
+
+/* ═════════════════════ 27. CENTRAL DE EXTRAÇÃO NO NAVEGADOR ═════════════════════
+   Faz aqui, no navegador de quem usa o Atlas, o que os scripts de extracao/R/
+   fazem: sem instalar R nem Python, e sem enviar nada para servidor.
+   - Fonte que deixa uma página ler direto (IBGE/SIDRA, OpenStreetMap): um botão.
+   - Fonte que só entrega arquivo (INEP, microdados do IBGE, CNES, MDS, IPEA): a
+     pessoa baixa na página oficial e solta o arquivo aqui. O Atlas abre o ZIP, o
+     CSV ou a planilha e recorta os sete municípios.
+   As regras são as dos scripts: confere colunas e municípios, para com mensagem
+   clara quando a fonte muda, não estima e não completa. O resultado fica guardado
+   neste navegador (IndexedDB) e entra num novo arquivo do Atlas pelo botão
+   "Baixar o Atlas com os dados", que é o arquivo que se distribui. */
+
+/* ---- 27.1 guarda e aplica o que foi extraído ------------------------------ */
+const XT_BANCO='atlas_rmpa_extracoes', XT_LOJA='itens';
+const XT_APLICADOS=new Map();                 /* id -> item já aplicado ao mapa */
+function xtAbreBanco(){
+  return new Promise((ok,erro)=>{
+    try{
+      const r=indexedDB.open(XT_BANCO,1);
+      r.onupgradeneeded=()=>r.result.createObjectStore(XT_LOJA,{keyPath:'id'});
+      r.onsuccess=()=>ok(r.result); r.onerror=()=>erro(r.error||new Error('IndexedDB indisponível'));
+    }catch(e){erro(e);}
+  });
+}
+async function xtLista(){
+  try{
+    const db=await xtAbreBanco();
+    return await new Promise((ok,erro)=>{const q=db.transaction(XT_LOJA,'readonly').objectStore(XT_LOJA).getAll();
+      q.onsuccess=()=>ok(q.result||[]); q.onerror=()=>erro(q.error);});
+  }catch(e){return [];}
+}
+async function xtGrava(item){
+  try{
+    const db=await xtAbreBanco();
+    await new Promise((ok,erro)=>{const t=db.transaction(XT_LOJA,'readwrite');t.objectStore(XT_LOJA).put(item);
+      t.oncomplete=()=>ok(); t.onerror=()=>erro(t.error);});
+    return true;
+  }catch(e){return false;}            /* janela anônima ou bloqueio: vale só nesta sessão */
+}
+async function xtApaga(id){
+  try{
+    const db=await xtAbreBanco();
+    await new Promise((ok,erro)=>{const t=db.transaction(XT_LOJA,'readwrite');t.objectStore(XT_LOJA).delete(id);
+      t.oncomplete=()=>ok(); t.onerror=()=>erro(t.error);});
+  }catch(e){}
+}
+/* chaves das camadas de pontos: as fixas e as que vêm de extração (xt_...) */
+const chavesPonto=()=>['lojas','escolas','saude','acolhimento']
+  .concat(Object.keys(ESTILO_PONTO).filter(k=>k.startsWith('xt_')));
+
+/* Põe um item extraído no Atlas: fonte, indicadores, valores e pontos. */
+function xtAplica(item){
+  const fk='XT_'+item.id;
+  FONTES[fk]={n:item.fonte.n,s:item.fonte.s||item.fonte.n,u:item.fonte.u||'',
+    d:(item.fonte.d||'')+` Extraído no navegador em ${new Date(item.quando).toLocaleDateString('pt-BR')}`+
+      (item.origem?`, de ${item.origem}`:'')+'.',naoOficial:item.status==='ext'};
+  (item.indicadores||[]).forEach(d=>{
+    const o=Object.assign({},d,{fonte:fk,ano:d.ano??item.ano,status:d.status||item.status||'ok'});
+    const ex=getInd(d.id);
+    if(ex)Object.assign(ex,o); else ind(o);
+  });
+  const V=item.valores||{};
+  ((S.geo.municipio||{}).features||[]).forEach(f=>{
+    const c=String(MUNIS_LISTA.ids[f.properties.muni_id]);
+    if(V.municipio&&V.municipio[c])Object.assign(f.properties,V.municipio[c]);
+  });
+  if(V.bairro)S.geo.bairro.features.forEach(f=>{const v=V.bairro[f.properties.id]; if(v)Object.assign(f.properties,v);});
+  if(item.pontos&&PONTOS){
+    const P=item.pontos;
+    PONTOS[P.chave]=P.itens.map(q=>Object.assign({},q));
+    PONTOS[P.chave].meta={fonte:item.fonte.n,ano:item.ano};
+    ESTILO_PONTO[P.chave]={cor:P.cor||'#7d5ba6',r:3.6,rot:P.rot};
+    if(camadasPonto[P.chave]){if(map.hasLayer(camadasPonto[P.chave]))map.removeLayer(camadasPonto[P.chave]);delete camadasPonto[P.chave];}
+    if(S.camadas[P.chave]==null)S.camadas[P.chave]=false;
+  }
+  XT_APLICADOS.set(item.id,item);
+  REGIAO=null; IND_IDX=null;
+}
+function xtRedesenha(){renderCats(); renderCamadas(); desenhaMapa(); renderPainel();}
+/* um item novo: guarda, aplica e avisa */
+async function xtConclui(item){
+  item.quando=new Date().toISOString();
+  xtAplica(item); xtRedesenha();
+  const ok=await xtGrava(item);
+  toast(ok?`${item.titulo}: pronto, e guardado neste navegador.`
+    :`${item.titulo}: pronto. O navegador não deixou guardar; vale só até fechar a página.`,'ok');
+  if($('#mdExtrair')&&$('#mdExtrair').classList.contains('show'))xtListaHTML();
+  return item;
+}
+/* No boot: o que veio embutido no arquivo (ATLAS_EXTRAIDOS) e o que está neste navegador. */
+async function xtInicia(){
+  const emb=Array.isArray(window.ATLAS_EXTRAIDOS)?window.ATLAS_EXTRAIDOS:[];
+  const loc=await xtLista();
+  const porId=new Map();
+  emb.forEach(i=>porId.set(i.id,Object.assign({},i,{_embutido:true})));
+  loc.forEach(i=>{const e=porId.get(i.id); if(!e||String(i.quando)>String(e.quando))porId.set(i.id,i);});
+  if(!porId.size)return;
+  porId.forEach(i=>{try{xtAplica(i);}catch(e){console.warn('extração',i.id,e);}});
+  xtRedesenha();
+}
+
+/* ---- 27.2 o Atlas com os dados extraídos, num arquivo só ------------------
+   O texto do arquivo foi guardado no início do atlas.js, antes de qualquer
+   mudança na página (HTML_ORIGINAL). O novo arquivo é esse texto com um bloco
+   bloco de script com id atlas-extraidos antes do código do Atlas. */
+/* As marcas são montadas em partes para não aparecerem literalmente neste código:
+   assim a busca só acha as tags de verdade do arquivo. */
+const XT_TAG_APP='<scr'+'ipt id="atlas-app">', XT_TAG_EXT='<scr'+'ipt id="atlas-extraidos">', XT_FIM='</scr'+'ipt>';
+function xtArquivoUnico(){return !!HTML_ORIGINAL&&HTML_ORIGINAL.indexOf(XT_TAG_APP)>=0;}
+async function xtBaixaAtlas(){
+  if(!xtArquivoUnico()){
+    toast('Abra o arquivo único (atlas-rmpa.html) para gerar o Atlas com os dados. Nesta versão em pasta, use "Baixar CSV".','err');
+    return;
+  }
+  const itens=[...XT_APLICADOS.values()].map(i=>{const c=Object.assign({},i);delete c._embutido;return c;});
+  if(!itens.length){toast('Nada extraído ainda.','err');return;}
+  /* tudo o que vem antes do código do Atlas, sem o bloco de dados de uma geração anterior */
+  const k=HTML_ORIGINAL.indexOf(XT_TAG_APP);
+  let antes=HTML_ORIGINAL.slice(0,k);
+  const e=antes.indexOf(XT_TAG_EXT);
+  if(e>=0){const f=antes.indexOf(XT_FIM,e); antes=antes.slice(0,e)+antes.slice(f+XT_FIM.length).replace(/^\s+/,'');}
+  const bloco=XT_TAG_EXT+'window.ATLAS_EXTRAIDOS='+JSON.stringify(itens).replace(/<\//g,'<\\/')+';'+XT_FIM+'\n';
+  const h=antes+bloco+HTML_ORIGINAL.slice(k);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+h],{type:'text/html;charset=utf-8'}));
+  a.download=`atlas-rmpa-com-dados-${new Date().toISOString().slice(0,10)}.html`;
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  toast(`Atlas com ${itens.length} extraç${itens.length>1?'ões':'ão'} baixado. É este arquivo que se distribui.`,'ok');
+}
+
+/* ---- 27.3 leitura de arquivos no navegador -------------------------------- */
+const XT_CODS=()=>COD7();
+/* código de município com 7 ou 6 dígitos -> código de 7, se for um dos sete */
+function xtMuni(v){
+  const s=String(v==null?'':v).replace(/\D/g,'');
+  if(s.length!==7&&s.length!==6)return null;
+  return XT_CODS().find(c=>c===s||c.slice(0,6)===s)||null;
+}
+/* filtro rápido de linha: só passa se tiver o código (6 dígitos) de um dos sete */
+const xtTemCodigo=()=>new RegExp(XT_CODS().map(c=>c.slice(0,6)).join('|'));
+function xtSemDescompressao(){return typeof DecompressionStream==='undefined';}
+
+/* Lista os arquivos de um ZIP lendo só o diretório do fim do arquivo (aceita ZIP64). */
+async function zipEntradas(file){
+  const n=file.size, tam=Math.min(n,65557);
+  const dv=new DataView(await file.slice(n-tam).arrayBuffer());
+  let fim=-1;
+  for(let i=tam-22;i>=0;i--)if(dv.getUint32(i,true)===0x06054b50){fim=i;break;}
+  if(fim<0)throw new Error(`${file.name} não é um ZIP válido (ou está incompleto: confira se o download terminou)`);
+  let total=dv.getUint16(fim+10,true), cdTam=dv.getUint32(fim+12,true), cdIni=dv.getUint32(fim+16,true);
+  if(cdIni===0xFFFFFFFF||total===0xFFFF||cdTam===0xFFFFFFFF){
+    const loc=fim-20;
+    if(loc<0||dv.getUint32(loc,true)!==0x07064b50)throw new Error(`${file.name}: ZIP64 sem localizador`);
+    const p64=Number(dv.getBigUint64(loc+8,true));
+    const z=new DataView(await file.slice(p64,p64+56).arrayBuffer());
+    if(z.getUint32(0,true)!==0x06064b50)throw new Error(`${file.name}: ZIP64 corrompido`);
+    total=Number(z.getBigUint64(32,true)); cdTam=Number(z.getBigUint64(40,true)); cdIni=Number(z.getBigUint64(48,true));
+  }
+  const cd=new DataView(await file.slice(cdIni,cdIni+cdTam).arrayBuffer());
+  const out=[]; let p=0;
+  for(let k=0;k<total;k++){
+    if(cd.getUint32(p,true)!==0x02014b50)throw new Error(`${file.name}: diretório do ZIP corrompido`);
+    const flags=cd.getUint16(p+8,true), metodo=cd.getUint16(p+10,true);
+    let comp=cd.getUint32(p+20,true), tam2=cd.getUint32(p+24,true);
+    const nl=cd.getUint16(p+28,true), el=cd.getUint16(p+30,true), cl=cd.getUint16(p+32,true);
+    let off=cd.getUint32(p+42,true);
+    const nome=new TextDecoder(flags&0x800?'utf-8':'windows-1252')
+      .decode(new Uint8Array(cd.buffer,cd.byteOffset+p+46,nl));
+    let e=p+46+nl; const fe=e+el;
+    while(e+4<=fe){
+      const id=cd.getUint16(e,true), sz=cd.getUint16(e+2,true);
+      if(id===1){let q=e+4;
+        if(tam2===0xFFFFFFFF){tam2=Number(cd.getBigUint64(q,true));q+=8;}
+        if(comp===0xFFFFFFFF){comp=Number(cd.getBigUint64(q,true));q+=8;}
+        if(off===0xFFFFFFFF){off=Number(cd.getBigUint64(q,true));}}
+      e+=4+sz;
+    }
+    if(!nome.endsWith('/'))out.push({nome,metodo,comp,tam:tam2,off,zip:file});
+    p+=46+nl+el+cl;
+  }
+  return out;
+}
+/* bytes de um arquivo de dentro do ZIP, já descomprimidos, como stream */
+async function zipAbre(ent){
+  const h=new DataView(await ent.zip.slice(ent.off,ent.off+30).arrayBuffer());
+  if(h.getUint32(0,true)!==0x04034b50)throw new Error(`${ent.nome}: cabeçalho do ZIP corrompido`);
+  const ini=ent.off+30+h.getUint16(26,true)+h.getUint16(28,true);
+  const s=ent.zip.slice(ini,ini+ent.comp).stream();
+  if(ent.metodo===0)return s;
+  if(ent.metodo===8){
+    if(xtSemDescompressao())throw new Error('este navegador não descompacta arquivos; use Chrome, Edge, Firefox ou Safari atualizados');
+    return s.pipeThrough(new DecompressionStream('deflate-raw'));
+  }
+  throw new Error(`${ent.nome} usa um tipo de compressão (${ent.metodo}) que o navegador não abre. Extraia o ZIP no computador e solte o arquivo de dentro.`);
+}
+async function zipBytes(ent){return new Uint8Array(await new Response(await zipAbre(ent)).arrayBuffer());}
+/* um arquivo solto ou de dentro de ZIP, com nome e tamanho descomprimido */
+function xtFonteDe(file){return {nome:file.name,tam:file.size,abre:async()=>{
+  const s=file.stream();
+  if(/\.gz$/i.test(file.name)){
+    if(xtSemDescompressao())throw new Error('este navegador não descompacta arquivos .gz');
+    return s.pipeThrough(new DecompressionStream('gzip'));
+  }
+  return s;}, bytes:async()=>new Uint8Array(await file.arrayBuffer())};}
+function xtFonteZip(ent){return {nome:ent.nome,tam:ent.tam,abre:()=>zipAbre(ent),bytes:()=>zipBytes(ent)};}
+
+/* UTF-8 se decodificar sem erro; senão, Windows-1252 (o comum em arquivos do governo) */
+function xtCodificacao(bytes){
+  let n=bytes.length; const q=bytes.lastIndexOf(10); if(q>0)n=q;
+  try{new TextDecoder('utf-8',{fatal:true}).decode(bytes.subarray(0,n));return 'utf-8';}
+  catch(e){return 'windows-1252';}
+}
+/* Lê o texto em pedaços e chama porLinha(linha) para cada registro. Junta as linhas
+   que uma aspa deixou abertas (campo com quebra de linha, RFC 4180). progresso(fração)
+   é chamado a cada pedaço. porLinha devolvendo false interrompe a leitura. */
+async function xtLinhas(fonte,porLinha,progresso){
+  const rd=(await fonte.abre()).getReader();
+  let dec=null, resto='', lidos=0, pend=null, parar=false;
+  const entrega=l=>{
+    if(l.endsWith('\r'))l=l.slice(0,-1);
+    if(pend!==null){pend+='\n'+l; if(((pend.match(/"/g)||[]).length&1)===1)return; l=pend; pend=null;}
+    else if(l.indexOf('"')>=0&&((l.match(/"/g)||[]).length&1)===1){pend=l;return;}
+    if(porLinha(l)===false)parar=true;
+  };
+  for(;;){
+    const {done,value}=await rd.read();
+    if(done)break;
+    lidos+=value.length;
+    if(!dec)dec=new TextDecoder(xtCodificacao(value));
+    resto+=dec.decode(value,{stream:true});
+    let i, ini=0;
+    while(!parar&&(i=resto.indexOf('\n',ini))>=0){entrega(resto.slice(ini,i)); ini=i+1;}
+    resto=resto.slice(ini);
+    if(progresso)progresso(fonte.tam?Math.min(1,lidos/fonte.tam):0);
+    if(parar){try{await rd.cancel();}catch(e){} break;}
+  }
+  if(!parar){
+    if(dec)resto+=dec.decode();
+    if(resto)entrega(resto);
+    if(pend!==null)porLinha(pend);
+  }
+}
+/* separa os campos de uma linha, respeitando aspas */
+function xtCampos(l,sep){
+  if(l.indexOf('"')<0)return l.split(sep);
+  const out=[]; let cur='', q=false;
+  for(let i=0;i<l.length;i++){
+    const c=l[i];
+    if(q){ if(c==='"'){ if(l[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else if(c==='"')q=true; else if(c===sep){out.push(cur);cur='';} else cur+=c;
+  }
+  out.push(cur); return out.map(x=>x.trim());
+}
+function xtSeparador(cab){
+  const c=s=>(cab.split(s).length-1);
+  return [';',',','\t','|'].map(s=>[s,c(s)]).sort((a,b)=>b[1]-a[1])[0][0];
+}
+/* planilhas: o leitor (SheetJS) só baixa quando alguém solta uma planilha */
+let XT_XLSX=null;
+function xtCarregaScript(src){
+  return new Promise((ok,erro)=>{const s=document.createElement('script');s.src=src;
+    s.onload=()=>ok(); s.onerror=()=>erro(new Error('não consegui baixar o leitor de planilhas: confira a internet'));
+    document.head.appendChild(s);});
+}
+async function xtPlanilha(bytes){
+  if(!XT_XLSX){
+    if(!window.XLSX)await xtCarregaScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+    if(!window.XLSX)throw new Error('o leitor de planilhas não carregou');
+    XT_XLSX=window.XLSX;
+  }
+  const wb=XT_XLSX.read(bytes,{type:'array'});
+  return wb.SheetNames.map(n=>({nome:n,linhas:XT_XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:null})}));
+}
+const xtEhPlanilha=n=>/\.(xlsx|xls|ods)$/i.test(n);
+const xtEhTexto=n=>/\.(csv|txt|tsv)(\.gz)?$/i.test(n);
+
+/* ---- 27.4 assistente para qualquer arquivo nacional ------------------------
+   Equivale ao 10_recorta_arquivo_baixado.R: acha a coluna do código do
+   município, guarda só as linhas dos sete e transforma em indicador municipal:
+   usar os valores (uma linha por município), contar linhas ou somar colunas
+   (uma linha por unidade: escola, CRAS, organização...). Com latitude e
+   longitude, as linhas também viram pontos no mapa e contagem por bairro. */
+const XT_COL_MUN=/^(co_?municipio(_ibge)?|cod_?municipio|codigo_?municipio|id_?municipio|code_?muni|codufmun|cod_?ibge|ibge|cd_?mun(icipio)?|cod_?mun|municipio_?codigo|co_?ibge|codmun7?|cod_?mun_?ibge)$/;
+const XT_COL_LAT=/^(lat|latitude|nu_?latitude|lat_?(y|dec)?)$/, XT_COL_LON=/^(lon|lng|long|longitude|nu_?longitude|lon_?(x|dec)?)$/;
+const XT_COL_ANO=/^(ano|year|nu_?ano(_censo)?|ano_?referencia|competencia)$/;
+const xtNorm=s=>norm(s).replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+/* colunas que têm algarismos mas não são medidas: datas, sequenciais e documentos */
+const XT_COL_DATA=/^(dt|data|dh)(_|$)|_(dt|data)$/;
+const XT_COL_SEQ=/^(seq|sq|nu_?seq|nr_?seq|id|uid|cpf|cnpj|nu_?cpf|nu_?cnpj|cep|nu_?cep|telefone|nu_?telefone|fone)(_|$)|_(id|seq|cpf|cnpj|cep)$/;
+const XT_VAL_DATA=/^(\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}|\d{4}[\/.\-]\d{1,2}[\/.\-]\d{1,2})([ T]\d{1,2}:\d{2}(:\d{2}(\.\d+)?)?)?$/;
+/* número só quando o valor inteiro é número (parseNum aceita prefixo: "01/02/2015" daria 1) */
+function xtNumero(x){
+  const s=String(x).trim();
+  if(XT_VAL_DATA.test(s))return NaN;
+  if(!/^[-+]?(R\$)?\s*\d[\d.,\s]*%?$/.test(s)&&!/^[-+]?\d+(\.\d+)?[eE][-+]?\d+$/.test(s))return NaN;
+  return parseNum(s);
+}
+const xtSlug=s=>xtNorm(s).slice(0,40)||'col';
+const XT={geral:null};                      /* estado do assistente aberto */
+
+function xtProgresso(el,frac,msg){
+  if(!el)return;
+  el.innerHTML=`<div class="xt-prog"><i style="width:${(100*Math.max(0,Math.min(1,frac||0))).toFixed(1)}%"></i></div>
+    <p class="xt-msg">${esc(msg||'')}</p>`;
+}
+function xtErro(el,msg){if(el)el.innerHTML=`<div class="note warn">${esc(msg)}</div>`;}
+
+/* tabela de amostra: cabeçalho + linhas, de texto (CSV) ou planilha */
+async function xtAmostra(fonte,limite=400){
+  if(xtEhPlanilha(fonte.nome)){
+    const abas=await xtPlanilha(await fonte.bytes());
+    return {tipo:'planilha',abas};
+  }
+  const linhas=[];
+  await xtLinhas(fonte,l=>{if(l.trim())linhas.push(l); return linhas.length<limite;});
+  if(!linhas.length)throw new Error(`${fonte.nome} está vazio`);
+  const sep=xtSeparador(linhas.slice(0,20).join('\n'));
+  const contagens=linhas.map(l=>xtCampos(l,sep).length);
+  const freq={}; contagens.forEach(c=>freq[c]=(freq[c]||0)+1);
+  const moda=+Object.entries(freq).sort((a,b)=>b[1]-a[1])[0][0];
+  const iCab=contagens.findIndex(c=>c===moda);
+  return {tipo:'texto',sep,iCab,cab:xtCampos(linhas[iCab],sep),linhas:linhas.slice(iCab+1).map(l=>xtCampos(l,sep))};
+}
+/* em planilha: o cabeçalho é a primeira linha com mais de metade das células preenchidas com texto */
+function xtCabPlanilha(linhas){
+  const larg=Math.max(...linhas.slice(0,50).map(r=>r?r.length:0));
+  const i=linhas.findIndex(r=>r&&r.filter(c=>typeof c==='string'&&c.trim()).length>=Math.max(2,larg/2));
+  const iCab=i<0?0:i;
+  return {iCab,cab:(linhas[iCab]||[]).map(c=>String(c??'').trim()),linhas:linhas.slice(iCab+1).map(r=>(r||[]).map(c=>c==null?'':String(c)))};
+}
+/* coluna do município: pelo nome, ou pela forma dos valores (6 ou 7 dígitos) */
+function xtAchaColMun(cab,linhas){
+  const n=cab.map(xtNorm);
+  let k=n.findIndex(h=>XT_COL_MUN.test(h));
+  if(k>=0)return k;
+  const cand=cab.map((_,j)=>{
+    const v=linhas.map(r=>String(r[j]??'').trim()).filter(Boolean);
+    return v.length&&v.filter(x=>/^\d{6,7}$/.test(x)).length/v.length>=0.95?j:-1;
+  }).filter(j=>j>=0);
+  if(cand.length>1){const p=cand.find(j=>/mun|ibge/.test(n[j]));if(p!=null)return p;}
+  return cand.length?cand[0]:-1;
+}
+
+/* recorte: todas as linhas dos sete municípios */
+async function xtRecorta(fonte,amostra,col,prog){
+  const cods=new Set(XT_CODS()), linhas=[], porMun={};
+  const guarda=r=>{const c=xtMuni(r[col]); if(c&&cods.has(c)){linhas.push(r);porMun[c]=(porMun[c]||0)+1;}};
+  if(amostra.tipo==='planilha'){amostra.tab.linhas.forEach(guarda);}
+  else{
+    const tem=xtTemCodigo(); let i=-1;
+    await xtLinhas(fonte,l=>{i++; if(i<=amostra.iCab)return; if(!tem.test(l))return; guarda(xtCampos(l,amostra.sep));},prog);
+  }
+  return {linhas,porMun};
+}
+
+/* tipos de coluna no recorte */
+function xtPerfilColunas(cab,linhas,colMun){
+  return cab.map((h,j)=>{
+    const v=linhas.map(r=>r[j]).filter(x=>x!=null&&String(x).trim()!=='');
+    const nums=v.map(x=>xtNumero(x)).filter(x=>!Number.isNaN(x));
+    const dist=new Set(v.map(x=>String(x).trim()));
+    const nh=xtNorm(h);
+    const data=XT_COL_DATA.test(nh)||(v.length>0&&v.filter(x=>XT_VAL_DATA.test(String(x).trim())).length/v.length>=0.9);
+    return {j,h,nh,preench:v.length,data,num:!data&&!XT_COL_SEQ.test(nh)&&v.length>0&&nums.length/v.length>=0.9,
+      codigo:j===colMun||COLUNA_ID.test(nh)||XT_COL_MUN.test(nh),
+      categorias:dist.size>=2&&dist.size<=15?[...dist].sort():null,
+      distintos:dist.size<=60?[...dist].sort():null,
+      lat:XT_COL_LAT.test(nh), lon:XT_COL_LON.test(nh), ano:XT_COL_ANO.test(nh)};
+  });
+}
+
+/* ---- telas do assistente ---- */
+async function xtGeralInicia(files,el){
+  XT.geral={el,files};
+  try{
+    const fontes=[];
+    for(const f of files){
+      if(/\.zip$/i.test(f.name)){
+        (await zipEntradas(f)).filter(e=>xtEhTexto(e.nome)||xtEhPlanilha(e.nome)).forEach(e=>fontes.push(xtFonteZip(e)));
+      }else if(xtEhTexto(f.name)||xtEhPlanilha(f.name))fontes.push(xtFonteDe(f));
+    }
+    if(!fontes.length)return xtErro(el,'Nenhum arquivo CSV, TXT ou planilha (XLSX, XLS, ODS) encontrado. Solte o arquivo da fonte, ou o ZIP que o contém.');
+    XT.geral.fontes=fontes.sort((a,b)=>b.tam-a.tam);
+    if(fontes.length===1)return xtGeralAbre(0);
+    el.innerHTML=`<p class="xt-msg">O ZIP tem ${fontes.length} arquivos de dados. Qual deles?</p>
+      ${fontes.slice(0,40).map((f,i)=>`<button class="btn xt-esc" data-i="${i}">${esc(f.nome.split('/').pop())}
+        <small>${(f.tam/1048576).toFixed(1)} MB</small></button>`).join('')}`;
+    el.querySelectorAll('.xt-esc').forEach(b=>b.onclick=()=>xtGeralAbre(+b.dataset.i));
+  }catch(e){xtErro(el,e.message);}
+}
+async function xtGeralAbre(i){
+  const G=XT.geral, el=G.el, fonte=G.fontes[i];
+  G.fonte=fonte;
+  xtProgresso(el,0,`Abrindo ${fonte.nome.split('/').pop()}…`);
+  try{
+    const am=await xtAmostra(fonte);
+    if(am.tipo==='planilha'){
+      /* a aba com mais linhas de código de município */
+      const abas=am.abas.map(a=>{const t=xtCabPlanilha(a.linhas);return {nome:a.nome,t,col:xtAchaColMun(t.cab,t.linhas)};});
+      const a=abas.find(x=>x.col>=0)||abas[0];
+      G.amostra={tipo:'planilha',tab:a.t,sheet:a.nome,abas};
+      G.cab=a.t.cab; G.col=a.col;
+    }else{
+      G.amostra=am; G.cab=am.cab; G.col=xtAchaColMun(am.cab,am.linhas);
+    }
+    xtGeralConfirma();
+  }catch(e){xtErro(el,e.message);}
+}
+function xtGeralConfirma(){
+  const G=XT.geral, el=G.el, am=G.amostra;
+  const prev=am.tipo==='planilha'?am.tab.linhas.slice(0,3):am.linhas.slice(0,3);
+  const nCol=Math.min(G.cab.length,6);
+  el.innerHTML=`
+    <p class="xt-msg"><b>${esc(G.fonte.nome.split('/').pop())}</b> · ${G.cab.length} colunas
+      ${am.tipo==='planilha'?`· aba ${esc(am.sheet)}`:`· separador “${am.sep==='\t'?'tab':esc(am.sep)}”`}</p>
+    <label class="xt-campo">Coluna com o código IBGE do município
+      <select id="xtColMun">${G.cab.map((h,j)=>`<option value="${j}" ${j===G.col?'selected':''}>${esc(h||'(sem nome) '+(j+1))}</option>`).join('')}</select></label>
+    ${G.col<0?'<div class="note warn">Não achei sozinho a coluna do código do município. Escolha acima a que tem códigos de 6 ou 7 dígitos (4314902 é Porto Alegre).</div>':''}
+    <div class="tb-scroll"><table class="tb xt-prev"><thead><tr>${G.cab.slice(0,nCol).map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead>
+      <tbody>${prev.map(r=>`<tr>${r.slice(0,nCol).map(c=>`<td>${esc(String(c??'').slice(0,24))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="btn-row"><button class="btn pri" id="xtRecortar">Recortar os sete municípios</button></div>`;
+  $('#xtColMun').onchange=e=>{G.col=+e.target.value;};
+  $('#xtRecortar').onclick=async()=>{
+    if(G.col<0)G.col=+$('#xtColMun').value;
+    xtProgresso(el,0,'Lendo o arquivo inteiro…');
+    try{
+      const r=await xtRecorta(G.fonte,G.amostra,G.col,f=>xtProgresso(el,f,`Lendo… ${Math.round(100*f)}%`));
+      if(!r.linhas.length)return xtErro(el,'Nenhuma linha dos sete municípios. Confira se a coluna escolhida tem o código IBGE do município.');
+      G.rec=r; G.perfil=xtPerfilColunas(G.cab,r.linhas,G.col);
+      xtGeralOpcoes();
+    }catch(e){xtErro(el,e.message);}
+  };
+}
+function xtGeralOpcoes(){
+  const G=XT.geral, el=G.el, P=G.perfil, r=G.rec;
+  const maxPorMun=Math.max(...Object.values(r.porMun));
+  const faltam=XT_CODS().filter(c=>!r.porMun[c]).map(nomeDoCod);
+  const nums=P.filter(c=>c.num&&!c.codigo&&!c.ano&&!c.lat&&!c.lon);
+  const cats=P.filter(c=>c.categorias&&!c.lat&&!c.lon&&c.j!==G.col);
+  const filtraveis=P.filter(c=>c.distintos&&c.j!==G.col);
+  const anoCol=P.find(c=>c.ano&&c.distintos&&c.distintos.length===1);
+  const lat=P.find(c=>c.lat), lon=P.find(c=>c.lon);
+  /* receitas conhecidas: equipes do CNES (contar as ativas por tipo) */
+  const cnesTipo=P.find(c=>/^(tp|co_tipo|tipo)_?equipe$/.test(c.nh)), cnesDesat=P.find(c=>/^dt_?desativacao$/.test(c.nh));
+  const modo=maxPorMun<=1&&nums.length?'valores':'contar';
+  const semNum=nums.length?'':'disabled';
+  el.innerHTML=`
+    <p class="xt-msg"><b>${nf.format(r.linhas.length)} linhas</b> dos sete municípios:
+      ${XT_CODS().filter(c=>r.porMun[c]).map(c=>`${esc(nomeDoCod(c))} ${nf.format(r.porMun[c])}`).join(' · ')}.</p>
+    ${faltam.length?`<div class="note warn">Sem linhas para ${esc(faltam.join(', '))}: esses municípios ficam sem valor.</div>`:''}
+    <fieldset class="xt-ops"><legend>O que fazer com as linhas</legend>
+      <label><input type="radio" name="xtModo" value="valores" ${modo==='valores'?'checked':''} ${maxPorMun>1?'disabled':semNum}>
+        Usar os valores das colunas <small>${maxPorMun>1?'(indisponível: há mais de uma linha por município)':nums.length?'(uma linha por município)':'(indisponível: nenhuma coluna numérica)'}</small></label>
+      <label><input type="radio" name="xtModo" value="contar" ${modo==='contar'?'checked':''}> Contar as linhas de cada município <small>(escolas, CRAS, organizações…)</small></label>
+      <label><input type="radio" name="xtModo" value="somar" ${semNum}> Somar colunas por município
+        ${nums.length?'':'<small>(indisponível: nenhuma coluna numérica)</small>'}</label>
+    </fieldset>
+    <div id="xtColsNum" class="xt-cols">${nums.length?`<p class="xt-msg">Colunas numéricas:</p>${nums.map(c=>
+      `<label><input type="checkbox" value="${c.j}" ${nums.length<=12?'checked':''}> ${esc(c.h)}</label>`).join('')}`:'<p class="xt-msg">Nenhuma coluna numérica.</p>'}</div>
+    <label class="xt-campo">Separar a contagem por
+      <select id="xtSepara"><option value="">— não separar —</option>
+      ${cats.map(c=>`<option value="${c.j}" ${cnesTipo&&c.j===cnesTipo.j?'selected':''}>${esc(c.h)} (${c.categorias.length} valores)</option>`).join('')}</select></label>
+    <div class="xt-filtro"><label class="xt-campo">Só as linhas em que
+      <select id="xtFiltroCol"><option value="">— todas as linhas —</option>
+      ${filtraveis.map(c=>`<option value="${c.j}" ${cnesDesat&&c.j===cnesDesat.j?'selected':''}>${esc(c.h)}</option>`).join('')}
+      ${cnesDesat&&!filtraveis.includes(cnesDesat)?`<option value="${cnesDesat.j}" selected>${esc(cnesDesat.h)}</option>`:''}</select></label>
+      <select id="xtFiltroOp"><option value="igual">é igual a</option><option value="vazio" ${cnesDesat?'selected':''}>está vazio</option>
+        <option value="preenchido">está preenchido</option></select>
+      <select id="xtFiltroVal"></select></div>
+    ${lat&&lon?`<label class="xt-check"><input type="checkbox" id="xtPontos" checked> Mostrar as linhas como pontos no mapa e contar por bairro
+      <small>(colunas ${esc(lat.h)} e ${esc(lon.h)})</small></label>`:''}
+    <label class="xt-campo">Nome da fonte <input type="text" id="xtFonteNome" value="${esc(G.fonte.nome.split('/').pop().replace(/\.(csv|txt|tsv|xlsx|xls|ods|gz)$/gi,''))}"></label>
+    <label class="xt-campo">Ano dos dados <input type="number" id="xtAno" min="1990" max="2100" value="${anoCol?esc(anoCol.distintos[0]):''}" placeholder="ex.: 2024"></label>
+    <div class="btn-row"><button class="btn pri" id="xtCriar">Criar os indicadores</button>
+      <button class="btn" id="xtBaixaRecorte">Baixar o recorte (CSV)</button></div>`;
+  const atualizaVal=()=>{
+    const j=$('#xtFiltroCol').value, op=$('#xtFiltroOp').value, sv=$('#xtFiltroVal');
+    const c=j===''?null:P[+j];
+    sv.style.display=c&&op==='igual'?'':'none';
+    sv.innerHTML=c&&c.distintos?c.distintos.map(v=>`<option>${esc(v)}</option>`).join(''):'';
+  };
+  $('#xtFiltroCol').onchange=atualizaVal; $('#xtFiltroOp').onchange=atualizaVal; atualizaVal();
+  $('#xtBaixaRecorte').onclick=()=>baixaCSV([G.cab].concat(r.linhas),`recorte-${xtSlug($('#xtFonteNome').value)}.csv`);
+  $('#xtCriar').onclick=()=>xtGeralCria();
+}
+function xtGeralCria(){
+  const G=XT.geral, el=G.el, P=G.perfil, cab=G.cab;
+  const modo=(document.querySelector('input[name="xtModo"]:checked')||{}).value||'contar';
+  const cols=[...document.querySelectorAll('#xtColsNum input:checked')].map(x=>+x.value);
+  const sepJ=$('#xtSepara').value===''?null:+$('#xtSepara').value;
+  const fj=$('#xtFiltroCol').value===''?null:+$('#xtFiltroCol').value, fop=$('#xtFiltroOp').value, fval=$('#xtFiltroVal').value;
+  const nomeFonte=$('#xtFonteNome').value.trim()||'arquivo carregado';
+  const ano=parseInt($('#xtAno').value,10)||null;
+  if((modo==='valores'||modo==='somar')&&!cols.length)return toast('Marque ao menos uma coluna numérica.','err');
+  const passa=r=>{
+    if(fj==null)return true;
+    const v=String(r[fj]??'').trim();
+    return fop==='vazio'?v==='':fop==='preenchido'?v!=='':v===fval;
+  };
+  const linhas=G.rec.linhas.filter(passa);
+  if(!linhas.length)return toast('O filtro não deixou nenhuma linha.','err');
+  const base='xt_'+xtSlug(nomeFonte);
+  const filtroTxt=fj==null?'':` Só as linhas em que ${cab[fj]} ${fop==='vazio'?'está vazio':fop==='preenchido'?'está preenchido':'= '+fval}.`;
+  const indicadores=[], valores={municipio:{}};
+  XT_CODS().forEach(c=>valores.municipio[c]={});
+  const temDados=new Set(Object.keys(G.rec.porMun));
+  const novo=(id,n,u,obs,fmt)=>{indicadores.push({id,cat:'visao',n,u,fmt:fmt||'dec2',ramp:'agua',niveis:['municipio'],
+    obs:`${obs}${filtroTxt} Recorte dos sete municípios feito no navegador a partir de ${G.fonte.nome.split('/').pop()}.`});};
+  if(modo==='valores'){
+    cols.forEach(j=>{const id=`${base}_${xtSlug(cab[j])}`;
+      novo(id,cab[j],'valor',`Coluna “${cab[j]}” de ${nomeFonte}, uma linha por município.`);
+      linhas.forEach(r=>{const c=xtMuni(r[G.col]), v=parseNum(r[j]); if(c&&!Number.isNaN(v))valores.municipio[c][id]=v;});});
+  }else{
+    const grupos=sepJ==null?[null]:P[sepJ].categorias;
+    const metricas=modo==='contar'?[null]:cols;
+    grupos.forEach(g=>metricas.forEach(j=>{
+      const id=`${base}_${modo==='contar'?'n':xtSlug(cab[j])}${g==null?'':'_'+xtSlug(g)}`;
+      const n=(modo==='contar'?`${nomeFonte}: número de registros`:`${nomeFonte}: soma de ${cab[j]}`)+(g==null?'':` (${cab[sepJ]} = ${g})`);
+      novo(id,n,modo==='contar'?'registros':'soma',modo==='contar'?`Linhas contadas por município.`:`Soma da coluna “${cab[j]}” por município.`,modo==='contar'?'int':'dec2');
+      temDados.forEach(c=>{valores.municipio[c][id]=0;});
+      linhas.forEach(r=>{
+        if(g!=null&&String(r[sepJ]??'').trim()!==g)return;
+        const c=xtMuni(r[G.col]); if(!c)return;
+        if(modo==='contar')valores.municipio[c][id]+=1;
+        else{const v=parseNum(r[j]); if(!Number.isNaN(v))valores.municipio[c][id]+=v;}
+      });
+    }));
+  }
+  const item={id:base,titulo:nomeFonte,ano,status:'ok',origem:G.fonte.nome.split('/').pop(),
+    fonte:{n:nomeFonte+(ano?` (${ano})`:''),s:nomeFonte.slice(0,28),d:'Arquivo baixado da fonte pelo usuário e recortado no navegador.'},
+    indicadores,valores,resumo:`${indicadores.length} indicador${indicadores.length>1?'es':''} por município`};
+  /* pontos: latitude e longitude dentro dos sete municípios */
+  const pt=$('#xtPontos');
+  if(pt&&pt.checked){
+    const lat=P.find(c=>c.lat), lon=P.find(c=>c.lon);
+    const itens=xtPontosDe(linhas,lat.j,lon.j,G.col,cab);
+    if(itens.length){
+      const chave=base;
+      item.pontos={chave,rot:nomeFonte,cor:'#7d5ba6',itens};
+      const idB=`${base}_pontos`;
+      indicadores.push({id:idB,cat:'visao',n:`${nomeFonte}: pontos no território`,u:'pontos',fmt:'int',ramp:'agua',
+        niveis:['municipio','bairro'],obs:`Linhas com latitude e longitude dentro do território, contadas por ponto dentro do polígono.${filtroTxt}`});
+      xtContaPorBairro(itens,idB,valores,Object.keys(G.rec.porMun).map(nomeDoCod));
+      item.resumo+=` e ${nf.format(itens.length)} pontos no mapa`;
+    }
+  }
+  xtConclui(item).then(()=>{el.innerHTML=`<div class="note">Pronto: ${esc(item.resumo)}. Os indicadores estão no catálogo, em Visão Geral.</div>`;});
+}
+/* pontos com coordenadas válidas dentro dos sete municípios */
+function xtPontosDe(linhas,jLat,jLon,jMun,cab){
+  const fs=(S.geo.municipio||{}).features||[], out=[];
+  const jNome=cab.findIndex(h=>/^(no|nm|nome|name|razao_social|nome_fantasia|tx_nome)/i.test(xtNorm(h)));
+  linhas.forEach(r=>{
+    const y=parseNum(r[jLat]), x=parseNum(r[jLon]);
+    if(Number.isNaN(x)||Number.isNaN(y)||Math.abs(y)>90||Math.abs(x)>180)return;
+    const f=fs.find(m=>pontoNaGeometria(x,y,m.geometry)); if(!f)return;
+    out.push({nome:jNome>=0?String(r[jNome]||'—'):'—',x,y,muni:f.properties.nome,tipo:null,rot:''});
+  });
+  return out;
+}
+/* conta pontos por bairro e município; zero só onde a fonte cobre o município
+   (munis: nomes dos municípios com dado na fonte; sem lista, os sete) */
+function xtContaPorBairro(itens,id,valores,munis){
+  valores.bairro=valores.bairro||{};
+  const cobre=new Set(munis||XT_CODS().map(nomeDoCod));
+  const bs=S.geo.bairro.features, cx=bs.map(f=>caixaDe(f.geometry));
+  bs.forEach(f=>{if(cobre.has(f.properties.muni))(valores.bairro[f.properties.id]=valores.bairro[f.properties.id]||{})[id]=0;});
+  itens.forEach(q=>{
+    for(let k=0;k<bs.length;k++){const b=cx[k];
+      if(q.x<b[0]||q.x>b[2]||q.y<b[1]||q.y>b[3])continue;
+      if(pontoNaGeometria(q.x,q.y,bs[k].geometry)){
+        const o=(valores.bairro[bs[k].properties.id]=valores.bairro[bs[k].properties.id]||{}); o[id]=(o[id]||0)+1;
+        q.bairro=bs[k].properties.nome; break;}}
+  });
+  XT_CODS().forEach(c=>{const m=nomeDoCod(c); if(!cobre.has(m))return;
+    (valores.municipio[c]=valores.municipio[c]||{})[id]=itens.filter(q=>q.muni===m).length;});
+}
+
+/* ---- 27.5 receitas para fontes conhecidas --------------------------------- */
+async function xtFontesDe(files){
+  const out=[];
+  for(const f of files){
+    if(/\.zip$/i.test(f.name))(await zipEntradas(f)).forEach(e=>out.push(Object.assign(xtFonteZip(e),{ent:e})));
+    else out.push(xtFonteDe(f));
+  }
+  return out;
+}
+const xtBase=n=>n.split('/').pop();
+
+/* Censo Escolar (INEP): matrículas por etapa e rede, por município.
+   Mesmo cálculo do extracao/R/03_censo_escolar_matriculas.R. */
+const INEP_ETAPAS=[
+  ['bas',['QT_MAT_BAS'],'Matrículas na educação básica'],
+  ['creche',['QT_MAT_INF_CRE'],'Matrículas em creche'],
+  ['pre',['QT_MAT_INF_PRE'],'Matrículas na pré-escola'],
+  ['fund',['QT_MAT_FUND_AI','QT_MAT_FUND_AF'],'Matrículas no ensino fundamental'],
+  ['med',['QT_MAT_MED'],'Matrículas no ensino médio'],
+  ['eja',['QT_MAT_EJA'],'Matrículas na educação de jovens e adultos (EJA)']];
+async function xtInep(files,el){
+  const fontes=await xtFontesDe(files);
+  const fonte=fontes.find(f=>/microdados_ed_basica_\d{4}\.csv$/i.test(xtBase(f.nome)))
+    ||fontes.find(f=>/ed_basica.*\.csv$/i.test(xtBase(f.nome)));
+  if(!fonte)throw new Error('Não achei o arquivo microdados_ed_basica_AAAA.csv. Solte o ZIP dos microdados do Censo Escolar da educação básica. '
+    +(fontes.length?`Arquivos encontrados: ${fontes.slice(0,8).map(f=>xtBase(f.nome)).join(', ')}.`:''));
+  const ano=+((xtBase(fonte.nome).match(/(\d{4})\.csv$/i)||[])[1])||null;
+  let cab=null, sep=';', ix={}, n=0, ativas=0;
+  const tem=xtTemCodigo(), acc={}, esc_={};
+  XT_CODS().forEach(c=>{acc[c]={pub:{},priv:{}};esc_[c]={pub:0,priv:0};});
+  const precisa=['CO_MUNICIPIO','TP_DEPENDENCIA','TP_SITUACAO_FUNCIONAMENTO'].concat(...INEP_ETAPAS.map(e=>e[1]));
+  await xtLinhas(fonte,l=>{
+    if(!cab){
+      sep=xtSeparador(l); cab=xtCampos(l,sep).map(h=>h.toUpperCase());
+      const falta=precisa.filter(c=>!cab.includes(c));
+      if(falta.length)throw new Error(`O arquivo de escolas do INEP${ano?' de '+ano:''} não tem as colunas ${falta.join(', ')}. `
+        +'A partir de 2025 o INEP separou as matrículas numa tabela própria; para essas edições, use o recorte geral, mais abaixo.');
+      precisa.forEach(c=>ix[c]=cab.indexOf(c));
+      return;
+    }
+    if(!tem.test(l))return;
+    const r=xtCampos(l,sep), c=xtMuni(r[ix.CO_MUNICIPIO]);
+    if(!c||!acc[c])return;
+    n++;
+    if(String(r[ix.TP_SITUACAO_FUNCIONAMENTO]).trim()!=='1')return;
+    ativas++;
+    const rede=String(r[ix.TP_DEPENDENCIA]).trim()==='4'?'priv':'pub';
+    esc_[c][rede]++;
+    INEP_ETAPAS.forEach(([k,cols])=>{
+      let s=0; cols.forEach(col=>{const v=parseNum(r[ix[col]]); if(!Number.isNaN(v))s+=v;});
+      acc[c][rede][k]=(acc[c][rede][k]||0)+s;
+    });
+  },f=>xtProgresso(el,f,`Lendo ${xtBase(fonte.nome)}… ${Math.round(100*f)}%`));
+  const faltam=XT_CODS().filter(c=>!esc_[c].pub&&!esc_[c].priv);
+  if(faltam.length)throw new Error(`O arquivo não tem escolas em atividade de ${faltam.map(nomeDoCod).join(', ')}. Confira se é o arquivo nacional (ou do RS) do Censo Escolar.`);
+  const indicadores=[], valores={municipio:{}};
+  INEP_ETAPAS.forEach(([k,cols,rot])=>['pub','priv'].forEach(rede=>{
+    const id=`inep_mat_${k}_${rede}`;
+    indicadores.push({id,cat:'educacao',n:`${rot}, rede ${rede==='pub'?'pública':'privada'}`,u:'matrículas',fmt:'int',ramp:'agua',
+      niveis:['municipio'],obs:`Soma de ${cols.join(' + ')} das escolas em atividade (TP_SITUACAO_FUNCIONAMENTO = 1), por município. `
+        +`Rede ${rede==='pub'?'pública: federal, estadual e municipal':'privada: TP_DEPENDENCIA = 4'}. Mesmo cálculo do script extracao/R/03_censo_escolar_matriculas.R.`});
+    XT_CODS().forEach(c=>{(valores.municipio[c]=valores.municipio[c]||{})[id]=acc[c][rede][k]||0;});
+  }));
+  const item={id:'inep_matriculas',titulo:`Matrículas do Censo Escolar${ano?' '+ano:''}`,ano,status:'ok',origem:xtBase(fonte.nome),
+    fonte:{n:`INEP — Censo Escolar${ano?' '+ano:''}, microdados`,s:'INEP',
+      u:'https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar',
+      d:'Matrículas por etapa e rede das escolas em atividade, somadas por município.'},
+    indicadores,valores,resumo:`${nf.format(ativas)} escolas em atividade nos sete municípios; 12 indicadores de matrícula`};
+  await xtConclui(item);
+  el.innerHTML=`<div class="note">Pronto: ${esc(item.resumo)}. Estão em <b>Educação</b>, no nível município.</div>
+    <div class="tb-scroll"><table class="tb"><thead><tr><th>Município</th><th style="text-align:right">Creche pública</th>
+      <th style="text-align:right">Pré-escola pública</th><th style="text-align:right">Fundamental público</th><th style="text-align:right">Médio público</th></tr></thead>
+    <tbody>${XT_CODS().map(c=>`<tr><td>${esc(nomeDoCod(c))}</td>${['creche','pre','fund','med'].map(k=>
+      `<td class="num" style="text-align:right">${fmtN(acc[c].pub[k]||0,'int')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+
+/* Censo 2010, amostra (IBGE): os indicadores do extracao/R/01 e a conferência
+   do 11 (achado E3 da auditoria), lendo o leiaute do próprio IBGE. */
+const C10_VARS=['V0001','V0002','V0011','V0300','V0010','V0502','V0601','V6036','V0628','V6910',
+  'V0614','V0615','V0616','V0617','V0618','V0657','V6531'];
+const C10_TAXAS=[
+  ['c10_desocup_homens','Taxa de desocupação dos homens','desoc_h','pea_h','trabalho'],
+  ['c10_desocup_mulheres','Taxa de desocupação das mulheres','desoc_m','pea_m','trabalho'],
+  ['c10_desocup_18_24','Taxa de desocupação de 18 a 24 anos','desoc_18_24','pea_18_24','trabalho'],
+  ['c10_desocup_25_29','Taxa de desocupação de 25 a 29 anos','desoc_25_29','pea_25_29','trabalho'],
+  ['c10_desocup_30_59','Taxa de desocupação de 30 a 59 anos','desoc_30_59','pea_30_59','trabalho'],
+  ['c10_nem_nem_15_24','Jovens de 15 a 24 anos que não estudam nem trabalham','nem_nem','jovens','vulner'],
+  ['c10_dom_chefia_feminina','Domicílios chefiados por mulheres','dom_chefe_mulher','domicilios','demografia'],
+  ['c10_idosos_sos','Pessoas de 60 anos ou mais que moram sozinhas','idosos_sos','idosos','vulner'],
+  ['c10_deficiencia','Pessoas com deficiência','deficiencia','pop','saude'],
+  ['c10_nao_naturais','Pessoas que não nasceram no município','nao_natural','pop','demografia'],
+  ['c10_pessoas_bolsa','Pessoas com rendimento do Bolsa Família ou PETI','pessoas_bolsa','pop','assistencia'],
+  ['c10_dom_bolsa','Domicílios com rendimento do Bolsa Família ou PETI','dom_com_bolsa','domicilios','assistencia']];
+/* leiaute: a aba com as variáveis de pessoas; colunas de nome, início, fim e decimais */
+async function xtLeiaute(bytes){
+  const abas=await xtPlanilha(bytes);
+  for(const a of abas){
+    const L=a.linhas;
+    const iCab=L.findIndex(r=>r&&r.some(c=>/inicial/i.test(String(c??'')))&&r.some(c=>/final/i.test(String(c??''))));
+    if(iCab<0)continue;
+    const cab=L[iCab].map(c=>norm(String(c??'')));
+    const jIni=cab.findIndex(h=>/inicial/.test(h)), jFim=cab.findIndex(h=>/final/.test(h)), jDec=cab.findIndex(h=>/^dec/.test(h));
+    const mapa={};
+    L.slice(iCab+1).forEach(r=>{
+      if(!r)return;
+      const v=r.map(c=>String(c??'').trim()).find(c=>/^V\d{4}$/i.test(c));
+      const ini=parseInt(r[jIni],10), fim=parseInt(r[jFim],10);
+      if(v&&ini>0&&fim>=ini)mapa[v.toUpperCase()]={ini:ini-1,fim,dec:jDec>=0?(parseInt(r[jDec],10)||0):0};
+    });
+    if(mapa.V0601&&mapa.V0010)return mapa;
+  }
+  throw new Error('Não achei, na planilha, o leiaute das pessoas (colunas de posição inicial e final, com V0601 e V0010). Solte a planilha Layout_microdados_Amostra que vem na Documentacao.zip do IBGE.');
+}
+function xtGini(xs,ws){
+  const o=xs.map((x,i)=>i).sort((a,b)=>xs[a]-xs[b]);
+  let W=0,X=0; o.forEach(i=>{W+=ws[i];X+=xs[i]*ws[i];});
+  if(!W||!X)return null;
+  let cw=0,cx=0,g=0;
+  o.forEach(i=>{const nw=cw+ws[i]/W, nx=cx+xs[i]*ws[i]/X; g+=(nw-cw)*(nx+cx); cw=nw; cx=nx;});
+  return 1-g;
+}
+async function xtCenso2010(files,el){
+  const fontes=await xtFontesDe(files);
+  const fLei=fontes.find(f=>xtEhPlanilha(f.nome)&&/(layout|leiaute).*(amostra|pess)/i.test(xtBase(f.nome)))
+    ||fontes.find(f=>xtEhPlanilha(f.nome)&&/(layout|leiaute)/i.test(xtBase(f.nome)));
+  const fMic=fontes.find(f=>/amostra_pessoas_43\.txt$/i.test(xtBase(f.nome)))||fontes.find(f=>/amostra_pessoas.*\.txt$/i.test(xtBase(f.nome)));
+  if(!fLei||!fMic)throw new Error('Faltam arquivos. Solte os dois ZIPs do IBGE juntos: '
+    +(fMic?'':'RS.zip (com Amostra_Pessoas_43.txt) ')+(fLei?'':'e Documentacao.zip (com a planilha de leiaute)')+'.');
+  xtProgresso(el,0,'Lendo o leiaute do IBGE…');
+  const L=await xtLeiaute(await fLei.bytes());
+  const falta=C10_VARS.filter(v=>!L[v]);
+  if(falta.length)throw new Error(`O leiaute não tem as variáveis ${falta.join(', ')}.`);
+  const temSM=!!L.V6532;
+  const pega=(l,v)=>{const p=L[v]; const s=l.slice(p.ini,p.fim).trim(); if(!s)return null;
+    let x=+s; if(Number.isNaN(x))return null; if(p.dec&&s.indexOf('.')<0)x/=10**p.dec; return x;};
+  const cods=XT_CODS(), idx=new Map(cods.map((c,i)=>[c,i]));
+  const P=[];                                              /* pessoas dos sete municípios */
+  const pUF=L.V0001, pMu=L.V0002;
+  await xtLinhas(fMic,l=>{
+    const c=l.slice(pUF.ini,pUF.fim).trim()+l.slice(pMu.ini,pMu.fim).trim();
+    const m=idx.get(c); if(m==null)return;
+    const g=v=>pega(l,v);
+    P.push({m,ap:l.slice(L.V0011.ini,L.V0011.fim).trim(),dom:l.slice(L.V0300.ini,L.V0300.fim).trim(),
+      w:g('V0010'),rel:g('V0502'),sexo:g('V0601'),idade:g('V6036'),freq:g('V0628'),ocup:g('V6910'),
+      dif:[g('V0614'),g('V0615'),g('V0616')].some(x=>x===1||x===2)||g('V0617')===1,
+      nn:g('V0618')===3,bolsa:g('V0657')===1,rpc:g('V6531'),sm:temSM?g('V6532'):null});
+  },f=>xtProgresso(el,f,`Lendo os microdados… ${Math.round(100*f)}%`));
+  xtProgresso(el,1,`Conferindo ${nf.format(P.length)} pessoas…`);
+  /* conferências: os sete municípios, a escala da renda e a soma dos pesos */
+  const nPor=cods.map((_,i)=>P.filter(p=>p.m===i).length);
+  const faltam=cods.filter((_,i)=>!nPor[i]).map(nomeDoCod);
+  if(faltam.length)throw new Error(`Os microdados não têm ${faltam.join(', ')}. Confira se é o arquivo do Rio Grande do Sul (RS.zip).`);
+  const rendas=P.map(p=>p.rpc).filter(x=>x!=null).sort((a,b)=>a-b);
+  const med=rendas[Math.floor(rendas.length/2)];
+  if(!(med>=100&&med<=5000))throw new Error(`A mediana da renda per capita (V6531) deu R$ ${fmtN(med,'dec2')}, fora da escala de 2010. Confira o leiaute.`);
+  const popPeso=cods.map((_,i)=>P.reduce((a,p)=>a+(p.m===i?p.w||0:0),0));
+  const pop10=ADH_IPEA&&ADH_IPEA.valores.populacao?cods.map(c=>(ADH_IPEA.valores.populacao[c]||[])[2]):null;
+  if(pop10){
+    const ruim=cods.map((c,i)=>({c,d:pop10[i]?Math.abs(popPeso[i]/pop10[i]-1):0})).filter(x=>x.d>0.01);
+    if(ruim.length)throw new Error(`A soma dos pesos (V0010) não reproduz a população de 2010 em ${ruim.map(x=>nomeDoCod(x.c)+` (${fmtN(100*x.d,'dec1')}% de diferença)`).join(', ')}. Confira o leiaute: o peso tem casas decimais implícitas.`);
+  }
+  /* domicílios particulares: moradores, peso do responsável, chefia, Bolsa Família */
+  const doms=new Map();
+  P.forEach(p=>{if(p.rel===20)return; const k=p.ap+'|'+p.dom;
+    const d=doms.get(k)||{m:p.m,ap:p.ap,mor:0,peso:null,chefeM:false,bolsa:false}; d.mor++;
+    if(p.rel===1&&d.peso==null)d.peso=p.w; if(p.rel===1&&p.sexo===2)d.chefeM=true; if(p.bolsa)d.bolsa=true; doms.set(k,d);});
+  const novo=()=>({pea_h:0,desoc_h:0,pea_m:0,desoc_m:0,pea_18_24:0,desoc_18_24:0,pea_25_29:0,desoc_25_29:0,pea_30_59:0,desoc_30_59:0,
+    jovens:0,nem_nem:0,idosos:0,idosos_sos:0,pop:0,deficiencia:0,nao_natural:0,pessoas_bolsa:0,domicilios:0,dom_chefe_mulher:0,dom_com_bolsa:0,n:0});
+  const porM=cods.map(novo), porAP=new Map();
+  const soma=(o,p,d)=>{
+    const w=p.w||0, pea=p.ocup===1||p.ocup===2, des=p.ocup===2, priv=p.rel!==20, id=p.idade;
+    o.n++; o.pop+=w;
+    if(pea&&p.sexo===1)o.pea_h+=w; if(des&&p.sexo===1)o.desoc_h+=w;
+    if(pea&&p.sexo===2)o.pea_m+=w; if(des&&p.sexo===2)o.desoc_m+=w;
+    const fx=id>=18&&id<=24?'18_24':id>=25&&id<=29?'25_29':id>=30&&id<=59?'30_59':null;
+    if(fx){if(pea)o['pea_'+fx]+=w; if(des)o['desoc_'+fx]+=w;}
+    const jovem=id>=15&&id<=24; if(jovem){o.jovens+=w; if(!(p.freq===1||p.freq===2)&&p.ocup!==1)o.nem_nem+=w;}
+    if(id>=60&&priv){o.idosos+=w; if(d&&d.mor===1)o.idosos_sos+=w;}
+    if(p.dif)o.deficiencia+=w; if(p.nn)o.nao_natural+=w; if(p.bolsa)o.pessoas_bolsa+=w;
+  };
+  P.forEach(p=>{const d=p.rel===20?null:doms.get(p.ap+'|'+p.dom);
+    soma(porM[p.m],p,d); const a=porAP.get(p.ap)||Object.assign(novo(),{m:p.m}); soma(a,p,d); porAP.set(p.ap,a);});
+  doms.forEach(d=>{if(d.peso==null)return; [porM[d.m],porAP.get(d.ap)].forEach(o=>{o.domicilios+=d.peso;
+    if(d.chefeM)o.dom_chefe_mulher+=d.peso; if(d.bolsa)o.dom_com_bolsa+=d.peso;});});
+  const taxa=(o,a,b)=>o[b]>0?100*o[a]/o[b]:null;
+  const indicadores=C10_TAXAS.map(([id,n,a,b,cat])=>({id,cat,n,u:'%',fmt:'pct1',ramp:'brasa',niveis:['municipio'],status:'est',
+    obs:`Censo 2010, amostra: ${a} ÷ ${b}, com o peso amostral (V0010), somando todos os registros do município. Mesmo cálculo do script extracao/R/01_censo2010_areas_ponderacao.R. Cálculo do Atlas sobre os microdados do IBGE.`}));
+  const valores={municipio:{}};
+  cods.forEach((c,i)=>{valores.municipio[c]={}; C10_TAXAS.forEach(([id,,a,b])=>{const v=taxa(porM[i],a,b); if(v!=null)valores.municipio[c][id]=Math.round(100*v)/100;});});
+  /* conferência E3: três versões da renda (extracao/R/11_confere_renda_2010.R) */
+  const versoes={A:p=>true,B:p=>p.rpc!=null,C:p=>p.rpc!=null&&![17,18,19].includes(p.rel)};
+  const E3=[];
+  cods.forEach((c,i)=>{
+    const muni=P.filter(p=>p.m===i);
+    Object.entries(versoes).forEach(([v,f])=>{
+      const g=muni.filter(f), W=g.reduce((a,p)=>a+(p.w||0),0);
+      const rpc=p=>p.rpc==null?0:p.rpc, sm=p=>p.sm!=null?p.sm:rpc(p)/510;
+      const pc=t=>W?100*g.reduce((a,p)=>a+(t(p)?p.w||0:0),0)/W:null;
+      E3.push({cod:c,versao:v,meio_lt:pc(p=>sm(p)<0.5),meio_le:pc(p=>sm(p)<=0.5),quarto_lt:pc(p=>sm(p)<0.25),
+        quarto_le:pc(p=>sm(p)<=0.25),ate140:pc(p=>rpc(p)<=140),ate70:pc(p=>rpc(p)<=70),
+        renda:W?g.reduce((a,p)=>a+(p.w||0)*rpc(p),0)/W:null,gini:xtGini(g.map(rpc),g.map(p=>p.w||0))});
+    });
+  });
+  const veredito=xtVeredito(E3);
+  /* tabela por área de ponderação, para quem quiser levar ao setor */
+  const apTab=[['codigo_municipio','municipio','area_ponderacao','registros'].concat(C10_TAXAS.map(t=>t[0]))];
+  porAP.forEach((o,ap)=>apTab.push([cods[o.m],nomeDoCod(cods[o.m]),ap,o.n].concat(C10_TAXAS.map(([,,a,b])=>{const v=taxa(o,a,b);return v==null?'':Math.round(100*v)/100;}))));
+  const item={id:'censo2010_amostra',titulo:'Censo 2010, amostra: novos recortes e conferência da renda',ano:2010,status:'est',
+    origem:`${xtBase(fMic.nome)} e ${xtBase(fLei.nome)}`,
+    fonte:{n:'IBGE — Censo 2010, amostra (cálculo do Atlas sobre os microdados)',s:'Censo 2010',
+      u:'https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/',
+      d:'Microdados da amostra do Censo Demográfico 2010, lidos com o leiaute publicado pelo IBGE.'},
+    indicadores,valores,e3:{linhas:E3,veredito},ap:apTab,
+    resumo:`${nf.format(P.length)} pessoas na amostra; 12 indicadores por município e a conferência da renda (achado E3)`};
+  await xtConclui(item);
+  el.innerHTML=xtE3HTML(item)+`<div class="btn-row"><button class="btn" id="xtBaixaAP">Baixar por área de ponderação (CSV)</button>
+    <button class="btn" id="xtBaixaE3">Baixar a conferência da renda (CSV)</button></div>`;
+  $('#xtBaixaAP').onclick=()=>baixaCSV(apTab,'censo2010-areas-de-ponderacao.csv');
+  $('#xtBaixaE3').onclick=()=>baixaCSV([Object.keys(E3[0])].concat(E3.map(r=>Object.values(r))),'censo2010-conferencia-renda.csv');
+}
+/* qual versão reproduz o Atlas e qual reproduz o Atlas Brasil */
+function xtVeredito(E3){
+  const M=Object.fromEntries(((S.geo.municipio||{}).features||[]).map(f=>[String(MUNIS_LISTA.ids[f.properties.muni_id]),f.properties]));
+  const at=c=>MUNICIPAL_2010[c]||{};
+  const testes=[
+    ['Atlas','pobreza (½ salário mínimo)',c=>at(c).pct_pobreza,['meio_lt','meio_le']],
+    ['Atlas','extrema pobreza (¼ de salário mínimo)',c=>at(c).pct_extrema_pobreza,['quarto_lt','quarto_le']],
+    ['Atlas','renda per capita média',c=>at(c).rdpc_media,['renda']],
+    ['Atlas','Gini',c=>at(c).gini_rdpc,['gini']],
+    ['Atlas Brasil','vulneráveis à pobreza (até R$ 255)',c=>(M[c]||{}).adh_vulner_pobreza,['meio_le']],
+    ['Atlas Brasil','pobres (até R$ 140)',c=>(M[c]||{}).adh_pobreza,['ate140']],
+    ['Atlas Brasil','extremamente pobres (até R$ 70)',c=>(M[c]||{}).adh_extrema_pobreza,['ate70']],
+    ['Atlas Brasil','renda per capita',c=>(M[c]||{}).adh_renda_pc,['renda']],
+    ['Atlas Brasil','Gini',c=>(M[c]||{}).adh_gini,['gini']]];
+  return testes.map(([quem,o,ref,campos])=>{
+    let melhor=null;
+    ['A','B','C'].forEach(v=>campos.forEach(k=>{
+      const d=E3.filter(r=>r.versao===v).map(r=>{const a=ref(r.cod);return a==null||r[k]==null?null:Math.abs(r[k]-a);}).filter(x=>x!=null);
+      if(d.length<5)return;
+      const m=d.reduce((a,b)=>a+b,0)/d.length;
+      if(!melhor||m<melhor.dif)melhor={versao:v,campo:k,dif:m};
+    }));
+    return {quem,o,melhor};
+  }).filter(t=>t.melhor);
+}
+const XT_VERSAO={A:'A — renda ausente conta como zero',B:'B — renda ausente fica de fora',C:'C — como B, sem pensionistas e empregados domésticos'};
+function xtE3HTML(item){
+  const v=item.e3.veredito, fm=o=>/Gini/.test(o)?'dec3':/renda/.test(o)?'brl':'dec2';
+  const atl=v.filter(t=>t.quem==='Atlas'), bra=v.filter(t=>t.quem==='Atlas Brasil');
+  const conta=l=>{const c={};l.forEach(t=>c[t.melhor.versao]=(c[t.melhor.versao]||0)+1);return Object.entries(c).sort((a,b)=>b[1]-a[1])[0];};
+  const va=atl.length?conta(atl):null, vb=bra.length?conta(bra):null;
+  return `<div class="note">Pronto: ${esc(item.resumo)}. Os 12 indicadores estão no catálogo, no nível município, como referência histórica de 2010.</div>
+  <h4 class="xt-sub">Conferência da renda de 2010 (achado E3 da auditoria)</h4>
+  <p class="xt-msg">A pobreza, a renda e o Gini de 2010 foram recalculados de três jeitos. A tabela mostra, para cada número,
+    qual versão chega mais perto, e a diferença média nos sete municípios.</p>
+  <div class="tb-scroll"><table class="tb"><thead><tr><th>Comparado com</th><th>Indicador</th><th>Versão mais próxima</th><th style="text-align:right">Diferença média</th></tr></thead>
+  <tbody>${v.map(t=>`<tr><td>${esc(t.quem)}</td><td>${esc(t.o)}</td><td>${esc(t.melhor.versao)}${/_le$/.test(t.melhor.campo)?' (com “até”)':/_lt$/.test(t.melhor.campo)?' (com “abaixo de”)':''}</td>
+    <td class="num" style="text-align:right">${fmtN(t.melhor.dif,fm(t.o))}${/pobre|vulner|pobreza/.test(t.o)?' ponto':''}</td></tr>`).join('')}</tbody></table></div>
+  ${va&&vb?`<p class="xt-msg"><b>Leitura.</b> O cálculo do Atlas fica mais perto da versão ${esc(XT_VERSAO[va[0]])};
+    o Atlas Brasil, da versão ${esc(XT_VERSAO[vb[0]])}.
+    ${va[0]!==vb[0]?'As duas diferem: os números de 2010 do Atlas devem ser refeitos pela versão do Atlas Brasil, e o achado E3 se confirma.'
+      :'As duas coincidem: a diferença entre o Atlas e o Atlas Brasil não vem da renda ausente.'}</p>`:''}`;
+}
+
+/* OpenStreetMap: cultura, lazer e espaços públicos (extracao/R/08). A Overpass
+   API deixa uma página ler direto. Dado colaborativo: entra como não oficial. */
+const OSM_TIPOS={park:'Parque',playground:'Parquinho',pitch:'Quadra ou campo',sports_centre:'Centro esportivo',
+  fitness_station:'Academia ao ar livre',library:'Biblioteca',community_centre:'Centro comunitário',theatre:'Teatro',
+  arts_centre:'Centro cultural',cinema:'Cinema',social_centre:'Centro social'};
+const OSM_LAZER=['park','playground','pitch','sports_centre','fitness_station'];
+async function xtOSM(el){
+  const caixa='-30.30,-51.35,-29.78,-50.85';
+  const q=`[out:json][timeout:180];(nwr["leisure"~"^(${OSM_LAZER.join('|')})$"](${caixa});`+
+    `nwr["amenity"~"^(library|community_centre|theatre|arts_centre|cinema|social_centre)$"](${caixa}););out center tags;`;
+  const servidores=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
+  let j=null, ult=null;
+  for(const s of servidores){
+    xtProgresso(el,0.15,`Consultando o OpenStreetMap (${new URL(s).host})…`);
+    try{const r=await fetch(s,{method:'POST',body:'data='+encodeURIComponent(q),
+        headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+      if(!r.ok)throw new Error('HTTP '+r.status); j=await r.json(); break;}
+    catch(e){ult=e;}
+  }
+  if(!j)throw new Error(`O OpenStreetMap não respondeu (${ult&&ult.message}). Tente de novo em alguns minutos.`);
+  if(!Array.isArray(j.elements))throw new Error('Resposta do OpenStreetMap em formato inesperado.');
+  xtProgresso(el,0.7,`Separando ${nf.format(j.elements.length)} lugares por município e bairro…`);
+  const vistos=new Set(), brutos=[];
+  j.elements.forEach(e=>{
+    const t=(e.tags||{}), tipo=OSM_TIPOS[t.leisure]?t.leisure:OSM_TIPOS[t.amenity]?t.amenity:null;
+    const lat=e.lat??(e.center||{}).lat, lon=e.lon??(e.center||{}).lon;
+    if(!tipo||lat==null||lon==null||vistos.has(e.type+e.id))return;
+    vistos.add(e.type+e.id);
+    brutos.push({nome:t.name||OSM_TIPOS[tipo],x:+lon,y:+lat,tipo,rot:OSM_TIPOS[tipo],grupo:OSM_LAZER.includes(tipo)?'lazer':'cultura'});
+  });
+  const fs=(S.geo.municipio||{}).features||[], itens=[];
+  brutos.forEach(q=>{const f=fs.find(m=>pontoNaGeometria(q.x,q.y,m.geometry)); if(f){q.muni=f.properties.nome;itens.push(q);}});
+  if(!itens.length)throw new Error('O OpenStreetMap não devolveu nenhum lugar dentro dos sete municípios.');
+  const valores={municipio:{},bairro:{}};
+  ['lazer','cultura'].forEach(g=>xtContaPorBairro(itens.filter(q=>q.grupo===g),'osm_'+g,valores));
+  /* por 10 mil habitantes, com a população do Censo 2022 */
+  const por10=(o,p)=>{['lazer','cultura'].forEach(g=>{const v=o['osm_'+g]; if(v!=null&&p.pop>0)o[`osm_${g}_10mil`]=Math.round(1e6*v/p.pop)/100;});};
+  ((S.geo.municipio||{}).features||[]).forEach(f=>{const c=String(MUNIS_LISTA.ids[f.properties.muni_id]); if(valores.municipio[c])por10(valores.municipio[c],f.properties);});
+  S.geo.bairro.features.forEach(f=>{const o=valores.bairro[f.properties.id]; if(o)por10(o,f.properties);});
+  const OBS='OpenStreetMap, mapa colaborativo (licença ODbL; © colaboradores do OpenStreetMap). Não é cadastro oficial: a cobertura varia de bairro para bairro e a ausência de um ponto não prova a ausência do lugar. Contagem por ponto dentro do polígono; áreas (parques, quadras) entram pelo centro do contorno.';
+  const LZ='parques, parquinhos, quadras e campos, centros esportivos e academias ao ar livre', CT='bibliotecas, centros comunitários, teatros, centros culturais, cinemas e centros sociais';
+  const ind_=(id,n,u,fmt,obs)=>({id,cat:'ambiente',n,u,fmt,ramp:'agua',niveis:['municipio','bairro'],status:'ext',obs:obs+' '+OBS});
+  const item={id:'osm_cultura_lazer',titulo:'Cultura e lazer (OpenStreetMap)',ano:new Date().getFullYear(),status:'ext',origem:'Overpass API',
+    fonte:{n:'OpenStreetMap — cultura, lazer e espaços públicos',s:'OpenStreetMap',u:'https://www.openstreetmap.org/',d:'Dado colaborativo, não oficial.'},
+    indicadores:[ind_('osm_lazer','Espaços de lazer e esporte (OpenStreetMap)','lugares','int',`Conta ${LZ}.`),
+      ind_('osm_cultura','Equipamentos culturais e comunitários (OpenStreetMap)','lugares','int',`Conta ${CT}.`),
+      ind_('osm_lazer_10mil','Espaços de lazer e esporte por 10 mil habitantes (OpenStreetMap)','por 10 mil hab.','dec2',`${LZ}; população do Censo 2022.`),
+      ind_('osm_cultura_10mil','Equipamentos culturais e comunitários por 10 mil habitantes (OpenStreetMap)','por 10 mil hab.','dec2',`${CT}; população do Censo 2022.`)],
+    valores,pontos:{chave:'xt_osm',rot:'Cultura e lazer (OpenStreetMap)',cor:'#2f7d8c',itens},
+    resumo:`${nf.format(itens.length)} lugares nos sete municípios`};
+  await xtConclui(item);
+  const porTipo={}; itens.forEach(q=>porTipo[q.rot]=(porTipo[q.rot]||0)+1);
+  el.innerHTML=`<div class="note">Pronto: ${esc(item.resumo)} (${Object.entries(porTipo).sort((a,b)=>b[1]-a[1]).map(([k,n])=>`${esc(k)} ${nf.format(n)}`).join(' · ')}).
+    A camada está no painel de camadas do mapa, e os indicadores em <b>Ambiente Urbano</b>, por município e bairro.</div>`;
+}
+
+/* IBGE: qualquer tabela do SIDRA com dado por município (API de agregados). */
+let XT_SIDRA=null;
+async function xtSidraLista(){
+  if(XT_SIDRA)return XT_SIDRA;
+  const j=await (await buscaFonte('https://servicodados.ibge.gov.br/api/v3/agregados?nivel=N6')).json();
+  if(!Array.isArray(j))throw new Error('Resposta do IBGE em formato inesperado.');
+  const out=[]; j.forEach(p=>(p.agregados||[]).forEach(a=>out.push({id:String(a.id),nome:a.nome,pesquisa:p.nome,chave:norm(a.nome+' '+p.nome+' '+a.id)})));
+  return XT_SIDRA=out;
+}
+function xtSidraValor(s){
+  if(s==null)return null; const t=String(s).trim();
+  if(t==='-')return 0;                         /* no SIDRA, "-" é zero absoluto */
+  if(/^(\.\.\.?|x|)$/i.test(t))return null;     /* "...", "..", "X": não disponível, não se aplica, sigilo */
+  const v=+t; return Number.isNaN(v)?null:v;
+}
+async function xtSidraBusca(texto,el){
+  const lista=await xtSidraLista();
+  const ps=norm(texto).split(/\s+/).filter(Boolean);
+  const r=lista.filter(a=>ps.every(p=>a.chave.includes(p))).slice(0,30);
+  el.innerHTML=r.length?r.map(a=>`<button class="xt-res" data-t="${esc(a.id)}"><b>${esc(a.id)}</b> ${esc(a.nome)}
+      <small>${esc(a.pesquisa)}</small></button>`).join('')
+    :'<p class="xt-msg">Nenhuma tabela com essas palavras e dado por município. Tente outras palavras (ex.: “rendimento”, “alfabetização”, “domicílios”).</p>';
+  el.querySelectorAll('.xt-res').forEach(b=>b.onclick=()=>xtSidraTabela(b.dataset.t,el));
+}
+async function xtSidraTabela(id,el){
+  xtProgresso(el,0.3,`Lendo a descrição da tabela ${id}…`);
+  try{
+    const base=`https://servicodados.ibge.gov.br/api/v3/agregados/${id}`;
+    const [meta,pers]=await Promise.all([(await buscaFonte(base+'/metadados')).json(),(await buscaFonte(base+'/periodos')).json()]);
+    const nivs=((meta.nivelTerritorial||{}).Administrativo)||[];
+    if(!nivs.includes('N6'))return xtErro(el,`A tabela ${id} não tem dado por município.`);
+    const cl=meta.classificacoes||[];
+    el.innerHTML=`<p class="xt-msg"><b>${esc(id)} · ${esc(meta.nome)}</b></p>
+      <label class="xt-campo">Período <select id="xtSP">${pers.map(p=>`<option value="${esc(p.id)}">${esc(p.literals?p.literals[0]:p.id)}</option>`).reverse().join('')}</select></label>
+      <label class="xt-campo">Variável <select id="xtSV">${(meta.variaveis||[]).map(v=>`<option value="${v.id}">${esc(v.nome)}${v.unidade?' ('+esc(v.unidade)+')':''}</option>`).join('')}</select></label>
+      ${cl.map(c=>{const tot=(c.categorias||[]).find(k=>/^total$/i.test(k.nome))||(c.categorias||[])[0]||{};
+        return `<label class="xt-campo">${esc(c.nome)} <select class="xtSC" data-c="${c.id}">${(c.categorias||[]).map(k=>
+          `<option value="${k.id}" ${k.id===tot.id?'selected':''}>${esc(k.nome)}</option>`).join('')}</select></label>`;}).join('')}
+      <div class="btn-row"><button class="btn pri" id="xtSBusca">Buscar os sete municípios</button></div><div id="xtSRes"></div>`;
+    $('#xtSBusca').onclick=()=>xtSidraValores(id,meta,el).catch(e=>xtErro($('#xtSRes'),e.message));
+  }catch(e){xtErro(el,e.message||'O IBGE não respondeu.');}
+}
+async function xtSidraValores(id,meta,el){
+  const p=$('#xtSP').value, v=$('#xtSV').value;
+  const cls=[...document.querySelectorAll('.xtSC')].map(s=>({c:s.dataset.c,k:s.value,nome:s.options[s.selectedIndex].text,
+    cl:(meta.classificacoes||[]).find(x=>String(x.id)===s.dataset.c)}));
+  const url=`https://servicodados.ibge.gov.br/api/v3/agregados/${id}/periodos/${encodeURIComponent(p)}/variaveis/${v}`+
+    `?localidades=N6[${XT_CODS().join(',')}]`+(cls.length?`&classificacao=${cls.map(x=>`${x.c}[${x.k}]`).join('|')}`:'');
+  xtProgresso($('#xtSRes'),0.5,'Buscando no IBGE…');
+  const j=await (await buscaFonte(url)).json();
+  const res=Array.isArray(j)&&j[0]&&j[0].resultados&&j[0].resultados[0];
+  if(!res)throw new Error('O IBGE respondeu sem resultados para essa combinação.');
+  const vals={}; (res.series||[]).forEach(s=>{const c=String((s.localidade||{}).id);const x=xtSidraValor((s.serie||{})[p]); if(x!=null)vals[c]=x;});
+  const faltam=XT_CODS().filter(c=>vals[c]==null).map(nomeDoCod);
+  if(faltam.length===7)throw new Error('O IBGE não tem valor para nenhum dos sete municípios nessa combinação.');
+  const vv=(meta.variaveis||[]).find(x=>String(x.id)===String(v))||{nome:'variável '+v,unidade:''};
+  const cats=cls.filter(x=>!/^total$/i.test(x.nome)).map(x=>x.nome);
+  const ident=`sidra_${id}_${v}`+(cls.length?'_'+cls.map(x=>x.k).join('_'):'');
+  const inteiros=Object.values(vals).every(x=>Number.isInteger(x));
+  const ano=/^\d{4}$/.test(p)?+p:null;
+  const n=vv.nome+(cats.length?` (${cats.join(', ')})`:'');
+  const item={id:ident,titulo:`IBGE ${id}: ${n}`,ano,status:'ok',origem:'API de agregados do IBGE',
+    fonte:{n:`IBGE — tabela ${id} do SIDRA: ${meta.nome}`,s:'IBGE/SIDRA',u:`https://sidra.ibge.gov.br/tabela/${id}`,
+      d:'Lido da API de agregados do IBGE (servicodados.ibge.gov.br). No SIDRA, “-” é zero; “...”, “..” e “X” ficam sem valor.'},
+    indicadores:[{id:ident,cat:'visao',n,u:vv.unidade||'valor',fmt:/^%$/.test(vv.unidade||'')?'pct2':inteiros?'int':'dec2',ramp:'agua',
+      niveis:['municipio'],obs:`Tabela ${id} do SIDRA, período ${p}${cls.length?', '+cls.map(x=>`${x.cl?x.cl.nome:x.c}: ${x.nome}`).join('; '):''}.`}],
+    valores:{municipio:Object.fromEntries(Object.entries(vals).map(([c,x])=>[c,{[ident]:x}]))},
+    resumo:`${n}, ${p}${faltam.length?` (sem valor para ${faltam.join(', ')})`:''}`};
+  await xtConclui(item);
+  $('#xtSRes').innerHTML=`<div class="note">Pronto: ${esc(item.resumo)}. Está em <b>Visão Geral</b>, no nível município.</div>`;
+}
+
+/* ---- 27.6 a tela "Extrair dados" ------------------------------------------ */
+const XT_RECEITAS={inep:xtInep,censo2010:xtCenso2010,
+  cnes:(files,el)=>xtGeralInicia(files,el), geral:(files,el)=>xtGeralInicia(files,el)};
+function xtCartao(id,titulo,sub,passos,zona){
+  return `<div class="xt-card" id="xt-${id}">
+    <div class="xt-hd"><b>${titulo}</b><span class="ref-note">${sub}</span></div>
+    ${passos}
+    ${zona?`<label class="drop xt-drop" data-receita="${id}"><b>Solte aqui o arquivo baixado</b>
+      <span>ou clique para escolher · ${zona}</span><input type="file" hidden multiple></label>`:''}
+    <div class="xt-corpo" id="xt-corpo-${id}"></div></div>`;
+}
+const xtLink=(u,t)=>`<a href="${u}" target="_blank" rel="noopener">${t} ↗</a>`;
+function renderExtrair(){
+  const naoAbre=xtSemDescompressao();
+  $('#extrairBody').innerHTML=`
+  <div class="note"><b>Tudo roda neste arquivo, no seu navegador.</b> Nada é enviado para servidor e não é
+    preciso instalar programa. O que for extraído entra no mapa na hora e fica guardado neste navegador.
+    Para entregar a outras pessoas, use <b>Baixar o Atlas com os dados</b>, no fim desta tela: sai um novo
+    arquivo do Atlas com tudo dentro.</div>
+  ${naoAbre?'<div class="note warn">Este navegador não descompacta arquivos. Use Chrome, Edge, Firefox ou Safari atualizados.</div>':''}
+
+  <h3 class="sec">Busca direta na fonte <span class="chip tag">um clique</span></h3>
+  ${xtCartao('osm','Cultura, lazer e espaços públicos','OpenStreetMap · mapa colaborativo, não oficial',
+    `<p class="xt-msg">Parques, parquinhos, quadras, academias ao ar livre, bibliotecas, centros comunitários, teatros e cinemas dos sete municípios.
+      Viram uma camada de pontos e contagens por bairro.</p>
+    <div class="btn-row"><button class="btn pri" id="xtOsmBusca">Buscar no OpenStreetMap</button></div>`)}
+  ${xtCartao('sidra','Qualquer tabela do IBGE por município','IBGE · SIDRA, inclusive os resultados do Censo 2022',
+    `<p class="xt-msg">Procure pelo assunto, escolha a tabela, a variável e as categorias. O valor dos sete municípios entra como indicador.</p>
+    <div class="xt-busca"><input type="search" id="xtSidraTxt" placeholder="ex.: rendimento domiciliar, alfabetização, deslocamento">
+      <button class="btn" id="xtSidraBtn">Procurar</button></div>`)}
+
+  <h3 class="sec">Arquivo baixado da fonte <span class="chip tag">baixe e solte aqui</span></h3>
+  ${xtCartao('inep','Matrículas por etapa e rede','INEP · microdados do Censo Escolar (até a edição de 2024)',
+    `<ol class="xt-passos"><li>Baixe os microdados do Censo Escolar no site do INEP: ${xtLink('https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar','microdados do Censo Escolar')}.
+      O arquivo é microdados_censo_escolar_AAAA.zip.</li><li>Solte o ZIP aqui, sem descompactar.</li></ol>`,'ZIP do INEP')}
+  ${xtCartao('censo2010','Censo 2010: trabalho, família, deficiência, Bolsa Família e conferência da renda','IBGE · microdados da amostra do Censo 2010',
+    `<ol class="xt-passos"><li>No site do IBGE, baixe <b>RS.zip</b> e <b>Documentacao.zip</b>: ${xtLink('https://ftp.ibge.gov.br/Censos/Censo_Demografico_2010/Resultados_Gerais_da_Amostra/Microdados/','microdados da amostra de 2010')}.</li>
+      <li>Solte os dois aqui, juntos. A leitura leva alguns minutos.</li></ol>
+    <p class="xt-msg">Calcula, por município, a desocupação por sexo e idade, os jovens que não estudam nem trabalham,
+      a chefia feminina, os idosos que moram sós, a deficiência e o Bolsa Família. E refaz a pobreza, a renda e o Gini de 2010
+      de três jeitos, para fechar o achado E3 da auditoria.</p>`,'RS.zip e Documentacao.zip')}
+  ${xtCartao('cnes','Equipes de saúde por município','CNES · base de dados do mês',
+    `<ol class="xt-passos"><li>Baixe a base de dados do CNES do mês desejado na área de downloads do CNES
+      (${xtLink('https://cnes.datasus.gov.br/','cnes.datasus.gov.br')}, Downloads, arquivos da base de dados).</li>
+      <li>Solte o ZIP aqui e escolha o arquivo de equipes. O Atlas sugere contar as equipes ativas por tipo.</li></ol>`,'ZIP do CNES')}
+  ${xtCartao('geral','Qualquer arquivo nacional com código de município','CSV, TXT, XLSX, XLS ou ZIP',
+    `<p class="xt-msg">Para Censo SUAS (CRAS, CREAS), VIS DATA e CECAD (Cadastro Único e Bolsa Família), MUNIC, Novo CAGED,
+      ${xtLink('https://mapaosc.ipea.gov.br/base-dados','Mapa das OSCs')}, ${xtLink('https://ivs.ipea.gov.br/','IVS')} e outros.
+      O Atlas acha a coluna do código do município, guarda só as linhas dos sete e pergunta o que fazer com elas:
+      usar os valores, contar as linhas ou somar colunas. Com latitude e longitude, as linhas viram pontos no mapa.</p>`,'qualquer arquivo')}
+
+  <h3 class="sec">Já extraído</h3>
+  <div id="xtLista"></div>
+  <div class="btn-row"><button class="btn pri" id="xtBaixaAtlas">Baixar o Atlas com os dados</button></div>
+  <p class="ref-note">${xtArquivoUnico()?'Gera um novo atlas-rmpa.html com os dados extraídos dentro. Quem abrir esse arquivo vê tudo, sem precisar extrair de novo.'
+    :'Nesta versão em pasta, o botão não está disponível: abra o arquivo único atlas-rmpa.html para gerar o Atlas com os dados.'}</p>`;
+  xtListaHTML();
+  /* zonas de arquivo */
+  $$('#extrairBody .xt-drop').forEach(z=>{
+    const inp=z.querySelector('input'), rec=z.dataset.receita, corpo=$('#xt-corpo-'+rec);
+    const roda=async files=>{
+      if(!files.length)return;
+      xtProgresso(corpo,0,`Abrindo ${files.map(f=>f.name).join(' e ')}…`);
+      try{await XT_RECEITAS[rec](files,corpo);}catch(e){xtErro(corpo,e.message||String(e));}
+    };
+    inp.onchange=()=>{roda([...inp.files]); inp.value='';};
+    z.ondragover=e=>{e.preventDefault();z.classList.add('over');};
+    z.ondragleave=()=>z.classList.remove('over');
+    z.ondrop=e=>{e.preventDefault();z.classList.remove('over');roda([...e.dataTransfer.files]);};
+  });
+  $('#xtOsmBusca').onclick=async()=>{const c=$('#xt-corpo-osm');
+    try{await xtOSM(c);}catch(e){xtErro(c,e.message);}};
+  const sb=async()=>{const c=$('#xt-corpo-sidra'), t=$('#xtSidraTxt').value.trim(); if(!t)return;
+    xtProgresso(c,0.2,'Procurando nas tabelas do IBGE…');
+    try{await xtSidraBusca(t,c);}catch(e){xtErro(c,e instanceof ErroFonte?'O IBGE não respondeu: '+e.message:e.message);}};
+  $('#xtSidraBtn').onclick=sb;
+  $('#xtSidraTxt').onkeydown=e=>{if(e.key==='Enter')sb();};
+  $('#xtBaixaAtlas').onclick=xtBaixaAtlas;
+}
+function xtListaHTML(){
+  const el=$('#xtLista'); if(!el)return;
+  const itens=[...XT_APLICADOS.values()];
+  el.innerHTML=itens.length?itens.map(i=>`<div class="row"><div class="k"><b>${esc(i.titulo)}</b>
+      <span class="ref-note">${esc(i.resumo||'')} · ${esc(i.fonte.s||i.fonte.n)} · ${i._embutido?'embutido neste arquivo':'extraído em '+new Date(i.quando).toLocaleDateString('pt-BR')}</span></div>
+      <div class="v xt-acoes"><button class="btn" data-xtcsv="${esc(i.id)}">CSV</button>
+      ${i._embutido?'':`<button class="btn" data-xtdel="${esc(i.id)}">Remover</button>`}</div></div>`).join('')
+    :'<p class="xt-msg">Nada extraído ainda neste navegador.</p>';
+  el.querySelectorAll('[data-xtcsv]').forEach(b=>b.onclick=()=>xtCSV(XT_APLICADOS.get(b.dataset.xtcsv)));
+  el.querySelectorAll('[data-xtdel]').forEach(b=>b.onclick=async()=>{
+    await xtApaga(b.dataset.xtdel);
+    toast('Removido deste navegador. A página vai recarregar para tirar os dados do mapa.','ok');
+    setTimeout(()=>location.reload(),1200);
+  });
+}
+/* CSV de um item: uma linha por município (e por bairro, quando houver) */
+function xtCSV(item){
+  if(!item)return;
+  const ids=item.indicadores.map(i=>i.id), V=item.valores||{};
+  const L=[['nivel','codigo','territorio'].concat(item.indicadores.map(i=>i.n))];
+  XT_CODS().forEach(c=>{const v=(V.municipio||{})[c]; if(v)L.push(['municipio',c,nomeDoCod(c)].concat(ids.map(k=>v[k]??'')));});
+  if(V.bairro)S.geo.bairro.features.forEach(f=>{const v=V.bairro[f.properties.id]; if(v)L.push(['bairro',f.properties.id,f.properties.nome].concat(ids.map(k=>v[k]??'')));});
+  baixaCSV(L,`extracao-${item.id}.csv`);
 }
 
 (function boot(){
@@ -4346,6 +5432,7 @@ function ligaAoVivoHTML(){
   /* busca nas fontes depois que a primeira tela já está pronta */
   const st=$('#aoVivoStatus'); if(st){st.onclick=()=>abreModal('mdDados');}
   setTimeout(aoVivoAuto,1500);
+  xtInicia();
 })();
 
 /* Os municípios são somas dos setores e trazem os mesmos campos do Censo e as

@@ -1,4 +1,4 @@
-# Atlas Metropolitano RMPA — versão 3.4
+# Atlas Metropolitano RMPA — versão 3.5
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios:
 Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio.
@@ -9,6 +9,60 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Para desenvolvimento: mantenha `index.html`, `atlas.css`, `atlas.js` e a pasta `dados/` juntos.
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
 - O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
+
+## O que mudou na versão 3.5: extração pelo navegador, painel por município e dados do IPEA
+
+### Extrair dados sem instalar nada
+
+*Mais → Extrair dados* abre a central de extração. Tudo roda no navegador, dentro do próprio
+arquivo do Atlas: não é preciso instalar R nem Python, e os arquivos não são enviados a servidor.
+
+| como | fonte | o que entra no Atlas |
+|---|---|---|
+| um clique | OpenStreetMap | parques, parquinhos, quadras, academias ao ar livre, bibliotecas, centros comunitários, teatros, cinemas e outros (11 tipos): camada de pontos e contagem por bairro e município |
+| busca por assunto | IBGE, tabelas do SIDRA (inclusive o Censo 2022) | o valor dos sete municípios na variável e na categoria escolhidas |
+| soltar o ZIP baixado | INEP, microdados do Censo Escolar (edições até 2024) | 12 indicadores de matrícula por etapa e rede |
+| soltar `RS.zip` e `Documentacao.zip` | IBGE, microdados da amostra do Censo 2010 | 12 indicadores do script R `01` (desocupação por sexo e idade, jovens que não estudam nem trabalham, chefia feminina, idosos sós, deficiência, não naturais, Bolsa Família) e a conferência da renda de 2010 de três jeitos, que fecha o achado E3 |
+| soltar o ZIP do mês | CNES, base de dados | equipes de saúde ativas por tipo; o Atlas já sugere a receita |
+| soltar qualquer arquivo | CSV, TXT, XLSX, XLS ou ZIP com código de município (Censo SUAS, VIS DATA, CECAD, MUNIC, CAGED, Mapa das OSCs, IVS…) | o Atlas acha a coluna do código, guarda só os sete municípios e pergunta o que fazer: usar os valores, contar as linhas ou somar colunas. Com latitude e longitude, as linhas viram pontos no mapa |
+
+Os indicadores novos entram na hora no catálogo, à esquerda, e no mapa. Ficam guardados no
+navegador de quem extraiu, até serem removidos na mesma tela. Para entregar a outras pessoas,
+**Baixar o Atlas com os dados** gera um novo `atlas-rmpa.html` com tudo dentro: quem abre esse
+arquivo vê os dados sem extrair de novo. O botão só funciona no arquivo único, não na versão em
+pasta.
+
+O que a central não faz: não estima, não interpola e não completa. Município sem linha no arquivo
+fica sem valor, e não zero. Os resultados do Censo 2010 entram como referência histórica.
+
+### Painel por município
+
+O painel da direita segue o município escolhido no seletor do topo: nome, código, bairros,
+setores, população, área, PIB, IDHM, renda, indicadores do município por tema, retrato do Censo
+2022 e série 1991–2010. A distribuição de valores usa só os territórios do município. Gravataí,
+Sapucaia do Sul e Cachoeirinha aparecem como "sem divisão de bairros no IBGE". Sem município
+escolhido, o painel mostra a região. Até a 3.4 mostrava sempre Porto Alegre.
+
+### Dados do IPEA
+
+O `extracao/6_ipea.py` lê duas bases do IPEA no espelho público da Base dos Dados e grava
+`dados/dados-ipea.js`:
+
+- **Atlas do Desenvolvimento Humano:** série 1991–2000–2010 dos sete municípios, no painel, e 19
+  indicadores novos de 2010.
+- **Acesso a Oportunidades 2019:** empregos alcançáveis em uma hora de transporte público e tempo
+  a pé até saúde e escolas públicas, por bairro e por setor, na categoria nova *Mobilidade e
+  acesso*. Só Porto Alegre está no projeto. Os dados entram também no entorno das lojas e na ficha
+  dos bolsões.
+
+A análise, com as conferências feitas, está em [`docs/ANALISE-IPEA.md`](../docs/ANALISE-IPEA.md).
+
+### Metodologia
+
+Seções novas em *Mais → Metodologia*: o que quer dizer "Cálculo do Atlas", áreas de risco (2010),
+bolsões do quintil mais pobre e acesso a oportunidades. Os textos de fontes e da ficha do
+território deixaram de tratar os sete municípios como se fossem Porto Alegre. Na legenda, a falta
+de valor só é atribuída a sigilo do IBGE quando o dado é do Censo.
 
 ## O que mudou na versão 3.4: erros da auditoria corrigidos
 
@@ -238,13 +292,15 @@ atlas_v3/
 │   ├── dados-servicos.js
 │   ├── dados-pontos.js
 │   ├── dados-indices.js
-│   └── dados-complementares.js
+│   ├── dados-complementares.js
+│   └── dados-ipea.js
 └── extracao/
     ├── 1_servicos_municipais.py
     ├── 2_atualiza_cnes.py
     ├── 3_atualiza_escolas.py
     ├── 4_indices_municipais.py
     ├── 5_base_dos_dados.py
+    ├── 6_ipea.py
     ├── indices.json
     ├── R/                 (scripts R para os dados que faltam; ver docs/EXTRACAO-dados-faltantes.md)
     ├── saida_R/           (saídas dos scripts R, não versionadas)
@@ -261,6 +317,7 @@ python3 extracao/3_atualiza_escolas.py --arquivo /caminho/schools_AAAA.parquet
 python3 extracao/1_servicos_municipais.py
 python3 extracao/5_base_dos_dados.py
 python3 extracao/4_indices_municipais.py
+python3 extracao/6_ipea.py
 python3 build_single.py
 ```
 

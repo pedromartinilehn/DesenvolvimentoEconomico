@@ -20,6 +20,12 @@ Cachoeirinha, Guaíba e Esteio.
 Cada fonte é conferida antes de entrar, e o que não passar continua com o dado embarcado. Não é
 preciso rodar script nem gerar arquivo; o status aparece em *Mais → Dados e fontes*.
 
+**Extrair dados sem instalar nada:** em *Mais → Extrair dados*, qualquer pessoa traz dados novos
+para o Atlas pelo próprio navegador, sem R nem Python: busca direta no OpenStreetMap e nas tabelas
+do IBGE (SIDRA), e leitura dos arquivos baixados do INEP (matrículas), do IBGE (amostra do Censo
+2010), do CNES (equipes de saúde) ou de qualquer arquivo nacional com código de município. Para
+distribuir, *Baixar o Atlas com os dados* gera um novo arquivo único com tudo dentro.
+
 Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 [`atlas_v3/LEIA-ME.md`](atlas_v3/LEIA-ME.md).
 
@@ -30,7 +36,8 @@ Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 | [`docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md`](docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md) | análise do entorno das 20 unidades para desenho de projetos de desenvolvimento comunitário: bolsões de baixa renda, carências, frentes de projeto e lacunas de dados (versão 2) |
 | [`docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx`](docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx) | template de diagnóstico regional do Instituto Renner com as seções 3, 4 e 5 respondidas (apresentação, escopo e metodologia) |
 | [`docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx`](docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx) | respostas guardadas de todas as seções do template (nome da regional e seções 6 a 15: tabelas por município, 5 mapas, rede de serviços, orçamento, atores, SWOT e priorização) |
-| [`docs/COMO-FAZER-AS-EXTRACOES.md`](docs/COMO-FAZER-AS-EXTRACOES.md) | passo a passo de todas as extrações: o que o Atlas atualiza sozinho, os scripts Python e R, os downloads manuais e como o resultado entra no Atlas |
+| [`docs/COMO-FAZER-AS-EXTRACOES.md`](docs/COMO-FAZER-AS-EXTRACOES.md) | passo a passo de todas as extrações: o que o Atlas atualiza sozinho, a central de extração no navegador, os scripts Python e R, os downloads manuais e como o resultado entra no Atlas |
+| [`docs/ANALISE-IPEA.md`](docs/ANALISE-IPEA.md) | dados do IPEA no Atlas: série 1991–2010 do Atlas do Desenvolvimento Humano e Acesso a Oportunidades 2019 em Porto Alegre, com as conferências feitas e o que os dados mostram |
 | [`docs/EXTRACAO-dados-faltantes.md`](docs/EXTRACAO-dados-faltantes.md) | de onde vem cada dado que falta no Atlas e como extraí-lo, com scripts R prontos; o que já entrou pelo espelho público da Base dos Dados (IDHM, Atlas Brasil 2010, IDEB, banda larga, áreas de risco) |
 | [`docs/DIAGNOSTICO-REGIONAL-analise-do-template.md`](docs/DIAGNOSTICO-REGIONAL-analise-do-template.md) | análise das perguntas do template, cobertura do Atlas por seção e sugestões de dados e funções para completar o diagnóstico |
 | [`docs/APRESENTACAO-entorno-lojas.pptx`](docs/APRESENTACAO-entorno-lojas.pptx) | a análise em 21 slides de PowerPoint, com gráficos e tabelas editáveis e notas do apresentador |
@@ -43,9 +50,10 @@ Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 
 ## Cobertura
 
-131 indicadores oficiais carregados, em três níveis: município, bairro (Porto Alegre) e setor
-censitário (4.722 setores nos sete municípios). Todo valor exibido informa fonte, ano e nível
-geográfico.
+203 indicadores no catálogo, em três níveis: município (191), bairro (110) e setor censitário (94).
+São 4.722 setores nos sete municípios e bairros em Porto Alegre, Canoas, Guaíba e Esteio; Gravataí,
+Sapucaia do Sul e Cachoeirinha não têm divisão de bairros no IBGE. Todo valor exibido informa fonte,
+ano e nível geográfico.
 
 Indicadores de trabalho, renda domiciliar, pobreza e escolaridade adulta vêm do **Censo 2010** —
 são dados observados e históricos, identificados como tais em toda a interface. A amostra do
@@ -60,10 +68,11 @@ python3 extracao/3_atualiza_escolas.py --arquivo /caminho/schools_AAAA.parquet
 python3 extracao/1_servicos_municipais.py      # SICONFI, SSP/RS, contagens de equipamentos
 python3 extracao/5_base_dos_dados.py           # Atlas Brasil, IDEB, Anatel, áreas de risco
 python3 extracao/4_indices_municipais.py       # IDHM, IVS, IDESE, FIRJAN
+python3 extracao/6_ipea.py                     # Atlas do Desenvolvimento Humano e Acesso a Oportunidades
 python3 build_single.py                        # regenera o atlas-rmpa.html
 ```
 
-O passo a passo completo, com os scripts R e os downloads manuais, está em
+O passo a passo completo, com a central de extração, os scripts R e os downloads manuais, está em
 [`docs/COMO-FAZER-AS-EXTRACOES.md`](docs/COMO-FAZER-AS-EXTRACOES.md).
 
 Nenhum script estima valor ausente. Se uma fonte mudar de formato ou deixar município sem dado,

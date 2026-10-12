@@ -101,6 +101,9 @@ COLUNAS_ADH = {
     "taxa_agua_esgoto_inadequados": (0, 100), "taxa_densidade_2_mais": (0, 100),
     "taxa_sem_fund_informal": (0, 100), "taxa_criancas_dom_sem_fund": (0, 100),
     "taxa_mulheres_com_filho_10_14": (0, 100),
+    # população recenseada: a central de extração do Atlas confere com ela a
+    # soma dos pesos da amostra de 2010 que o usuário carregar
+    "populacao": (10_000, 3_000_000),
 }
 
 # Acesso a Oportunidades: id no Atlas -> (modo, horário de pico, coluna, tipo)

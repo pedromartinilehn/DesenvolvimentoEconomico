@@ -1,7 +1,14 @@
 # Dados faltantes do Atlas: como extrair cada um
 
-Outubro de 2026 · Atlas versão 3.3
+Outubro de 2026 · Atlas versão 3.3, atualizado na 3.5
 
+> **Na versão 3.5, a central de extração do Atlas (*Mais → Extrair dados*) faz pelo navegador, sem
+> R e sem instalar nada,** o que os scripts `01` (no nível município), `03`, `08`, `10` e `11` fazem,
+> e conta as equipes de saúde por município a partir do ZIP da base do CNES. Também busca qualquer
+> tabela do IBGE no SIDRA. O resultado fica no navegador e pode ser levado num novo arquivo do Atlas
+> (*Baixar o Atlas com os dados*). Passo a passo em
+> [COMO-FAZER-AS-EXTRACOES.md](COMO-FAZER-AS-EXTRACOES.md), seção 2.
+>
 > **Desde a versão 3.3, o Atlas busca sozinho, pelo navegador, as fontes da seção 1 e também a
 > população estimada, o PIB e as finanças municipais (SICONFI), inclusive a despesa em educação.**
 > Para essas fontes não é mais preciso rodar script nem gerar arquivo; os scripts seguem úteis
@@ -49,6 +56,12 @@ O que ficou **de fora** por não passar na conferência:
   desses limites, e a unidade não pôde ser confirmada. O script R `06_mobilidade_aopdata.R` busca a
   versão oficial direto do pacote do IPEA.
 
+  **Resolvido na versão 3.5.** A tabela do espelho traz o tempo mínimo multiplicado por 100.
+  Dividido por 100, ele concorda com os indicadores cumulativos do próprio IPEA em todos os 73.449
+  testes; sem a divisão, só em 4.810. O `extracao/6_ipea.py` refaz essa conferência a cada execução
+  e para se ela falhar. Os dados entraram por bairro e por setor de Porto Alegre, com a série
+  1991–2010 do Atlas do Desenvolvimento Humano. Ver [ANALISE-IPEA.md](ANALISE-IPEA.md).
+
 No Atlas, os novos indicadores aparecem nas categorias de pobreza, vulnerabilidade, trabalho,
 educação, saúde, desenvolvimento humano e ambiente urbano. Também aparecem no painel
 *Mais → Diagnóstico regional*, que ganhou duas tabelas: "Juventude, famílias e vulnerabilidade" e
@@ -86,7 +99,7 @@ estão bloqueados aqui.
 | B5 | Matrículas por etapa (creche, pré-escola, fundamental, médio, EJA) por escola, com código INEP | `educabR::get_censo_escolar(year, uf = "RS")` | download.inep.gov.br | `03_censo_escolar_matriculas.R` |
 | B6 | Equipes de saúde por unidade e por município | `microdatasus::fetch_datasus(..., information_system = "CNES-EP")` | ftp.datasus.gov.br | `04_cnes_equipes.R` |
 | B14 | Despesa em educação e por subfunção (fundamental, médio, infantil, EJA) | `rsiconfi::get_dca(year, annex = "I-E", entity = ...)` | apidatalake.tesouro.gov.br | `05_siconfi_educacao.R` (ou o `1_servicos_municipais.py`, que já faz o mesmo) |
-| B8 | Acesso a empregos, saúde e escolas por transporte público (só Porto Alegre) | `aopdata::read_access(city = "poa", mode = "public_transport", year = 2019)` | github.com (releases `ipeaGIT/aopdata`) | `06_mobilidade_aopdata.R` |
+| B8 | Acesso a empregos, saúde e escolas por transporte público (só Porto Alegre) | `aopdata::read_access(city = "poa", mode = "public_transport", year = 2019)` | github.com (releases `ipeaGIT/aopdata`) | `06_mobilidade_aopdata.R` (os dados de 2019 já estão no Atlas desde a 3.5, pelo `6_ipea.py`) |
 | B9 | Mancha da enchente de maio de 2024 sobre os setores | Zenodo, registro 11185049 (IPH/UFRGS), mais `geobr::read_census_tract(year = 2022)` | zenodo.org, github.com | `07_enchente_2024.R` |
 | B13 | Parques, praças, quadras, bibliotecas, centros comunitários, teatros | `osmdata::opq()` e `osmdata_sf()` | overpass-api.de | `08_osm_cultura_lazer.R` |
 | B7 | Vínculos formais (RAIS) e saldo de empregos (CAGED) por município | BigQuery da Base dos Dados (`bigrquery`), conjuntos `br_me_rais` e `br_me_caged` | bigquery.googleapis.com, com projeto do Google Cloud | `09_basedosdados_bigquery.R` |
@@ -99,8 +112,9 @@ colunas existem. Se não existirem, ele lista o que há e pula a consulta.
 
 ## 3. O que não tem pacote nem API aberta
 
-Baixe na página da fonte e recorte para os sete municípios com
-`Rscript extracao/R/10_recorta_arquivo_baixado.R <arquivo>`. O script acha sozinho a coluna do
+Baixe na página da fonte e solte o arquivo na central de extração do Atlas (*Mais → Extrair dados*,
+cartão "Qualquer arquivo nacional"), ou recorte para os sete municípios com
+`Rscript extracao/R/10_recorta_arquivo_baixado.R <arquivo>`. Os dois acham sozinhos a coluna do
 código do município.
 
 | Item | Dado | Onde | Observação |
@@ -132,7 +146,9 @@ A integração segue o caminho que o Atlas já usa:
   `3_atualiza_escolas.py` e `2_atualiza_cnes.py` guardam o código; basta rodá-los de novo antes de
   ligar matrículas (B5) ou equipes (B6). Ver [AUDITORIA-DADOS-v3.2.md](AUDITORIA-DADOS-v3.2.md).
 
-Desde a versão 3.4, boa parte das saídas carrega direto no Atlas, em *Mais → Dados e fontes*: o
+Desde a versão 3.5, a central de extração leva os resultados para um novo arquivo do Atlas, sem
+mexer no pacote (*Baixar o Atlas com os dados*). Desde a versão 3.4, boa parte das saídas dos
+scripts R carrega direto no Atlas, em *Mais → Dados e fontes*: o
 Atlas reconhece o nível pelo código do setor ou pelo município e ignora as colunas de código. O passo
 a passo de cada script, com o que carrega direto e o que precisa de ajuste antes, está em
 [COMO-FAZER-AS-EXTRACOES.md](COMO-FAZER-AS-EXTRACOES.md).

@@ -46,7 +46,8 @@ def ache(nome):
     sys.exit(f'ERRO: não encontrei {nome} nem em dados/ nem ao lado do index.html')
 
 partes = ['<script>' + ache(a).read_text(encoding='utf-8') + '</script>' for a in ARQS]
-partes.append('<script>' + (D / 'atlas.js').read_text(encoding='utf-8') + '</script>')
+# id="atlas-app": a central de extração põe os dados extraídos logo antes deste bloco
+partes.append('<script id="atlas-app">' + (D / 'atlas.js').read_text(encoding='utf-8') + '</script>')
 embutido = '\n'.join(partes)
 
 html, n = re.subn(r'<script id="carregador">.*?</script>', lambda m: embutido, html, flags=re.S)
