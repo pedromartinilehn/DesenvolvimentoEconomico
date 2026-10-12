@@ -11,6 +11,15 @@ Cachoeirinha, Guaíba e Esteio.
 - **Para desenvolvimento:** mantenha `index.html`, `atlas.css`, `atlas.js` e a pasta `dados/`
   juntos, e sirva a pasta por HTTP.
 
+**Atualização:** ao abrir, a página busca sozinha, pelo navegador, as fontes que permitem isso:
+
+- Atlas Brasil, IDEB, Anatel e áreas de risco, pela Base dos Dados;
+- população estimada e PIB, pela API do IBGE;
+- finanças municipais, inclusive a despesa em educação, pela API do Tesouro (SICONFI).
+
+Cada fonte é conferida antes de entrar, e o que não passar continua com o dado embarcado. Não é
+preciso rodar script nem gerar arquivo; o status aparece em *Mais → Dados e fontes*.
+
 Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 [`atlas_v3/LEIA-ME.md`](atlas_v3/LEIA-ME.md).
 

@@ -8,6 +8,38 @@
      MAPA / UI / INGESTAO
    ══════════════════════════════════════════════════════════════════════════ */
 
+/* ─────────────────────────────────── 0. DADOS QUE JÁ VIERAM DAS FONTES ─── */
+/* O Atlas busca parte dos dados direto nas fontes, pelo próprio navegador
+   (seção 26), sem script nem arquivo intermediário. O que já foi baixado e
+   validado fica guardado neste navegador e entra aqui, antes de tudo, por cima
+   dos arquivos dados/*.js. Sem nada guardado, valem os arquivos embarcados. */
+const AO_VIVO_CHAVE='atlas_rmpa_ao_vivo_v1';
+function aoVivoLe(){
+  try{const x=JSON.parse(localStorage.getItem(AO_VIVO_CHAVE)||'{}');return x&&typeof x==='object'?x:{};}
+  catch(e){return {};}
+}
+function aoVivoGrava(c){try{localStorage.setItem(AO_VIVO_CHAVE,JSON.stringify(c));return true;}catch(e){return false;}}
+/* põe o resultado validado de uma fonte nos objetos que o resto do Atlas lê */
+function aoVivoMescla(id,r){
+  if(!r||!r.dados)return;
+  const W=window, d=r.dados, m=r.meta||{};
+  const obj=(nome,base)=>W[nome]||(W[nome]=base);
+  const em=(o,k)=>o[k]||(o[k]={});
+  const porMun=(alvo,dados)=>{for(const c in dados)Object.assign(em(alvo,c),dados[c]);};
+  if(d.indices){const I=obj('ATLAS_INDICES',{municipios:{},fontes:{}});
+    porMun(em(I,'municipios'),d.indices); em(I,'fontes').idhm=m.indices; I.versao=r.quando;}
+  if(d.complementos||d.risco){const X=obj('ATLAS_COMPLEMENTOS',{municipios:{},fontes:{},risco:[],prec:1e5});
+    if(d.complementos)porMun(em(X,'municipios'),d.complementos);
+    if(d.risco)X.risco=d.risco;
+    em(X,'fontes')[id]=m;}
+  if(d.servicos){const V=obj('ATLAS_SERVICOS',{municipios:{},fontes:{}});
+    porMun(em(V,'municipios'),d.servicos); if(m.chave)em(V,'fontes')[m.chave]=m;}
+  if(d.pib){const N=W.ATLAS_NUCLEO; if(N){const P=em(N,'pib');
+    porMun(em(P,'municipios'),d.pib);
+    Object.assign(P,{ano_pib:m.ano,ano_vab:m.ano,ano_pib_ant:m.ano_base,fonte:m.fonte,via:m.via});}}
+}
+(function(){const c=aoVivoLe(); for(const id in c)if(c[id]&&c[id].ok!==false)aoVivoMescla(id,c[id]);})();
+
 /* ─────────────────────────────────────────────────────── 1. FONTES ───── */
 const FONTES = {
   CENSO22:{n:'IBGE — Censo Demográfico 2022, Agregados por Setores Censitários',s:'Censo/IBGE',
@@ -122,6 +154,7 @@ const CATS=[
 
 const IND=[];
 let IND_IDX=null;                       /* indice id -> indicador, ver getInd */
+const IND_FORA=new Map();               /* tirados por falta de dado: id -> {i, pos} */
 function ind(o){IND_IDX=null;IND.push(Object.assign({status:'pend',fmt:'int',ramp:'agua'},o));}
 /* gera indicadores pendentes em lote */
 function pend(cat,fonte,ano,niveis,lista,obs){
@@ -354,7 +387,11 @@ equipInd('cnes_ubs','saude','Postos, centros de saúde e UBS ativos','unidades',
 equipInd('cnes_hospitais','saude','Hospitais e hospitais-dia ativos','unidades','CNES',2026);
 equipInd('cnes_caps','saude','Centros de Atenção Psicossocial (CAPS)','unidades','CNES',2026);
 munInd('gasto_saude','saude','Despesa empenhada em saúde','R$','SICONFI',2024,'brl','agua');
-const OBS_HAB=x=>`${x} empenhada em 2024 (SICONFI) dividida pela população estimada de 2026 (IBGE).`;
+const ANO={siconfi:2024,pop:2026,pib:2023,vab:2021,base:2013};   /* atualizado por aplicaAnosCatalogo() */
+const OBS_HAB=x=>`${x} empenhada em ${ANO.siconfi} (SICONFI) dividida pela população estimada de ${ANO.pop} (IBGE).`;
+const HAB_ROTULO={gasto_saude_hab:'Despesa em saúde',gasto_atencao_basica_hab:'Despesa em atenção básica',
+  gasto_assistencia_hab:'Despesa em assistência social',gasto_seguranca_hab:'Despesa em segurança pública',
+  gasto_trabalho_hab:'Despesa na função trabalho'};
 munInd('gasto_saude_hab','saude','Despesa em saúde por habitante','R$/hab.','ATLAS_CALC',2024,'brl0','agua',OBS_HAB('Despesa em saúde'));
 munInd('gasto_atencao_basica_hab','saude','Despesa em atenção básica por habitante','R$/hab.','ATLAS_CALC',2024,'brl0','agua',OBS_HAB('Despesa em atenção básica'));
 ind({id:'ubs_10mil',cat:'saude',n:'UBS e postos de saúde por 10 mil habitantes',u:'por 10 mil hab.',fonte:'ATLAS_CALC',ano:2026,
@@ -2011,7 +2048,8 @@ function renderFontes(){
 
 /* ──────────────────────────────────────────────── 18. INGESTÃO DE DADOS  */
 function renderDados(){
-  $('#dadosBody').innerHTML=`
+  $('#dadosBody').innerHTML=aoVivoHTML()+`
+    <h3 class="sec">Carregar um arquivo seu</h3>
     <div class="note">Carregue arquivos <b>GeoJSON</b> (malhas) ou <b>CSV</b> (indicadores).
       O arquivo fica apenas no seu navegador — nada é enviado para servidor.</div>
     <div class="drop" id="drop">
@@ -2069,6 +2107,7 @@ Moinhos de Vento;7412,90;99,8</pre>
           ${x.avisos&&x.avisos.length?'<br>⚠ '+esc(x.avisos.join(' · ')):''}</div>`:''}</div>
         <div class="v"><span class="num">${nf.format(x.n)}</span><span class="u">valores</span></div></div>`).join('')}`:''}`;
 
+  ligaAoVivoHTML();
   const fi=$('#file'), dp=$('#drop');
   $('#pick').onclick=()=>fi.click();
   fi.onchange=e=>[...e.target.files].forEach(leArquivo);
@@ -2560,7 +2599,7 @@ function fcuOn(on){
 /* Áreas de risco BATER (IBGE e CEMADEN, base 2010), de dados-complementares.js.
    Só existem para municípios monitorados pelo CEMADEN: aqui, Porto Alegre e
    Sapucaia do Sul. A ausência de polígono não quer dizer ausência de risco. */
-const AREAS_RISCO=((window.ATLAS_COMPLEMENTOS||{}).risco)||[];
+let AREAS_RISCO=((window.ATLAS_COMPLEMENTOS||{}).risco)||[];
 const ESTILO_RISCO={fillColor:'#7A1F12',fillOpacity:.14,color:'#7A1F12',weight:1.6,opacity:.95,dashArray:'5 3'};
 const RECORTE_RISCO={face:'faces de quadra',setor:'setores censitários'};
 const AJUSTE_RISCO={otima:'ótimo',boa:'bom',regular:'regular'};
@@ -2572,7 +2611,7 @@ function riscoOn(on){
     const nomeMun=c=>{const k=MUNIS_LISTA?MUNIS_LISTA.ids.indexOf(+c):-1;return k>=0?MUNIS_LISTA.nomes[k]:c;};
     camadaRisco=L.geoJSON({type:'FeatureCollection',features:AREAS_RISCO.map(a=>({type:'Feature',
       properties:{cod:a.cod,muni:nomeMun(a.muni),origem:a.origem,acuracia:a.acuracia,obs:a.obs},
-      geometry:decGeom(a.geom,P)}))},{
+      geometry:a.gj||decGeom(a.geom,P)}))},{
       renderer:rendererSobre(),style:ESTILO_RISCO});
     camadaRisco.bindTooltip(l=>{
       const p=(l.feature||l).properties||{};
@@ -2762,6 +2801,29 @@ function decPts(str,prec,n){
   return out;
 }
 
+/* Valores municipais que não vêm dos setores: PIB, serviços, índices e
+   complementos. Usada na montagem e de novo quando chega dado das fontes. */
+function fontesDoMunicipio(p,codMun){
+  const N=window.ATLAS_NUCLEO, b=((N.pib&&N.pib.municipios)||{})[p.nome];
+  if(b){
+    p.pib=b.pib; p.vab=b.vab; p.vab_ind=b.vab_ind; p.vab_serv=b.vab_serv;
+    p.vab_adm=b.vab_adm; p.vab_agro=b.vab_agro; p.impostos=b.impostos;
+    p.pib_pc=Math.round(b.pib*1000/p.pop);
+    p.pib_cresc=b.pib_ant?Math.round(1000*(b.pib/b.pib_ant-1))/10:null;
+    p.pct_vab_ind=raz(b.vab_ind,b.vab); p.pct_vab_serv=raz(b.vab_serv,b.vab);
+    p.pct_vab_adm=raz(b.vab_adm,b.vab); p.pct_vab_agro=raz(b.vab_agro,b.vab);
+  }
+  Object.assign(p,((window.ATLAS_SERVICOS||{}).municipios||{})[codMun]||{});
+  Object.assign(p,((window.ATLAS_INDICES||{}).municipios||{})[codMun]||{});
+  Object.assign(p,((window.ATLAS_COMPLEMENTOS||{}).municipios||{})[codMun]||{});
+  /* 2010 no município: o valor oficial, e não a média das áreas de ponderação
+     (em Canoas, o Gini médio das áreas dá 0,452; o do município é 0,518) */
+  const of=MUNICIPAL_2010[codMun]||{};
+  for(const k in VALOR_OFICIAL_2010){const v=of[VALOR_OFICIAL_2010[k]]; if(v!=null)p[k]=v;}
+  porHabitante(p);
+  return p;
+}
+
 function montaGeo(){
   const N=window.ATLAS_NUCLEO, B=window.ATLAS_BAIRROS, T=window.ATLAS_SETORES;
   if(!N||!B||!T)throw new Error('arquivos de dados não carregados (dados-*.js)');
@@ -2809,29 +2871,11 @@ function montaGeo(){
     const nm=M.nomes.length, colM={}, colME={};
     C.forEach((c,i)=>colM[c]=decCol(M.valores[c],E[i],nm));
     CE.forEach((c,i)=>{if(M.estimados&&M.estimados[c])colME[c]=decCol(M.estimados[c],EE[i],nm);});
-    const PIB=(N.pib&&N.pib.municipios)||{};
     S.geo.municipio={type:'FeatureCollection',name:'municipios',features:M.nomes.map((nome,i)=>{
       const p={id:M.ids[i],nome,muni:nome,muni_id:M.muni_id[i]};
       C.forEach(c=>{const v=colM[c][i]; if(v!=null)p[c]=v;});
       CE.forEach(c=>{const v=colME[c]&&colME[c][i]; if(v!=null)p[c]=v;});
-      const b=PIB[nome];
-      if(b){
-        p.pib=b.pib; p.vab=b.vab; p.vab_ind=b.vab_ind; p.vab_serv=b.vab_serv;
-        p.vab_adm=b.vab_adm; p.vab_agro=b.vab_agro; p.impostos=b.impostos;
-        p.pib_pc=Math.round(b.pib*1000/p.pop);
-        p.pib_cresc=Math.round(1000*(b.pib/b.pib_ant-1))/10;
-        p.pct_vab_ind=raz(b.vab_ind,b.vab); p.pct_vab_serv=raz(b.vab_serv,b.vab);
-        p.pct_vab_adm=raz(b.vab_adm,b.vab); p.pct_vab_agro=raz(b.vab_agro,b.vab);
-      }
-      const codMun=String(N.munis.ids[M.muni_id[i]]);
-      Object.assign(p,((window.ATLAS_SERVICOS||{}).municipios||{})[codMun]||{});
-      Object.assign(p,((window.ATLAS_INDICES||{}).municipios||{})[codMun]||{});
-      Object.assign(p,((window.ATLAS_COMPLEMENTOS||{}).municipios||{})[codMun]||{});
-      /* 2010 no município: o valor oficial, e não a média das áreas de ponderação
-         (em Canoas, o Gini médio das áreas dá 0,452; o do município é 0,518) */
-      const of=MUNICIPAL_2010[codMun]||{};
-      for(const k in VALOR_OFICIAL_2010){const v=of[VALOR_OFICIAL_2010[k]]; if(v!=null)p[k]=v;}
-      porHabitante(p);
+      fontesDoMunicipio(p,String(N.munis.ids[M.muni_id[i]]));
       /* sem as frestas da dissolução dos setores (Porto Alegre tinha 1.225) */
       return {type:'Feature',properties:derivados(p),geometry:decGeom(M.geom[i],P,true)};
     })};
@@ -3367,14 +3411,14 @@ const TABELAS_DIAG=[
   {sec:'8',t:'Dimensões da vulnerabilidade: indicadores-chave',c:['pct_fcu','pct_agua_rede','pct_esgoto_inadequado','taxa_analfabetismo','est_sem_fundamental_25','ubs_10mil','cvli_100mil','banda_larga_100hab']},
   {sec:'8',t:'Educação e desenvolvimento humano',c:['idhm','idhm_educacao','ideb_iniciais','ideb_finais','ideb_medio','adh_creche_0_3','adh_fora_escola_4_5']},
   {sec:'10',t:'Rede de serviços registrada',c:['cnes_ubs','ubs_10mil','cnes_caps','cnes_hospitais','inep_escolas_publicas','inep_escolas_privadas']},
-  {sec:'11',t:'Orçamento municipal para políticas sociais',c:['fin_receita_total','fin_transf_pct','gasto_saude_hab','gasto_atencao_basica_hab','gasto_assistencia_hab','gasto_seguranca_hab','gasto_trabalho_hab']},
+  {sec:'11',t:'Orçamento municipal para políticas sociais',c:['fin_receita_total','fin_transf_pct','gasto_saude_hab','gasto_atencao_basica_hab','gasto_assistencia_hab','gasto_seguranca_hab','gasto_trabalho_hab','gasto_educacao','gasto_educacao_infantil']},
 ];
 const AUSENTES_DIAG={
   '6':'Não estão no Atlas: total de famílias chefiadas por mulheres (há só as mães chefes sem fundamental, de 2010), famílias monoparentais, idosos que vivem sozinhos, pessoas com deficiência, migrantes, população em situação de rua, famílias no Cadastro Único e no Bolsa Família.',
   '7':'Não estão no Atlas: desocupação de mulheres, total de jovens que não estudam nem trabalham (há só os vulneráveis à pobreza, de 2010), dependência de transferências, microempreendedores, renda e pobreza de 2022.',
   '8':'Não estão no Atlas: mobilidade, segurança alimentar, documentação e acesso a direitos, cultura e lazer. Riscos climáticos só em parte: a camada de áreas de risco é a BATER de 2010 (Porto Alegre e Sapucaia do Sul); faltam a setorização do Serviço Geológico do Brasil e a mancha da enchente de 2024.',
   '10':'Não estão no Atlas: CRAS, CREAS, Centro POP, creches e vagas, transferências de renda por família, restaurantes populares, programas habitacionais, organizações comunitárias.',
-  '11':'Não estão no Atlas: despesa em educação, equipes técnicas, conselhos e sistemas de informação.'
+  get '11'(){return 'Não estão no Atlas: '+(getInd('gasto_educacao')?'':'despesa em educação, ')+'equipes técnicas, conselhos e sistemas de informação.';}
 };
 function diagLinhas(){
   const fs=((S.geo.municipio||{}).features||[]).map(f=>f.properties)
@@ -3512,6 +3556,399 @@ ${h}</body></html>`;
   toast('Arquivo exportado.','ok');
 }
 
+/* ═══════════════════════ 26. DADOS AO VIVO: EXTRAÇÃO PELO NAVEGADOR ═══════
+   O Atlas busca os dados direto nas fontes, sem script e sem arquivo
+   intermediário. Cada fonte passa pelas mesmas conferências dos scripts de
+   extracao/: os sete municípios presentes, cada valor na faixa possível,
+   identidades contábeis fechando. Se a fonte não responder, se o navegador
+   não puder ler (CORS) ou se o formato mudar, o Atlas mantém o dado embarcado
+   em dados/*.js e diz o motivo. Nada é estimado nem completado.
+
+   Base dos Dados: espelho público no Google Cloud Storage, lido pela API JSON,
+   que libera o acesso a partir de qualquer página (inclusive arquivo local).
+   IBGE e Tesouro: APIs públicas; o acesso direto depende de o servidor
+   permitir. Se não permitir, a fonte aparece como bloqueada e nada muda. */
+const AO_VIVO={validadeDias:30, rodando:false, progresso:'', auto:true};
+try{AO_VIVO.auto=localStorage.getItem(AO_VIVO_CHAVE+'_auto')!=='0';}catch(e){}
+const COD7=()=>MUNIS_LISTA.ids.map(String);
+const nomeDoCod=c=>MUNIS_LISTA.nomes[MUNIS_LISTA.ids.map(String).indexOf(String(c))];
+class ErroFonte extends Error{constructor(tipo,msg){super(msg);this.tipo=tipo;}}
+const falhaFormato=msg=>{throw new ErroFonte('formato',msg);};
+
+async function buscaFonte(url,opc){
+  let r;
+  try{r=await fetch(url,Object.assign({cache:'no-store'},opc||{}));}
+  catch(e){throw new ErroFonte('rede','o navegador não conseguiu acessar a fonte (sem internet, ou a fonte não permite leitura direta pelo navegador)');}
+  if(!r.ok)throw new ErroFonte('rede',`a fonte respondeu HTTP ${r.status}`);
+  return r;
+}
+
+/* uma linha de CSV com aspas (RFC 4180) */
+function csvCampos(l){
+  const out=[]; let cur='',q=false;
+  for(let i=0;i<l.length;i++){
+    const ch=l[i];
+    if(q){ if(ch==='"'){ if(l[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=ch; }
+    else if(ch==='"')q=true;
+    else if(ch===','){out.push(cur);cur='';}
+    else cur+=ch;
+  }
+  out.push(cur); return out;
+}
+/* Lê um .csv.gz do espelho da Base dos Dados em fluxo: descompacta no próprio
+   navegador e só monta as linhas dos sete municípios. Arquivos de dezenas de
+   MB passam sem ocupar memória inteira. */
+async function linhasBD(objeto,rotulo){
+  const url='https://storage.googleapis.com/storage/v1/b/basedosdados-public/o/'+
+    encodeURIComponent('one-click-download/'+objeto)+'?alt=media';
+  const r=await buscaFonte(url);
+  if(typeof DecompressionStream==='undefined')throw new ErroFonte('rede','este navegador não descompacta arquivos .gz');
+  const total=+r.headers.get('content-length')||0; let lidos=0;
+  const conta=new TransformStream({transform(ch,c){lidos+=ch.byteLength;
+    AO_VIVO.progresso=`${rotulo}: ${Math.round(lidos/1e6)}${total?' de '+Math.round(total/1e6):''} MB`;aoVivoStatus();c.enqueue(ch);}});
+  const rd=r.body.pipeThrough(conta).pipeThrough(new DecompressionStream('gzip'))
+    .pipeThrough(new TextDecoderStream()).getReader();
+  const cods=COD7(); let resto='',cab=null; const linhas=[];
+  const trata=l=>{
+    if(!l)return;
+    if(!cab){cab=csvCampos(l);return;}
+    if(!cods.some(c=>l.includes(c)))return;
+    const v=csvCampos(l), o={}; cab.forEach((c,k)=>o[c]=v[k]);
+    if(cods.includes(o.id_municipio))linhas.push(o);
+  };
+  for(;;){
+    const {value,done}=await rd.read();
+    if(value){resto+=value; let i;
+      while((i=resto.indexOf('\n'))>=0){trata(resto.slice(0,i).replace(/\r$/,''));resto=resto.slice(i+1);}}
+    if(done)break;
+  }
+  trata(resto.trim());
+  if(!cab)falhaFormato('arquivo vazio');
+  return {cab,linhas};
+}
+const num=v=>{if(v==null)return null;const s=String(v).trim();if(!s||/^(nan|none|inf|-inf)$/i.test(s))return null;
+  const x=Number(s);return Number.isFinite(x)?x:null;};
+function exigeColunas(cab,cols,fonte){const f=cols.filter(c=>!cab.includes(c));
+  if(f.length)falhaFormato(`${fonte}: faltam as colunas ${f.join(', ')}`);}
+function exigeSete(cods,fonte){const f=COD7().filter(c=>!cods.has(c)).map(nomeDoCod);
+  if(f.length)falhaFormato(`${fonte}: sem dados para ${f.join(', ')}`);}
+const metaBD=(fonte,ano,obj,extra)=>Object.assign({fonte,ano,via:'Base dos Dados, consulta direta pelo navegador',
+  url:'https://storage.googleapis.com/basedosdados-public/one-click-download/'+obj},extra||{});
+
+/* ---- Atlas Brasil 2010: IDHM e indicadores de vulnerabilidade ---- */
+const ADH_CAMPOS={adh_nemnem_vulner:'taxa_nest_ntrab_vulner_15_24',adh_maes_chefes_sem_fund:'taxa_mulheres_chefe_filho_15m',
+  adh_desloc_1h_vulner:'taxa_vulner_desloc_1_hora',adh_dep_idosos_vulner:'taxa_dom_vulner_dep_idoso',
+  adh_vulner_pobreza:'prop_vulner_pobreza',adh_desocup_18_24:'taxa_desocupacao_18_24',adh_creche_0_3:'taxa_freq_0_3',
+  adh_fora_escola_4_5:'taxa_criancas_fora_escola_4_5',adh_maes_15_17:'taxa_mulheres_com_filho_15_17'};
+const IDHM_CAMPOS={idhm:['idhm',0,1],idhm_renda:['idhm_r',0,1],idhm_educacao:['idhm_e',0,1],
+  idhm_longevidade:['idhm_l',0,1],idhm_esperanca_vida:['expectativa_vida',40,95]};
+async function extraiADH(){
+  const obj='mundo_onu_adh/municipio/municipio.csv.gz';
+  const {cab,linhas}=await linhasBD(obj,'Atlas Brasil');
+  exigeColunas(cab,['ano','id_municipio',...Object.values(ADH_CAMPOS),...Object.values(IDHM_CAMPOS).map(x=>x[0])],'Atlas Brasil');
+  const l10=linhas.filter(r=>r.ano==='2010'); const vistos=new Set();
+  const indices={}, complementos={};
+  l10.forEach(r=>{
+    if(vistos.has(r.id_municipio))falhaFormato('Atlas Brasil: município repetido em 2010');
+    vistos.add(r.id_municipio);
+    const I=indices[r.id_municipio]={idhm_ano:2010}, C=complementos[r.id_municipio]={};
+    for(const k in IDHM_CAMPOS){const [col,lo,hi]=IDHM_CAMPOS[k],v=num(r[col]);
+      if(v==null)continue; if(v<lo||v>hi)falhaFormato(`Atlas Brasil: ${col} = ${v}, fora de ${lo}–${hi}`); I[k]=Math.round(v*1e4)/1e4;}
+    for(const k in ADH_CAMPOS){const v=num(r[ADH_CAMPOS[k]]);
+      if(v==null)continue; if(v<0||v>100)falhaFormato(`Atlas Brasil: ${ADH_CAMPOS[k]} = ${v}, fora de 0–100`); C[k]=Math.round(v*100)/100;}
+  });
+  exigeSete(vistos,'Atlas Brasil');
+  return {dados:{indices,complementos},meta:Object.assign(metaBD('Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA, FJP)',2010,obj),
+    {indices:{fonte:'IDHM — Atlas do Desenvolvimento Humano no Brasil',publicador:'PNUD, IPEA e Fundação João Pinheiro',ano:2010,
+      url:'Base dos Dados, mundo_onu_adh.municipio, consulta direta pelo navegador'}}),resumo:'2010 · IDHM e 9 indicadores'};
+}
+
+/* ---- IDEB da rede pública: a edição mais recente com os sete municípios ---- */
+const IDEB_ETAPAS={'fundamental|iniciais (1-5)':'ideb_iniciais','fundamental|finais (6-9)':'ideb_finais','medio|todos (1-4)':'ideb_medio'};
+async function extraiIDEB(){
+  const obj='br_inep_ideb/municipio/municipio.csv.gz';
+  const {cab,linhas}=await linhasBD(obj,'IDEB');
+  exigeColunas(cab,['ano','id_municipio','rede','ensino','anos_escolares','ideb'],'IDEB');
+  const pub=linhas.filter(r=>r.rede==='publica'&&num(r.ideb)!=null);
+  const anos=[...new Set(pub.map(r=>+r.ano))].sort((a,b)=>b-a);
+  const ano=anos.find(a=>new Set(pub.filter(r=>+r.ano===a&&r.anos_escolares==='iniciais (1-5)').map(r=>r.id_municipio)).size===7);
+  if(!ano)falhaFormato('IDEB: nenhuma edição com os sete municípios');
+  const out={}, vistos=new Set();
+  pub.filter(r=>+r.ano===ano).forEach(r=>{
+    const k=IDEB_ETAPAS[r.ensino+'|'+r.anos_escolares]; if(!k)return;
+    const v=num(r.ideb); if(v<0||v>10)falhaFormato(`IDEB: ${v} fora de 0–10`);
+    const o=out[r.id_municipio]||(out[r.id_municipio]={});
+    if(k in o)falhaFormato('IDEB: valor repetido para '+nomeDoCod(r.id_municipio));
+    o[k]=v; vistos.add(r.id_municipio);
+  });
+  exigeSete(vistos,'IDEB');
+  return {dados:{complementos:out},meta:metaBD('INEP — Índice de Desenvolvimento da Educação Básica',ano,obj),resumo:`edição ${ano}`};
+}
+
+/* ---- Anatel: densidade de banda larga fixa no último mês com os sete ---- */
+async function extraiAnatel(){
+  const obj='br_anatel_banda_larga_fixa/densidade_municipio/densidade_municipio.csv.gz';
+  const {cab,linhas}=await linhasBD(obj,'Anatel');
+  exigeColunas(cab,['ano','mes','id_municipio','densidade'],'Anatel');
+  const per=r=>(+r.ano)*100+(+r.mes);
+  const pers=[...new Set(linhas.map(per))].sort((a,b)=>b-a);
+  const ult=pers.find(p=>new Set(linhas.filter(r=>per(r)===p&&num(r.densidade)!=null).map(r=>r.id_municipio)).size===7);
+  if(!ult)falhaFormato('Anatel: nenhum mês com os sete municípios');
+  const out={};
+  linhas.filter(r=>per(r)===ult).forEach(r=>{const v=num(r.densidade);
+    if(v==null||v<0||v>100)falhaFormato(`Anatel: densidade inválida (${r.densidade})`);
+    if(out[r.id_municipio])falhaFormato('Anatel: município repetido no mesmo mês');
+    out[r.id_municipio]={banda_larga_100hab:Math.round(v*100)/100};});
+  const ano=Math.floor(ult/100), mes=ult%100;
+  return {dados:{complementos:out},meta:metaBD('Anatel — Acessos de banda larga fixa (densidade por 100 habitantes)',ano,obj,{mes}),
+    resumo:`${String(mes).padStart(2,'0')}/${ano}`};
+}
+
+/* ---- áreas de risco BATER (geometria em WKT) ---- */
+function wktParaGeoJSON(w){
+  const t=w.trim(), tipo=t.slice(0,t.indexOf('(')).trim().toUpperCase();
+  const corpo=t.slice(t.indexOf('('));
+  const anel=s=>s.replace(/[()]/g,'').split(',').map(par=>par.trim().split(/\s+/).map(Number));
+  const aneis=s=>s.match(/\([^()]*\)/g).map(anel);
+  if(tipo==='POLYGON')return {type:'Polygon',coordinates:aneis(corpo)};
+  if(tipo==='MULTIPOLYGON'){
+    const polys=[]; let prof=0,ini=-1;
+    for(let i=1;i<corpo.length-1;i++){const ch=corpo[i];
+      if(ch==='('){if(prof===0)ini=i;prof++;}
+      else if(ch===')'){prof--;if(prof===0)polys.push(aneis(corpo.slice(ini,i+1)));}}
+    return {type:'MultiPolygon',coordinates:polys};
+  }
+  falhaFormato('área de risco com geometria '+tipo);
+}
+async function extraiBATER(){
+  const obj='br_geobr_mapas/area_risco_desastre/area_risco_desastre.csv.gz';
+  const {cab,linhas}=await linhasBD(obj,'Áreas de risco');
+  exigeColunas(cab,['geocodigo_bater','origem','acuracia','observacao','id_municipio','geometria'],'Áreas de risco');
+  const risco=linhas.sort((a,b)=>a.geocodigo_bater.localeCompare(b.geocodigo_bater)).map(r=>{
+    const gj=wktParaGeoJSON(r.geometria);
+    const coords=gj.type==='Polygon'?[gj.coordinates]:gj.coordinates;
+    if(!coords.length||coords.some(p=>!p.length||p[0].length<4||p[0].some(c=>c.length<2||c.some(x=>!Number.isFinite(x)))))
+      falhaFormato('Áreas de risco: geometria inválida em '+r.geocodigo_bater);
+    return {cod:r.geocodigo_bater,muni:r.id_municipio,origem:r.origem,acuracia:r.acuracia,obs:r.observacao||null,gj};
+  });
+  return {dados:{risco},meta:metaBD('IBGE e CEMADEN — População em áreas de risco no Brasil (BATER)',2010,obj),resumo:`${risco.length} áreas`};
+}
+
+/* ---- IBGE, API de agregados (SIDRA): população estimada e PIB ---- */
+async function agregadoIBGE(tabela,periodos,variaveis){
+  const url=`https://servicodados.ibge.gov.br/api/v3/agregados/${tabela}/periodos/${periodos}/variaveis/${variaveis}`+
+    `?localidades=N6[${COD7().join(',')}]`;
+  const j=await (await buscaFonte(url)).json().catch(()=>falhaFormato(`IBGE ${tabela}: resposta não é JSON`));
+  if(!Array.isArray(j))falhaFormato(`IBGE ${tabela}: formato inesperado`);
+  const out={};                             /* variavel -> ano -> cod -> valor */
+  j.forEach(v=>(v.resultados||[]).forEach(r=>(r.series||[]).forEach(s=>{
+    const cod=String((s.localidade||{}).id);
+    for(const ano in (s.serie||{})){const x=num(s.serie[ano]); if(x==null)continue;
+      ((out[v.id]||(out[v.id]={}))[ano]||(out[v.id][ano]={}))[cod]=x;}
+  })));
+  return out;
+}
+async function extraiPopIBGE(){
+  const d=(await agregadoIBGE(6579,-1,9324))['9324']||falhaFormato('IBGE 6579: sem a variável 9324');
+  const ano=Math.max(...Object.keys(d).map(Number)); const v=d[ano];
+  exigeSete(new Set(Object.keys(v)),'IBGE 6579');
+  const out={};
+  for(const c of COD7()){
+    const p22=POP_MUNI[nomeDoCod(c)], x=v[c];
+    if(!Number.isInteger(x)||x<=0)falhaFormato(`IBGE 6579: população inválida para ${nomeDoCod(c)}`);
+    if(p22&&(x/p22<0.9||x/p22>1.25))falhaFormato(`IBGE 6579: ${nomeDoCod(c)} com ${x}, longe do Censo 2022 (${p22})`);
+    out[c]={pop_est_2026:x};
+  }
+  return {dados:{servicos:out},meta:{chave:'populacao',fonte:'IBGE — Estimativas da População (SIDRA, tabela 6579)',ano,
+    via:'API de agregados do IBGE, consulta direta pelo navegador',url:'https://sidra.ibge.gov.br/tabela/6579'},resumo:`estimativa de ${ano}`};
+}
+/* PIB: as variáveis são conferidas pelas identidades das contas regionais —
+   PIB = VAB + impostos e VAB = soma dos setores. Código de variável errado
+   não passa. */
+const PIB_VAR={37:'pib',498:'vab',513:'vab_agro',517:'vab_ind',6575:'vab_serv',525:'vab_adm',543:'impostos'};
+async function extraiPIB(){
+  const d=await agregadoIBGE(5938,-1,Object.keys(PIB_VAR).join('|'));
+  const anos=Object.keys(d['37']||{}).map(Number); if(!anos.length)falhaFormato('IBGE 5938: sem PIB');
+  const ano=Math.max(...anos);
+  const base=(await agregadoIBGE(5938,2013,37))['37']; const b13=(base||{})['2013']||falhaFormato('IBGE 5938: sem o PIB de 2013');
+  const out={}, serv={};
+  for(const c of COD7()){
+    const o={}; for(const id in PIB_VAR){const v=((d[id]||{})[ano]||{})[c]; if(v==null)falhaFormato(`IBGE 5938: falta ${PIB_VAR[id]} de ${nomeDoCod(c)}`); o[PIB_VAR[id]]=v;}
+    const tol=x=>Math.max(2,Math.abs(x)*0.002);
+    if(Math.abs(o.vab+o.impostos-o.pib)>tol(o.pib))falhaFormato(`IBGE 5938: PIB ≠ VAB + impostos em ${nomeDoCod(c)}`);
+    if(Math.abs(o.vab_agro+o.vab_ind+o.vab_serv+o.vab_adm-o.vab)>tol(o.vab))falhaFormato(`IBGE 5938: VAB ≠ soma dos setores em ${nomeDoCod(c)}`);
+    if(b13[c]==null)falhaFormato('IBGE 5938: sem PIB de 2013 de '+nomeDoCod(c));
+    o.pib_ant=b13[c]; out[nomeDoCod(c)]=o;
+    serv[c]={agro_vab:o.vab_agro,agro_participacao_vab:Math.round(10000*o.vab_agro/o.vab)/100};
+  }
+  return {dados:{pib:out,servicos:serv},meta:{chave:'agro',fonte:'IBGE — PIB dos Municípios (SIDRA, tabela 5938)',ano,ano_base:2013,
+    via:'API de agregados do IBGE, consulta direta pelo navegador',url:'https://sidra.ibge.gov.br/tabela/5938'},resumo:`${ano}`};
+}
+
+/* ---- Tesouro, SICONFI: Declaração de Contas Anuais ---- */
+const SICONFI_URL='https://apidatalake.tesouro.gov.br/ords/siconfi/tt/dca';
+async function dcaDe(cod,ano){
+  let url=`${SICONFI_URL}?an_exercicio=${ano}&id_ente=${cod}`, itens=[], voltas=0;
+  while(url&&voltas++<20){
+    const j=await (await buscaFonte(url)).json().catch(()=>falhaFormato('SICONFI: resposta não é JSON'));
+    itens=itens.concat(j.items||[]);
+    const prox=(j.links||[]).find(l=>l.rel==='next');
+    url=j.hasMore&&prox?prox.href:null;
+  }
+  return itens;
+}
+const SICONFI_FUNCOES={gasto_saude:'10 - Saúde',gasto_atencao_basica:'10.301 - Atenção Básica',gasto_educacao:'12 - Educação',
+  gasto_ensino_fundamental:'12.361 - Ensino Fundamental',gasto_educacao_infantil:'12.365 - Educação Infantil',
+  gasto_eja:'12.366 - Educação de Jovens e Adultos',gasto_assistencia:'08 - Assistência Social',
+  gasto_assistencia_comunitaria:'08.244 - Assistência Comunitária',gasto_seguranca:'06 - Segurança Pública',
+  gasto_trabalho:'11 - Trabalho',gasto_agricultura:'20 - Agricultura'};
+function financasDaDCA(it,nome){
+  const um=(anexo,coluna,f)=>{const c=it.filter(x=>x.anexo===anexo&&x.coluna===coluna&&f(x));
+    if(c.length!==1)falhaFormato(`SICONFI ${nome}: esperado 1 valor em ${anexo}, obtidos ${c.length}`);
+    const v=num(c[0].valor); if(v==null)falhaFormato(`SICONFI ${nome}: valor vazio`); return Math.round(v*100)/100;};
+  const rec=cod=>um('DCA-Anexo I-C','Receitas Brutas Realizadas',x=>x.cod_conta===cod);
+  const desp=cod=>um('DCA-Anexo I-D','Despesas Empenhadas',x=>x.cod_conta===cod);
+  const fun=conta=>{const c=it.filter(x=>x.anexo==='DCA-Anexo I-E'&&x.coluna==='Despesas Empenhadas'&&x.conta===conta);
+    if(c.length>1)falhaFormato(`SICONFI ${nome}: função duplicada ${conta}`);
+    return c.length?Math.round(num(c[0].valor)*100)/100:0;};      /* linha omitida na DCA = zero, como no script */
+  const o={fin_receita_total:rec('ReceitasExcetoIntraOrcamentarias'),fin_receita_corrente:rec('RO1.0.0.0.00.0.0'),
+    fin_receita_tributaria:rec('RO1.1.0.0.00.0.0'),fin_transferencias:rec('RO1.7.0.0.00.0.0'),
+    fin_despesa_total:desp('TotalDespesas'),fin_investimentos:desp('DO4.4.00.00.00.00')};
+  o.fin_resultado_orcamentario=Math.round(100*(o.fin_receita_total-o.fin_despesa_total))/100;
+  for(const k in SICONFI_FUNCOES)o[k]=fun(SICONFI_FUNCOES[k]);
+  if(!o.gasto_educacao)falhaFormato(`SICONFI ${nome}: função '12 - Educação' não encontrada`);
+  if(o.fin_receita_corrente>o.fin_receita_total||o.fin_receita_tributaria>o.fin_receita_corrente||
+     o.fin_transferencias>o.fin_receita_corrente||o.gasto_atencao_basica>o.gasto_saude||
+     o.gasto_assistencia_comunitaria>o.gasto_assistencia)falhaFormato(`SICONFI ${nome}: contas incoerentes`);
+  return o;
+}
+async function extraiSICONFI(){
+  const hoje=new Date().getFullYear();
+  for(const ano of [hoje-1,hoje-2]){
+    const out={}; let completo=true;
+    for(const c of COD7()){
+      AO_VIVO.progresso=`SICONFI ${ano}: ${nomeDoCod(c)}`; aoVivoStatus();
+      const it=await dcaDe(c,ano);
+      if(!it.length){completo=false;break;}
+      out[c]=financasDaDCA(it,nomeDoCod(c));
+    }
+    if(completo)return {dados:{servicos:out},meta:{chave:'siconfi',fonte:'STN — SICONFI, Declaração das Contas Anuais',ano,
+      via:'API do SICONFI, consulta direta pelo navegador',url:SICONFI_URL},resumo:`DCA ${ano}`};
+  }
+  falhaFormato('SICONFI: nenhum exercício recente com os sete municípios');
+}
+
+const FONTES_AO_VIVO=[
+  {id:'adh',nome:'Atlas Brasil 2010: IDHM e vulnerabilidade',via:'Base dos Dados',f:extraiADH},
+  {id:'ideb',nome:'IDEB da rede pública',via:'Base dos Dados',f:extraiIDEB},
+  {id:'anatel',nome:'Banda larga fixa (Anatel)',via:'Base dos Dados',f:extraiAnatel},
+  {id:'bater',nome:'Áreas de risco (IBGE e CEMADEN)',via:'Base dos Dados',f:extraiBATER},
+  {id:'ibge_pop',nome:'População estimada (IBGE)',via:'API do IBGE',f:extraiPopIBGE},
+  {id:'ibge_pib',nome:'PIB dos Municípios (IBGE)',via:'API do IBGE',f:extraiPIB},
+  {id:'siconfi',nome:'Finanças municipais, com educação (SICONFI)',via:'API do Tesouro',f:extraiSICONFI}
+];
+
+/* Edição carregada hoje de cada fonte (embarcada ou de consulta anterior).
+   Resultado mais antigo que isso não substitui nada. */
+function edicaoAtual(id){
+  const W=window, cf=((W.ATLAS_COMPLEMENTOS||{}).fontes)||{}, sv=((W.ATLAS_SERVICOS||{}).fontes)||{};
+  const am=x=>x&&x.ano?x.ano*100+(x.mes||0):0;
+  return {ideb:am(cf.ideb),anatel:am(cf.anatel),ibge_pop:am(sv.populacao),siconfi:am(sv.siconfi),
+    ibge_pib:((W.ATLAS_NUCLEO||{}).pib||{}).ano_pib*100||0}[id]||0;
+}
+/* roda as fontes em sequência; só grava o que passou na conferência */
+async function aoVivoAtualiza(ids,forca){
+  if(AO_VIVO.rodando)return;
+  AO_VIVO.rodando=true; aoVivoStatus();
+  const cache=aoVivoLe(), agora=Date.now(), mudou=[];
+  const vencida=r=>!r||!r.quando||(agora-Date.parse(r.quando))>AO_VIVO.validadeDias*864e5;
+  for(const F of FONTES_AO_VIVO){
+    if(ids&&!ids.includes(F.id))continue;
+    const atual=cache[F.id];
+    if(!forca&&!vencida(atual)&&atual.ok!==false)continue;
+    if(!forca&&atual&&atual.falha&&(agora-Date.parse(atual.falha.quando))<864e5)continue;   /* não insiste no mesmo dia */
+    AO_VIVO.progresso=F.nome; aoVivoStatus();
+    try{
+      const r=await F.f();
+      const nova=(r.meta.ano||0)*100+(r.meta.mes||0), tem=edicaoAtual(F.id);
+      if(nova&&tem&&nova<tem)throw new ErroFonte('antiga',
+        `a fonte ainda traz ${r.resumo}, anterior à edição já carregada`);
+      cache[F.id]={ok:true,quando:new Date().toISOString(),dados:r.dados,meta:r.meta,resumo:r.resumo};
+      mudou.push(F.id);
+    }catch(e){
+      const falha={quando:new Date().toISOString(),tipo:e.tipo||'formato',msg:e.message||String(e)};
+      cache[F.id]=Object.assign({},atual||{ok:false},{falha});
+      if(!atual||atual.ok===false)cache[F.id].ok=false;
+    }
+    aoVivoGrava(cache);
+    if(document.querySelector('#mdDados.show'))renderDados();
+  }
+  AO_VIVO.rodando=false; AO_VIVO.progresso='';
+  if(mudou.length){mudou.forEach(id=>aoVivoMescla(id,cache[id])); aplicaAoVivoNoMapa();
+    toast(`Dados atualizados pelas fontes: ${mudou.map(id=>FONTES_AO_VIVO.find(f=>f.id===id).nome).join(' · ')}`);}
+  aoVivoStatus();
+  if(document.querySelector('#mdDados.show'))renderDados();
+  return mudou;
+}
+/* leva o que chegou para os municípios na tela, sem recarregar a página */
+function aplicaAoVivoNoMapa(){
+  const M=S.geo.municipio;
+  if(M)M.features.forEach(f=>{const p=f.properties;
+    fontesDoMunicipio(p,String(MUNIS_LISTA.ids[p.muni_id])); derivados(p);});
+  AREAS_RISCO=((window.ATLAS_COMPLEMENTOS||{}).risco)||[];
+  if(camadaRisco){if(map.hasLayer(camadaRisco))map.removeLayer(camadaRisco);camadaRisco=null;}
+  reativaCatalogo(); aplicaAnosCatalogo();
+  for(const k in COBRE)delete COBRE[k];
+  renderCats(); renderCamadas(); riscoOn(!!S.camadas.risco);
+  if(S.nivel==='municipio')desenhaMapa();
+  renderPainel();
+}
+function aoVivoStatus(){
+  const el=$('#aoVivoStatus'); if(!el)return;
+  const c=aoVivoLe(), ok=FONTES_AO_VIVO.filter(F=>c[F.id]&&c[F.id].ok);
+  const ult=ok.map(F=>c[F.id].quando).sort().pop();
+  el.innerHTML=AO_VIVO.rodando?`<span class="pulso"></span>Buscando nas fontes… ${esc(AO_VIVO.progresso)}`
+    :ok.length?`Fontes ao vivo: ${ok.length} de ${FONTES_AO_VIVO.length} · ${new Date(ult).toLocaleDateString('pt-BR')}`
+    :`Dados embarcados · <u>buscar nas fontes</u>`;
+}
+function aoVivoAuto(){
+  aoVivoStatus();
+  if(!AO_VIVO.auto)return;
+  const con=navigator.connection; if(con&&con.saveData)return;   /* economia de dados: só manual */
+  aoVivoAtualiza(null,false);
+}
+function aoVivoHTML(){
+  const c=aoVivoLe(), dt=x=>new Date(x).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+  const linha=F=>{const r=c[F.id];
+    let st;
+    if(AO_VIVO.rodando&&AO_VIVO.progresso&&AO_VIVO.progresso.startsWith(F.nome.split(':')[0]))st='<span class="selo s-imp"><i class="dot"></i>buscando…</span>';
+    else if(r&&r.ok)st=`<span class="selo s-ok"><i class="dot"></i>ao vivo · ${esc(r.resumo||'')}</span><div class="av-sub">consultado em ${dt(r.quando)}</div>`;
+    else st='<span class="selo s-mun"><i class="dot"></i>embarcado</span>';
+    if(r&&r.falha)st+=`<div class="av-sub av-falha">${{rede:'Sem acesso',antiga:'Sem edição nova',formato:'Recusado na conferência'}[r.falha.tipo]||'Falha'} em ${dt(r.falha.quando)}: ${esc(r.falha.msg.replace(/\.?$/,'.'))}${r.ok?' Valem os dados da consulta anterior.':' Vale o dado embarcado.'}</div>`;
+    return `<tr><td><b>${esc(F.nome)}</b><div class="av-sub">${esc(F.via)}</div></td><td>${st}</td></tr>`;};
+  return `<h3 class="sec">Atualização direta pelas fontes</h3>
+    <p style="font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:9px">
+      O Atlas busca estes dados nas fontes pelo próprio navegador, sem script e sem arquivo para importar.
+      Cada fonte passa pelas mesmas conferências dos scripts de extração. O que não passa, ou não responde,
+      fica com o dado embarcado. A busca se repete sozinha a cada ${AO_VIVO.validadeDias} dias.</p>
+    <div class="tb-scroll"><table class="tb av"><tbody>${FONTES_AO_VIVO.map(linha).join('')}</tbody></table></div>
+    <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:10px 0 4px">
+      <button class="btn" id="avAgora" ${AO_VIVO.rodando?'disabled':''}>${AO_VIVO.rodando?'Buscando…':'Buscar agora'}</button>
+      <label style="font-size:12px;color:var(--txt2);display:flex;gap:6px;align-items:center">
+        <input type="checkbox" id="avAuto" ${AO_VIVO.auto?'checked':''}> buscar automaticamente ao abrir</label>
+      ${Object.keys(c).length?'<button class="btn" id="avLimpa">Voltar aos dados embarcados</button>':''}</div>
+    <p style="font-size:11px;color:var(--txt3);line-height:1.6">Ficam de fora, porque a fonte não pode ser lida
+      direto por uma página: Censo (setores e microdados), CNES, Censo Escolar, SSP/RS, Cadastro Único e Censo SUAS.
+      Para esses, os scripts de <code>extracao/</code> continuam valendo.</p>`;
+}
+function ligaAoVivoHTML(){
+  const a=$('#avAgora'); if(a)a.onclick=()=>aoVivoAtualiza(null,true);
+  const t=$('#avAuto'); if(t)t.onchange=e=>{AO_VIVO.auto=e.target.checked;
+    try{localStorage.setItem(AO_VIVO_CHAVE+'_auto',e.target.checked?'1':'0');}catch(err){}};
+  const l=$('#avLimpa'); if(l)l.onclick=()=>{try{localStorage.removeItem(AO_VIVO_CHAVE);}catch(e){}
+    toast('Dados das fontes apagados deste navegador. A página volta aos dados embarcados.');setTimeout(()=>location.reload(),900);};
+}
+
 (function boot(){
   try{ montaGeo(); }
   catch(err){ telaDeErro(err); return; }
@@ -3531,10 +3968,14 @@ ${h}</body></html>`;
   })();
   iniciaMapa();
   estendeAoMunicipio();
+  aplicaAnosCatalogo();
   verificaCatalogo();
   renderCats(); renderCamadas(); ligaEventos();
   desenhaMapa(); renderPainel(); vigiaTamanho();
   ['lojas','escolas','saude'].forEach(k=>{if(S.camadas[k])pontosOn(k,true);});
+  /* busca nas fontes depois que a primeira tela já está pronta */
+  const st=$('#aoVivoStatus'); if(st){st.onclick=()=>abreModal('mdDados');}
+  setTimeout(aoVivoAuto,1500);
 })();
 
 /* Os municípios são somas dos setores e trazem os mesmos campos do Censo e as
@@ -3573,10 +4014,50 @@ function verificaCatalogo(){
     }
   });
   const fora=new Set(removidos);
-  for(let k=IND.length-1;k>=0;k--)if(fora.has(IND[k].id))IND.splice(k,1);
+  for(let k=IND.length-1;k>=0;k--)if(fora.has(IND[k].id)){IND_FORA.set(IND[k].id,{i:IND[k],pos:k});IND.splice(k,1);}
   IND_IDX=null;
   if(removidos.length)console.info('Atlas — indicadores vazios omitidos:',removidos.join(', '));
   return removidos;
+}
+
+/* Indicador tirado por falta de dado volta quando o dado chega das fontes
+   (seção 26). Só vale para o nível município, o único que as fontes ao vivo
+   atualizam. */
+function reativaCatalogo(){
+  const M=S.geo.municipio; if(!M)return 0;
+  const volta=[...IND_FORA.values()].filter(({i})=>M.features.some(f=>f.properties[i.id]!=null))
+    .sort((a,b)=>a.pos-b.pos);
+  volta.forEach(({i,pos})=>{IND.splice(Math.min(pos,IND.length),0,i);IND_FORA.delete(i.id);});
+  IND_IDX=null;
+  return volta.length;
+}
+/* Anos, nomes e notas que dependem da edição carregada de cada fonte */
+function aplicaAnosCatalogo(){
+  const W=window, sv=((W.ATLAS_SERVICOS||{}).fontes)||{}, pb=((W.ATLAS_NUCLEO||{}).pib)||{},
+    cf=((W.ATLAS_COMPLEMENTOS||{}).fontes)||{};
+  if((sv.siconfi||{}).ano)ANO.siconfi=sv.siconfi.ano;
+  if((sv.populacao||{}).ano)ANO.pop=sv.populacao.ano;
+  if(pb.ano_pib)ANO.pib=pb.ano_pib;
+  if(pb.ano_vab)ANO.vab=pb.ano_vab;
+  if(pb.ano_pib_ant)ANO.base=pb.ano_pib_ant;
+  const todos=IND.concat([...IND_FORA.values()].map(x=>x.i));
+  const em=(ids,f)=>todos.forEach(i=>{if(ids.includes(i.id))f(i);});
+  todos.forEach(i=>{if(i.fonte==='SICONFI')i.ano=ANO.siconfi;});
+  em(Object.keys(HAB_ROTULO),i=>{i.ano=ANO.siconfi;i.obs=OBS_HAB(HAB_ROTULO[i.id]);});
+  em(['fin_transf_pct','fin_resultado_orcamentario'],i=>{i.ano=ANO.siconfi;});
+  em(['pop_est_2026'],i=>{i.ano=ANO.pop;i.n='População estimada em '+ANO.pop;
+    i.obs=`Estimativa oficial do IBGE com data de referência em 1º de julho de ${ANO.pop}.`;});
+  em(['pib','pib_pc','pib_cresc'],i=>{i.ano=ANO.pib;});
+  em(['pib_pc'],i=>{i.obs=`PIB de ${ANO.pib} dividido pela população do Censo 2022. O IBGE usa estimativa populacional própria, então pode divergir levemente do valor publicado.`;});
+  em(['pib_cresc'],i=>{i.n=`Crescimento nominal do PIB, ${ANO.base} a ${ANO.pib}`;});
+  em(['vab','vab_ind','vab_serv','vab_adm','vab_agro','impostos','pct_vab_ind','pct_vab_serv','pct_vab_adm',
+      'pct_vab_agro','agro_vab','agro_participacao_vab'],i=>{i.ano=ANO.vab;});
+  if((cf.ideb||{}).ano)em(['ideb_iniciais','ideb_finais','ideb_medio'],i=>{i.ano=cf.ideb.ano;});
+  if((cf.anatel||{}).ano)em(['banda_larga_100hab'],i=>{i.ano=cf.anatel.ano;
+    i.obs=i.obs.replace(/referente a \d{2}\/\d{4}/,`referente a ${String(cf.anatel.mes).padStart(2,'0')}/${cf.anatel.ano}`);});
+  if(((W.ATLAS_INDICES||{}).fontes||{}).idhm)em(['idhm','idhm_renda','idhm_educacao','idhm_longevidade','idhm_esperanca_vida'],
+    i=>{i.ano=W.ATLAS_INDICES.fontes.idhm.ano||i.ano;});
+  IND_IDX=null;
 }
 
 /* primeira execução: diz exatamente qual arquivo não chegou */

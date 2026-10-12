@@ -69,7 +69,7 @@
           <button id="btnMetodo" role="menuitem">Metodologia</button>
           <button id="btnMatriz" role="menuitem">Cobertura dos dados</button>
           <button id="btnFontes" role="menuitem">Fontes</button>
-          <button id="btnDados" role="menuitem">Integrar dados</button>
+          <button id="btnDados" role="menuitem">Dados e fontes</button>
         </div>
       </div>
     </div>
@@ -89,7 +89,8 @@
     <div id="cats"></div>
     <div class="side-foot">Todo valor traz fonte, ano e nível geográfico. Onde um território não
       tem dado publicado, o Atlas mostra o do território que o contém, com o nome dele.
-      <span class="ver">Versão 3.2 · outubro de 2026</span></div>
+      <button class="ao-vivo" id="aoVivoStatus" type="button">Dados embarcados</button>
+      <span class="ver">Versão 3.3 · outubro de 2026</span></div>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════════ MAPA ═══ -->
@@ -143,7 +144,7 @@
   <div class="mbody" id="fontesBody"></div></div></div>
 
 <div class="modal" id="mdDados"><div class="mbox">
-  <div class="mhead"><h2>Integrar dados</h2><button class="x" data-close>×</button></div>
+  <div class="mhead"><h2>Dados e fontes</h2><button class="x" data-close>×</button></div>
   <div class="mbody" id="dadosBody"></div></div></div>
 <link rel="preload" as="script" href="atlas.js">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>

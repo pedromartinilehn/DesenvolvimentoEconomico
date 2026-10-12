@@ -1,6 +1,11 @@
 # Dados faltantes do Atlas: como extrair cada um
 
-Outubro de 2026 · Atlas versão 3.2
+Outubro de 2026 · Atlas versão 3.3
+
+> **Desde a versão 3.3, o Atlas busca sozinho, pelo navegador, as fontes da seção 1 e também a
+> população estimada, o PIB e as finanças municipais (SICONFI), inclusive a despesa em educação.**
+> Para essas fontes não é mais preciso rodar script nem gerar arquivo; os scripts seguem úteis
+> para gerar um retrato embarcado (uso sem internet). Ver `atlas_v3/LEIA-ME.md`.
 
 Este documento responde, item por item, de onde vem cada dado que ainda falta no Atlas e como
 extraí-lo, de preferência com pacotes R. A numeração (B1 a B15) é a da

@@ -1,4 +1,4 @@
-# Atlas Metropolitano RMPA — versão 3.2
+# Atlas Metropolitano RMPA — versão 3.3
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios:
 Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio.
@@ -9,6 +9,46 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Para desenvolvimento: mantenha `index.html`, `atlas.css`, `atlas.js` e a pasta `dados/` juntos.
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
 - O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
+
+## O que mudou na versão 3.3: a página busca os dados sozinha
+
+Não é mais preciso rodar script nem gerar arquivo para atualizar estas fontes. Ao abrir, o Atlas
+consulta as fontes pelo próprio navegador, confere e aplica no mapa:
+
+| fonte | o que atualiza | por onde |
+|---|---|---|
+| Atlas Brasil | IDHM 2010 e nove indicadores de vulnerabilidade | Base dos Dados |
+| INEP | IDEB da rede pública, edição mais recente com os sete municípios | Base dos Dados |
+| Anatel | banda larga fixa, último mês publicado | Base dos Dados |
+| IBGE e CEMADEN | áreas de risco | Base dos Dados |
+| IBGE | população estimada; PIB e valor adicionado | API de agregados do IBGE |
+| Tesouro | receitas, despesas e gasto por função, **inclusive educação** | API do SICONFI |
+
+Como funciona:
+
+- **Primeiro uso:** a busca roda em segundo plano depois que o mapa aparece. A primeira vez baixa
+  cerca de 26 MB da Base dos Dados; os arquivos são descompactados no navegador e só as linhas dos
+  sete municípios são guardadas.
+- **Validação:** cada fonte passa pelas mesmas conferências dos scripts:
+  - os sete municípios presentes;
+  - os valores dentro da faixa possível;
+  - as identidades contábeis fechando (PIB = VAB + impostos; VAB = soma dos setores; receitas e
+    despesas coerentes).
+  O que não passa, ou não responde, fica com o dado embarcado em `dados/*.js`, e o motivo aparece
+  em *Mais → Dados e fontes*.
+- **Edições:** uma edição mais antiga que a carregada nunca substitui a atual.
+- **Cache:** o resultado fica guardado neste navegador e vale por 30 dias. Nas aberturas seguintes,
+  o Atlas usa o que foi guardado, sem baixar de novo. *Dados e fontes* tem o botão "Buscar agora",
+  a opção de desligar a busca automática e a de voltar aos dados embarcados.
+- **Rodapé:** o rodapé da barra lateral mostra quantas fontes estão ao vivo e a data da consulta.
+
+Não dá para ler direto pelo navegador, e continuam pelos scripts de `extracao/`: Censo (setores e
+microdados), CNES, Censo Escolar, SSP/RS, Cadastro Único e Censo SUAS. Essas fontes não permitem
+leitura por outra página (CORS), exigem login, ou só existem como arquivo compactado em FTP.
+
+A Base dos Dados libera a leitura pelo navegador, e isso foi conferido. Se o IBGE e o Tesouro
+liberam, só se sabe na hora: se não liberarem, essas três fontes ficam com o dado embarcado e o
+Atlas diz isso.
 
 ## O que mudou na versão 3.2
 
