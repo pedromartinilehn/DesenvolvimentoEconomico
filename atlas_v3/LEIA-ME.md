@@ -72,6 +72,29 @@ navegador sobre a base completa, comparando antes e depois:
 - Teste automatizado: 148 de 148 bairros em cada cenário (padrão, cada camada ligada, todas
   ligadas, entorno aberto, mouse com tremor de 5 px, celular) e 119 de 119 setores da amostra.
 
+### Versão 3.1: diagnóstico regional (outubro de 2026)
+
+Implementa as sugestões de `docs/DIAGNOSTICO-REGIONAL-analise-do-template.md` que dependem só de dados
+já incluídos no pacote.
+
+- **Valores oficiais de 2010 no município.** Gini, pobreza, renda per capita, trabalho e escolaridade de
+  2010 passam a usar, no nível município, o valor calculado sobre todos os registros do município. Antes
+  era a média das áreas de ponderação, o que não é um Gini válido (Canoas: 0,452 antes, 0,518 agora).
+  As sete versões "(histórico)" só do município, que repetiam esses números, saíram da lista.
+- **Bolsões.** Nova camada com os 123 bolsões do quintil mais pobre a até 5 km de uma unidade (323.725
+  pessoas), calculada no próprio Atlas com o método da análise. O clique num bolsão abre a ficha dele;
+  *Mais → Bolsões* lista todos, com exportação em CSV.
+- **Região e taxas por habitante.** Despesa por habitante (saúde, atenção básica, assistência,
+  segurança, trabalho), CVLI, homicídios e roubos por 100 mil habitantes, transferências sobre a
+  receita e UBS por 10 mil habitantes. A comparação dos municípios ganhou a linha da região.
+- **Exportar mapa.** Botão no mapa e em *Mais*: PNG com título, legenda e fonte (o mapa de fundo não
+  entra na imagem).
+- **Diagnóstico regional.** Em *Mais*: as tabelas das seções 6, 7, 8, 10 e 11 do template do
+  Instituto Renner e a matriz de priorização com notas editáveis e evidência calculada, exportáveis
+  para Word e CSV.
+- Verificação: sonda antes/depois sem diferença em somas, quebras, legendas, equipamentos e nos 100
+  entornos; teste de clique em todos os cenários, inclusive com a camada de bolsões.
+
 ## Desempenho
 
 Os arquivos de dados são baixados em paralelo, cada camada do mapa tem um renderer só e é

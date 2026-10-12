@@ -84,6 +84,35 @@ O template tem 15 seções de quatro tipos:
 
 Ordenadas por prioridade. "Esforço" considera o trabalho de extração e de interface.
 
+### Situação em outubro de 2026 (Atlas versão 3.1)
+
+| Situação | Itens |
+|---|---|
+| ✅ **Feito** | A1, A2, A3, A4, C2 |
+| ◐ **Feito em parte** | A5: as tabelas saem para os sete municípios ou para o município filtrado; o recorte por bairros e por bolsões fica para depois |
+| ⛔ **Bloqueado por acesso à rede** | B1 a B15: o ambiente onde o Atlas foi atualizado não alcança os servidores do IBGE, do Tesouro (SICONFI), do DATASUS e do gov.br. Nenhum desses dados foi preenchido com valor estimado |
+| ⏳ **Pendente** | C1 (precisa dos dados de 2010 por setor) e C3 (precisa de um lugar compartilhado para guardar as notas de campo) |
+
+O que mudou no Atlas, por item:
+
+- **A1.** No nível município, Gini, pobreza, renda per capita, trabalho e escolaridade de 2010 vêm do
+  valor oficial de cada município. Canoas passa de 0,452 para 0,518 no Gini. As sete versões
+  "(histórico)" só do município, que repetiam esses números, saíram da lista.
+- **A2.** Camada "Bolsões do quintil mais pobre" (123 bolsões, 323.725 pessoas), calculada no próprio
+  Atlas com o método da análise. Cada bolsão tem ficha (moradores, domicílios, crianças, jovens,
+  renda, favela, cor ou raça, escolaridade e desocupação de 2010, loja mais próxima, comunidades) e
+  há uma lista completa em *Mais → Bolsões*, com exportação em CSV.
+- **A3.** Novos indicadores: despesa por habitante em saúde, atenção básica, assistência social,
+  segurança e trabalho; vítimas de CVLI, homicídios e roubos por 100 mil habitantes; transferências
+  sobre a receita; UBS por 10 mil habitantes (município e bairro). A comparação municipal ganhou a
+  linha "Região (7 municípios)", com somas e taxas recalculadas a partir das contagens.
+- **A4.** Botão de exportação no mapa (e em *Mais*): PNG em alta resolução com título, legenda e fonte.
+- **A5.** *Mais → Diagnóstico regional*: tabelas das seções 6, 7, 8, 10 e 11, com fonte e ano em cada
+  uma e a lista do que falta, exportáveis para Word e CSV.
+- **C2.** Aba "Matriz de priorização" no mesmo painel: notas editáveis, total e evidência de cada
+  problema calculada com os dados do Atlas; exportável para Word e CSV. As notas ficam salvas no
+  navegador de quem edita.
+
 ### A. Correções e ganhos rápidos, com dados que já estão no pacote
 
 | # | Adição | Seções | Esforço |

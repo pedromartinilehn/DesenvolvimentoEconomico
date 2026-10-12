@@ -62,6 +62,10 @@
         <button id="btnMais" class="tbtn" aria-haspopup="true" aria-expanded="false">Mais
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="menu" id="menuMais" role="menu">
+          <button id="btnDiag" role="menuitem">Diagnóstico regional</button>
+          <button id="btnBolsoes" role="menuitem">Bolsões do quintil mais pobre</button>
+          <button id="btnExportar" role="menuitem">Exportar mapa (PNG)</button>
+          <div class="menu-sep"></div>
           <button id="btnMetodo" role="menuitem">Metodologia</button>
           <button id="btnMatriz" role="menuitem">Cobertura dos dados</button>
           <button id="btnFontes" role="menuitem">Fontes</button>
@@ -85,7 +89,7 @@
     <div id="cats"></div>
     <div class="side-foot">Todo valor traz fonte, ano e nível geográfico. Onde um território não
       tem dado publicado, o Atlas mostra o do território que o contém, com o nome dele.
-      <span class="ver">Versão 3 · setembro de 2026</span></div>
+      <span class="ver">Versão 3.1 · outubro de 2026</span></div>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════════ MAPA ═══ -->
@@ -116,6 +120,15 @@
     <span class="chip" id="cmpLvl"></span><button class="x" data-close>×</button></div>
   <div class="mbody" id="analiseBody"></div></div></div>
 
+
+<div class="modal" id="mdDiag"><div class="mbox wide">
+  <div class="mhead"><h2>Diagnóstico regional</h2>
+    <span class="chip">template do Instituto Renner</span><button class="x" data-close>×</button></div>
+  <div class="mbody" id="diagBody"></div></div></div>
+
+<div class="modal" id="mdBolsoes"><div class="mbox wide">
+  <div class="mhead"><h2>Bolsões do quintil mais pobre</h2><button class="x" data-close>×</button></div>
+  <div class="mbody" id="bolsoesBody"></div></div></div>
 
 <div class="modal" id="mdMetodo"><div class="mbox wide">
   <div class="mhead"><h2>Metodologia</h2><button class="x" data-close>×</button></div>

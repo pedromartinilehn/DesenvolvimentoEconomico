@@ -434,3 +434,19 @@ table.tb .worst{color:var(--pend)}
   .mbody{padding:16px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ─────────────────────────────── região, bolsões, diagnóstico (v3.1) ── */
+.sw-area.bol{background:rgba(251,250,247,.6);border-color:#15212E}
+.muni-row.regiao{background:var(--bg3);border-radius:8px;cursor:default}
+.muni-row.regiao .ref-note{display:block}
+.menu-sep{height:1px;background:var(--line);margin:4px 0}
+.exp-btn{display:flex!important;align-items:center;justify-content:center}
+.diag-abas{display:inline-flex;margin-bottom:12px}
+.tb-scroll{overflow-x:auto;margin:6px 0 2px}
+table.tb.diag{font-size:12.5px}
+table.tb.diag th{white-space:normal;vertical-align:bottom}
+table.tb.diag tr.tot td{background:var(--bg3);font-weight:600}
+.diag-fonte{font-size:11.5px;color:var(--txt3);margin:4px 0 10px;line-height:1.5}
+.diag-falta{font-size:12px;color:var(--pend);margin:-4px 0 14px;line-height:1.5}
+table.mx select{font:inherit;padding:3px 4px;border:1px solid var(--line2);border-radius:6px;background:var(--bg2)}
+table.mx input{font:inherit;width:100%;min-width:140px;padding:4px 6px;border:1px solid var(--line2);border-radius:6px;background:var(--bg2)}
