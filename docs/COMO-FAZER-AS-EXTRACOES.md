@@ -1,7 +1,7 @@
 # Como fazer as extrações
 
 Passo a passo para atualizar os dados do Atlas e para extrair os que ainda faltam. Vale para a
-versão 3.5.
+versão 3.5.1.
 
 Os dados entram no Atlas por quatro caminhos:
 
@@ -118,8 +118,27 @@ programa.
 ## 3. Preparar a máquina
 
 Use um computador com acesso normal à internet. Redes corporativas costumam bloquear alguns dos
-servidores da tabela da seção 5. Rode **todos os comandos a partir da pasta `atlas_v3/`** (a que
-tem `index.html`).
+servidores da tabela da seção 5. Os comandos deste guia partem da pasta **`atlas_v3/`** (a que tem
+`index.html`); os scripts Python precisam ser rodados dali.
+
+**Os scripts R rodam de qualquer pasta.** Cada um acha a pasta do Atlas pelo próprio local e grava
+o resultado em `atlas_v3/extracao/saida_R/`. Há dois jeitos de rodar:
+
+- **No RStudio:** abra o script numerado (por exemplo, `extracao/R/01_censo2010_areas_ponderacao.R`)
+  e clique em **Source**, no canto de cima do editor. Rode o script inteiro: linha a linha (*Run*),
+  o R não sabe onde o arquivo está, e só funciona com a pasta de trabalho em `atlas_v3/`. O
+  `_comum.R` não se roda: os scripts numerados o carregam sozinhos. Pelo *Source*, o `10` abre uma
+  janela para escolher o arquivo baixado, e o `09` pergunta o projeto do Google Cloud no console. O
+  `03` e o `05` usam 2024, e o `04`, o mês de dois meses atrás; para outra edição, use o terminal.
+- **No terminal** (Prompt de Comando, PowerShell ou o *Terminal* do RStudio): entre na pasta
+  `atlas_v3` (`cd` seguido do caminho da pasta) e rode `Rscript extracao/R/<script>.R`, com os
+  argumentos da tabela da seção 5. No Windows, se o terminal não reconhecer `Rscript`, use o
+  caminho completo, como `"C:\Program Files\R\R-4.4.1\bin\Rscript.exe"` (troque pela versão
+  instalada).
+
+Para os trechos de R escritos à mão neste guia (as receitas da seção 5.1), a pasta de trabalho
+precisa ser a `atlas_v3/`. No RStudio: *Session → Set Working Directory → Choose Directory...* e
+escolha a pasta `atlas_v3`. Confira com `file.exists("index.html")`, que deve dar `TRUE`.
 
 **Python 3.10 ou mais novo**, com:
 
@@ -243,7 +262,8 @@ Abra `http://localhost:8000/index.html` e confira em *Mais → Dados e fontes* e
 ## 5. Extrair o que falta (scripts R)
 
 Cada script confere colunas e municípios antes de calcular e grava o resultado em
-`extracao/saida_R/`. Rode a partir de `atlas_v3/`:
+`extracao/saida_R/`. Os comandos abaixo partem de `atlas_v3/`; no RStudio, abra o script e clique em
+*Source* (seção 3):
 
 | script | comando | servidor que precisa estar liberado | o que sai | entra no Atlas como |
 |---|---|---|---|---|
@@ -266,7 +286,8 @@ Cloud com faturamento ativo. A consulta é gratuita dentro da cota mensal.
 
 O Atlas recusa arquivo com mais de uma linha por território, porque a segunda linha apagaria a
 primeira sem aviso. Estes três trazem uma linha por município **e** por categoria; deixe uma só.
-Rode no R, na pasta `atlas_v3/`:
+Rode no R, com a pasta de trabalho em `atlas_v3/` (no RStudio, *Session → Set Working Directory*;
+ver seção 3):
 
 **A. Matrículas (script 03): só a rede pública**
 
@@ -390,7 +411,10 @@ nível) e passar pelo `build_single.py`. É o que foi feito com os dados da Base
 | `faltam as colunas ... Colunas disponíveis: ...` | a fonte mudou o nome de uma variável | procure no dicionário da fonte o nome novo e ajuste o script. Não troque por uma variável parecida sem conferir |
 | `sem dados para <município>` | a fonte não trouxe um dos sete municípios | não complete. Confira se é falha da fonte ou do filtro, e espere a correção da fonte |
 | `Falta o pacote '...'` | pacote R não instalado | `Rscript extracao/R/00_instala_pacotes.R` |
-| `Rode os scripts a partir da pasta atlas_v3/` | o R foi chamado de outra pasta | `cd atlas_v3` e rode de novo |
+| `Rode os scripts a partir da pasta atlas_v3/` | mensagem dos scripts até a versão 3.5: o `_comum.R` foi rodado com a pasta de trabalho fora de `atlas_v3/` | o `_comum.R` não se roda sozinho. Abra um script numerado e rode-o inteiro, com a pasta de trabalho em `atlas_v3/` (seção 3). Ou use os scripts da 3.5.1, que acham a pasta sozinhos |
+| `Este arquivo não se roda sozinho` | o `_comum.R` foi rodado direto | abra um script numerado (por exemplo, o `01`) e clique em *Source* |
+| `Não achei a pasta do Atlas` | o script foi rodado linha a linha, ou foi tirado da pasta `extracao/R/` | rode o script inteiro (*Source*), sem tirá-lo da pasta `extracao/R/` |
+| `cannot open the connection`, logo no começo | script de até a versão 3.5 rodado de fora da pasta `atlas_v3/` | escolha a pasta `atlas_v3` em *Session → Set Working Directory*, ou use os scripts da 3.5.1 |
 | erro de conexão, *timeout*, `403` | a rede bloqueou o servidor | confira o servidor na tabela da seção 5 e rode em outra rede |
 | acentos trocados nos CSVs (Windows) | R antigo, sem UTF-8 nativo | use R 4.2 ou mais novo; os scripts gravam sempre em UTF-8 |
 | `Informe a competência do arquivo` (CNES) ou `Informe o ano` (escolas) | o nome do arquivo não diz a edição | passe `--competencia AAAAMM` ou `--ano AAAA` |

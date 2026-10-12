@@ -1,4 +1,4 @@
-# Atlas Metropolitano RMPA — versão 3.5
+# Atlas Metropolitano RMPA — versão 3.5.1
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios:
 Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio.
@@ -9,6 +9,14 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Para desenvolvimento: mantenha `index.html`, `atlas.css`, `atlas.js` e a pasta `dados/` juntos.
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
 - O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
+
+## Versão 3.5.1: os scripts R rodam de qualquer pasta
+
+Os scripts de `extracao/R/` acham sozinhos a pasta do Atlas pelo próprio local. Rodam pelo botão
+*Source* do RStudio ou pelo `Rscript` com o caminho completo, sem precisar mudar a pasta de
+trabalho, e gravam sempre em `atlas_v3/extracao/saida_R/`. Pelo *Source*, o script `10` abre uma
+janela para escolher o arquivo, e o `09` pergunta o projeto do Google Cloud. O `_comum.R` não se
+roda sozinho; se for rodado, diz qual script abrir. O mapa não mudou.
 
 ## O que mudou na versão 3.5: extração pelo navegador, painel por município e dados do IPEA
 

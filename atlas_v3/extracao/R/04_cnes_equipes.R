@@ -17,7 +17,22 @@
 # Saída: extracao/saida_R/cnes_equipes_<aaaamm>_unidades.csv
 #        extracao/saida_R/cnes_equipes_<aaaamm>_municipios.csv
 
-source("extracao/R/_comum.R")
+# Acha a pasta do Atlas pelo local deste arquivo: o script roda de qualquer
+# pasta, pelo Rscript ou pelo botão Source do RStudio.
+local({
+  arq <- tryCatch(sys.frame(1)$ofile, error = function(e) NULL)
+  if (!is.character(arq)) {   # Rscript; no Linux e no Mac ele troca os espaços do caminho por ~+~
+    arq <- gsub("~+~", " ", sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)), fixed = TRUE)
+  }
+  r <- if (length(arq)) dirname(arq[1]) else file.path("extracao", "R")
+  if (!file.exists(file.path(r, "_comum.R"))) {
+    stop("Não achei a pasta do Atlas. No RStudio, rode o script inteiro pelo botão Source ",
+         "(não linha a linha), ou escolha antes a pasta atlas_v3 em Session > Set Working Directory.",
+         call. = FALSE)
+  }
+  assign("PASTA_ATLAS", normalizePath(file.path(r, "..", "..")), envir = globalenv())
+})
+source(file.path(PASTA_ATLAS, "extracao", "R", "_comum.R"))
 pacote("microdatasus"); pacote("dplyr")
 suppressPackageStartupMessages(library(dplyr))
 

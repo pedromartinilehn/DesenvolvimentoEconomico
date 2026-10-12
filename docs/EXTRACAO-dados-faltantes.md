@@ -69,8 +69,9 @@ educação, saúde, desenvolvimento humano e ambiente urbano. Também aparecem n
 
 ## 2. Scripts R para o que depende de servidores bloqueados aqui
 
-Pasta [`atlas_v3/extracao/R/`](../atlas_v3/extracao/R/). Rode a partir da pasta `atlas_v3/`, numa
-máquina com acesso normal à internet:
+Pasta [`atlas_v3/extracao/R/`](../atlas_v3/extracao/R/). Rode numa máquina com acesso normal à
+internet, no terminal a partir da pasta `atlas_v3/` ou no RStudio, abrindo o script e clicando em
+*Source* (os scripts acham a pasta do Atlas sozinhos):
 
 ```
 Rscript extracao/R/00_instala_pacotes.R

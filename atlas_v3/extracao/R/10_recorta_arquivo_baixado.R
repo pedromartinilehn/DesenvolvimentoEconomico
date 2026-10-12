@@ -19,10 +19,27 @@
 # Saída: extracao/saida_R/recorte_<nome do arquivo>.csv, com o nome do
 #        município na primeira coluna
 
-source("extracao/R/_comum.R")
+# Acha a pasta do Atlas pelo local deste arquivo: o script roda de qualquer
+# pasta, pelo Rscript ou pelo botão Source do RStudio.
+local({
+  arq <- tryCatch(sys.frame(1)$ofile, error = function(e) NULL)
+  if (!is.character(arq)) {   # Rscript; no Linux e no Mac ele troca os espaços do caminho por ~+~
+    arq <- gsub("~+~", " ", sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)), fixed = TRUE)
+  }
+  r <- if (length(arq)) dirname(arq[1]) else file.path("extracao", "R")
+  if (!file.exists(file.path(r, "_comum.R"))) {
+    stop("Não achei a pasta do Atlas. No RStudio, rode o script inteiro pelo botão Source ",
+         "(não linha a linha), ou escolha antes a pasta atlas_v3 em Session > Set Working Directory.",
+         call. = FALSE)
+  }
+  assign("PASTA_ATLAS", normalizePath(file.path(r, "..", "..")), envir = globalenv())
+})
+source(file.path(PASTA_ATLAS, "extracao", "R", "_comum.R"))
 pacote("data.table")
 
 args <- commandArgs(trailingOnly = TRUE)
+# pelo botão Source do RStudio não há argumentos: o R pede o arquivo numa janela
+if (!length(args) && interactive()) { message("Escolha o arquivo baixado…"); args <- file.choose() }
 if (!length(args)) stop("Uso: Rscript extracao/R/10_recorta_arquivo_baixado.R <arquivo> [coluna] [aba]", call. = FALSE)
 ARQ <- args[1]; COL <- if (length(args) >= 2) args[2] else NA; ABA <- if (length(args) >= 3) args[3] else 1
 if (!file.exists(ARQ)) stop("Arquivo não encontrado: ", ARQ, call. = FALSE)

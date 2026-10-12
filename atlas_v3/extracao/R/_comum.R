@@ -18,12 +18,16 @@ Encoding(MUNICIPIOS) <- "UTF-8"
 COD7 <- names(MUNICIPIOS)
 COD6 <- substr(COD7, 1, 6)   # DATASUS e alguns arquivos do MDS usam 6 dígitos
 
-# Os scripts rodam a partir da pasta atlas_v3/:
-#   Rscript extracao/R/01_censo2010_areas_ponderacao.R
-if (!file.exists("extracao/R/_comum.R")) {
-  stop("Rode os scripts a partir da pasta atlas_v3/ (a que tem index.html).", call. = FALSE)
+# PASTA_ATLAS (a pasta atlas_v3, a que tem index.html) vem do script que
+# carregou este arquivo, que a acha pelo próprio local. Rodado à parte, vale a
+# pasta de trabalho do R.
+if (!exists("PASTA_ATLAS")) PASTA_ATLAS <- getwd()
+if (!file.exists(file.path(PASTA_ATLAS, "extracao", "R", "_comum.R"))) {
+  stop("Este arquivo não se roda sozinho: ele é carregado pelos scripts numerados. ",
+       "Abra um deles (por exemplo, 01_censo2010_areas_ponderacao.R) e rode-o inteiro ",
+       "(no RStudio, botão Source).", call. = FALSE)
 }
-SAIDA <- file.path("extracao", "saida_R")
+SAIDA <- file.path(PASTA_ATLAS, "extracao", "saida_R")
 dir.create(SAIDA, showWarnings = FALSE, recursive = TRUE)
 
 grava <- function(df, nome) {
