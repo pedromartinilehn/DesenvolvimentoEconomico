@@ -30,6 +30,7 @@ Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 | [`docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md`](docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md) | análise do entorno das 20 unidades para desenho de projetos de desenvolvimento comunitário: bolsões de baixa renda, carências, frentes de projeto e lacunas de dados (versão 2) |
 | [`docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx`](docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx) | template de diagnóstico regional do Instituto Renner com as seções 3, 4 e 5 respondidas (apresentação, escopo e metodologia) |
 | [`docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx`](docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx) | respostas guardadas de todas as seções do template (nome da regional e seções 6 a 15: tabelas por município, 5 mapas, rede de serviços, orçamento, atores, SWOT e priorização) |
+| [`docs/COMO-FAZER-AS-EXTRACOES.md`](docs/COMO-FAZER-AS-EXTRACOES.md) | passo a passo de todas as extrações: o que o Atlas atualiza sozinho, os scripts Python e R, os downloads manuais e como o resultado entra no Atlas |
 | [`docs/EXTRACAO-dados-faltantes.md`](docs/EXTRACAO-dados-faltantes.md) | de onde vem cada dado que falta no Atlas e como extraí-lo, com scripts R prontos; o que já entrou pelo espelho público da Base dos Dados (IDHM, Atlas Brasil 2010, IDEB, banda larga, áreas de risco) |
 | [`docs/DIAGNOSTICO-REGIONAL-analise-do-template.md`](docs/DIAGNOSTICO-REGIONAL-analise-do-template.md) | análise das perguntas do template, cobertura do Atlas por seção e sugestões de dados e funções para completar o diagnóstico |
 | [`docs/APRESENTACAO-entorno-lojas.pptx`](docs/APRESENTACAO-entorno-lojas.pptx) | a análise em 21 slides de PowerPoint, com gráficos e tabelas editáveis e notas do apresentador |
@@ -54,12 +55,16 @@ Censo 2022 é de acesso controlado e não tem arquivo público.
 
 ```bash
 cd atlas_v3
-python3 extracao/2_atualiza_cnes.py --arquivo /caminho/healthfacilities_YYYYMM.parquet
-python3 extracao/3_atualiza_escolas.py --arquivo /caminho/schools_YYYY.parquet
+python3 extracao/2_atualiza_cnes.py --arquivo /caminho/healthfacilities_AAAAMM.parquet
+python3 extracao/3_atualiza_escolas.py --arquivo /caminho/schools_AAAA.parquet
 python3 extracao/1_servicos_municipais.py      # SICONFI, SSP/RS, contagens de equipamentos
+python3 extracao/5_base_dos_dados.py           # Atlas Brasil, IDEB, Anatel, áreas de risco
 python3 extracao/4_indices_municipais.py       # IDHM, IVS, IDESE, FIRJAN
 python3 build_single.py                        # regenera o atlas-rmpa.html
 ```
+
+O passo a passo completo, com os scripts R e os downloads manuais, está em
+[`docs/COMO-FAZER-AS-EXTRACOES.md`](docs/COMO-FAZER-AS-EXTRACOES.md).
 
 Nenhum script estima valor ausente. Se uma fonte mudar de formato ou deixar município sem dado,
 a execução falha em vez de completar por conta própria.

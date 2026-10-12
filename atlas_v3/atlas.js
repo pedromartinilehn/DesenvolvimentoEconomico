@@ -176,7 +176,8 @@ ind({id:'pop_m',cat:'demografia',n:'População feminina',u:'pessoas',fonte:'CEN
 ind({id:'pct_homens',cat:'demografia',n:'Percentual de homens',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'agua'});
 ind({id:'pct_mulheres',cat:'demografia',n:'Percentual de mulheres',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'brasa'});
 ind({id:'razao_sexo',cat:'demografia',n:'Razão de sexo',u:'homens por 100 mulheres',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec1',ramp:'terra'});
-ind({id:'moradores_dom',cat:'demografia',n:'Média de moradores por domicílio',u:'pessoas/dom.',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'brasa'});
+ind({id:'moradores_dom',cat:'demografia',n:'Média de moradores por domicílio',u:'pessoas/dom.',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'brasa',
+  obs:'No setor, é a média publicada pelo IBGE: moradores de domicílios particulares permanentes ÷ esses domicílios (uma casa decimal). No bairro, no município e no entorno das lojas, é a população ÷ domicílios ocupados, que inclui quem vive em domicílio coletivo; a diferença fica em até 0,03 morador, maior onde há presídio ou abrigo.'});
 ind({id:'idx_envelhecimento',cat:'demografia',n:'Índice de envelhecimento',u:'idosos por 100 crianças',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec1',ramp:'brasa',obs:'População de 60 anos ou mais dividida pela de 0 a 14 anos.'});
 ind({id:'razao_dependencia',cat:'demografia',n:'Razão de dependência',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'terra',obs:'(0 a 14 anos + 60 anos ou mais) ÷ (15 a 59 anos) × 100.'});
 ind({id:'id0',cat:'idade',n:'População de 0 a 4 anos',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
@@ -242,9 +243,9 @@ ind({id:'pct_agua_naoenc',cat:'saneamento',n:'Percentual sem água encanada',u:'
 ind({id:'esg_rede',cat:'saneamento',n:'Domicílios com esgoto em rede geral ou pluvial',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'pct_esgoto_rede',cat:'saneamento',n:'Esgoto em rede geral ou pluvial',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'agua'});
 ind({id:'esg_adequado',cat:'saneamento',n:'Domicílios com esgotamento adequado',u:'domicílios',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua',obs:'Rede geral ou pluvial + fossa séptica ou filtro, ligada ou não à rede.'});
-ind({id:'pct_esgoto_adequado',cat:'saneamento',n:'Esgotamento sanitário adequado',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'agua'});
+ind({id:'pct_esgoto_adequado',cat:'saneamento',n:'Esgotamento sanitário adequado',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'agua',obs:'Adequado e inadequado somam cerca de 99% dos domicílios: perto de 1% (9.118 nos sete municípios) não está em nenhuma das duas categorias publicadas, por sigilo do IBGE ou por categoria não classificada. Não são os domicílios sem banheiro, que são 68.'});
 ind({id:'esg_inadeq',cat:'saneamento',n:'Domicílios com esgotamento inadequado',u:'domicílios',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa',obs:'Fossa rudimentar ou buraco + vala + outra forma + destinação inexistente.'});
-ind({id:'pct_esgoto_inadequado',cat:'saneamento',n:'Esgotamento sanitário inadequado',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'brasa'});
+ind({id:'pct_esgoto_inadequado',cat:'saneamento',n:'Esgotamento sanitário inadequado',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'brasa',obs:'Adequado e inadequado somam cerca de 99% dos domicílios: perto de 1% (9.118 nos sete municípios) não está em nenhuma das duas categorias publicadas, por sigilo do IBGE ou por categoria não classificada. Não são os domicílios sem banheiro, que são 68.'});
 ind({id:'lixo_coletado',cat:'saneamento',n:'Domicílios com coleta de lixo',u:'domicílios',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua',obs:'Coletado no domicílio por serviço de limpeza + depositado em caçamba do serviço.'});
 ind({id:'pct_lixo_coletado',cat:'saneamento',n:'Coleta de lixo por serviço de limpeza',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'agua'});
 ind({id:'lixo_inadequado',cat:'saneamento',n:'Domicílios com destino inadequado do lixo',u:'domicílios',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa',obs:'Lixo queimado na propriedade + jogado em terreno baldio, encosta ou área pública.'});
@@ -269,22 +270,16 @@ ind({id:'amb_ndvi',cat:'ambiente',n:'NDVI mediano',u:'índice',fonte:'GEOCLIM',a
   niveis:['bairro'],status:'ext',fmt:'dec3',ramp:'agua'});
 
 /* ---- 4.3 INDICADORES MUNICIPAIS (não desagregáveis) ------------------- */
-ind({id:'m_pop_est',cat:'visao',n:'População estimada',u:'pessoas',fonte:'IBGE_CID',ano:2026,
-  niveis:['municipio'],status:'mun',fmt:'int'});
 ind({id:'m_dens',cat:'visao',n:'Densidade demográfica do município',u:'hab/km²',fonte:'IBGE_CID',
   ano:2022,niveis:['municipio'],status:'mun',fmt:'dec2'});
-ind({id:'m_pib_pc',cat:'economia',n:'PIB per capita',u:'R$',fonte:'PIB',ano:2023,
-  niveis:['municipio'],status:'mun',fmt:'brl'});
 ind({id:'m_escol',cat:'educacao',n:'Taxa de escolarização de 6 a 14 anos',u:'%',fonte:'IBGE_CID',
   ano:2022,niveis:['municipio'],status:'mun',fmt:'pct2'});
 ind({id:'m_mortinf',cat:'saude',n:'Mortalidade infantil',u:'por mil nascidos vivos',fonte:'IBGE_CID',
   ano:2025,niveis:['municipio'],status:'mun',fmt:'dec2'});
-ind({id:'m_receita',cat:'financas',n:'Receitas brutas realizadas',u:'R$',fonte:'IBGE_CID',ano:2025,
+ind({id:'m_receita',cat:'financas',n:'Receitas brutas realizadas (IBGE Cidades)',u:'R$',fonte:'IBGE_CID',ano:2025,
   niveis:['municipio'],status:'mun',fmt:'brl'});
-ind({id:'m_despesa',cat:'financas',n:'Despesas brutas empenhadas',u:'R$',fonte:'IBGE_CID',ano:2025,
+ind({id:'m_despesa',cat:'financas',n:'Despesas brutas empenhadas (IBGE Cidades)',u:'R$',fonte:'IBGE_CID',ano:2025,
   niveis:['municipio'],status:'mun',fmt:'brl'});
-ind({id:'m_idhm',cat:'idh',n:'IDHM',u:'índice',fonte:'ATLAS',ano:2010,niveis:['municipio'],
-  status:'mun',fmt:'dec3',obs:'Último IDHM publicado é o do Censo 2010. Não existe IDHM oficial para 2022.'});
 ind({id:'m_idhm00',cat:'idh',n:'IDHM (Censo 2000)',u:'índice',fonte:'ATLAS',ano:2000,
   niveis:['municipio'],status:'mun',fmt:'dec3'});
 
@@ -326,6 +321,13 @@ munInd('ifdm_saude','idh','IFDM Saúde','índice','FIRJAN',anoIdx('firjan'),'dec
    estimativa: o que a fonte não traz, verificaCatalogo() tira da interface. */
 const COMP_F=((window.ATLAS_COMPLEMENTOS||{}).fontes)||{};
 const ADH10='Censo 2010, valor oficial do Atlas Brasil para o município. ';
+const ADH_OFICIAL='Número publicado pelo Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA, FJP) para o município, Censo 2010. '
+  +'Serve de referência para os valores de 2010 calculados pelo Atlas, que ficam acima na pobreza e no Gini.';
+munInd('adh_renda_pc','renda','Renda per capita (Atlas Brasil)','R$/mês (ago/2010)','ATLAS',2010,'brl','terra',ADH_OFICIAL);
+munInd('adh_gini','renda','Índice de Gini (Atlas Brasil)','índice','ATLAS',2010,'dec2','brasa',
+  ADH_OFICIAL+' Publicado com duas casas decimais.');
+munInd('adh_pobreza','pobreza','Pessoas pobres, renda per capita até R$ 140 (Atlas Brasil)','%','ATLAS',2010,'pct2','brasa',ADH_OFICIAL);
+munInd('adh_extrema_pobreza','pobreza','Pessoas extremamente pobres, renda per capita até R$ 70 (Atlas Brasil)','%','ATLAS',2010,'pct2','brasa',ADH_OFICIAL);
 munInd('adh_vulner_pobreza','pobreza','Pessoas vulneráveis à pobreza','%','ATLAS',2010,'pct1','brasa',
   ADH10+'Renda domiciliar per capita de até R$ 255 (meio salário mínimo de agosto de 2010). Inclui os pobres e os extremamente pobres.');
 munInd('adh_nemnem_vulner','vulner','Jovens de 15 a 24 anos que não estudam, não trabalham e são vulneráveis à pobreza','%','ATLAS',2010,'pct1','brasa',
@@ -382,8 +384,14 @@ function equipInd(id,cat,n,u,fonte,ano,fmt='int',ramp='agua',obs=''){
 munInd('pop_est_2026','visao','População estimada em 2026','pessoas','IBGE_CID',2026,'int','agua',
   'Estimativa oficial com data de referência em 1º de julho de 2026.');
 
-equipInd('cnes_estabelecimentos','saude','Estabelecimentos de saúde ativos','unidades','CNES',2026);
-equipInd('cnes_ubs','saude','Postos, centros de saúde e UBS ativos','unidades','CNES',2026);
+const OBS_CNES='Unidades de atendimento à população. Ficam de fora as centrais de regulação (CNES tipo 81) e as '
+  +'unidades de acesso restrito, dentro de presídios e de unidades socioeducativas, que continuam no mapa com aviso. '
+  +'Comunidades terapêuticas e residenciais (tipo 83) têm indicador próprio.';
+equipInd('cnes_estabelecimentos','saude','Estabelecimentos de saúde ativos','unidades','CNES',2026,'int','agua',OBS_CNES);
+equipInd('cnes_ubs','saude','Postos, centros de saúde e UBS ativos','unidades','CNES',2026,'int','agua',OBS_CNES);
+equipInd('cnes_acolhimento','assistencia','Comunidades terapêuticas e residenciais registradas no CNES','unidades','CNES',2026,'int','brasa',
+  'Estabelecimentos do tipo 83 do CNES ("polo de prevenção de doenças e agravos e promoção da saúde"): na região, '
+  +'comunidades terapêuticas, residenciais terapêuticos e residenciais geriátricos. Não são unidades de saúde de atendimento geral.');
 equipInd('cnes_hospitais','saude','Hospitais e hospitais-dia ativos','unidades','CNES',2026);
 equipInd('cnes_caps','saude','Centros de Atenção Psicossocial (CAPS)','unidades','CNES',2026);
 munInd('gasto_saude','saude','Despesa empenhada em saúde','R$','SICONFI',2024,'brl','agua');
@@ -396,13 +404,13 @@ munInd('gasto_saude_hab','saude','Despesa em saúde por habitante','R$/hab.','AT
 munInd('gasto_atencao_basica_hab','saude','Despesa em atenção básica por habitante','R$/hab.','ATLAS_CALC',2024,'brl0','agua',OBS_HAB('Despesa em atenção básica'));
 ind({id:'ubs_10mil',cat:'saude',n:'UBS e postos de saúde por 10 mil habitantes',u:'por 10 mil hab.',fonte:'ATLAS_CALC',ano:2026,
   niveis:['municipio','bairro'],status:'ok',fmt:'dec2',ramp:'agua',
-  obs:'Postos, centros de saúde e UBS ativos no CNES (2026) por 10 mil moradores do Censo 2022. Conta unidades, não equipes nem horas de atendimento.'});
+  obs:'Postos, centros de saúde e UBS ativos no CNES (2026) por 10 mil moradores do Censo 2022, sem as unidades prisionais e socioeducativas. Conta unidades, não equipes nem horas de atendimento.'});
 munInd('gasto_atencao_basica','saude','Despesa empenhada em atenção básica','R$','SICONFI',2024,'brl','agua');
 
 munInd('gasto_assistencia','assistencia','Despesa empenhada em assistência social','R$','SICONFI',2024,'brl','brasa');
 munInd('gasto_assistencia_comunitaria','assistencia','Despesa em assistência comunitária','R$','SICONFI',2024,'brl','brasa');
 munInd('gasto_assistencia_hab','assistencia','Despesa em assistência social por habitante','R$/hab.','ATLAS_CALC',2024,'brl0','brasa',OBS_HAB('Despesa em assistência social'));
-/* pobreza de 2010 no município: est_pobreza e est_extrema_pobreza, com o valor oficial (ver VALOR_OFICIAL_2010) */
+/* pobreza de 2010 no município: est_pobreza e est_extrema_pobreza, com o valor municipal calculado (ver VALOR_OFICIAL_2010) */
 
 munInd('seg_homicidios','seguranca','Homicídios dolosos consumados','ocorrências','SSPRS',2025,'int','brasa');
 munInd('seg_vitimas_homicidio','seguranca','Vítimas de homicídio doloso','vítimas','SSPRS',2025,'int','brasa');
@@ -419,7 +427,7 @@ munInd('homicidio_100mil','seguranca','Vítimas de homicídio doloso por 100 mil
 munInd('roubos_100mil','seguranca','Roubos por 100 mil habitantes','por 100 mil hab.','ATLAS_CALC',2025,'dec0','brasa',OBS_100MIL('Roubos registrados'));
 munInd('gasto_seguranca_hab','seguranca','Despesa municipal em segurança por habitante','R$/hab.','ATLAS_CALC',2024,'brl0','terra',OBS_HAB('Despesa em segurança pública'));
 
-/* trabalho de 2010 no município: os indicadores est_* abaixo, com o valor oficial (ver VALOR_OFICIAL_2010).
+/* trabalho de 2010 no município: os indicadores est_* abaixo, com o valor municipal calculado (ver VALOR_OFICIAL_2010).
    As versões "(histórico)" só do município duplicavam o mesmo número. */
 munInd('gasto_trabalho','trabalho','Despesa municipal empenhada na função trabalho','R$','SICONFI',2024,'brl','terra');
 munInd('gasto_trabalho_hab','trabalho','Despesa municipal na função trabalho por habitante','R$/hab.','ATLAS_CALC',2024,'brl0','terra',OBS_HAB('Despesa na função trabalho'));
@@ -436,7 +444,7 @@ munInd('fin_resultado_orcamentario','financas','Resultado orçamentário simplif
   'Receitas brutas realizadas menos despesas empenhadas, ambas da DCA/SICONFI.');
 
 munInd('agro_vab','agro','Valor adicionado bruto da agropecuária','R$ mil','PIB',2021,'int','terra');
-munInd('agro_participacao_vab','agro','Participação da agropecuária no VAB','%','ATLAS_CALC',2021,'pct2','terra');
+/* a participação da agropecuária no VAB já está no catálogo como pct_vab_agro (economia) */
 munInd('gasto_agricultura','agro','Despesa municipal empenhada em agricultura','R$','SICONFI',2024,'brl','terra');
 
 munInd('gasto_educacao','educacao','Despesa empenhada em educação','R$','SICONFI',2024,'brl','agua',
@@ -454,9 +462,12 @@ equipInd('inep_escolas_privadas','educacao','Escolas privadas em atividade','uni
 const OBS_EST='Taxa do Censo 2010, por área de ponderação, atribuída ao setor de 2022 cujo '
   +'ponto representativo cai dentro dela. Não é projeção nem interpolação: não capta nenhuma '
   +'mudança entre 2010 e 2022. No nível de bairro é a média ponderada pela população dos setores. '
-  +'No nível município é o valor oficial, calculado sobre todos os registros da amostra do município '
-  +'(para o Gini, a média das áreas não seria um Gini válido).';
-/* valores municipais oficiais de 2010 (bloco municipal_2010 de dados-nucleo.js) */
+  +'No nível município é o valor que o Atlas calculou sobre todos os registros da amostra do município '
+  +'(para o Gini, a média das áreas não seria um Gini válido). Não é número publicado pelo IBGE: na renda, '
+  +'na pobreza e no Gini fica acima do Atlas Brasil (ver os indicadores do Atlas Brasil e '
+  +'docs/AUDITORIA-DADOS-v3.2.md, achado E3).';
+/* valores municipais de 2010 calculados pelo Atlas sobre os microdados (bloco municipal_2010
+   de dados-nucleo.js). O nome VALOR_OFICIAL_2010 é histórico: não são números publicados. */
 const VALOR_OFICIAL_2010={est_desocupacao:'taxa_desocupacao',est_participacao:'taxa_participacao',
   est_informalidade:'pct_informalidade',est_emprego_formal:'pct_emprego_formal',est_conta_propria:'pct_conta_propria',
   est_sem_previdencia:'pct_sem_previdencia',est_rdpc:'rdpc_media',est_pobreza:'pct_pobreza',
@@ -476,6 +487,8 @@ est('est_rdpc','renda','Rendimento domiciliar per capita médio','R$/mês (jul/2
 est('est_pobreza','pobreza','População abaixo de ½ salário mínimo per capita','%','pct1','brasa');
 est('est_extrema_pobreza','pobreza','População abaixo de ¼ de salário mínimo per capita','%','pct1','brasa');
 est('est_gini','renda','Índice de Gini do rendimento domiciliar per capita','índice','dec3','brasa');
+IND.find(i=>i.id==='est_gini').obs=OBS_EST+' No bairro, o Gini só aparece quando o bairro cabe numa única área de ponderação '
+  +'(45 bairros): a média de Ginis de áreas diferentes não é um Gini. Nos demais, a ficha mostra o valor do município.';
 est('est_superior_25','educacao','Pessoas de 25 anos ou mais com superior completo','%','pct1','agua');
 est('est_sem_fundamental_25','educacao','Pessoas de 25 anos ou mais sem fundamental completo','%','pct1','brasa');
 
@@ -596,7 +609,7 @@ const SERIES={
 const S={
   nivel:'bairro', indId:'pop', cat:'visao', ramp:null, classes:5, metodo:'quantil',
   sel:null, cmp:[], geo:{bairro:null,setor:null}, dados:{bairro:{},setor:{}},
-  camadas:{base:false,fcu:false,risco:false,bolsoes:false,lojas:true,escolas:false,saude:false},
+  camadas:{base:false,fcu:false,risco:false,bolsoes:false,lojas:true,escolas:false,saude:false,acolhimento:false},
   loja:null, raio:1, muniFiltro:null, importados:[]
 };
 
@@ -813,7 +826,7 @@ function geoDoNivel(){
 /* Mantém as camadas de pontos e a de FCU em sincronia com S.camadas.
    Elas não dependem do indicador, então nunca são reconstruídas aqui. */
 function sincronizaCamadas(){
-  ['lojas','escolas','saude'].forEach(k=>pontosOn(k,!!S.camadas[k]));
+  ['lojas','escolas','saude','acolhimento'].forEach(k=>pontosOn(k,!!S.camadas[k]));
   fcuOn(!!S.camadas.fcu);
   riscoOn(!!S.camadas.risco);
 }
@@ -952,7 +965,7 @@ function renderLegenda(){
   const rot=faixas.map(r=>`<div class="lrow"><i class="lsw" style="background:${r.cor}"></i><span>${r.txt}</span></div>`);
   el.classList.toggle('min',!!S.legMin);
   el.innerHTML=`<button class="lg-hd" id="lgToggle" aria-expanded="${!S.legMin}"><h4>${esc(i.n)}</h4><span class="lg-chev" aria-hidden="true"></span></button>
-    <div class="lg-body"><div class="un">${esc(i.u||'')} · ${esc(NIVEIS[S.nivel].n.toLowerCase())} · ${i.ano}</div>
+    <div class="lg-body"><div class="un">${esc(i.u||'')} · ${esc(NIVEIS[S.nivel].n.toLowerCase())} · ${i.ano||'s/ ano'}</div>
     ${rot.reverse().join('')}
     ${motivos.map(([n,t])=>`<div class="lrow nd"><i class="lsw nodata"></i>
       <span>${esc(t)} · ${nf.format(n)}</span></div>`).join('')}
@@ -985,7 +998,7 @@ function renderCats(){
         return `<button class="ind${i.id===S.indId?' on':''} st-${i.status}" data-ind="${i.id}"
           data-busca="${esc(norm(i.n+' '+c.n))}">
           <span class="nm">${esc(i.n)}</span>
-          <span class="meta"><i class="dot"></i>${esc(f)} · ${i.ano||''}${i.status==='est'?' · histórico':''}${i.status==='ext'?' · não oficial':''}
+          <span class="meta"><i class="dot"></i>${esc(f)}${i.ano?' · '+i.ano:''}${i.status==='est'?' · histórico':''}${i.status==='ext'?' · não oficial':''}
             <span class="lvl">${listaPt(['municipio','bairro','setor'].filter(n=>i.niveis.includes(n)).map(n=>NIVEL_CURTO[n]))}</span></span></button>`;
       }).join('')}</div></div>`;
   }).join('');
@@ -1065,7 +1078,7 @@ function painelMunicipiosHTML(){
       <div class="v"><span class="num">${fmtN(v,i.fmt)}</span>
       <span class="u">${esc(unid(i))}</span></div></button>`;}).join('')}
     ${S.muniFiltro==null?`<div class="row muni-row regiao"><div class="k"><b>Região (7 municípios)</b>
-      <span class="ref-note">${valor(regiaoProps())==null?(i.ano===2010?'valor oficial de 2010 só existe por município':'a fonte publica por município; o valor não se soma entre eles'):'somas e taxas recalculadas a partir das contagens'}</span></div>
+      <span class="ref-note">${valor(regiaoProps())==null?(i.ano===2010?'o valor de 2010 é calculado só por município':'a fonte publica por município; o valor não se soma entre eles'):'somas e taxas recalculadas a partir das contagens'}</span></div>
       <div class="v"><span class="num">${fmtN(valor(regiaoProps()),i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`:''}
     <div class="note" style="margin-top:14px">Clique em um município para ver, em uma única ficha,
       saúde, assistência, segurança, emprego, finanças e agro.</div>`;
@@ -1078,15 +1091,16 @@ function ligaPainel(){
 }
 
 function aberturaHTML(){
+  const poaM=(((S.geo.municipio||{}).features||[]).find(f=>f.properties.nome===MUN.nome)||{}).properties||{};
   const kpis=[
     ['População','pop_2022',MUN.pop_2022,'int','Censo/IBGE · 2022'],
     ['Área','area_km2',MUN.area_km2,'dec2','SMUrb/IBGE · 2016',' km²'],
     ['PIB','__pib',(((RAW_NUCLEO||{}).pib||{}).municipios||{})[MUN.nome]
       ?RAW_NUCLEO.pib.municipios[MUN.nome].pib*1000:null,'brlc',
       'IBGE · '+((((RAW_NUCLEO||{}).pib)||{}).ano_pib||2023)],
-    ['PIB per capita','m_pib_pc',MUN.m_pib_pc,'brl0','IBGE · 2023'],
+    ['PIB per capita','pib_pc',poaM.pib_pc??MUN.m_pib_pc,'brl0','IBGE · '+ANO.pib],
     ['Rendimento médio do responsável','m_resp_renda',MUN.m_resp_renda,'brl0','Censo/IBGE · 2022'],
-    ['IDHM','m_idhm',MUN.m_idhm,'dec3','Atlas Brasil · 2010']
+    ['IDHM','idhm',poaM.idhm??MUN.m_idhm,'dec3','Atlas Brasil · 2010']
   ];
   /* só entra o que tem valor: o painel nunca exibe cartão vazio */
   const cards=kpis.filter(k=>k[2]!=null).map(([lb,id,val,f,src,suf])=>{
@@ -1936,9 +1950,11 @@ function renderFontes(){
 
     <div class="src-card"><div class="hd"><b>Equipamentos georreferenciados</b>
       <span class="selo s-ok"><i class="dot"></i>CNES 2026 · INEP 2025</span></div>
-      <p><b>567 estabelecimentos de saúde ativos</b> e <b>1.650 escolas em atividade</b>, com
-      cobertura de Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e
-      Esteio. As contagens por bairro são calculadas por ponto dentro do polígono.</p></div>
+      <p><b>479 unidades de saúde de atendimento</b>, <b>61 comunidades terapêuticas e
+      residenciais</b> e <b>1.650 escolas em atividade</b>, com cobertura de Porto Alegre, Canoas,
+      Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio. As centrais de regulação ficam de
+      fora; as 13 unidades em presídios e unidades socioeducativas aparecem no mapa, mas não entram
+      nas contagens. As contagens por bairro são calculadas por ponto dentro do polígono.</p></div>
 
     <div class="src-card"><div class="hd"><b>Censo Demográfico 2022 — agregados por setor censitário</b>
       <span class="selo s-ok"><i class="dot"></i>Censo/IBGE · 2022</span></div>
@@ -2080,9 +2096,15 @@ restinga::renda_renda_domiciliar_per_capita;Restinga;Renda domiciliar per capita
     <h3 class="sec">Formato largo — uma coluna por indicador</h3>
     <p style="font-size:11.5px;color:var(--txt3);line-height:1.6;margin-bottom:7px">
       Separador <b>;</b> ou <b>,</b>. Uma coluna identifica o território (<code>territorio</code>,
-      <code>bairro</code>, <code>nome</code> ou <code>cd_setor</code>); as demais colunas numéricas
-      viram indicadores novos. Nomes casam ignorando acentos e caixa. Números aceitam
-      <code>987,40</code> e <code>1.234,50</code> tanto quanto <code>987.4</code>.</p>
+      <code>bairro</code>, <code>nome</code>, <code>municipio</code>, <code>cd_setor</code> ou
+      <code>code_tract</code>); as demais colunas numéricas viram indicadores novos. Com código de
+      setor, o arquivo vai para o nível setor; com <code>municipio</code>, para o nível município;
+      nos outros casos, para o nível da tela. Colunas de código (<code>code_muni</code>,
+      <code>id_municipio</code>…) e o <code>ano</code> não viram indicador, e o ano, se for um só,
+      vira o ano do indicador. Uma linha por território: arquivo com território repetido é recusado.
+      Assim os CSVs dos scripts de <code>extracao/R/</code> entram como saem. Nomes casam ignorando
+      acentos e caixa. Números aceitam <code>987,40</code> e <code>1.234,50</code> tanto quanto
+      <code>987.4</code>.</p>
     <pre style="background:var(--bg3);border:1px solid var(--line);border-radius:6px;padding:11px;
       font-family:var(--mono);font-size:10.5px;color:var(--txt2);overflow:auto;line-height:1.7">territorio;renda_dom_per_capita;pct_esgoto_adequado
 Restinga;987,40;71,2
@@ -2166,15 +2188,20 @@ function aplicaCSV(txt,nome){
   const corta=l=>l.split(sep).map(x=>x.trim().replace(/^"|"$/g,'').replace(/""/g,'"'));
   const head=corta(linhas[0]).map(h=>h.replace(/^\uFEFF/,''));
   const col=re=>head.findIndex(h=>re.test(norm(h)));
-  const cTerr=col(/^(territorio|bairro|nome|cd_setor|setor|municipio|nm_bairro)$/),
+  /* o código do setor vem antes do nome do município: os CSVs dos scripts R
+     trazem os dois, e o setor é o nível mais fino */
+  const cSet=col(/^(cd_setor|code_tract|cod_setor)$/);
+  const cTerr=cSet>=0?cSet:col(/^(territorio|bairro|nome|setor|municipio|nome_municipio|nm_bairro)$/),
         cInd =col(/^(indicador|variavel)$/), cVal=col(/^(valor|value)$/),
         cCod =col(/^(codigo|cod|id)$/), cUn=col(/^(unidade|unit)$/),
         cFon =col(/^fonte$/), cAno=col(/^ano$/), cNiv=col(/^(nivel_geografico|nivel)$/);
   const rows=linhas.slice(1).map(corta);
   const longo = cInd>=0 && cVal>=0 && (cTerr>=0||cCod>=0);
+  /* no formato largo sem nome, serve o código IBGE do município (6 ou 7 dígitos) */
+  const cLargo = cTerr>=0 ? cTerr : cCod>=0 ? cCod : col(COLUNA_MUN);
   const r = longo
     ? importaLongo(rows,{cTerr,cInd,cVal,cCod,cUn,cFon,cAno,cNiv},nome)
-    : importaLargo(rows,head,cTerr>=0?cTerr:cCod,nome);
+    : importaLargo(rows,head,cLargo,nome);
   relatorio(r,nome,longo);
 }
 
@@ -2186,6 +2213,10 @@ function indice(nivel){
     const p=f.properties;
     idx[norm(p.nome)]=f; idx[String(p.id)]=f;
     if(p.bairro)idx[norm(p.bairro)+'|'+String(p.id)]=f;
+    /* município: também pelo código IBGE, com 7 e com 6 dígitos (DATASUS) */
+    if(nivel==='municipio'&&RAW_NUCLEO&&p.muni_id!=null){
+      const c=String(RAW_NUCLEO.munis.ids[p.muni_id]); idx[c]=f; idx[c.slice(0,6)]=f;
+    }
   });
   return idx;
 }
@@ -2250,15 +2281,36 @@ function importaLongo(rows,c,nome){
 }
 
 /* ---- formato largo: uma coluna por indicador -------------------------- */
+/* nível do arquivo largo: setor pelo código de 15 dígitos, município pela
+   coluna de município; nos demais casos, o nível que está na tela */
+function nivelDoLargo(head,cTerr,rows){
+  const h=norm(head[cTerr]), v=String((rows[0]||[])[cTerr]||'').replace(/\D/g,'');
+  if(/^(cd_setor|code_tract|cod_setor|setor)$/.test(h)||/^\d{15}$/.test(v))return 'setor';
+  if(/^(municipio|nome_municipio)$/.test(h)||COLUNA_MUN.test(h))return 'municipio';
+  return S.geo[S.nivel]?S.nivel:'bairro';
+}
+const COLUNA_MUN=/^(id_municipio|code_muni|co_municipio|codufmun|cod_ibge|cd_mun)$/;
+/* colunas de identificação, que não são indicador: códigos (code_muni,
+   id_municipio, co_entidade, CODUFMUN...), tipos codificados (tp_unidade,
+   TIPO_EQP...), ano e mês de referência */
+const COLUNA_ID=/^(code_|cod_|co_|cd_|id_|tp_|tipo_|codufmun$|codigo|cnes$|inep$|ano$|year$|mes$|competencia$|municipio$|nome_municipio$|bairro$|territorio$|nome$)/;
 function importaLargo(rows,head,cTerr,nome){
   if(cTerr<0)throw new Error(
-    'nenhuma coluna de território encontrada. Esperado território, bairro, nome ou cd_setor. Colunas lidas: '+head.join(', '));
-  const nivel=S.geo[S.nivel]?S.nivel:'bairro';
+    'nenhuma coluna de território encontrada. Esperado território, bairro, nome, município ou cd_setor. Colunas lidas: '+head.join(', '));
+  const nivel=nivelDoLargo(head,cTerr,rows);
+  if(nivel==='setor')garanteSetores();
   const idx=indice(nivel);
   if(!idx)throw new Error('carregue antes uma malha geográfica');
+  /* uma linha por território: com duas (por exemplo, rede pública e privada),
+     a segunda apagaria a primeira sem aviso */
+  const vistos={};
+  rows.forEach(row=>{const k=norm(row[cTerr]||'');if(k)(vistos[k]=vistos[k]||{n:0,t:row[cTerr]}).n++;});
+  const rep=Object.values(vistos).find(x=>x.n>1);
+  if(rep)throw new Error(`"${rep.t}" aparece em ${rep.n} linhas. Deixe uma linha por território `
+    +'(filtre, ou passe a categoria para colunas) antes de carregar.');
   const r={lidas:rows.length,casadas:0,semTerritorio:new Set(),semValor:0,municipais:0,
     semMalha:new Set(),criados:[],preenchidos:[],conflitos:[],niveis:new Set([nivel])};
-  const cols=head.map((h,k)=>k===cTerr?null:{h,k,id:'imp_'+slugId(h),usada:false}).filter(Boolean);
+  const cols=head.map((h,k)=>k===cTerr||COLUNA_ID.test(norm(h))?null:{h,k,id:'imp_'+slugId(h),usada:false}).filter(Boolean);
   rows.forEach(row=>{
     const f=idx[norm(row[cTerr])]||idx[String(row[cTerr]).trim()];
     if(!f){ if(r.semTerritorio.size<6)r.semTerritorio.add(row[cTerr]); return; }
@@ -2270,11 +2322,16 @@ function importaLargo(rows,head,cTerr,nome){
     });
     if(algum)r.casadas++; else r.semValor++;
   });
+  /* ano de referência: o da coluna "ano", quando o arquivo traz um só */
+  const cAno=head.findIndex(h=>/^(ano|year)$/.test(norm(h)));
+  const anos=cAno<0?[]:[...new Set(rows.map(row=>parseInt(row[cAno],10)).filter(Number.isFinite))];
+  const ano=anos.length===1?anos[0]:'';
   cols.filter(c=>c.usada).forEach(c=>{
     if(getInd(c.id))return;
-    registraImportado(c.id,{nivel,n:c.h,u:'importado',fonte:'',ano:''},nome);
+    registraImportado(c.id,{nivel,n:c.h,u:'importado',fonte:'',ano},nome);
     r.criados.push(c.h);
   });
+  if(nivel!==S.nivel)setNivel(nivel,true);
   return r;
 }
 
@@ -2284,7 +2341,8 @@ function registraImportado(id,pk,nome){
     u:'',d:'Carregado pelo usuário nesta sessão. Confira fonte, ano e método antes de publicar.',
     naoOficial:true};
   ind({id,cat:'visao',n:pk.n,u:pk.u||'importado',fonte:'USR_'+id,
-    ano:pk.ano||new Date().getFullYear(),niveis:[pk.nivel],status:'imp',
+    /* sem ano no arquivo, fica "s/ ano": o ano da importação não é o do dado */
+    ano:pk.ano||'',niveis:[pk.nivel],status:'imp',
     fmt:'dec2',ramp:'terra',
     obs:'Importado de '+nome+' nesta sessão. O Atlas não valida a origem de arquivos carregados pelo usuário.'});
 }
@@ -2358,6 +2416,7 @@ function buscar(t){
 const ESTILO_PONTO={
   escolas:{cor:'#4a3aa7',r:3.6,rot:'Escolas'},
   saude:{cor:'#1baf7a',r:3.8,rot:'Saúde'},
+  acolhimento:{cor:'#b07a12',r:3.6,rot:'Comunidades terapêuticas e residenciais'},
   lojas:{cor:'#C2502A',r:7,rot:'Lojas Renner'}
 };
 /* Um renderer por camada — jamais um por marcador.
@@ -2377,13 +2436,18 @@ function tooltipPontoHTML(p,loja){
   return `<b>${esc(p.nome)}</b>`+
     (p.rot?`<div class="kv"><span>${esc(loja?'Formato':'Tipo')}</span><span>${esc(loja?FORMATO[p.tipo]||p.tipo:p.rot)}</span></div>`:'')+
     (p.muni?`<div class="kv"><span>Município</span><span>${esc(p.muni)}</span></div>`:'')+
+    (p.cod?`<div class="kv"><span>Código</span><span class="num">${esc(p.cod)}</span></div>`:'')+
+    (p.restrito?`<div class="hint">Acesso restrito: atende só a população da unidade prisional ou socioeducativa. Não entra nas contagens de saúde do território.</div>`:'')+
     (p.end?`<div style="font-size:10.5px;color:var(--txt3);margin-top:4px">${esc(p.end)}</div>`:'')+
     (loja?`<div class="hint">clique para analisar o entorno</div>`:'');
 }
 /* A camada é construída uma única vez; depois só entra e sai do mapa. */
 function constroiPontos(chave){
   const e=ESTILO_PONTO[chave], loja=chave==='lojas', rend=rendererDe(chave);
-  const g=L.layerGroup();
+  /* featureGroup: os eventos dos pontos chegam ao grupo, e marcaSobre faz o
+     tooltip do território de baixo sair de cena enquanto o cursor está no ponto
+     (sem isso, o mousemove do mapa o reabria por cima do tooltip do ponto) */
+  const g=L.featureGroup();
   PONTOS[chave].forEach((p,i)=>{
     const m=L.circleMarker([p.y,p.x],{
       renderer:rend,
@@ -2394,9 +2458,9 @@ function constroiPontos(chave){
     });
     m.bindTooltip(()=>tooltipPontoHTML(p,loja),{className:'tt',sticky:true,direction:'top'});
     if(loja)m.on('click',()=>abreEntorno(i));
-    m.on('mouseover',limpaHoverReserva);
     g.addLayer(m);
   });
+  marcaSobre(g);
   return g;
 }
 function pontosOn(chave,on){
@@ -2557,6 +2621,7 @@ function renderCamadas(){
     ${item('lojas','Lojas Renner',n('lojas'),pt(ESTILO_PONTO.lojas.cor))}
     ${item('escolas','Escolas',nf.format(n('escolas')),pt(ESTILO_PONTO.escolas.cor))}
     ${item('saude','Unidades de saúde',n('saude'),pt(ESTILO_PONTO.saude.cor))}
+    ${n('acolhimento')?item('acolhimento','Comunidades terapêuticas e residenciais',n('acolhimento'),pt(ESTILO_PONTO.acolhimento.cor)):''}
     ${item('fcu','Favelas e comunidades','IBGE','<i class="sw-area"></i>')}
     ${AREAS_RISCO.length?item('risco','Áreas de risco (2010)',AREAS_RISCO.length,'<i class="sw-area risco"></i>'):''}
     ${item('bolsoes','Bolsões do quintil mais pobre',BOLSOES?nf.format(BOLSOES.length):'123','<i class="sw-area bol"></i>')}
@@ -2568,8 +2633,8 @@ function renderCamadas(){
   $('#lay-fcu').onchange=e=>{S.camadas.fcu=e.target.checked;fcuOn(e.target.checked);};
   if($('#lay-risco'))$('#lay-risco').onchange=e=>{S.camadas.risco=e.target.checked;riscoOn(e.target.checked);};
   $('#lay-bolsoes').onchange=e=>{S.camadas.bolsoes=e.target.checked;bolsoesOn(e.target.checked);};
-  ['lojas','escolas','saude'].forEach(k=>{
-    $('#lay-'+k).onchange=e=>{S.camadas[k]=e.target.checked;pontosOn(k,e.target.checked);};
+  ['lojas','escolas','saude','acolhimento'].forEach(k=>{
+    if($('#lay-'+k))$('#lay-'+k).onchange=e=>{S.camadas[k]=e.target.checked;pontosOn(k,e.target.checked);};
   });
 }
 /* contorno dos setores classificados como Favela ou Comunidade Urbana.
@@ -2816,8 +2881,8 @@ function fontesDoMunicipio(p,codMun){
   Object.assign(p,((window.ATLAS_SERVICOS||{}).municipios||{})[codMun]||{});
   Object.assign(p,((window.ATLAS_INDICES||{}).municipios||{})[codMun]||{});
   Object.assign(p,((window.ATLAS_COMPLEMENTOS||{}).municipios||{})[codMun]||{});
-  /* 2010 no município: o valor oficial, e não a média das áreas de ponderação
-     (em Canoas, o Gini médio das áreas dá 0,452; o do município é 0,518) */
+  /* 2010 no município: o valor calculado sobre todos os registros do município, e não a
+     média das áreas de ponderação (em Canoas, o Gini médio das áreas dá 0,452; o do município, 0,518) */
   const of=MUNICIPAL_2010[codMun]||{};
   for(const k in VALOR_OFICIAL_2010){const v=of[VALOR_OFICIAL_2010[k]]; if(v!=null)p[k]=v;}
   porHabitante(p);
@@ -2885,7 +2950,7 @@ function montaGeo(){
   const PT=window.ATLAS_PONTOS;
   if(PT){
     PONTOS={};
-    ['escolas','saude','lojas'].forEach(k=>{
+    ['escolas','saude','acolhimento','lojas'].forEach(k=>{
       const d=PT[k]; if(!d)return;
       const n=d.nomes.length, xy=decPts(d.xy,P,n);
       PONTOS[k]=d.nomes.map((nome,i)=>({
@@ -2893,7 +2958,8 @@ function montaGeo(){
         muni: d.m? N.munis.nomes[d.m[i]] : null,
         tipo: d.tipo?d.tipo[i]:null,
         rot: d.legenda? (d.legenda[String(d.tipo[i])]||'—') : (d.tipo?d.tipo[i]:''),
-        num: d.num?d.num[i]:null, end: d.end?d.end[i]:null
+        num: d.num?d.num[i]:null, end: d.end?d.end[i]:null,
+        restrito: d.restrito?!!d.restrito[i]:false, cod: d.cod?d.cod[i]:null
       }));
       PONTOS[k].meta={fonte:d.fonte,ano:d.ano,legenda:d.legenda||null};
     });
@@ -2953,13 +3019,8 @@ function caixaDe(g){
 }
 function agregaEquipamentosBairros(){
   if(!S.geo.bairro||!PONTOS)return;
-  const esc=PONTOS.escolas||[],sau=PONTOS.saude||[];
-  S.geo.bairro.features.forEach(f=>{
-    const p=f.properties, cx=caixaDe(f.geometry);
-    const dentro=q=>q.muni===p.muni&&q.x>=cx[0]&&q.x<=cx[2]&&q.y>=cx[1]&&q.y<=cx[3]
-      &&pontoNaGeometria(q.x,q.y,f.geometry);
-    const e=esc.filter(dentro);
-    const s=sau.filter(dentro);
+  const esc=PONTOS.escolas||[],sau=(PONTOS.saude||[]).filter(q=>!q.restrito),aco=PONTOS.acolhimento||[];
+  const conta=(p,e,s,a)=>{
     p.inep_escolas=e.length;
     p.inep_escolas_publicas=e.filter(q=>+q.tipo!==4).length;
     p.inep_escolas_privadas=e.filter(q=>+q.tipo===4).length;
@@ -2967,7 +3028,17 @@ function agregaEquipamentosBairros(){
     p.cnes_ubs=s.filter(q=>[1,2].includes(+q.tipo)).length;
     p.cnes_hospitais=s.filter(q=>[5,7,62].includes(+q.tipo)).length;
     p.cnes_caps=s.filter(q=>+q.tipo===70).length;
+    p.cnes_acolhimento=a.length;
     p.ubs_10mil=p.pop?Math.round(1e6*p.cnes_ubs/p.pop)/100:null;
+  };
+  /* município: contado dos mesmos pontos, com as mesmas regras do bairro */
+  ((S.geo.municipio||{}).features||[]).forEach(f=>{const p=f.properties,eh=q=>q.muni===p.nome;
+    conta(p,esc.filter(eh),sau.filter(eh),aco.filter(eh));});
+  S.geo.bairro.features.forEach(f=>{
+    const p=f.properties, cx=caixaDe(f.geometry);
+    const dentro=q=>q.muni===p.muni&&q.x>=cx[0]&&q.x<=cx[2]&&q.y>=cx[1]&&q.y<=cx[3]
+      &&pontoNaGeometria(q.x,q.y,f.geometry);
+    conta(p,esc.filter(dentro),sau.filter(dentro),aco.filter(dentro));
   });
 }
 
@@ -3004,7 +3075,7 @@ function entorno(x,y,raioKm){
   soma._pir=Array(22).fill(0);
   derivados(soma);
   const esc=(PONTOS&&PONTOS.escolas||[]).filter(p=>distKm(x,y,p.x,p.y)<=raioKm);
-  const sau=(PONTOS&&PONTOS.saude||[]).filter(p=>distKm(x,y,p.x,p.y)<=raioKm);
+  const sau=(PONTOS&&PONTOS.saude||[]).filter(p=>!p.restrito&&distKm(x,y,p.x,p.y)<=raioKm);
   return {soma,setores:fs,escolas:esc,saude:sau};
 }
 
@@ -3106,7 +3177,7 @@ function ligaEventos(){
    sobre os dados já carregados; nada é estimado. */
 
 /* ── Região: soma dos sete municípios. Contagens somam; taxas são recalculadas
-   a partir das contagens; valores oficiais de 2010 não se agregam (ficam vazios). */
+   a partir das contagens; os valores de 2010 não se agregam (ficam vazios). */
 let REGIAO=null;
 const ADITIVOS=/^(pop|pop_h|pop_m|pop_15|pop_est_2026|id\d+|criancas_0_14|jovens_15_29|adultos_30_59|idosos_60|raca_[a-z_]+|indigenas|quilombolas|alfab_15|dom_[a-z_]+|dpo|dppo|agua_[a-z_]+|esg_[a-z_]+|lixo_[a-z_]+|ban_[a-z_]+|fcu_pop|fcu_dom|obitos(_[hm])?|resp_n|area_km2|inep_[a-z_]+|cnes_[a-z_]+|seg_[a-z_]+|fin_(receita_total|receita_corrente|receita_tributaria|transferencias|despesa_total|investimentos|resultado_orcamentario)|pib|vab(_[a-z]+)?|impostos|agro_vab|gasto_[a-z_]+)$/;
 function regiaoProps(){
@@ -3353,7 +3424,7 @@ function exportaMapa(){
   c.fillStyle='#15212E'; c.font=`600 19px ${SANS}`; c.fillText(quebra(i.n,W-40)[0]+(quebra(i.n,W-40).length>1?'…':''),20,34);
   const f=FONTES[i.fonte]||{}, mf=S.muniFiltro!=null&&MUNIS_LISTA?' · '+MUNIS_LISTA.nomes[S.muniFiltro]:'';
   c.fillStyle='#46505A'; c.font=`13px ${SANS}`;
-  c.fillText(`${f.s||i.fonte} · ${i.ano} · ${NIVEIS[S.nivel].n.toLowerCase()}${mf}`+(i.status==='est'?' · referência histórica (Censo 2010)':''),20,58);
+  c.fillText(`${f.s||i.fonte} · ${i.ano||'s/ ano'} · ${NIVEIS[S.nivel].n.toLowerCase()}${mf}`+(i.status==='est'?' · referência histórica (Censo 2010)':''),20,58);
   /* mapa */
   c.save(); c.translate(0,TOPO); c.beginPath(); c.rect(0,0,W,H); c.clip();
   c.fillStyle='#F1EFEA'; c.fillRect(0,0,W,H);
@@ -3367,7 +3438,7 @@ function exportaMapa(){
     c.beginPath(); c.arc(p0.x,p0.y,Math.abs(p1.x-p0.x),0,2*Math.PI); c.setLineDash([6,5]);
     c.strokeStyle=COR.terracota; c.lineWidth=2; c.stroke(); c.setLineDash([]);
   }
-  ['escolas','saude','lojas'].forEach(k=>{
+  ['escolas','saude','acolhimento','lojas'].forEach(k=>{
     if(!S.camadas[k]||!PONTOS||!PONTOS[k])return;
     const e=ESTILO_PONTO[k], anel=k==='lojas'?2.5:1.2;
     PONTOS[k].forEach(q=>{const p=pt(q.x,q.y);
@@ -3386,7 +3457,7 @@ function exportaMapa(){
   c.beginPath(); (c.roundRect?c.roundRect(lx,ly,lw,lh,10):c.rect(lx,ly,lw,lh)); c.fill(); c.stroke();
   c.fillStyle='#15212E'; tit.forEach((t,k)=>c.fillText(t,lx+14,ly+24+17*k));
   let yy=ly+24+17*tit.length;
-  c.fillStyle='#636A70'; c.font=`12px ${SANS}`; c.fillText(`${i.u||''} · ${i.ano}`,lx+14,yy); yy+=14;
+  c.fillStyle='#636A70'; c.font=`12px ${SANS}`; c.fillText(`${i.u||''} · ${i.ano||'s/ ano'}`,lx+14,yy); yy+=14;
   linhas.forEach(r=>{c.fillStyle=r.cor; c.fillRect(lx+14,yy,22,13); c.fillStyle='#15212E'; c.font=`12px ${SANS}`; c.fillText(r.txt,lx+44,yy+11); yy+=22;});
   motivos.forEach(([n,t])=>{c.fillStyle=COR.semdado; c.fillRect(lx+14,yy,22,13); c.fillStyle='#636A70'; c.fillText(`${t} · ${nf.format(n)}`,lx+44,yy+11); yy+=22;});
   c.restore();
@@ -3405,12 +3476,13 @@ function exportaMapa(){
 const TABELAS_DIAG=[
   {sec:'6',t:'População, densidade e estrutura etária',c:['pop','pop_est_2026','dens_hab','pct_criancas_0_14','pct_jovens_15_29','pct_idosos_60','idx_envelhecimento']},
   {sec:'6',t:'Composição e grupos populacionais',c:['pct_mulheres','pct_preta_parda','pct_preta','indigenas','quilombolas','pct_fcu']},
-  {sec:'7',t:'Pobreza, renda, desigualdade e trabalho (Censo 2010, valores municipais oficiais)',c:['est_pobreza','est_extrema_pobreza','est_rdpc','est_gini','est_desocupacao','est_informalidade','est_conta_propria']},
+  {sec:'7',t:'Pobreza, renda, desigualdade e trabalho (Censo 2010, cálculo do Atlas sobre os microdados)',c:['est_pobreza','est_extrema_pobreza','est_rdpc','est_gini','est_desocupacao','est_informalidade','est_conta_propria']},
+  {sec:'7',t:'Renda e pobreza de 2010 publicadas pelo Atlas Brasil (referência)',c:['adh_renda_pc','adh_gini','adh_pobreza','adh_extrema_pobreza','adh_vulner_pobreza']},
   {sec:'7',t:'Juventude, famílias e vulnerabilidade (Atlas Brasil, Censo 2010)',c:['adh_vulner_pobreza','adh_nemnem_vulner','adh_desocup_18_24','adh_maes_chefes_sem_fund','adh_dep_idosos_vulner','adh_desloc_1h_vulner']},
   {sec:'7',t:'Renda e economia: dados recentes',c:['resp_renda','pib_pc','pct_vab_ind','pct_vab_serv','pct_vab_adm']},
   {sec:'8',t:'Dimensões da vulnerabilidade: indicadores-chave',c:['pct_fcu','pct_agua_rede','pct_esgoto_inadequado','taxa_analfabetismo','est_sem_fundamental_25','ubs_10mil','cvli_100mil','banda_larga_100hab']},
   {sec:'8',t:'Educação e desenvolvimento humano',c:['idhm','idhm_educacao','ideb_iniciais','ideb_finais','ideb_medio','adh_creche_0_3','adh_fora_escola_4_5']},
-  {sec:'10',t:'Rede de serviços registrada',c:['cnes_ubs','ubs_10mil','cnes_caps','cnes_hospitais','inep_escolas_publicas','inep_escolas_privadas']},
+  {sec:'10',t:'Rede de serviços registrada',c:['cnes_ubs','ubs_10mil','cnes_caps','cnes_hospitais','cnes_acolhimento','inep_escolas_publicas','inep_escolas_privadas']},
   {sec:'11',t:'Orçamento municipal para políticas sociais',c:['fin_receita_total','fin_transf_pct','gasto_saude_hab','gasto_atencao_basica_hab','gasto_assistencia_hab','gasto_seguranca_hab','gasto_trabalho_hab','gasto_educacao','gasto_educacao_infantil']},
 ];
 const AUSENTES_DIAG={
@@ -3428,7 +3500,8 @@ function diagLinhas(){
 function diagTabela(t){
   const cols=t.c.map(id=>getInd(id)).filter(Boolean);
   const fontes=[...new Set(cols.map(i=>`${(FONTES[i.fonte]||{}).s||i.fonte} (${i.ano})`))];
-  const cab=['Município'].concat(cols.map(i=>i.n+(i.u&&!/^%$/.test(i.u)?` (${i.u})`:'')));
+  /* "R$/mês (jul/2010)" vira "(R$/mês, jul/2010)", sem parêntese dentro de parêntese */
+  const cab=['Município'].concat(cols.map(i=>i.n+(i.u&&!/^%$/.test(i.u)?` (${i.u.replace(/\s*\((.+)\)$/,', $1')})`:'')));
   const linhas=diagLinhas().map(p=>[p.nome].concat(cols.map(i=>{
     const v=p[i.id]; if(v==null)return '—';
     return i.id==='fin_receita_total'?fmtN(v/1e6,'dec0')+' mi':fmtN(+v,i.fmt);})));
@@ -3483,7 +3556,7 @@ function renderDiag(aba){
   if(S.diagAba==='tabelas'){
     corpo=`<div class="note">Tabelas das seções 6, 7, 8, 10 e 11 do template de diagnóstico regional, para
       ${mf?`<b>${esc(mf)}</b> (com a região como referência)`:'os <b>sete municípios</b> e a região'}.
-      Para outro recorte, use o filtro de município no topo. Valores oficiais de 2010 não se somam: na linha da região, ficam vazios.</div>
+      Para outro recorte, use o filtro de município no topo. Os valores de 2010 não se somam: na linha da região, ficam vazios.</div>
       <div class="btn-row" style="margin:10px 0"><button class="btn pri" id="diagDoc">Baixar para Word (.doc)</button>
       <button class="btn" id="diagCSV">Baixar planilha (CSV)</button></div>`+
       TABELAS_DIAG.map((t,k)=>{const d=diagTabela(t);
@@ -3636,16 +3709,18 @@ const metaBD=(fonte,ano,obj,extra)=>Object.assign({fonte,ano,via:'Base dos Dados
   url:'https://storage.googleapis.com/basedosdados-public/one-click-download/'+obj},extra||{});
 
 /* ---- Atlas Brasil 2010: IDHM e indicadores de vulnerabilidade ---- */
-const ADH_CAMPOS={adh_nemnem_vulner:'taxa_nest_ntrab_vulner_15_24',adh_maes_chefes_sem_fund:'taxa_mulheres_chefe_filho_15m',
-  adh_desloc_1h_vulner:'taxa_vulner_desloc_1_hora',adh_dep_idosos_vulner:'taxa_dom_vulner_dep_idoso',
-  adh_vulner_pobreza:'prop_vulner_pobreza',adh_desocup_18_24:'taxa_desocupacao_18_24',adh_creche_0_3:'taxa_freq_0_3',
-  adh_fora_escola_4_5:'taxa_criancas_fora_escola_4_5',adh_maes_15_17:'taxa_mulheres_com_filho_15_17'};
+const ADH_CAMPOS={adh_nemnem_vulner:['taxa_nest_ntrab_vulner_15_24',0,100],adh_maes_chefes_sem_fund:['taxa_mulheres_chefe_filho_15m',0,100],
+  adh_desloc_1h_vulner:['taxa_vulner_desloc_1_hora',0,100],adh_dep_idosos_vulner:['taxa_dom_vulner_dep_idoso',0,100],
+  adh_vulner_pobreza:['prop_vulner_pobreza',0,100],adh_desocup_18_24:['taxa_desocupacao_18_24',0,100],adh_creche_0_3:['taxa_freq_0_3',0,100],
+  adh_fora_escola_4_5:['taxa_criancas_fora_escola_4_5',0,100],adh_maes_15_17:['taxa_mulheres_com_filho_15_17',0,100],
+  adh_renda_pc:['renda_pc',0,20000],adh_gini:['indice_gini',0,1],adh_pobreza:['prop_pobreza',0,100],
+  adh_extrema_pobreza:['prop_pobreza_extrema',0,100]};
 const IDHM_CAMPOS={idhm:['idhm',0,1],idhm_renda:['idhm_r',0,1],idhm_educacao:['idhm_e',0,1],
   idhm_longevidade:['idhm_l',0,1],idhm_esperanca_vida:['expectativa_vida',40,95]};
 async function extraiADH(){
   const obj='mundo_onu_adh/municipio/municipio.csv.gz';
   const {cab,linhas}=await linhasBD(obj,'Atlas Brasil');
-  exigeColunas(cab,['ano','id_municipio',...Object.values(ADH_CAMPOS),...Object.values(IDHM_CAMPOS).map(x=>x[0])],'Atlas Brasil');
+  exigeColunas(cab,['ano','id_municipio',...Object.values(ADH_CAMPOS).map(x=>x[0]),...Object.values(IDHM_CAMPOS).map(x=>x[0])],'Atlas Brasil');
   const l10=linhas.filter(r=>r.ano==='2010'); const vistos=new Set();
   const indices={}, complementos={};
   l10.forEach(r=>{
@@ -3654,13 +3729,14 @@ async function extraiADH(){
     const I=indices[r.id_municipio]={idhm_ano:2010}, C=complementos[r.id_municipio]={};
     for(const k in IDHM_CAMPOS){const [col,lo,hi]=IDHM_CAMPOS[k],v=num(r[col]);
       if(v==null)continue; if(v<lo||v>hi)falhaFormato(`Atlas Brasil: ${col} = ${v}, fora de ${lo}–${hi}`); I[k]=Math.round(v*1e4)/1e4;}
-    for(const k in ADH_CAMPOS){const v=num(r[ADH_CAMPOS[k]]);
-      if(v==null)continue; if(v<0||v>100)falhaFormato(`Atlas Brasil: ${ADH_CAMPOS[k]} = ${v}, fora de 0–100`); C[k]=Math.round(v*100)/100;}
+    for(const k in ADH_CAMPOS){const [col,lo,hi]=ADH_CAMPOS[k],v=num(r[col]);
+      if(v==null)continue; if(v<lo||v>hi)falhaFormato(`Atlas Brasil: ${col} = ${v}, fora de ${lo}–${hi}`);
+      C[k]=hi===1?Math.round(v*1e4)/1e4:Math.round(v*100)/100;}
   });
   exigeSete(vistos,'Atlas Brasil');
   return {dados:{indices,complementos},meta:Object.assign(metaBD('Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA, FJP)',2010,obj),
     {indices:{fonte:'IDHM — Atlas do Desenvolvimento Humano no Brasil',publicador:'PNUD, IPEA e Fundação João Pinheiro',ano:2010,
-      url:'Base dos Dados, mundo_onu_adh.municipio, consulta direta pelo navegador'}}),resumo:'2010 · IDHM e 9 indicadores'};
+      url:'Base dos Dados, mundo_onu_adh.municipio, consulta direta pelo navegador'}}),resumo:'2010 · IDHM e 13 indicadores'};
 }
 
 /* ---- IDEB da rede pública: a edição mais recente com os sete municípios ---- */
@@ -3895,6 +3971,7 @@ function aplicaAoVivoNoMapa(){
   const M=S.geo.municipio;
   if(M)M.features.forEach(f=>{const p=f.properties;
     fontesDoMunicipio(p,String(MUNIS_LISTA.ids[p.muni_id])); derivados(p);});
+  if(PONTOS)agregaEquipamentosBairros();     /* contagens de equipamentos vêm dos pontos */
   AREAS_RISCO=((window.ATLAS_COMPLEMENTOS||{}).risco)||[];
   if(camadaRisco){if(map.hasLayer(camadaRisco))map.removeLayer(camadaRisco);camadaRisco=null;}
   reativaCatalogo(); aplicaAnosCatalogo();
@@ -3972,7 +4049,7 @@ function ligaAoVivoHTML(){
   verificaCatalogo();
   renderCats(); renderCamadas(); ligaEventos();
   desenhaMapa(); renderPainel(); vigiaTamanho();
-  ['lojas','escolas','saude'].forEach(k=>{if(S.camadas[k])pontosOn(k,true);});
+  ['lojas','escolas','saude','acolhimento'].forEach(k=>{if(S.camadas[k])pontosOn(k,true);});
   /* busca nas fontes depois que a primeira tela já está pronta */
   const st=$('#aoVivoStatus'); if(st){st.onclick=()=>abreModal('mdDados');}
   setTimeout(aoVivoAuto,1500);

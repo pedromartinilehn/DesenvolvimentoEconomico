@@ -13,6 +13,7 @@ cran <- c(
   "microdatasus", # arquivos do DATASUS, inclusive CNES-EP (B6)
   "osmdata",      # OpenStreetMap pela Overpass API (B13)
   "bigrquery",    # BigQuery, para a Base dos Dados (B1, B7, B11)
+  "sidrar",       # IBGE: tabelas do SIDRA, amostra do Censo 2022 (B3)
   "arrow", "dplyr", "sf", "jsonlite", "httr2", "remotes", "readxl", "data.table"
 )
 faltam <- setdiff(cran, rownames(installed.packages()))

@@ -10,9 +10,9 @@
 # cru. O tipo de equipe vem em código; a tabela de rótulos é o conjunto
 # `equipe` do próprio microdatasus (INE_EQUIPE_BR.dbf das tabelas do TabWin).
 #
-# Ligação com o mapa: as unidades de saúde do Atlas hoje NÃO guardam o código
-# CNES (ver docs/AUDITORIA-DADOS-v3.2.md). Acrescente a coluna do código à
-# lista `colunas` do 2_atualiza_cnes.py e regenere os pontos antes de juntar.
+# Ligação com o mapa: desde a versão 3.4, o 2_atualiza_cnes.py guarda o código
+# CNES quando o arquivo do geobr traz a coluna. Rode-o antes de juntar; os
+# pontos embarcados hoje ainda não têm o código (auditoria, E5).
 #
 # Saída: extracao/saida_R/cnes_equipes_<aaaamm>_unidades.csv
 #        extracao/saida_R/cnes_equipes_<aaaamm>_municipios.csv

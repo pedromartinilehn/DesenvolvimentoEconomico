@@ -99,7 +99,8 @@ Como extrair cada dado que falta, com scripts R: [EXTRACAO-dados-faltantes.md](E
 O que mudou no Atlas, por item:
 
 - **A1.** No nível município, Gini, pobreza, renda per capita, trabalho e escolaridade de 2010 vêm do
-  valor oficial de cada município. Canoas passa de 0,452 para 0,518 no Gini. As sete versões
+  valor calculado sobre todos os registros de cada município (não é número publicado pelo IBGE; ver
+  AUDITORIA-DADOS-v3.2.md, E3). Canoas passa de 0,452 para 0,518 no Gini. As sete versões
   "(histórico)" só do município, que repetiam esses números, saíram da lista.
 - **A2.** Camada "Bolsões do quintil mais pobre" (123 bolsões, 323.725 pessoas), calculada no próprio
   Atlas com o método da análise. Cada bolsão tem ficha (moradores, domicílios, crianças, jovens,
@@ -120,7 +121,7 @@ O que mudou no Atlas, por item:
 
 | # | Adição | Seções | Esforço |
 |---|---|---|---|
-| A1 | **Usar os valores oficiais de 2010 no nível município.** Gini, pobreza, renda per capita e trabalho no nível município devem vir do bloco `municipal_2010` (calculado sobre os registros de cada município), e não da média das áreas de ponderação. Hoje o mapa municipal mostra Gini de 0,452 em Canoas; o correto é 0,518. | 7 | baixo |
+| A1 | **Usar no nível município os valores de 2010 calculados sobre o município inteiro.** Gini, pobreza, renda per capita e trabalho no nível município devem vir do bloco `municipal_2010` (calculado sobre os registros de cada município), e não da média das áreas de ponderação. Hoje o mapa municipal mostra Gini de 0,452 em Canoas; o correto é 0,518. | 7 | baixo |
 | A2 | **Bolsões como camada do mapa**, com ficha própria (população, crianças, jovens, renda, favela, escolaridade, loja mais próxima). Hoje estão só em `docs/bolsoes-quintil-inferior.csv`. | 4, 6, 9, 15 | baixo |
 | A3 | **Linha "Região" e taxas por habitante prontas:** gasto em assistência, saúde e segurança por habitante, CVLI por 100 mil e UBS por 10 mil habitantes, como indicadores do Atlas. | 6, 8, 10, 11 | baixo |
 | A4 | **Exportar mapa em alta resolução** (PNG com título, legenda e fonte). Os mapas do template foram gerados por captura de tela. | 9 | baixo |

@@ -188,6 +188,11 @@ def contagens_pontos(pontos: dict, chave: str) -> dict[str, dict[str, int]]:
     for codigo in codigos:
         idx = codigos.index(codigo)
         posicoes = [i for i, m in enumerate(bloco.get("m", [])) if m == idx]
+        if chave == "saude":
+            # unidades de acesso restrito (prisionais e socioeducativas) não
+            # atendem o território: ficam fora das contagens, como no atlas.js
+            restrito = bloco.get("restrito") or [0] * len(bloco["m"])
+            posicoes = [i for i in posicoes if not restrito[i]]
         tipos = [int(bloco["tipo"][i]) for i in posicoes]
         if chave == "saude":
             saida[codigo] = {
@@ -196,6 +201,8 @@ def contagens_pontos(pontos: dict, chave: str) -> dict[str, dict[str, int]]:
                 "cnes_hospitais": sum(t in {5, 7, 62} for t in tipos),
                 "cnes_caps": sum(t == 70 for t in tipos),
             }
+        elif chave == "acolhimento":
+            saida[codigo] = {"cnes_acolhimento": len(posicoes)}
         elif chave == "escolas":
             saida[codigo] = {
                 "inep_escolas": len(posicoes),
@@ -210,6 +217,7 @@ def main() -> None:
     pontos = carregar_js("dados-pontos.js", "ATLAS_PONTOS")
     seguranca = baixar_ssp()
     saude = contagens_pontos(pontos, "saude")
+    acolhimento = contagens_pontos(pontos, "acolhimento") if "acolhimento" in pontos else {c: {} for c in MUNICIPIOS}
     escolas = contagens_pontos(pontos, "escolas")
 
     saida = {}
@@ -221,6 +229,7 @@ def main() -> None:
             **seguranca[codigo],
             **extrair_financas(baixar_siconfi(codigo)),
             **saude[codigo],
+            **acolhimento[codigo],
             **escolas[codigo],
             "trab_desocupacao_2010": trabalho["taxa_desocupacao"],
             "trab_participacao_2010": trabalho["taxa_participacao"],

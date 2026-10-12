@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import pathlib
+import re
 import tempfile
 import urllib.request
 
@@ -52,7 +53,13 @@ def codificar_pontos(pontos: list[tuple[float, float]], precisao: int = 100_000)
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--arquivo", type=pathlib.Path)
+    parser.add_argument("--ano", type=int, help="ano do Censo Escolar, se o nome do arquivo não disser")
     args = parser.parse_args()
+    # ano: do argumento, do nome do arquivo (schools_AAAA) ou, no download padrão, da URL
+    nome_ano = re.search(r"schools_(\d{4})", (args.arquivo or pathlib.Path(URL)).name)
+    ano = args.ano or (int(nome_ano.group(1)) if nome_ano else None)
+    if not ano:
+        raise SystemExit("Informe o ano do Censo Escolar do arquivo: --ano AAAA")
 
     try:
         import pyarrow.compute as pc
@@ -70,6 +77,13 @@ def main() -> None:
         urllib.request.urlretrieve(URL, arquivo)
 
     dataset = ds.dataset(arquivo, format="parquet")
+    # código INEP da escola: permite ligar matrículas e outros dados do Censo
+    # Escolar (auditoria de outubro de 2026, achado E5)
+    disponiveis = set(dataset.schema.names)
+    col_codigo = next((c for c in ("code_school", "co_entidade", "cod_escola") if c in disponiveis), None)
+    if col_codigo is None:
+        print(f"  ! nenhuma coluna de código INEP encontrada; os pontos ficam sem código.")
+        print(f"    colunas do arquivo: {sorted(disponiveis)}")
     colunas = [
         "code_muni",
         "name_school",
@@ -80,7 +94,7 @@ def main() -> None:
         "lat_geocodebr",
         "lon_geocodebr",
         "coords_source",
-    ]
+    ] + ([col_codigo] if col_codigo else [])
     tabela = dataset.to_table(
         columns=colunas,
         filter=pc.field("code_muni").isin(CODIGOS),
@@ -106,9 +120,11 @@ def main() -> None:
         "xy": codificar_pontos(list(zip(df["x"], df["y"]))),
         "legenda": {str(k): v for k, v in DEPENDENCIA.items()},
         "fonte": "Censo Escolar/Inep via geobr",
-        "ano": 2025,
+        "ano": ano,
         "metodo": "escolas em atividade; coordenadas harmonizadas pelo geobr",
     }
+    if col_codigo:
+        pontos["escolas"]["cod"] = [str(v).split(".")[0] if v is not None else None for v in df[col_codigo]]
     destino = DADOS / "dados-pontos.js"
     destino.write_text(
         "window.ATLAS_PONTOS="

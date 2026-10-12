@@ -1,0 +1,322 @@
+# Como fazer as extrações
+
+Passo a passo para atualizar os dados do Atlas e para extrair os que ainda faltam. Vale para a
+versão 3.4.
+
+Os dados entram no Atlas por três caminhos:
+
+| caminho | quem faz | o que cobre | onde fica o resultado |
+|---|---|---|---|
+| **1. Automático, no navegador** | a própria página, ao abrir | Atlas Brasil, IDEB, Anatel, áreas de risco, população estimada, PIB, finanças municipais | no navegador de quem abriu, por 30 dias |
+| **2. Scripts Python** | quem mantém o Atlas | os arquivos `dados/*.js` que vão dentro do pacote: pontos de saúde e escolas, serviços municipais, índices | no pacote, para todos |
+| **3. Scripts R e downloads manuais** | quem precisa de um dado que o Atlas ainda não tem | Censo 2010 e 2022, matrículas, equipes de saúde, enchente, RAIS, CAGED, Cadastro Único e outros | CSV em `extracao/saida_R/`, que se carrega no Atlas |
+
+Regra que vale para os três: **nenhum passo estima, interpola ou completa valor**. Quando a fonte
+muda de formato ou deixa de trazer um município, o passo para com erro e diz o que veio. O que a
+fonte não traz fica vazio no Atlas.
+
+---
+
+## 1. O que o Atlas atualiza sozinho
+
+Nada a fazer. Ao abrir, a página consulta as fontes que aceitam leitura direta por uma página,
+confere cada uma e aplica no mapa o que passar:
+
+| fonte | o que atualiza | por onde |
+|---|---|---|
+| Atlas Brasil | IDHM 2010, nove indicadores de vulnerabilidade, renda, Gini, pobreza e extrema pobreza | espelho público da Base dos Dados |
+| INEP | IDEB da rede pública, edição mais recente | Base dos Dados |
+| Anatel | banda larga fixa, último mês publicado | Base dos Dados |
+| IBGE e CEMADEN | áreas de risco | Base dos Dados |
+| IBGE | população estimada; PIB e valor adicionado | API de agregados do IBGE |
+| Tesouro Nacional | receitas, despesas por função e despesa em educação (DCA) | API do SICONFI |
+
+**Onde acompanhar:** *Mais → Dados e fontes*, no quadro "Atualização direta pelas fontes". Cada fonte
+aparece como "ao vivo" (com a data da consulta) ou "embarcado". Quando uma fonte falha, o quadro diz
+por quê:
+
+- **Sem acesso:** a rede bloqueou ou a fonte não respondeu. Vale o dado embarcado.
+- **Sem edição nova:** a fonte ainda traz uma edição anterior à que o Atlas já tem.
+- **Recusado na conferência:** a fonte respondeu, mas um teste falhou (um município faltando, uma
+  identidade contábil que não fecha, um valor fora da faixa). Nada dela entra.
+
+**Botões:** *Buscar agora* refaz a consulta; *Voltar aos dados embarcados* apaga o que veio das
+fontes; a caixa *buscar automaticamente ao abrir* liga ou desliga a busca. Os dados ficam guardados
+no navegador por 30 dias e só valem para quem abriu a página naquele computador.
+
+Ficam de fora, porque a fonte não deixa uma página ler direto: Censo (setores e microdados), CNES,
+Censo Escolar, SSP/RS, Cadastro Único e Censo SUAS. Para esses, os caminhos 2 e 3.
+
+---
+
+## 2. Preparar a máquina
+
+Use um computador com acesso normal à internet. Redes corporativas costumam bloquear alguns dos
+servidores da tabela da seção 4. Rode **todos os comandos a partir da pasta `atlas_v3/`** (a que
+tem `index.html`).
+
+**Python 3.10 ou mais novo**, com:
+
+```bash
+pip install pandas pyarrow openpyxl shapely
+```
+
+**R 4.2 ou mais novo** (para os scripts R). Instale os pacotes uma vez:
+
+```bash
+Rscript extracao/R/00_instala_pacotes.R
+```
+
+Ele instala do CRAN os pacotes das fontes (`censobr`, `geobr`, `aopdata`, `educabR`,
+`microdatasus`, `osmdata`, `bigrquery`, `sidrar`) e os de apoio (`arrow`, `dplyr`, `sf`, `readxl`,
+`data.table` e outros), e do GitHub o `rsiconfi`.
+Precisa de acesso a `cloud.r-project.org` e `github.com`. No Linux, o `sf` precisa das bibliotecas
+GDAL, GEOS e PROJ do sistema (no Ubuntu: `sudo apt install libgdal-dev libgeos-dev libproj-dev`).
+
+---
+
+## 3. Atualizar os dados que vão dentro do pacote (Python)
+
+Rode nesta ordem. Cada script imprime o que fez; leia a saída antes de passar ao seguinte.
+
+### 3.1 Unidades de saúde (CNES)
+
+```bash
+python3 extracao/2_atualiza_cnes.py
+```
+
+Baixa do geobr (cerca de 100 MB) o arquivo do CNES de abril de 2026, já georreferenciado. Quando o
+geobr publicar uma competência mais nova, o arquivo `healthfacilities_AAAAMM.parquet` aparece na
+página de *releases* do repositório `ipea/geobr_prep_data` no GitHub. Baixe-o e passe-o ao script:
+
+```bash
+python3 extracao/2_atualiza_cnes.py --arquivo healthfacilities_202609.parquet
+```
+
+A competência gravada no Atlas sai do nome do arquivo. Se o arquivo tiver outro nome, informe:
+`--competencia 202609`.
+
+**Confira na saída:**
+
+- quantas unidades de saúde, quantas comunidades terapêuticas e residenciais e quantas centrais
+  de regulação ficaram de fora;
+- a **lista de unidades de acesso restrito**. São as que estão em presídios e unidades
+  socioeducativas, marcadas pelo nome. Se aparecer uma que não é, ou faltar uma que é, ajuste a
+  expressão `RESTRITO` no início do script;
+- se aparecer `tipos sem regra: [...]`, o CNES passou a trazer um tipo de estabelecimento novo.
+  Decida em qual grupo ele entra (`TIPOS`, `ACOLHIMENTO` ou `DESCARTADOS`) e rode de novo.
+
+Para só reaplicar as regras ao arquivo de pontos atual, sem baixar nada:
+`python3 extracao/2_atualiza_cnes.py --reclassificar`.
+
+### 3.2 Escolas (Censo Escolar)
+
+```bash
+python3 extracao/3_atualiza_escolas.py
+python3 extracao/3_atualiza_escolas.py --arquivo schools_2026.parquet   # edição mais nova
+```
+
+O ano gravado sai do nome do arquivo (`schools_AAAA`); se não sair, use `--ano 2026`.
+
+Os dois scripts guardam agora o código CNES e o código INEP de cada ponto. É isso que permite ligar
+depois as matrículas e as equipes de saúde (seção 4).
+
+### 3.3 Serviços e finanças municipais
+
+```bash
+python3 extracao/1_servicos_municipais.py
+```
+
+Lê o SICONFI (despesas por função, receitas), o arquivo de indicadores criminais da SSP/RS e conta
+os pontos de saúde e escolas por município e por bairro. **Rode depois de 3.1 e 3.2**, porque conta
+os pontos que eles gravaram.
+
+O arquivo da SSP/RS muda de endereço a cada publicação. Quando sair um ano novo, copie no site da
+SSP/RS o link da planilha anual de indicadores criminais por município e troque o `SSP_URL` no início
+do script. Se a planilha mudar de leiaute, o script para e mostra o que encontrou.
+
+### 3.4 Base dos Dados e índices sintéticos
+
+```bash
+python3 extracao/5_base_dos_dados.py
+python3 extracao/4_indices_municipais.py
+```
+
+O primeiro baixa do espelho público da Base dos Dados (sem conta) o Atlas Brasil, o IDEB, a Anatel
+e as áreas de risco, e deixa o arquivo do Atlas Brasil em `extracao/fontes/basedosdados/`. O
+segundo lê esse arquivo para o IDHM e as planilhas de IVS e IDESE que você baixar (seção 5). Por
+isso o `5` roda antes do `4`.
+
+Se o `4` disser que uma coluna não existe, ele mostra as colunas reais do arquivo. Corrija o nome em
+`extracao/indices.json` e rode de novo; não é preciso mexer no código.
+
+### 3.5 Gerar o arquivo único e conferir
+
+```bash
+python3 build_single.py
+python3 -m http.server 8000
+```
+
+Abra `http://localhost:8000/index.html` e confira em *Mais → Dados e fontes* e em
+*Análise → Diagnóstico regional*. O `atlas-rmpa.html` regerado é o arquivo único para distribuir.
+
+---
+
+## 4. Extrair o que falta (scripts R)
+
+Cada script confere colunas e municípios antes de calcular e grava o resultado em
+`extracao/saida_R/`. Rode a partir de `atlas_v3/`:
+
+| script | comando | servidor que precisa estar liberado | o que sai | entra no Atlas como |
+|---|---|---|---|---|
+| 01 Censo 2010 por área de ponderação | `Rscript extracao/R/01_censo2010_areas_ponderacao.R` | github.com (baixa cerca de 1 GB na primeira vez) | desocupação por sexo e idade, jovens que não estudam nem trabalham, chefia feminina, idosos que moram sós, deficiência, não naturais, Bolsa Família | **direto**: `censo2010_complemento_municipios.csv` (município) e `censo2010_complemento_setores2022.csv` (setor) |
+| 02 Censo 2022 | `Rscript extracao/R/02_censo2022_setores_e_amostra.R` | github.com, apisidra.ibge.gov.br | entorno dos domicílios por setor (pavimentação, iluminação, calçada, arborização); lista das tabelas da amostra no SIDRA | **direto**: `censo2022_entorno_setores.csv` (setor). As colunas vêm com o código da variável do IBGE; o significado está em `censobr::data_dictionary(year = 2022, dataset = "tracts")` |
+| 03 Matrículas | `Rscript extracao/R/03_censo_escolar_matriculas.R 2024` | download.inep.gov.br | matrículas por etapa, por escola e por município | **depois de ajustar** (receita A) |
+| 04 Equipes de saúde | `Rscript extracao/R/04_cnes_equipes.R 2026 4` | ftp.datasus.gov.br (FTP, porta 21) | equipes por unidade e por município, por tipo | **depois de ajustar** (receita B) |
+| 05 Despesa em educação | `Rscript extracao/R/05_siconfi_educacao.R 2024` | apidatalake.tesouro.gov.br | despesa empenhada por subfunção | **direto** (município). O Atlas já busca isso sozinho; use se o navegador não alcançar o SICONFI |
+| 06 Mobilidade (só Porto Alegre) | `Rscript extracao/R/06_mobilidade_aopdata.R` | github.com | acesso a empregos, saúde e escolas por transporte público, por hexágono | **integração** (seção 6.2) |
+| 07 Enchente de 2024 | `Rscript extracao/R/07_enchente_2024.R` | zenodo.org, github.com | área alagada por setor | **direto**: `enchente2024_setores.csv` (setor) |
+| 08 Cultura e lazer | `Rscript extracao/R/08_osm_cultura_lazer.R` | overpass-api.de | parques, praças, bibliotecas e outros pontos do OpenStreetMap | **integração**, como camada de pontos |
+| 09 RAIS, CAGED, SISVAN, Bolsa Família, MEI | `Rscript extracao/R/09_basedosdados_bigquery.R <id-do-projeto>` | BigQuery, com projeto do Google Cloud | um CSV por consulta, por município e ano | **depois de ajustar** (receita C) |
+| 10 Arquivo baixado à mão | `Rscript extracao/R/10_recorta_arquivo_baixado.R <arquivo>` | nenhum | as linhas dos sete municípios | depende do arquivo (seção 5) |
+| 11 Conferência da renda de 2010 | `Rscript extracao/R/11_confere_renda_2010.R` | github.com | pobreza, renda e Gini de 2010 calculados de três jeitos | **não se carrega**: é a conferência do achado E3 (seção 4.2) |
+
+O `09` pede, na primeira vez, autorização da conta Google no navegador e um projeto do Google
+Cloud com faturamento ativo. A consulta é gratuita dentro da cota mensal.
+
+### 4.1 Receitas para os arquivos que precisam de ajuste
+
+O Atlas recusa arquivo com mais de uma linha por território, porque a segunda linha apagaria a
+primeira sem aviso. Estes três trazem uma linha por município **e** por categoria; deixe uma só.
+Rode no R, na pasta `atlas_v3/`:
+
+**A. Matrículas (script 03): só a rede pública**
+
+```r
+d <- data.table::fread("extracao/saida_R/censo_escolar_2024_matriculas_municipios.csv")
+data.table::fwrite(d[rede == "publica"], "extracao/saida_R/matriculas_2024_rede_publica.csv")
+```
+
+**B. Equipes de saúde (script 04): uma coluna por tipo de equipe**
+
+```r
+d <- data.table::fread("extracao/saida_R/cnes_equipes_202604_municipios.csv")
+d[, tipo := paste0("equipes_", TIPO_EQP)]
+l <- data.table::dcast(d, CODUFMUN + municipio ~ tipo, value.var = "equipes", fill = 0)
+data.table::fwrite(l, "extracao/saida_R/equipes_202604_por_tipo.csv")
+```
+
+Aqui `fill = 0` não inventa dado: o arquivo conta todas as equipes ativas, e um tipo que não
+aparece num município tem zero equipes ali. O nome de cada tipo está na tabela `equipe` do pacote
+microdatasus.
+
+**C. RAIS, CAGED e demais consultas do script 09: um ano só**
+
+```r
+d <- data.table::fread("extracao/saida_R/bd_rais_vinculos.csv")
+data.table::fwrite(d[ano == 2023], "extracao/saida_R/rais_vinculos_2023.csv")
+```
+
+No CAGED, que vem por mês, escolha também o mês (`d[ano == 2025 & mes == 12]`), ou some o ano antes.
+
+### 4.2 Conferência da pobreza de 2010 (script 11)
+
+A auditoria (achado E3) mostrou que a pobreza e o Gini de 2010 calculados pelo Atlas ficam acima
+dos publicados pelo Atlas Brasil. O script 11 refaz a conta de três jeitos:
+
+- **A:** renda ausente conta como zero;
+- **B:** renda ausente fica de fora;
+- **C:** como B, sem pensionistas, empregados domésticos e seus parentes (o universo do Atlas Brasil).
+
+Leia o `confere_renda_2010.csv` assim: se a versão A reproduz os números do Atlas e a B ou a C
+reproduz os do Atlas Brasil, a causa está confirmada. Nesse caso, os indicadores de 2010 do Atlas
+precisam ser recalculados pela versão que reproduz o Atlas Brasil. Esse recálculo mexe em
+`dados/dados-estimados.js` (seção 6.2). Envie o CSV para quem mantém o Atlas.
+
+---
+
+## 5. O que se baixa à mão
+
+Estas fontes não têm pacote nem API aberta. Baixe na página da fonte e recorte para os sete
+municípios:
+
+```bash
+Rscript extracao/R/10_recorta_arquivo_baixado.R ~/Downloads/arquivo_nacional.csv
+```
+
+O script acha sozinho a coluna do código do município (com 6 ou 7 dígitos). Se não achar, lista as
+colunas para você indicar: `... arquivo.csv cod_ibge`. Para planilha com várias abas, informe a aba:
+`... arquivo.xlsx cod_ibge Municipios`. O recorte sai em `extracao/saida_R/recorte_<nome>.csv`, com o
+nome do município na primeira coluna, que é por onde o Atlas casa o arquivo. Se o arquivo trouxer
+vários anos, deixe um só antes de carregar (receita C da seção 4.1).
+
+| dado | onde baixar | depois do recorte |
+|---|---|---|
+| Cadastro Único e Bolsa Família por município | VIS DATA e CECAD, do Ministério do Desenvolvimento Social (consulta na web, com exportação) | uma linha por município: carrega direto. Por bairro ou por CRAS, o dado **não é público**: depende de termo de cooperação com cada prefeitura |
+| CRAS, CREAS, Centro POP, recursos humanos | Censo SUAS, do mesmo Ministério (Vigilância Socioassistencial) | vem uma linha **por unidade**: conte por município antes (`d[, .N, by = municipio]`) |
+| Organizações da sociedade civil | Mapa das OSCs, do IPEA (página "Base de dados"; CSV de cerca de 330 MB) | uma linha por organização: conte por município, ou leve como camada de pontos (seção 6.2) |
+| Conselhos, fundos e planos municipais | MUNIC, do IBGE (planilhas por edição) | uma linha por município: carrega direto |
+| IVS | ivs.ipea.gov.br, base de municípios | **não recorte**: salve em `extracao/fontes/` com nome que comece por `ivs` e rode o `4_indices_municipais.py` |
+| IDESE | dee.rs.gov.br, planilha por município | salve em `extracao/fontes/` com nome que comece por `idese` e rode o `4` |
+| IFDM | firjan.com.br | idem, com nome que comece por `firjan`; ligue a fonte no `indices.json`. Confira os termos de uso antes de redistribuir |
+
+---
+
+## 6. Como o resultado entra no Atlas
+
+### 6.1 Carregar o CSV na tela (qualquer pessoa, na hora)
+
+1. Abra o Atlas e vá em *Mais → Dados e fontes*.
+2. Arraste o CSV para a área "Carregar um arquivo seu", ou clique em *escolher arquivo*.
+3. O Atlas avisa quantos valores casaram e quantos indicadores criou. Os indicadores novos aparecem
+   em *Visão Geral*, marcados como "arquivo do usuário".
+
+O Atlas decide sozinho o nível de cada arquivo:
+
+- com coluna `code_tract` ou `cd_setor`, vai para o nível **setor**;
+- com coluna `municipio`, ou só com o código IBGE (`id_municipio`, `code_muni`, `CODUFMUN`), vai
+  para o nível **município**;
+- nos demais casos, para o nível que está na tela (por exemplo, bairro, se a coluna for `bairro`).
+
+Colunas de código (`code_muni`, `id_municipio`, `code_weighting`, `TIPO_EQP`...) e a coluna `ano` não
+viram indicador. Se o arquivo tiver um só ano, ele vira o ano do indicador; sem coluna `ano`, o
+indicador aparece como "s/ ano". Colunas de texto (como `rede`) são ignoradas.
+
+**Limite:** o que se carrega fica só naquela aba do navegador. Ao recarregar a página, some. Serve
+para olhar, comparar e exportar, não para distribuir. Para ficar no pacote, veja 6.2.
+
+### 6.2 Integrar ao pacote (quem mantém o Atlas)
+
+Para que um dado novo fique no `atlas-rmpa.html` de todos, ele precisa entrar num arquivo de
+`dados/`, ganhar uma linha no catálogo de indicadores do `atlas.js` (nome, unidade, fonte, ano,
+nível) e passar pelo `build_single.py`. É o que foi feito com os dados da Base dos Dados pelo
+`5_base_dos_dados.py`. Casos que só se resolvem assim:
+
+- **hexágonos de mobilidade (06):** cada setor recebe o hexágono que contém o seu centro, e o bairro
+  soma os setores com peso pela população;
+- **pontos do OpenStreetMap (08) e das OSCs:** camada nova de pontos, como as de saúde e escolas;
+- **matrículas e equipes por unidade (03 e 04):** ligam-se aos pontos do mapa pelo código INEP e
+  pelo código CNES. Os pontos embarcados hoje ainda não têm esses códigos; eles chegam na próxima
+  vez que os scripts 3.1 e 3.2 rodarem;
+- **recálculo dos indicadores de 2010 (11):** regera `dados/dados-estimados.js`.
+
+---
+
+## 7. Quando algo dá errado
+
+| mensagem ou sintoma | o que quer dizer | o que fazer |
+|---|---|---|
+| `faltam as colunas ... Colunas disponíveis: ...` | a fonte mudou o nome de uma variável | procure no dicionário da fonte o nome novo e ajuste o script. Não troque por uma variável parecida sem conferir |
+| `sem dados para <município>` | a fonte não trouxe um dos sete municípios | não complete. Confira se é falha da fonte ou do filtro, e espere a correção da fonte |
+| `Falta o pacote '...'` | pacote R não instalado | `Rscript extracao/R/00_instala_pacotes.R` |
+| `Rode os scripts a partir da pasta atlas_v3/` | o R foi chamado de outra pasta | `cd atlas_v3` e rode de novo |
+| erro de conexão, *timeout*, `403` | a rede bloqueou o servidor | confira o servidor na tabela da seção 4 e rode em outra rede |
+| acentos trocados nos CSVs (Windows) | R antigo, sem UTF-8 nativo | use R 4.2 ou mais novo; os scripts gravam sempre em UTF-8 |
+| `Informe a competência do arquivo` (CNES) ou `Informe o ano` (escolas) | o nome do arquivo não diz a edição | passe `--competencia AAAAMM` ou `--ano AAAA` |
+| "aparece em 2 linhas", ao carregar no Atlas | o CSV tem mais de uma linha por território | use as receitas da seção 4.1 |
+| "Nenhuma linha casou com um território" | os nomes ou códigos não batem com os do Atlas | confira a grafia (acentos e caixa não importam) ou use o código IBGE |
+| fonte "Recusado na conferência", em *Dados e fontes* | a fonte respondeu com dado que não passou num teste | nada a fazer na hora: vale o dado embarcado. Se persistir, a fonte mudou de formato e o extrator do `atlas.js` precisa de ajuste |
+
+Mais contexto sobre cada fonte (o que é, por que falta, alternativas) em
+[`EXTRACAO-dados-faltantes.md`](EXTRACAO-dados-faltantes.md). Os erros encontrados nos dados e o
+que foi corrigido estão em [`AUDITORIA-DADOS-v3.2.md`](AUDITORIA-DADOS-v3.2.md).

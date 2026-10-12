@@ -7,7 +7,7 @@ depende da média de cada raio. A seção 2 lista o que mudou. Apresentação co
 ## 1. Base e método
 
 **Base.** 4.722 setores censitários do Censo 2022 nos sete municípios (2.383.002 habitantes); 1.650
-escolas (Censo Escolar 2025); 567 estabelecimentos de saúde (CNES 2026); indicadores municipais do
+escolas (Censo Escolar 2025); 479 unidades de saúde de atendimento (CNES 2026; sem centrais de regulação e com as comunidades terapêuticas à parte, conforme a auditoria de outubro de 2026); indicadores municipais do
 SICONFI 2024 e da SSP/RS 2025. Trabalho, renda domiciliar, pobreza e escolaridade de adultos vêm do
 **Censo 2010**, levados aos setores de 2022 pela área de ponderação — servem para ordenar
 territórios, não para dimensionar programas.
@@ -194,7 +194,7 @@ dos adultos de 25 anos ou mais não concluíram o fundamental (2010); na região
 | Guaíba | 92.924 | R$ 2.728 | 25% | 14,9% | 44,3% | 421 | 0 |
 | Esteio | 76.137 | R$ 3.139 | 16% | 3,5% | 38,3% | 252 | 14 |
 
-Sem fundamental: valor municipal oficial de 2010. Assistência e trabalho: despesa empenhada em 2024
+Sem fundamental: valor municipal de 2010 calculado pelo Atlas sobre os microdados. Assistência e trabalho: despesa empenhada em 2024
 (SICONFI) sobre a população estimada de 2026; gasto classificado em outras funções não aparece.
 
 **Sapucaia do Sul tem o entorno de loja mais pobre da rede e o menor gasto em assistência social

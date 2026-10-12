@@ -28,9 +28,19 @@
 # variáveis de família (V5040, V5090, V5100), que o censobr ainda não rotula.
 # Calcular sem conferir o código seria arriscar um número errado.
 #
-# Saída: extracao/saida_R/censo2010_areas_ponderacao_complemento.csv
+# Saídas (extracao/saida_R/):
+#   censo2010_areas_ponderacao_complemento.csv
 #        uma linha por área de ponderação, com numerador e denominador
 #        ponderados (para somar áreas sem erro) e o tamanho da amostra.
+#   censo2010_complemento_municipios.csv
+#        uma linha por município: as mesmas taxas, com numeradores e
+#        denominadores somados entre as áreas. Carrega direto no Atlas
+#        (Mais → Dados e fontes).
+#   censo2010_complemento_setores2022.csv
+#        uma linha por setor de 2022, com as taxas da área de ponderação de 2010
+#        onde cai o ponto representativo do setor. É o mesmo método dos
+#        indicadores de 2010 que o Atlas já tem: taxas copiadas, contagens não.
+#        Precisa de geobr e sf. Carrega direto no Atlas, no nível setor.
 
 source("extracao/R/_comum.R")
 pacote("censobr"); pacote("dplyr"); pacote("arrow")
@@ -156,3 +166,69 @@ if (nrow(pequenas)) {
 }
 
 grava(saida, "censo2010_areas_ponderacao_complemento.csv")
+
+# por município ---------------------------------------------------------------
+# soma numeradores e denominadores das áreas; não é média de taxas
+TAXAS <- list(
+  desocupacao_homens = c("desoc_h", "pea_h"),
+  desocupacao_mulheres = c("desoc_m", "pea_m"),
+  desocupacao_18_24 = c("desoc_18_24", "pea_18_24"),
+  desocupacao_25_29 = c("desoc_25_29", "pea_25_29"),
+  desocupacao_30_59 = c("desoc_30_59", "pea_30_59"),
+  pct_nem_nem_15_24 = c("nem_nem", "jovens"),
+  pct_dom_chefia_feminina = c("dom_chefe_mulher", "domicilios"),
+  pct_idosos_sos = c("idosos_sos", "idosos"),
+  pct_deficiencia = c("deficiencia", "pop"),
+  pct_nao_naturais = c("nao_natural", "pop"),
+  pct_pessoas_bolsa_familia = c("pessoas_bolsa", "pop"),
+  pct_dom_bolsa_familia = c("dom_com_bolsa", "domicilios")
+)
+somas <- saida |>
+  group_by(code_muni) |>
+  summarise(across(all_of(unique(unlist(TAXAS))), ~ sum(.x, na.rm = TRUE)), .groups = "drop")
+mun <- data.frame(code_muni = somas$code_muni, municipio = MUNICIPIOS[as.character(somas$code_muni)])
+for (k in names(TAXAS)) mun[[k]] <- razao(somas[[TAXAS[[k]][1]]], somas[[TAXAS[[k]][2]]])
+grava(mun, "censo2010_complemento_municipios.csv")
+
+# por setor de 2022 -----------------------------------------------------------
+# geobr devolve códigos numéricos de 13 e 15 dígitos; as.character() os
+# escreveria em notação científica
+cod_txt <- function(x) if (is.character(x)) x else sprintf("%.0f", x)
+
+liga_setores <- function(taxas, aps, setores) {
+  aps <- sf::st_transform(aps["code_weighting"], 31982)           # SIRGAS 2000 / UTM 22S
+  pts <- sf::st_point_on_surface(sf::st_set_agr(sf::st_transform(setores["code_tract"], 31982), "constant"))
+  lig <- sf::st_drop_geometry(sf::st_join(pts, aps, join = sf::st_within)) |>
+    mutate(code_tract = cod_txt(code_tract), code_weighting = cod_txt(code_weighting))
+  if (anyDuplicated(lig$code_tract)) {
+    stop("um setor caiu em mais de uma área de ponderação; confira as malhas.", call. = FALSE)
+  }
+  # o ponto pode cair numa área do município vizinho, na divisa: aí fica sem valor
+  vizinho <- !is.na(lig$code_weighting) & substr(lig$code_weighting, 1, 7) != substr(lig$code_tract, 1, 7)
+  lig$code_weighting[vizinho] <- NA
+  sem <- sum(is.na(lig$code_weighting))
+  if (sem) message("  atenção: ", sem, " setores sem área de ponderação do próprio município (ficam sem valor)")
+  taxas <- mutate(taxas, code_weighting = cod_txt(code_weighting))
+  fora <- setdiff(na.omit(unique(lig$code_weighting)), taxas$code_weighting)
+  if (length(fora)) {
+    stop("áreas da malha do geobr que não estão nos microdados: ", paste(head(fora, 5), collapse = ", "),
+         "\nConfira se os códigos têm o mesmo formato nas duas fontes.", call. = FALSE)
+  }
+  lig |>
+    left_join(select(taxas, code_weighting, all_of(names(TAXAS))), by = "code_weighting") |>
+    select(code_tract, code_weighting, all_of(names(TAXAS))) |>
+    arrange(code_tract)
+}
+
+if (requireNamespace("geobr", quietly = TRUE) && requireNamespace("sf", quietly = TRUE)) {
+  message("Ligando os setores de 2022 às áreas de ponderação de 2010 (geobr)…")
+  aps <- do.call(rbind, lapply(COD7, function(c)
+    geobr::read_weighting_area(code_weighting = c, year = 2010, showProgress = FALSE)))
+  exige_colunas(aps, "code_weighting", "geobr áreas de ponderação 2010")
+  setores <- do.call(rbind, lapply(COD7, function(c)
+    geobr::read_census_tract(code_tract = as.numeric(c), year = 2022, showProgress = FALSE)))
+  exige_colunas(setores, c("code_tract", "code_muni"), "geobr setores 2022")
+  grava(liga_setores(saida, aps, setores), "censo2010_complemento_setores2022.csv")
+} else {
+  message("Sem os pacotes geobr e sf: o arquivo por setor de 2022 não foi gerado.")
+}

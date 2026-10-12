@@ -33,6 +33,23 @@ Os pontos do mapa não guardam esses códigos.
 | limitações a declarar | 9 |
 | não verificáveis neste ambiente | 5 |
 
+### Situação das correções (Atlas versão 3.4)
+
+| | Situação | O que foi feito |
+|---|---|---|
+| E1 | ✅ corrigido | Tipo 81 fora do Atlas; tipo 83 na camada própria "Comunidades terapêuticas e residenciais", com o indicador `cnes_acolhimento`; legenda corrigida. Regra no `2_atualiza_cnes.py`, que tem o modo `--reclassificar` |
+| E2 | ✅ corrigido | Unidades prisionais e socioeducativas marcadas como de acesso restrito: aparecem no mapa com aviso e saem das contagens de estabelecimentos, de UBS e do entorno das lojas |
+| E3 | ◐ em parte | O rótulo "oficial" saiu da interface e dos documentos. Os números do Atlas Brasil (renda, Gini, pobreza e extrema pobreza) entraram como referência. O **recálculo** depende de rodar `11_confere_renda_2010.R` fora deste ambiente |
+| E4 | ✅ corrigido | Gini de bairro só nos 45 bairros contidos numa única área de ponderação |
+| E5 | ◐ em parte | Os scripts 2 e 3 guardam o código CNES e INEP; os pontos embarcados ganham o código na próxima extração |
+| L2, L3 | ✅ declarado | Notas nos indicadores de esgoto e de moradores por domicílio |
+| L7 | ✅ corrigido | Saíram do catálogo `m_pop_est`, `m_pib_pc`, `m_idhm` e `agro_participacao_vab`; receita e despesa do IBGE Cidades ganharam a fonte no nome |
+| L1, L4, L5, L6, L8, L9 | sem mudança | Não são erros do Atlas, ou dependem da fonte (L6 precisa do código INEP; L8 precisa de conferência na prefeitura) |
+
+Números que mudaram com E1 e E2: estabelecimentos de saúde contáveis, de 567 para 466; UBS, de 278
+para 265; UBS por 10 mil habitantes, de 1,01 para 0,89 em Canoas, de 1,61 para 1,51 em Guaíba, de
+1,07 para 1,02 em Porto Alegre e de 1,97 para 1,89 em Sapucaia do Sul.
+
 ---
 
 ## 1. Como foi feito

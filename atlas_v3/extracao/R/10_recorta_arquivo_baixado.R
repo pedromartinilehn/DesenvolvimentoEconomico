@@ -16,7 +16,8 @@
 # municípios do Atlas. Se não achar a coluna sozinho, lista as colunas para
 # você indicar qual é.
 #
-# Saída: extracao/saida_R/recorte_<nome do arquivo>.csv
+# Saída: extracao/saida_R/recorte_<nome do arquivo>.csv, com o nome do
+#        município na primeira coluna
 
 source("extracao/R/_comum.R")
 pacote("data.table")
@@ -64,6 +65,11 @@ exige_colunas(df, COL, basename(ARQ))
 rec <- df[casa(df[[COL]]), , drop = FALSE]
 exige_municipios(trimws(rec[[COL]]), basename(ARQ))
 message("  coluna do código: ", COL, " — ", nrow(rec), " linhas dos sete municípios")
+# nome do município na primeira coluna: o Atlas casa o arquivo por ela
+# (Mais → Dados e fontes). Se a fonte já tiver uma coluna "municipio", fica a dela.
+if (!any(tolower(names(rec)) %in% c("municipio", "município"))) {
+  rec <- cbind(municipio = unname(MUNICIPIOS[match(substr(trimws(rec[[COL]]), 1, 6), COD6)]), rec)
+}
 
 nome <- sub("\\.[^.]+$", "", basename(ARQ))
 grava(rec, paste0("recorte_", gsub("[^A-Za-z0-9_-]+", "_", nome), ".csv"))

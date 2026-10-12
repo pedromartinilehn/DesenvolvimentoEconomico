@@ -71,16 +71,22 @@ TABELAS = {
 
 # Atlas Brasil, Censo 2010. Nome no Atlas -> coluna da Base dos Dados.
 # As definições seguem o glossário do Atlas Brasil (atlasbrasil.org.br).
+# Nome no Atlas -> (coluna, mínimo, máximo).
 ADH_2010 = {
-    "adh_nemnem_vulner": "taxa_nest_ntrab_vulner_15_24",
-    "adh_maes_chefes_sem_fund": "taxa_mulheres_chefe_filho_15m",
-    "adh_desloc_1h_vulner": "taxa_vulner_desloc_1_hora",
-    "adh_dep_idosos_vulner": "taxa_dom_vulner_dep_idoso",
-    "adh_vulner_pobreza": "prop_vulner_pobreza",
-    "adh_desocup_18_24": "taxa_desocupacao_18_24",
-    "adh_creche_0_3": "taxa_freq_0_3",
-    "adh_fora_escola_4_5": "taxa_criancas_fora_escola_4_5",
-    "adh_maes_15_17": "taxa_mulheres_com_filho_15_17",
+    "adh_nemnem_vulner": ("taxa_nest_ntrab_vulner_15_24", 0, 100),
+    "adh_maes_chefes_sem_fund": ("taxa_mulheres_chefe_filho_15m", 0, 100),
+    "adh_desloc_1h_vulner": ("taxa_vulner_desloc_1_hora", 0, 100),
+    "adh_dep_idosos_vulner": ("taxa_dom_vulner_dep_idoso", 0, 100),
+    "adh_vulner_pobreza": ("prop_vulner_pobreza", 0, 100),
+    "adh_desocup_18_24": ("taxa_desocupacao_18_24", 0, 100),
+    "adh_creche_0_3": ("taxa_freq_0_3", 0, 100),
+    "adh_fora_escola_4_5": ("taxa_criancas_fora_escola_4_5", 0, 100),
+    "adh_maes_15_17": ("taxa_mulheres_com_filho_15_17", 0, 100),
+    # números publicados para comparar com o cálculo do Atlas (auditoria, E3)
+    "adh_renda_pc": ("renda_pc", 0, 20000),
+    "adh_gini": ("indice_gini", 0, 1),
+    "adh_pobreza": ("prop_pobreza", 0, 100),
+    "adh_extrema_pobreza": ("prop_pobreza_extrema", 0, 100),
 }
 
 # IDEB, rede pública: (ensino, anos_escolares) -> nome no Atlas
@@ -143,17 +149,17 @@ def atlas_brasil(saida: dict) -> dict:
     df = le("adh")
     df = df[df["ano"] == "2010"]
     exige_todos("adh", set(df["id_municipio"]))
-    for campo, coluna in ADH_2010.items():
+    for campo, (coluna, _, _) in ADH_2010.items():
         if coluna not in df.columns:
             sys.exit(f"✗ adh: coluna {coluna} não existe. Colunas: {list(df.columns)}")
     for _, linha in df.iterrows():
-        for campo, coluna in ADH_2010.items():
+        for campo, (coluna, lo, hi) in ADH_2010.items():
             v = numero(linha[coluna])
             if v is None:
                 continue
-            if not 0 <= v <= 100:
-                sys.exit(f"✗ adh: {MUNICIPIOS[linha['id_municipio']]}/{coluna} = {v}, fora de 0–100")
-            saida[linha["id_municipio"]][campo] = round(v, 2)
+            if not lo <= v <= hi:
+                sys.exit(f"✗ adh: {MUNICIPIOS[linha['id_municipio']]}/{coluna} = {v}, fora de {lo}–{hi}")
+            saida[linha["id_municipio"]][campo] = round(v, 4 if hi == 1 else 2)
     print(f"  ✓ Atlas Brasil 2010: {len(ADH_2010)} indicadores × {len(df)} municípios")
     return {"fonte": "Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA, FJP)", "ano": 2010,
             "via": "Base dos Dados, mundo_onu_adh.municipio",

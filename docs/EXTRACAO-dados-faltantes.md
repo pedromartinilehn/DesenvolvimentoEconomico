@@ -122,16 +122,20 @@ A integração segue o caminho que o Atlas já usa:
   estendido para ler `extracao/saida_R/`), e cada indicador ganha uma linha no catálogo do
   `atlas.js`;
 - **por área de ponderação (2010)**: mesmo método dos indicadores de 2010 que o Atlas já tem. Cada
-  setor de 2022 recebe o valor da sua área de ponderação, e no município vale o número oficial;
+  setor de 2022 recebe o valor da sua área de ponderação, e no município vale o número calculado
+  para o município inteiro. Desde a versão 3.4, o script `01` já grava os dois arquivos prontos;
 - **por setor (2022, enchente)**: entram como colunas novas de `dados-setores.js` e se somam por
   bairro e por bolsão como as demais;
 - **por ponto (escolas, unidades de saúde, OSM, OSC)**: viram camada nova ou se ligam às camadas
   existentes pelo código INEP ou CNES. Atenção: a auditoria de outubro de 2026 mostrou que as escolas
-  e as unidades de saúde do mapa **não guardam esses códigos**. Antes de ligar matrículas (B5) ou
-  equipes (B6) a elas, é preciso incluir a coluna do código nos scripts `3_atualiza_escolas.py` e
-  `2_atualiza_cnes.py` e regenerar os pontos. Ver [AUDITORIA-DADOS-v3.2.md](AUDITORIA-DADOS-v3.2.md).
+  e as unidades de saúde do mapa **não guardam esses códigos**. Desde a versão 3.4, os scripts
+  `3_atualiza_escolas.py` e `2_atualiza_cnes.py` guardam o código; basta rodá-los de novo antes de
+  ligar matrículas (B5) ou equipes (B6). Ver [AUDITORIA-DADOS-v3.2.md](AUDITORIA-DADOS-v3.2.md).
 
-Quando os arquivos de `saida_R/` estiverem prontos, basta trazê-los para a integração.
+Desde a versão 3.4, boa parte das saídas carrega direto no Atlas, em *Mais → Dados e fontes*: o
+Atlas reconhece o nível pelo código do setor ou pelo município e ignora as colunas de código. O passo
+a passo de cada script, com o que carrega direto e o que precisa de ajuste antes, está em
+[COMO-FAZER-AS-EXTRACOES.md](COMO-FAZER-AS-EXTRACOES.md).
 
 ## 5. Fontes consultadas
 

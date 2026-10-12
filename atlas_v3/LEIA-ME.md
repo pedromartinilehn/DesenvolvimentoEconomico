@@ -1,4 +1,4 @@
-# Atlas Metropolitano RMPA — versão 3.3
+# Atlas Metropolitano RMPA — versão 3.4
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios:
 Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio.
@@ -10,6 +10,38 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
 - O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
 
+## O que mudou na versão 3.4: erros da auditoria corrigidos
+
+Correções dos achados de `docs/AUDITORIA-DADOS-v3.2.md`:
+
+- **E1:** as 27 centrais de regulação do CNES (tipo 81) saíram da camada de saúde. As 61
+  comunidades terapêuticas, residenciais terapêuticos e residenciais geriátricos (tipo 83) foram para
+  a camada própria "Comunidades terapêuticas e residenciais", com indicador próprio na assistência
+  social. A legenda dos dois tipos foi corrigida.
+- **E2:** as 13 unidades de saúde dentro de presídios e de unidades socioeducativas continuam no
+  mapa, com aviso de acesso restrito, e saem das contagens de estabelecimentos e de UBS.
+  Estabelecimentos de saúde: 567 → 466 contáveis (479 na camada). UBS por 10 mil habitantes em Canoas:
+  1,01 → 0,89.
+- **E3:** os valores municipais de 2010 deixam de ser chamados de "oficiais", porque são cálculo do
+  Atlas sobre os microdados. Ao lado deles entram os números publicados pelo Atlas Brasil: renda per
+  capita, Gini, pobreza (até R$ 140) e extrema pobreza (até R$ 70). Fica pendente o recálculo; o
+  script `extracao/R/11_confere_renda_2010.R` diz se a renda ausente foi contada como zero.
+- **E4:** o Gini de bairro só aparece nos 45 bairros que cabem numa única área de ponderação.
+- **E5:** os scripts 2 e 3 passam a guardar os códigos CNES e INEP na próxima atualização dos pontos.
+- **Limitações:** notas sobre o resíduo do esgoto (≈1%) e a definição de moradores por domicílio;
+  quatro duplicatas saíram do catálogo.
+- **Mapa:** com escolas ou saúde ligadas, o tooltip do bairro reabria por cima do tooltip do ponto e
+  escondia o aviso de acesso restrito. Agora, com o cursor no ponto, só aparece o do ponto.
+- **Extrações:** os CSVs dos scripts R carregam direto em *Mais → Dados e fontes*. O Atlas reconhece
+  o nível pelo código do setor ou pelo município, ignora as colunas de código e recusa arquivo com
+  território repetido, em vez de ficar com a última linha. Sem coluna de ano, o indicador aparece
+  como "s/ ano", e não mais com o ano corrente. O script R `01` grava também os arquivos por
+  município e por setor de 2022, e o `10` põe o nome do município no recorte. Os scripts de CNES e
+  de escolas tiram a competência e o ano do nome do arquivo, em vez de gravar sempre 202604 e 2025.
+
+O passo a passo de todas as extrações, automáticas e manuais, está em
+[`docs/COMO-FAZER-AS-EXTRACOES.md`](../docs/COMO-FAZER-AS-EXTRACOES.md).
+
 ## O que mudou na versão 3.3: a página busca os dados sozinha
 
 Não é mais preciso rodar script nem gerar arquivo para atualizar estas fontes. Ao abrir, o Atlas
@@ -17,7 +49,7 @@ consulta as fontes pelo próprio navegador, confere e aplica no mapa:
 
 | fonte | o que atualiza | por onde |
 |---|---|---|
-| Atlas Brasil | IDHM 2010 e nove indicadores de vulnerabilidade | Base dos Dados |
+| Atlas Brasil | IDHM 2010, nove indicadores de vulnerabilidade e, desde a 3.4, renda, Gini, pobreza e extrema pobreza | Base dos Dados |
 | INEP | IDEB da rede pública, edição mais recente com os sete municípios | Base dos Dados |
 | Anatel | banda larga fixa, último mês publicado | Base dos Dados |
 | IBGE e CEMADEN | áreas de risco | Base dos Dados |
@@ -136,7 +168,7 @@ navegador sobre a base completa, comparando antes e depois:
 Implementa as sugestões de `docs/DIAGNOSTICO-REGIONAL-analise-do-template.md` que dependem só de dados
 já incluídos no pacote.
 
-- **Valores oficiais de 2010 no município.** Gini, pobreza, renda per capita, trabalho e escolaridade de
+- **Valores de 2010 do município inteiro.** Gini, pobreza, renda per capita, trabalho e escolaridade de
   2010 passam a usar, no nível município, o valor calculado sobre todos os registros do município. Antes
   era a média das áreas de ponderação, o que não é um Gini válido (Canoas: 0,452 antes, 0,518 agora).
   As sete versões "(histórico)" só do município, que repetiam esses números, saíram da lista.
@@ -181,7 +213,9 @@ substituí-los ou complementá-los por RAIS/Novo CAGED e CadÚnico, sem alterar 
 ## Equipamentos e análise de entorno
 
 - 1.650 escolas em atividade do Censo Escolar/INEP 2025.
-- 567 estabelecimentos de saúde ativos do CNES 2026.
+- 479 unidades de saúde de atendimento do CNES 2026 (abril). As centrais de regulação ficam de fora,
+  e as 61 comunidades terapêuticas e residenciais formam uma camada própria. As 13 unidades em
+  presídios e unidades socioeducativas aparecem no mapa, mas não entram nas contagens.
 - As contagens por bairro usam ponto dentro do polígono.
 - O entorno da loja soma os setores cujo ponto representativo cai no raio. Um setor na borda entra
   inteiro ou fica de fora; a interface explica essa aproximação.
@@ -222,8 +256,8 @@ atlas_v3/
 Os scripts em `extracao/` regeneram os dados integrados:
 
 ```bash
-python3 extracao/2_atualiza_cnes.py --arquivo /caminho/healthfacilities_YYYYMM.parquet
-python3 extracao/3_atualiza_escolas.py --arquivo /caminho/schools_YYYY.parquet
+python3 extracao/2_atualiza_cnes.py --arquivo /caminho/healthfacilities_AAAAMM.parquet
+python3 extracao/3_atualiza_escolas.py --arquivo /caminho/schools_AAAA.parquet
 python3 extracao/1_servicos_municipais.py
 python3 extracao/5_base_dos_dados.py
 python3 extracao/4_indices_municipais.py
@@ -235,7 +269,8 @@ conta) os arquivos gratuitos do Atlas Brasil, do IDEB, da Anatel e das áreas de
 grava `dados/dados-complementares.js`. Ele também deixa em `extracao/fontes/basedosdados/` o
 arquivo do Atlas Brasil que o `4_indices_municipais.py` usa para o IDHM, por isso roda antes.
 
-Os dois scripts de pontos precisam de `pandas` e `pyarrow`. O script municipal usa a API pública
+Os dois scripts de pontos precisam de `pandas` e `pyarrow`. A competência do CNES e o ano do Censo
+Escolar saem do nome do arquivo; se o nome não disser, informe `--competencia AAAAMM` ou `--ano AAAA`. O script municipal usa a API pública
 do SICONFI e os arquivos oficiais de segurança; consulte o cabeçalho de cada script.
 
 ### Índices sintéticos municipais
