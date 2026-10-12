@@ -85,6 +85,7 @@ estão bloqueados aqui.
 | B9 | Mancha da enchente de maio de 2024 sobre os setores | Zenodo, registro 11185049 (IPH/UFRGS), mais `geobr::read_census_tract(year = 2022)` | zenodo.org, github.com | `07_enchente_2024.R` |
 | B13 | Parques, praças, quadras, bibliotecas, centros comunitários, teatros | `osmdata::opq()` e `osmdata_sf()` | overpass-api.de | `08_osm_cultura_lazer.R` |
 | B7 | Vínculos formais (RAIS) e saldo de empregos (CAGED) por município | BigQuery da Base dos Dados (`bigrquery`), conjuntos `br_me_rais` e `br_me_caged` | bigquery.googleapis.com, com projeto do Google Cloud | `09_basedosdados_bigquery.R` |
+| Auditoria | Conferência da renda, pobreza e Gini de 2010 (achado E3 de [AUDITORIA-DADOS-v3.2.md](AUDITORIA-DADOS-v3.2.md)) | `censobr::read_population(year = 2010)` | github.com | `11_confere_renda_2010.R` |
 | B11 | Registros do SISVAN por município | BigQuery da Base dos Dados, `br_ms_sisvan` | idem | `09_…` |
 | B1, B7 | Bolsa Família (pagamentos) e MEI | BigQuery da Base dos Dados (`br_cgu_beneficios_cidadao`, `br_me_cnpj`): o script lista as tabelas para escolher | idem | `09_…` |
 
@@ -119,8 +120,11 @@ A integração segue o caminho que o Atlas já usa:
   setor de 2022 recebe o valor da sua área de ponderação, e no município vale o número oficial;
 - **por setor (2022, enchente)**: entram como colunas novas de `dados-setores.js` e se somam por
   bairro e por bolsão como as demais;
-- **por ponto (escolas, unidades de saúde, OSM, OSC)**: ligam-se às camadas existentes pelo código
-  INEP ou CNES, ou viram camada nova.
+- **por ponto (escolas, unidades de saúde, OSM, OSC)**: viram camada nova ou se ligam às camadas
+  existentes pelo código INEP ou CNES. Atenção: a auditoria de outubro de 2026 mostrou que as escolas
+  e as unidades de saúde do mapa **não guardam esses códigos**. Antes de ligar matrículas (B5) ou
+  equipes (B6) a elas, é preciso incluir a coluna do código nos scripts `3_atualiza_escolas.py` e
+  `2_atualiza_cnes.py` e regenerar os pontos. Ver [AUDITORIA-DADOS-v3.2.md](AUDITORIA-DADOS-v3.2.md).
 
 Quando os arquivos de `saida_R/` estiverem prontos, basta trazê-los para a integração.
 

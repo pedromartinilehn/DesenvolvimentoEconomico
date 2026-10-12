@@ -11,8 +11,11 @@
 # Turma...): para esses anos, use educabR::list_censo_files(ano) e o argumento
 # file = "Matricula", e refaça a agregação por escola.
 #
-# A ligação com o Atlas é pelo código INEP da escola (co_entidade), o mesmo das
-# escolas já mapeadas.
+# Ligação com o mapa: as escolas do Atlas hoje NÃO guardam o código INEP (ver
+# docs/AUDITORIA-DADOS-v3.2.md). Antes de juntar pelo código (co_entidade),
+# acrescente a coluna do código à lista `colunas` do 3_atualiza_escolas.py e
+# regenere os pontos. Sem isso, a junção teria de ser por nome e município,
+# que é frágil.
 #
 # Saída: extracao/saida_R/censo_escolar_<ano>_matriculas_escolas.csv
 #        extracao/saida_R/censo_escolar_<ano>_matriculas_municipios.csv

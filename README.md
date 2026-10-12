@@ -24,6 +24,7 @@ Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 | [`docs/EXTRACAO-dados-faltantes.md`](docs/EXTRACAO-dados-faltantes.md) | de onde vem cada dado que falta no Atlas e como extraí-lo, com scripts R prontos; o que já entrou pelo espelho público da Base dos Dados (IDHM, Atlas Brasil 2010, IDEB, banda larga, áreas de risco) |
 | [`docs/DIAGNOSTICO-REGIONAL-analise-do-template.md`](docs/DIAGNOSTICO-REGIONAL-analise-do-template.md) | análise das perguntas do template, cobertura do Atlas por seção e sugestões de dados e funções para completar o diagnóstico |
 | [`docs/APRESENTACAO-entorno-lojas.pptx`](docs/APRESENTACAO-entorno-lojas.pptx) | a análise em 21 slides de PowerPoint, com gráficos e tabelas editáveis e notas do apresentador |
+| [`docs/AUDITORIA-DADOS-v3.2.md`](docs/AUDITORIA-DADOS-v3.2.md) | auditoria de todos os dados da versão 3.2: somas, identidades, geometria, pontos, catálogo e comparação com IBGE e Atlas Brasil; quatro erros de classificação e rótulo, com correções propostas |
 | [`docs/AUDITORIA-arquivos-e-modelos.md`](docs/AUDITORIA-arquivos-e-modelos.md) | auditoria dos arquivos, dos dados e dos modelos de cálculo, com os erros visíveis na interface |
 | [`docs/entorno-lojas.csv`](docs/entorno-lojas.csv) | 20 unidades × 4 raios × 34 colunas, com comparação ao próprio município e quintil de renda |
 | [`docs/bolsoes-quintil-inferior.csv`](docs/bolsoes-quintil-inferior.csv) | 123 bolsões do quintil mais pobre a até 5 km de alguma unidade, com coordenadas e loja mais próxima |
