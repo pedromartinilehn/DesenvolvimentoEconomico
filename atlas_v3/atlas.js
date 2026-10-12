@@ -84,6 +84,9 @@ const FONTES = {
   SICONFI:{n:'Tesouro Nacional — SICONFI / FINBRA',s:'SICONFI/STN',u:'https://siconfi.tesouro.gov.br/',d:''},
   ATLAS:{n:'PNUD / IPEA / FJP — Atlas do Desenvolvimento Humano',s:'Atlas Brasil',
     u:'https://www.atlasbrasil.org.br/perfil/municipio/431490',d:'IDHM calculado sobre Censos Demográficos de 1991, 2000 e 2010. O IDHM dos sete municípios e os indicadores de vulnerabilidade de 2010 foram lidos do espelho público da Base dos Dados (tabela mundo_onu_adh.municipio), que republica o Atlas Brasil sem alterar os valores.'},
+  IPEA_AOP:{n:'IPEA — Projeto Acesso a Oportunidades (2019)',s:'IPEA',
+    u:'https://www.ipea.gov.br/acessooportunidades/',
+    d:'Tempo de viagem e oportunidades alcançáveis a pé, de bicicleta e de transporte público, calculados pelo IPEA por hexágono para as maiores cidades do país, com dados de 2019. Lido do espelho público da Base dos Dados (br_ipea_acesso_oportunidades.indicadores_2019). Na tabela da Base dos Dados o tempo mínimo vem multiplicado por 100; o Atlas divide por 100 depois de conferir a coerência com os indicadores cumulativos (ver Metodologia).'},
   ANATEL:{n:'Anatel — Acessos de banda larga fixa',s:'Anatel',
     u:'https://storage.googleapis.com/basedosdados-public/one-click-download/br_anatel_banda_larga_fixa/densidade_municipio/densidade_municipio.csv.gz',
     d:'Densidade de banda larga fixa calculada pela Anatel: acessos por 100 habitantes. Lida do espelho público da Base dos Dados (br_anatel_banda_larga_fixa.densidade_municipio).'},
@@ -113,7 +116,7 @@ const FONTES = {
     u:'https://github.com/ipeaGIT/censobr',
     d:'Pacote do IPEA que empacota e distribui os agregados por setor censitário publicados pelo IBGE, sem alterar os valores. É a via de acesso usada por este Atlas; a fonte primária continua sendo o IBGE.'},
   ATLAS_CALC:{n:'Cálculo do Atlas sobre fontes oficiais',s:'Cálculo do Atlas',u:'',
-    d:'Indicador derivado. A metodologia é explicitada na ficha do indicador.'}
+    d:'Indicador que não aparece pronto em nenhuma publicação: o Atlas o calcula a partir de contagens oficiais (Censo 2022 por setor, PIB do IBGE, CNES), pela fórmula descrita na Metodologia. O ano é o dos dados de origem, não o do cálculo. No bairro e no município, as contagens são somadas antes de calcular a taxa; nunca é média de percentuais.'}
 };
 
 /* ─────────────────────────────────────────────── 2. NÍVEIS GEOGRÁFICOS ─ */
@@ -149,7 +152,7 @@ const CATS=[
   {id:'saneamento',n:'Saneamento'},{id:'assistencia',n:'Assistência Social'},
   {id:'seguranca',n:'Segurança'},{id:'idh',n:'Desenvolvimento Humano'},
   {id:'financas',n:'Finanças Públicas'},{id:'agro',n:'Produção Agropecuária'},
-  {id:'ambiente',n:'Ambiente Urbano'}
+  {id:'ambiente',n:'Ambiente Urbano'},{id:'mobilidade',n:'Mobilidade e acesso'}
 ];
 
 const IND=[];
@@ -169,7 +172,7 @@ const slugId=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
 /* ---- 4.1 INDICADORES DO CENSO 2022 — CARREGADOS ----------------------- */
 ind({id:'pop',cat:'visao',n:'População residente',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua',obs:'Total de pessoas recenseadas. Soma exatamente 1.332.845 no município.'});
 ind({id:'dens_hab',cat:'visao',n:'Densidade demográfica',u:'hab/km²',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec1',ramp:'brasa',obs:'População dividida pela área do polígono do território.'});
-ind({id:'area_km2',cat:'visao',n:'Área do polígono',u:'km²',fonte:'SMURB',ano:2016,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'terra',obs:'Porto Alegre — bairros: malha SMUrb (Lei 12.112/2016), 94 bairros, 472,81 km² no total. Setores: área do IBGE, 495,39 km². A área municipal do IBGE é 496,83 km² — a malha de bairros não recobre toda a lâmina d’água. Medidas de produtores distintos, nunca somadas entre si.'});
+ind({id:'area_km2',cat:'visao',n:'Área do polígono',u:'km²',fonte:'SMURB',ano:2016,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'terra',obs:'Nos outros seis municípios, a área do bairro é a soma dos setores do IBGE que o formam. Porto Alegre — bairros: malha SMUrb (Lei 12.112/2016), 94 bairros, 472,81 km² no total. Setores: área do IBGE, 495,39 km². A área municipal do IBGE é 496,83 km² — a malha de bairros não recobre toda a lâmina d’água. Medidas de produtores distintos, nunca somadas entre si.'});
 ind({id:'pop_pct_mun',cat:'visao',n:'Participação na população do município',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro'],status:'ok',fmt:'pct2',ramp:'agua'});
 ind({id:'pop_h',cat:'demografia',n:'População masculina',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'pop_m',cat:'demografia',n:'População feminina',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
@@ -350,6 +353,71 @@ munInd('ideb_medio','educacao','IDEB do ensino médio, rede pública','índice',
 
 munInd('banda_larga_100hab','ambiente','Acessos de banda larga fixa por 100 habitantes','acessos por 100 hab.','ANATEL',(COMP_F.anatel||{}).ano||null,'dec1','agua',
   `Densidade calculada pela Anatel com a sua própria base populacional${COMP_F.anatel?`, referente a ${String(COMP_F.anatel.mes).padStart(2,'0')}/${COMP_F.anatel.ano}`:''}. A Anatel também divulga a densidade por 100 domicílios, que dá valores maiores: as duas medidas não se comparam. Mede contratos de internet fixa, não o acesso pelo celular.`);
+
+/* ---- 4.3.3 DADOS DO IPEA ----------------------------------------------
+   Vêm de dados/dados-ipea.js, gerado por extracao/6_ipea.py a partir do
+   espelho público da Base dos Dados. Duas bases: o Atlas do Desenvolvimento
+   Humano (PNUD, IPEA e FJP), com os Censos de 1991, 2000 e 2010, e o projeto
+   Acesso a Oportunidades (IPEA), de 2019, que entre as sete cidades só cobre
+   Porto Alegre. Sem o arquivo, verificaCatalogo() tira estes indicadores. */
+const IPEA=window.ATLAS_IPEA||{}, ADH_IPEA=IPEA.adh||null, AOP=IPEA.aop||null;
+/* id no Atlas -> coluna do Atlas Brasil (mundo_onu_adh.municipio) */
+const ADH_NOVOS={
+  adh_expectativa_estudo:'expectativa_anos_estudo', adh_fora_escola_6_14:'taxa_criancas_fora_escola_6_14',
+  adh_atraso_fund:'taxa_atraso_2_fundamental', adh_fund_18_mais:'taxa_fundamental_18_mais',
+  adh_medio_18_20:'taxa_medio_18_20', adh_mort_infantil:'mortalidade_1', adh_mort_5:'mortalidade_5',
+  adh_theil:'indice_theil', adh_razao_10_40:'razao_10_ricos_40_pobres', adh_renda_20_pobres:'prop_renda_20_pobres',
+  adh_pobreza_criancas:'prop_pobreza_criancas', adh_extrema_criancas:'prop_pobreza_extrema_criancas',
+  adh_formalizacao:'prop_ocupados_formalizacao', adh_desocup_18_mais:'taxa_desocupacao_18_mais',
+  adh_densidade_2:'taxa_densidade_2_mais', adh_agua_esgoto_inadeq:'taxa_agua_esgoto_inadequados',
+  adh_sem_fund_informal:'taxa_sem_fund_informal', adh_criancas_dom_sem_fund:'taxa_criancas_dom_sem_fund',
+  adh_maes_10_14:'taxa_mulheres_com_filho_10_14'
+};
+const ADHC=c=>`Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA e FJP), Censo 2010; coluna ${c} da Base dos Dados. A série 1991-2010 está no painel do município. `;
+munInd('adh_expectativa_estudo','educacao','Expectativa de anos de estudo','anos','ATLAS',2010,'dec2','agua',
+  ADHC('expectativa_anos_estudo')+'Anos de estudo que uma geração de crianças que entra na escola deve completar até os 18 anos, se os padrões de 2010 se mantiverem.');
+munInd('adh_fora_escola_6_14','educacao','Crianças de 6 a 14 anos fora da escola','%','ATLAS',2010,'pct2','brasa',ADHC('taxa_criancas_fora_escola_6_14'));
+munInd('adh_atraso_fund','educacao','Alunos do fundamental com 2 anos ou mais de atraso idade-série','%','ATLAS',2010,'pct1','brasa',
+  ADHC('taxa_atraso_2_fundamental')+'Percentual sobre os que frequentam o ensino fundamental regular.');
+munInd('adh_fund_18_mais','educacao','Pessoas de 18 anos ou mais com fundamental completo','%','ATLAS',2010,'pct1','agua',ADHC('taxa_fundamental_18_mais'));
+munInd('adh_medio_18_20','educacao','Jovens de 18 a 20 anos com ensino médio completo','%','ATLAS',2010,'pct1','agua',ADHC('taxa_medio_18_20'));
+munInd('adh_mort_infantil','saude','Mortalidade infantil, até 1 ano (Atlas Brasil, 2010)','por mil nascidos vivos','ATLAS',2010,'dec1','brasa',
+  ADHC('mortalidade_1')+'Estimativa do Atlas Brasil sobre o Censo, comparável entre 1991, 2000 e 2010. Não é a taxa do registro civil.');
+munInd('adh_mort_5','saude','Mortalidade até 5 anos de idade (Atlas Brasil, 2010)','por mil nascidos vivos','ATLAS',2010,'dec1','brasa',ADHC('mortalidade_5'));
+munInd('adh_theil','renda','Índice de Theil-L da renda (Atlas Brasil)','índice','ATLAS',2010,'dec2','brasa',
+  ADHC('indice_theil')+'Desigualdade da renda domiciliar per capita: zero quando todos têm a mesma renda; cresce com a desigualdade.');
+munInd('adh_razao_10_40','renda','Renda dos 10% mais ricos ÷ renda dos 40% mais pobres','vezes','ATLAS',2010,'dec1','brasa',
+  ADHC('razao_10_ricos_40_pobres')+'Compara a renda per capita média do décimo mais rico com a dos dois quintos mais pobres.');
+munInd('adh_renda_20_pobres','renda','Parte da renda total que fica com os 20% mais pobres','%','ATLAS',2010,'pct2','agua',ADHC('prop_renda_20_pobres'));
+munInd('adh_pobreza_criancas','pobreza','Crianças pobres (Atlas Brasil)','%','ATLAS',2010,'pct1','brasa',
+  ADHC('prop_pobreza_criancas')+'Crianças em domicílios com renda per capita de até R$ 140 (agosto de 2010), na definição do Atlas Brasil.');
+munInd('adh_extrema_criancas','pobreza','Crianças extremamente pobres (Atlas Brasil)','%','ATLAS',2010,'pct2','brasa',
+  ADHC('prop_pobreza_extrema_criancas')+'Crianças em domicílios com renda per capita de até R$ 70 (agosto de 2010).');
+munInd('adh_formalizacao','trabalho','Grau de formalização dos ocupados de 18 anos ou mais','%','ATLAS',2010,'pct1','agua',
+  ADHC('prop_ocupados_formalizacao')+'Ocupados com carteira assinada, militares, servidores estatutários, e empregadores e trabalhadores por conta própria que contribuem para a previdência, sobre o total de ocupados de 18 anos ou mais.');
+munInd('adh_desocup_18_mais','trabalho','Taxa de desocupação de 18 anos ou mais (Atlas Brasil)','%','ATLAS',2010,'pct1','brasa',
+  ADHC('taxa_desocupacao_18_mais')+'Número publicado; serve de referência para a desocupação de 2010 calculada pelo Atlas.');
+munInd('adh_densidade_2','habitacao','Pessoas em domicílios com mais de 2 moradores por dormitório','%','ATLAS',2010,'pct2','brasa',ADHC('taxa_densidade_2_mais'));
+munInd('adh_agua_esgoto_inadeq','saneamento','Pessoas em domicílios com água e esgoto inadequados','%','ATLAS',2010,'pct2','brasa',
+  ADHC('taxa_agua_esgoto_inadequados')+'Abastecimento de água e esgotamento sanitário inadequados ao mesmo tempo, na definição do Atlas Brasil.');
+munInd('adh_sem_fund_informal','vulner','Pessoas de 18 anos ou mais sem fundamental completo e em ocupação informal','%','ATLAS',2010,'pct1','brasa',ADHC('taxa_sem_fund_informal'));
+munInd('adh_criancas_dom_sem_fund','vulner','Crianças em domicílios em que ninguém tem fundamental completo','%','ATLAS',2010,'pct1','brasa',ADHC('taxa_criancas_dom_sem_fund'));
+munInd('adh_maes_10_14','saude','Meninas de 10 a 14 anos que tiveram filhos','%','ATLAS',2010,'pct2','brasa',ADHC('taxa_mulheres_com_filho_10_14'));
+
+/* Acesso a Oportunidades: só Porto Alegre. Setor e bairro. */
+const OBS_AOP='Projeto Acesso a Oportunidades (IPEA), 2019: rotas calculadas pelo IPEA sobre a malha viária do OpenStreetMap e, no transporte público, sobre a programação publicada das linhas (GTFS), no pico da manhã de um dia útil. Empregos são os vínculos formais da RAIS; escolas e estabelecimentos de saúde, os da rede pública. Cada setor de 2022 recebe o valor do hexágono do IPEA que contém o seu ponto representativo; o bairro, a média dos setores ponderada pela população. Entre as sete cidades, só Porto Alegre está no projeto. A grade de 2019 não alcança 134 setores, quase todos na periferia (extremo sul, zona leste e ilhas): eles ficam sem valor, e o bairro só tem valor se os setores cobertos somam ao menos metade da sua população.';
+const aop=(id,n,u,fmt,ramp,niveis,obs)=>ind({id,cat:'mobilidade',n,u,fonte:'IPEA_AOP',ano:2019,niveis,status:'ok',fmt,ramp,obs:(obs?obs+' ':'')+OBS_AOP});
+aop('aop_emprego_tp60','Empregos alcançáveis em até 60 minutos de transporte público','% dos empregos da cidade','pct1','agua',['bairro','setor'],
+  'Parte dos empregos formais de Porto Alegre que se alcança em até uma hora, combinando transporte público e caminhada.');
+aop('aop_saude_pe','Tempo a pé até o estabelecimento de saúde de baixa complexidade mais próximo','min','dec1','brasa',['bairro','setor'],
+  'Baixa complexidade na classificação do IPEA. Setor que não alcança nenhum estabelecimento no limite de cálculo fica sem valor e entra na população a mais de 30 minutos.');
+aop('aop_infantil_pe','Tempo a pé até a escola pública de educação infantil mais próxima','min','dec1','brasa',['bairro','setor'],
+  'Setor que não alcança nenhuma escola no limite de cálculo fica sem valor e entra na população a mais de 30 minutos.');
+aop('aop_fundamental_pe','Tempo a pé até a escola pública de ensino fundamental mais próxima','min','dec1','brasa',['bairro','setor']);
+aop('aop_saude_30pe','População a mais de 30 minutos a pé da saúde de baixa complexidade','%','pct1','brasa',['bairro'],
+  'Moradores de setores cujo tempo a pé passa de 30 minutos ou que não alcançam nenhum estabelecimento no limite de cálculo, sobre os moradores dos setores cobertos.');
+aop('aop_infantil_30pe','População a mais de 30 minutos a pé de escola pública de educação infantil','%','pct1','brasa',['bairro'],
+  'Moradores de setores cujo tempo a pé passa de 30 minutos ou que não alcançam nenhuma escola no limite de cálculo, sobre os moradores dos setores cobertos.');
 
 
 
@@ -597,12 +665,6 @@ const MUN={
   m_mortinf:7.32, m_receita:11109224367.43, m_despesa:12061040035.33,
   m_idhm:0.805, m_idhm00:0.744,
   m_resp_renda:null, fcu_pop:175519, fcu_n:125, pop_reportada:1330054, setores_sem_pessoas:49
-};
-/* série histórica com metodologia homogênea (§24) */
-const SERIES={
-  idhm:{n:'IDHM — Porto Alegre',fonte:'ATLAS',u:'índice',
-    obs:'Série calculada com metodologia homogênea sobre os Censos Demográficos. Não existe IDHM oficial posterior a 2010.',
-    pts:[[2000,0.744],[2010,0.805]]}
 };
 
 /* ─────────────────────────────────────────────────────── 6. ESTADO ───── */
@@ -1088,93 +1150,155 @@ function ligaPainel(){
   const c=$('#btnAddCmp'); if(c)c.onclick=()=>{addCmp(S.sel);abreModal('mdAnalise');};
   const r=$('#btnRankAqui'); if(r)r.onclick=()=>abreRanking();
   $$('[data-goto]').forEach(x=>x.onclick=()=>selecionar(x.dataset.goto));
+  $$('[data-filtra]').forEach(x=>x.onclick=()=>filtraMunicipio(+x.dataset.filtra));
+  const fm=$('#btnFichaMun');
+  if(fm)fm.onclick=()=>{const p=muniSelecionado(); if(!p)return; setNivel('municipio',true); selecionar(p.id);};
 }
 
+/* ── Painel de abertura: o município escolhido no seletor do topo ou, sem
+   escolha, a região. Até a versão 3.4 mostrava sempre Porto Alegre, mesmo com
+   outro município filtrado no mapa. */
+function muniSelecionado(){
+  if(S.muniFiltro==null)return null;
+  const f=((S.geo.municipio||{}).features||[]).find(x=>x.properties.muni_id===S.muniFiltro);
+  return f?f.properties:null;
+}
+/* indicador só municipal; os do IBGE Cidades (estado "mun") existem só para Porto Alegre */
+function valorMunicipal(p,i){
+  if(p[i.id]!=null&&p[i.id]!=='')return p[i.id];
+  return p.nome===MUN.nome&&MUN[i.id]!=null?MUN[i.id]:null;
+}
+/* setores por município e os que o IBGE publica sem os blocos de pessoas */
+let CONTA_SET=null;
+function contaSetores(){
+  if(CONTA_SET)return CONTA_SET;
+  const T=RAW_SETORES,N=RAW_NUCLEO; if(!T||!N)return CONTA_SET={};
+  const ns=T.geom.length, muni=decDic(T.m,null,ns), C=N.campos, E=N.escalas;
+  const col=k=>{const i=C.indexOf(k);return i<0||!T.valores[k]?null:decCol(T.valores[k],E[i],ns);};
+  const pop=col('pop'),ph=col('pop_h'),pm=col('pop_m'), r={};
+  for(let i=0;i<ns;i++){
+    const o=r[muni[i]]||(r[muni[i]]={setores:0,semBloco:0,popSem:0});
+    o.setores++;
+    if(ph&&pm&&ph[i]==null&&pm[i]==null){o.semBloco++; if(pop&&pop[i]>0)o.popSem+=pop[i];}
+  }
+  return CONTA_SET=r;
+}
+function filtraMunicipio(k){
+  S.muniFiltro=k; const sm=$('#selMuni'); if(sm)sm.value=k==null?'':String(k);
+  S.sel=null; S._fit=false; desenhaMapa(); renderPainel();
+}
 function aberturaHTML(){
-  const poaM=(((S.geo.municipio||{}).features||[]).find(f=>f.properties.nome===MUN.nome)||{}).properties||{};
+  const p=muniSelecionado(), R=p?null:regiaoProps(), q=p||R||{};
+  const cs=contaSetores(), soma=k=>Object.values(cs).reduce((a,o)=>a+(o[k]||0),0);
+  const info=p?(cs[p.muni_id]||{}):{setores:soma('setores'),semBloco:soma('semBloco'),popSem:soma('popSem')};
+  const bs=S.geo.bairro.features.filter(f=>!p||f.properties.muni_id===p.muni_id);
+  const semBairros=p&&bs.length===1&&/sem divisão de bairros/i.test(bs[0].properties.nome);
+  const cod=p&&MUNIS_LISTA?String(MUNIS_LISTA.ids[p.muni_id]):null;
   const kpis=[
-    ['População','pop_2022',MUN.pop_2022,'int','Censo/IBGE · 2022'],
-    ['Área','area_km2',MUN.area_km2,'dec2','SMUrb/IBGE · 2016',' km²'],
-    ['PIB','__pib',(((RAW_NUCLEO||{}).pib||{}).municipios||{})[MUN.nome]
-      ?RAW_NUCLEO.pib.municipios[MUN.nome].pib*1000:null,'brlc',
-      'IBGE · '+((((RAW_NUCLEO||{}).pib)||{}).ano_pib||2023)],
-    ['PIB per capita','pib_pc',poaM.pib_pc??MUN.m_pib_pc,'brl0','IBGE · '+ANO.pib],
-    ['Rendimento médio do responsável','m_resp_renda',MUN.m_resp_renda,'brl0','Censo/IBGE · 2022'],
-    ['IDHM','idhm',poaM.idhm??MUN.m_idhm,'dec3','Atlas Brasil · 2010']
+    ['População',q.pop,'int','Censo/IBGE · 2022'],
+    ['Área',q.area_km2,'dec2','setores IBGE · 2022',' km²'],
+    ['PIB',q.pib!=null?q.pib*1000:null,'brlc',(p?'IBGE · ':'IBGE · soma dos sete · ')+ANO.pib],
+    ['PIB per capita',q.pib_pc,'brl0','Cálculo do Atlas · '+ANO.pib],
+    ['Rendimento médio do responsável',q.resp_renda,'brl0','Cálculo do Atlas · 2022'],
+    ['IDHM',p?p.idhm:null,'dec3','Atlas Brasil · 2010']
   ];
   /* só entra o que tem valor: o painel nunca exibe cartão vazio */
-  const cards=kpis.filter(k=>k[2]!=null).map(([lb,id,val,f,src,suf])=>{
-    return `<div class="kpi"><span class="lb">${esc(lb)}</span>
+  const cards=kpis.filter(k=>k[1]!=null).map(([lb,val,f,src,suf])=>`<div class="kpi"><span class="lb">${esc(lb)}</span>
       <span class="vl">${fmtN(val,f)}${suf?`<small>${suf}</small>`:''}</span>
-      <span class="selo s-ok"><i class="dot"></i>${esc(src)}</span></div>`;
-  }).join('');
+      <span class="selo s-ok"><i class="dot"></i>${esc(src)}</span></div>`).join('');
 
-  const municipais=IND.filter(i=>i.status==='mun'&&MUN[i.id]!=null);
+  /* indicadores que só existem por município, agrupados por tema */
+  const soMun=IND.filter(i=>i.niveis.includes('municipio')&&!i.niveis.includes('bairro')
+    &&!i.niveis.includes('setor')&&i.status!=='pend');
+  const itens=soMun.map(i=>({i,v:p?valorMunicipal(p,i):q[i.id]}))
+    .filter(o=>o.v!=null&&o.v!==''&&!isNaN(+o.v));
+  const grupos=CATS.map(c=>({c,l:itens.filter(o=>o.i.cat===c.id)})).filter(g=>g.l.length);
+  const linhaMun=({i,v})=>`<div class="row"><div class="k">${esc(i.n)}${selo(i,'municipio')}</div>
+     <div class="v"><span class="num">${fmtN(+v,i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`;
+
+  const munis=((S.geo.municipio||{}).features||[]).map(f=>f.properties);
+  const aopM=p&&AOP?(AOP.municipio||{})[cod]:null;
   return `
   <div class="terr-h">
-    <span class="eyebrow">Atlas socioeconômico interativo</span>
-    <h2>Porto Alegre</h2>
-    <div class="sub"><span class="chip acc">RS · 4314902</span>
-      <span class="chip">94 bairros</span><span class="chip">2.744 setores</span></div>
+    <span class="eyebrow">${p?'Município selecionado':'Atlas socioeconômico interativo'}</span>
+    <h2>${esc(p?p.nome:'Região metropolitana')}</h2>
+    <div class="sub">${p?`<span class="chip acc">RS · ${esc(cod)}</span>`:'<span class="chip acc">7 municípios</span>'}
+      <span class="chip">${semBairros?'sem divisão de bairros no IBGE':nf.format(bs.length)+' bairros'}</span>
+      <span class="chip">${nf.format(info.setores||0)} setores</span></div>
   </div>
   <div class="hero-kpi">${cards}</div>
   <p style="font-size:12px;color:var(--txt2);line-height:1.6">
-    Selecione um indicador na coluna à esquerda para explorar as desigualdades socioeconômicas
-    dentro do município, ou clique em um território no mapa para abrir seu perfil completo.</p>
+    ${p?`Selecione um indicador na coluna à esquerda para explorar as desigualdades dentro de
+    ${esc(p.nome)}, ou clique em um território no mapa para abrir o perfil completo.`
+    :`Selecione um indicador na coluna à esquerda para comparar os territórios dos sete municípios,
+    ou escolha um município no seletor do topo.`}</p>
 
-  <h3 class="sec">Indicadores só do município <span class="chip tag">${municipais.length}</span></h3>
-  <p style="font-size:11.5px;color:var(--txt3);margin-bottom:8px;line-height:1.55">
-    Estes indicadores não têm representatividade abaixo do município e por isso
-    <b>não são rateados entre bairros</b>.</p>
-  ${municipais.map(i=>`<div class="row"><div class="k">${esc(i.n)}${selo(i)}</div>
-     <div class="v"><span class="num">${fmtN(MUN[i.id],i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`).join('')}
+  ${p?'':`<h3 class="sec">Os sete municípios</h3>
+  ${munis.map(m=>`<button class="row muni-row" data-filtra="${m.muni_id}"><div class="k"><b>${esc(m.nome)}</b>
+      ${m.idhm!=null?`<span class="ref-note">IDHM ${fmtN(m.idhm,'dec3')} · Atlas Brasil 2010</span>`:''}</div>
+    <div class="v"><span class="num">${fmtN(m.pop,'int')}</span><span class="u">moradores · 2022</span></div></button>`).join('')}
+  <p class="ref-note" style="margin-top:6px">Clique em um município para ver o painel dele.</p>`}
 
-  <h3 class="sec">Evolução histórica</h3>
-  ${serieHTML('idhm')}
+  <h3 class="sec">${p?'Indicadores só do município':'Indicadores municipais, somados na região'}
+    <span class="chip tag">${itens.length}</span></h3>
+  <p style="font-size:12px;color:var(--txt3);margin-bottom:8px;line-height:1.55">
+    ${p?`Estes indicadores não têm representatividade abaixo do município e por isso
+    <b>não são rateados entre bairros</b>.`:`Somas dos sete municípios, ou taxas recalculadas sobre as somas.
+    Índices como o IDHM não se somam e ficam de fora.`}</p>
+  ${grupos.map((g,k)=>`<details class="grupo"${k===0?' open':''}><summary>${esc(g.c.n)}<span class="chip tag">${g.l.length}</span></summary>
+    ${g.l.map(linhaMun).join('')}</details>`).join('')}
+  ${p?`<div class="btn-row"><button class="btn" id="btnFichaMun">Abrir a ficha completa de ${esc(p.nome)}</button></div>`:''}
 
-  <h3 class="sec">Retrato do município — Censo 2022</h3>
-  ${retratoHTML()}
+  ${aopM?`<h3 class="sec">Acesso a oportunidades <span class="chip tag">IPEA · 2019</span></h3>
+  ${Object.keys(aopM).map(k=>{const i=getInd(k);return i&&aopM[k]!=null?`<div class="row"><div class="k">${esc(i.n)}</div>
+    <div class="v"><span class="num">${fmtN(aopM[k],i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`:'';}).join('')}
+  <p class="ref-note" style="margin-top:6px">Média da cidade ponderada pela população dos setores cobertos.
+    Mapa por bairro e setor em <b>Mobilidade e acesso</b>.</p>`:''}
+
+  ${p?seriesMunicipioHTML(cod):''}
+
+  <h3 class="sec">Retrato ${p?'do município':'da região'} — Censo 2022</h3>
+  ${retratoHTML(q,info,p)}
 
   <h3 class="sec">Cobertura do Atlas</h3>
   ${coberturaHTML()}`;
 }
 
-/* agregados do município calculados a partir dos 94 bairros de Porto Alegre
-   (a camada de bairros também traz os outros seis municípios) */
-function retratoHTML(){
-  const f=S.geo.bairro.features.filter(x=>x.properties.muni===MUN.nome),
-    T=k=>f.reduce((a,x)=>a+(x.properties[k]||0),0);
+/* agregados do Censo 2022 do município (ou da região): são as somas dos setores */
+function retratoHTML(q,info,p){
+  const T=k=>+q[k]||0;
   const rc=T('raca_branca')+T('raca_preta')+T('raca_amarela')+T('raca_parda')+T('raca_indigena');
-  const dp=T('dppo');
+  const dp=T('dppo'), pc=(a,b)=>b?100*a/b:null;
   const linhas=[
-    ['População feminina', T('pop_m'), 'int', 100*T('pop_m')/(T('pop_h')+T('pop_m'))],
-    ['Idosos (60 anos ou mais)', T('idosos_60'), 'int', 100*T('idosos_60')/T('pop')],
-    ['Crianças e adolescentes (0 a 14)', T('criancas_0_14'), 'int', 100*T('criancas_0_14')/T('pop')],
-    ['População preta ou parda', T('raca_preta_parda'), 'int', 100*T('raca_preta_parda')/rc],
+    ['População feminina', T('pop_m'), 'int', pc(T('pop_m'),T('pop_h')+T('pop_m'))],
+    ['Idosos (60 anos ou mais)', T('idosos_60'), 'int', pc(T('idosos_60'),T('pop'))],
+    ['Crianças e adolescentes (0 a 14)', T('criancas_0_14'), 'int', pc(T('criancas_0_14'),T('pop'))],
+    ['População preta ou parda', T('raca_preta_parda'), 'int', pc(T('raca_preta_parda'),rc)],
     ['População indígena (quesito específico)', T('indigenas'), 'int', null],
     ['População quilombola', T('quilombolas'), 'int', null],
-    ['Em favelas e comunidades urbanas', T('fcu_pop'), 'int', 100*T('fcu_pop')/T('pop')],
-    ['Domicílios com esgoto adequado', T('esg_adequado'), 'int', 100*T('esg_adequado')/dp],
-    ['Domicílios com água de rede geral', T('agua_rede'), 'int', 100*T('agua_rede')/dp],
-    ['Domicílios com coleta de lixo', T('lixo_coletado'), 'int', 100*T('lixo_coletado')/dp],
-    ['Taxa de alfabetização (15+)', 100*T('alfab_15')/T('pop_15'), 'pct1', null]
+    ['Em favelas e comunidades urbanas', T('fcu_pop'), 'int', pc(T('fcu_pop'),T('pop'))],
+    ['Domicílios com esgoto adequado', T('esg_adequado'), 'int', pc(T('esg_adequado'),dp)],
+    ['Domicílios com água de rede geral', T('agua_rede'), 'int', pc(T('agua_rede'),dp)],
+    ['Domicílios com coleta de lixo', T('lixo_coletado'), 'int', pc(T('lixo_coletado'),dp)],
+    ['Taxa de alfabetização (15+)', pc(T('alfab_15'),T('pop_15')), 'pct1', null]
   ];
-  return linhas.map(([k,v,fm,pc])=>`<div class="row"><div class="k">${esc(k)}</div>
+  const sem=info.semBloco||0, morad=info.popSem||0;
+  return linhas.map(([k,v,fm,pcv])=>`<div class="row"><div class="k">${esc(k)}</div>
     <div class="v"><span class="num">${fmtN(v,fm)}</span>
-    <span class="u">${pc!=null?fmtN(pc,'pct1'):''}</span></div></div>`).join('')+
+    <span class="u">${pcv!=null?fmtN(pcv,'pct1'):''}</span></div></div>`).join('')+
     `<p style="font-size:11px;color:var(--txt3);line-height:1.6;margin-top:9px">
-      Somas dos 94 bairros, calculadas sobre os agregados por setor censitário do Censo 2022.
-      Os blocos de pessoas e domicílios não são publicados para ${MUN.setores_sem_pessoas} setores
-      especiais (quartel, unidade prisional, alojamento, convento, hospital), com
-      ${nf.format(MUN.pop_2022-MUN.pop_reportada)} moradores no total — por isso alguns denominadores
-      ficam em ${nf.format(MUN.pop_reportada)}, e não em ${nf.format(MUN.pop_2022)}.</p>`;
+      Somas dos setores censitários do Censo 2022${p?' de '+esc(p.nome):' dos sete municípios'}.
+      ${sem?`O IBGE não publica os blocos de pessoas e domicílios de ${nf.format(sem)} setores
+      (quartéis, unidades prisionais, alojamentos, conventos, hospitais e setores sem moradores)${morad?`, onde
+      moram ${nf.format(morad)} pessoas. Por isso alguns denominadores ficam em ${nf.format(T('pop')-morad)},
+      e não em ${nf.format(T('pop'))}`:''}.`:'O IBGE publica os blocos de pessoas e domicílios de todos os setores.'}</p>`;
 }
 function coberturaHTML(){
   const t=IND.length, ok=IND.filter(i=>i.status==='ok').length,
     ext=IND.filter(i=>i.status==='ext').length, imp=IND.filter(i=>i.status==='imp').length,
     mun=IND.filter(i=>i.status==='mun').length, est=IND.filter(i=>i.status==='est').length;
   const seg=[[ok,'var(--ok)','oficial, Censo 2022 e fontes recentes'],[est,'var(--est)','histórico, Censo 2010'],
-    [mun,'var(--mun)','só Porto Alegre'],[imp,'var(--imp)','arquivo do usuário'],
+    [mun,'var(--mun)','só Porto Alegre (IBGE Cidades)'],[imp,'var(--imp)','arquivo do usuário'],
     [ext,'var(--sim)','não oficial']].filter(x=>x[0]>0);
   return `<div style="display:flex;height:9px;border-radius:5px;overflow:hidden;margin-bottom:9px">
     ${seg.map(([n,c])=>`<div style="width:${100*n/t}%;background:${c}"></div>`).join('')}</div>
@@ -1186,27 +1310,44 @@ function coberturaHTML(){
       ${t} indicadores com fonte, ano e nível geográfico explícitos — ver <b>Cobertura</b> no topo.</p>`;
 }
 
-function serieHTML(k){
-  const s=SERIES[k]; if(!s)return '';
-  const w=300,h=112,pad={l:36,r:10,t:10,b:20};
-  const xs=s.pts.map(p=>p[0]), ys=s.pts.map(p=>p[1]);
-  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys)*.97,y1=Math.max(...ys)*1.02;
+/* Série 1991-2000-2010 do Atlas Brasil para o município: quatro gráficos pequenos,
+   um por indicador, cada um na própria escala (nunca dois eixos no mesmo gráfico). */
+const SERIES_ADH=[['IDHM','idhm','dec3'],['Renda per capita, R$ de ago/2010','renda_pc','brl0'],
+  ['Pessoas pobres','prop_pobreza','pct1'],['Mortalidade infantil, por mil','mortalidade_1','dec1']];
+function seriesMunicipioHTML(cod){
+  if(!ADH_IPEA||!cod)return '';
+  const V=ADH_IPEA.valores, anos=ADH_IPEA.anos;
+  const graf=SERIES_ADH.map(([t,c,f])=>{const v=(V[c]||{})[cod]; if(!v)return '';
+    const pts=anos.map((a,k)=>[a,v[k]]).filter(x=>x[1]!=null); return pts.length>1?serieMini(t,pts,f):'';}).join('');
+  if(!graf)return '';
+  return `<h3 class="sec">Evolução de 1991 a 2010 <span class="chip tag">Atlas Brasil</span></h3>
+    <div class="series">${graf}</div>
+    <p class="ref-note" style="margin-top:6px">Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA e FJP),
+      Censos de 1991, 2000 e 2010. Renda e linha de pobreza (R$ 140) em reais de agosto de 2010 nos três anos.
+      Não há IDHM oficial posterior a 2010.</p>`;
+}
+function serieMini(titulo,pts,fmt){
+  const w=170,h=100,pad={l:30,r:30,t:20,b:18};
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs), lo=Math.min(...ys),hi=Math.max(...ys);
+  const m=(hi-lo)*.18||Math.abs(hi)*.05||1, y0=lo-m, y1=hi+m;
   const px=v=>pad.l+(v-x0)/((x1-x0)||1)*(w-pad.l-pad.r);
   const py=v=>h-pad.b-(v-y0)/((y1-y0)||1)*(h-pad.t-pad.b);
-  const d=s.pts.map((p,i)=>(i?'L':'M')+px(p[0])+' '+py(p[1])).join(' ');
-  return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(s.n)}">
-    <line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="var(--line2)"/>
+  const d=pts.map((p,i)=>(i?'L':'M')+px(p[0]).toFixed(1)+' '+py(p[1]).toFixed(1)).join(' ');
+  return `<figure class="mini"><figcaption>${esc(titulo)}</figcaption>
+    <svg class="chart" viewBox="0 0 ${w} ${h}" role="img"
+      aria-label="${esc(titulo)}: ${esc(pts.map(p=>p[0]+', '+fmtN(p[1],fmt)).join('; '))}">
+    <line x1="4" y1="${h-pad.b}" x2="${w-4}" y2="${h-pad.b}" stroke="var(--line2)"/>
     <path d="${d}" fill="none" stroke="${COR.cat[0]}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    ${s.pts.map(p=>`<circle cx="${px(p[0])}" cy="${py(p[1])}" r="4.5" fill="${COR.cat[0]}" stroke="var(--bg2)" stroke-width="2"/>
-      <text x="${px(p[0])}" y="${py(p[1])-9}" text-anchor="middle" class="val">${fmtN(p[1],'dec3')}</text>
-      <text x="${px(p[0])}" y="${h-6}" text-anchor="middle">${p[0]}</text>`).join('')}
-  </svg>
-  <div class="row"><div class="k">${esc(s.n)}${selo({fonte:s.fonte,ano:2010,status:'mun'})}</div></div>
-  <p style="font-size:11px;color:var(--txt3);line-height:1.55">${esc(s.obs)}</p>`;
+    ${pts.map(p=>`<g><title>${p[0]}: ${esc(fmtN(p[1],fmt))}</title>
+      <circle cx="${px(p[0]).toFixed(1)}" cy="${py(p[1]).toFixed(1)}" r="4" fill="${COR.cat[0]}" stroke="var(--bg2)" stroke-width="2"/>
+      <text x="${px(p[0]).toFixed(1)}" y="${(py(p[1])-8).toFixed(1)}" text-anchor="middle" class="val">${esc(fmtN(p[1],fmt))}</text>
+      <text x="${px(p[0]).toFixed(1)}" y="${h-4}" text-anchor="middle">${p[0]}</text></g>`).join('')}
+  </svg></figure>`;
 }
 
 function distribuicaoHTML(){
-  const i=indAtual(), g=S.geo[S.nivel];
+  const i=indAtual(), g=geoDoNivel();
   if(!g||i.status==='pend'||i.status==='mun')return '';
   const arr=g.features.map(f=>({id:f.properties.id,n:f.properties.nome,v:valor(f.properties)}))
     .filter(o=>o.v!=null).sort((a,b)=>b.v-a.v);
@@ -1439,7 +1580,9 @@ function perfilHTML(id){
   html+=`<h3 class="sec">Ficha do território</h3>
     <p style="font-size:11.5px;color:var(--txt3);line-height:1.6">
       Geometria: ${isSetor?'malha de setores censitários do IBGE (Censo 2022)'
-      :'malha de bairros da SMUrb/PMPA, Lei Municipal nº 12.112/2016'}.
+      :p.muni==='Porto Alegre'?'malha de bairros da SMUrb/PMPA, Lei Municipal nº 12.112/2016'
+      :/sem divisão de bairros/i.test(p.nome||'')?'o município inteiro: o IBGE não divide este município em bairros'
+      :'bairros do IBGE no Censo 2022, formados pelos setores com o mesmo nome de bairro'}.
       Geometria generalizada para uso em tela; áreas e cálculos usam os valores originais.</p>`;
   return html;
 }
@@ -1825,7 +1968,7 @@ function renderMatriz(){
 const FORMULAS=[
  ['Densidade demográfica','hab/km²','população residente ÷ área do polígono do território',
   'Censo 2022 (população) e malha SMUrb/IBGE (área)','ok'],
- ['Participação na população do município','%','população do bairro ÷ 1.332.845 × 100','Censo 2022','ok'],
+ ['Participação na população do município','%','população do bairro ÷ população do município do bairro × 100','Censo 2022','ok'],
  ['Razão de sexo','homens por 100 mulheres','população masculina ÷ população feminina × 100','Censo 2022','ok'],
  ['Índice de envelhecimento','idosos por 100 crianças','população de 60+ ÷ população de 0 a 14 × 100','Censo 2022','ok'],
  ['Razão de dependência','%','(0 a 14 + 60 ou mais) ÷ (15 a 59) × 100','Censo 2022','ok'],
@@ -1870,6 +2013,38 @@ function renderMetodo(){
     &nbsp;valor adicional importado localmente, sem validação automática da origem</div>
     <div class="v"><span class="num">${IND.filter(i=>i.status==='imp').length}</span></div></div>
 
+  <h3 class="sec">O que quer dizer “Cálculo do Atlas”</h3>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    O selo <b>Cálculo do Atlas · 2022</b> quer dizer que o número não aparece pronto em nenhuma
+    publicação: o Atlas o calculou a partir de contagens oficiais, por uma fórmula descrita nesta
+    página. <b>O ano é o dos dados de origem, não o do cálculo</b>: “2022” significa que as contagens
+    vêm do Censo 2022; “${ANO.pib}”, do PIB dos Municípios daquele ano.</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>Os insumos são oficiais</b> e estão no próprio Atlas: contagens por setor do Censo 2022,
+      PIB do IBGE, estabelecimentos do CNES.</li>
+    <li><b>Primeiro soma, depois divide.</b> No bairro, no município, na região e no entorno das lojas,
+      o Atlas soma as contagens dos setores e só então calcula a taxa. Nunca faz média de percentuais.</li>
+    <li><b>A fórmula de cada um</b> está na tabela “Fórmulas, uma a uma”, abaixo, e na ficha do indicador.</li>
+  </ul>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    Por isso esses indicadores levam o selo verde: o dado de origem é oficial e a conta é direta e
+    reproduzível. Podem diferir de um número publicado pelo IBGE quando o denominador é outro. Por
+    exemplo, os percentuais de cor ou raça usam só as respostas declaradas. São estes:</p>
+  ${(()=>{const c=IND.filter(i=>i.fonte==='ATLAS_CALC'&&i.status!=='pend'), anos=[...new Set(c.map(i=>i.ano))].sort();
+    /* de onde vêm os dados de cada linha, pelo tipo de indicador (os anos mudam com as fontes ao vivo) */
+    const de=a=>{const ids=c.filter(i=>i.ano===a).map(i=>i.id);
+      const todos=re=>ids.every(id=>re.test(id));
+      if(todos(/^(pib|pct_vab)/))return 'PIB dos Municípios (IBGE)';
+      if(todos(/^(fin_|gasto_)|_hab$/))return 'Finanças municipais (DCA/SICONFI)';
+      if(todos(/_100mil$/))return 'Ocorrências da SSP/RS';
+      if(todos(/_10mil$/))return 'Estabelecimentos do CNES';
+      return a===2022?'Censo 2022, contagens por setor':'';};
+    return `<table class="tb"><thead><tr><th style="width:16%">Ano dos dados</th><th>Indicadores</th></tr></thead><tbody>
+      ${anos.map(a=>`<tr><td><b>${a}</b><div style="color:var(--txt3);font-size:11px">${esc(de(a))}</div></td>
+        <td>${c.filter(i=>i.ano===a).map(i=>esc(i.n)).join(' · ')}</td></tr>`).join('')}</tbody></table>
+      <p style="font-size:11.5px;color:var(--txt3);line-height:1.6;margin-top:6px">Nas taxas por habitante,
+        a população usada como denominador está na ficha de cada indicador.</p>`;})()}
+
   <h3 class="sec">Por que trabalho e pobreza vêm de 2010</h3>
   <div class="note warn" style="border-left-color:var(--est)">
     O universo do Censo 2022 — que sustenta o resto do Atlas — <b>não pergunta</b> trabalho,
@@ -1884,6 +2059,63 @@ function renderMetodo(){
     antiga. Use como ordenação relativa do território, não como medida do presente.
   </div>
 
+  ${AOP?`<h3 class="sec">Acesso a oportunidades (IPEA, 2019)</h3>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    O projeto Acesso a Oportunidades, do IPEA, calcula por hexágono quanto tempo se leva a pé, de
+    bicicleta e de transporte público até empregos, estabelecimentos de saúde e escolas, com dados de
+    2019. Entre as sete cidades, só Porto Alegre está no projeto. O Atlas usa a tabela publicada no
+    espelho da Base dos Dados.</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>Do hexágono ao território.</b> Cada setor de 2022 recebe o valor do hexágono que contém o seu
+      ponto representativo; o bairro, a média dos setores ponderada pela população. É o mesmo método dos
+      indicadores de 2010.</li>
+    <li><b>Correção da unidade.</b> Na tabela da Base dos Dados, o tempo mínimo vem multiplicado por 100.
+      Dividido por 100, ele concorda com os indicadores cumulativos em ${nf.format(AOP.conferencia.tmi_coerentes_div100)}
+      de ${nf.format(AOP.conferencia.tmi_testes)} testes; sem a divisão, só em ${nf.format(AOP.conferencia.tmi_coerentes_sem_divisao)}.
+      O teste: quem alcança um estabelecimento em 15 minutos tem de ter tempo mínimo de até 15.</li>
+    <li><b>Cobertura.</b> A grade de 2019 não alcança ${nf.format(AOP.conferencia.setores_fora_da_grade)} setores, com
+      ${nf.format(AOP.conferencia.pop_fora_da_grade)} moradores, quase todos na periferia (extremo sul, zona leste e ilhas).
+      Eles ficam sem valor, e o bairro só tem valor quando os setores cobertos somam ao menos metade
+      da sua população.</li>
+    <li><b>“Sem estabelecimento no limite”.</b> Onde o IPEA não acha nenhum estabelecimento no tempo máximo
+      de cálculo, o tempo não entra em média; entra na parte da população a mais de 30 minutos.</li>
+  </ul>`:''}
+
+  <h3 class="sec">Áreas de risco (2010)</h3>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    A camada vem da <b>BATER</b>, a Base Territorial Estatística de Áreas de Risco do IBGE e do CEMADEN,
+    do estudo <i>População em áreas de risco no Brasil</i>. As áreas de risco de deslizamento, inundação
+    e enxurrada dos municípios monitorados pelo CEMADEN foram ajustadas pelo IBGE à malha do Censo 2010,
+    por setor censitário ou por face de quadra, para contar quem morava nelas.</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>No Atlas:</b> ${nf.format(AREAS_RISCO.length)} áreas, ${(()=>{const c={};AREAS_RISCO.forEach(a=>{const k=MUNIS_LISTA?MUNIS_LISTA.ids.indexOf(+a.muni):-1;const n=k>=0?MUNIS_LISTA.nomes[k]:a.muni;c[n]=(c[n]||0)+1;});return Object.entries(c).map(([n,v])=>`${v} em ${esc(n)}`).join(' e ');})()}.
+      Os outros municípios não têm área na BATER.</li>
+    <li><b>Cada área traz</b> o código, o recorte usado (setor ou face de quadra) e o grau de ajuste ao
+      recorte, de ótimo a regular.</li>
+    <li><b>O que ela não é:</b> não é a setorização de risco atual do Serviço Geológico do Brasil e não
+      inclui a enchente de 2024. A ausência de polígono não quer dizer ausência de risco. O Atlas
+      desenha as áreas; não calcula a população de 2022 dentro delas.</li>
+  </ul>
+
+  <h3 class="sec">Bolsões do quintil mais pobre</h3>
+  ${(()=>{const Q=quintisSetores(), B=calculaBolsoes(), pop=B.reduce((a,b)=>a+b.pop,0);
+  return `<p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    Os bolsões mostram onde se concentra a população de menor renda perto das unidades Renner, o recorte
+    territorial da análise do entorno. São ${nf.format(B.length)} bolsões, com ${nf.format(pop)} moradores.</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>Quintis de renda.</b> Os ${nf.format(Q.com.length)} setores dos sete municípios com renda publicada são
+      ordenados pelo rendimento médio do responsável (Censo 2022) e divididos em cinco grupos com a mesma
+      população. O quintil mais pobre vai até ${fmtN(Q.lim[0],'brl0')} por mês.</li>
+    <li><b>Bolsão.</b> Setores do quintil mais pobre a até 5 km, em linha reta, de uma unidade Renner,
+      agrupados quando o centro de um setor fica a até 600 m do centro de outro do grupo.</li>
+    <li><b>Ficha do bolsão.</b> Moradores, domicílios, crianças e jovens somados dos setores; renda média
+      do responsável ponderada pelo número de responsáveis; desocupação e escolaridade de 2010 como
+      referência histórica; acesso a oportunidades do IPEA, só nos setores de Porto Alegre.</li>
+    <li><b>Limites.</b> O rendimento do responsável não é renda domiciliar per capita. O setor entra
+      inteiro: a parte pobre de um setor de renda média não aparece. Os 5 km e os 600 m são parâmetros
+      da análise, não definições oficiais.</li>
+  </ul>`;})()}
+
   <h3 class="sec">Fórmulas, uma a uma</h3>
   <table class="tb"><thead><tr><th style="width:30%">Indicador</th><th style="width:12%">Unidade</th>
     <th>Cálculo</th><th style="width:16%">Fonte</th></tr></thead><tbody>
@@ -1896,8 +2128,9 @@ function renderMetodo(){
 
   <h3 class="sec">Omissão de células pelo IBGE</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
-    Para proteger o sigilo estatístico o IBGE omite células com poucos casos. Isso aparece de duas
-    formas. Primeiro, <b>49 setores especiais</b> de Porto Alegre — quartel, unidade prisional,
+    Para proteger o sigilo estatístico o IBGE omite células com poucos casos. Nos sete municípios,
+    ${(()=>{const c=Object.values(contaSetores());return `${nf.format(c.reduce((a,o)=>a+o.semBloco,0))} setores não têm os blocos de pessoas e domicílios publicados, com ${nf.format(c.reduce((a,o)=>a+o.popSem,0))} moradores`;})()}.
+    Em Porto Alegre, isso aparece de duas formas. Primeiro, <b>49 setores especiais</b> — quartel, unidade prisional,
     alojamento, convento, hospital — não têm os blocos de pessoas e domicílios publicados: são
     2.791 moradores que entram na população total mas não nos recortes por sexo, idade ou cor.
     Segundo, células isoladas somem em setores pequenos: a cor indígena é omitida em 764 dos 2.744
@@ -1907,7 +2140,7 @@ function renderMetodo(){
 
   <h3 class="sec">Duas medidas de área, dois produtores</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
-    A área dos bairros vem do polígono da malha SMUrb e os 94 bairros somam <b>472,81 km²</b>.
+    Em Porto Alegre, a área dos bairros vem do polígono da malha SMUrb e os 94 bairros somam <b>472,81 km²</b>.
     A área dos setores vem do IBGE e soma <b>495,39 km²</b>. A área municipal publicada pelo IBGE
     é <b>496,83 km²</b>. A diferença é a lâmina d’água dentro do limite municipal que a malha de
     bairros não recobre. Por isso o indicador se chama “área do polígono”, e não “área territorial
@@ -1915,18 +2148,24 @@ function renderMetodo(){
 
   <h3 class="sec">Código de extração</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
-    Todo dado deste Atlas é reproduzível. Os scripts de extração acompanham a distribuição, na
-    pasta <b>extracao/</b>: download da fonte, filtro, cálculo e gravação dos arquivos de dados.
-    São Python puro, sem dependência de serviço pago, e cada um traz no cabeçalho a fonte, o
-    motivo das escolhas e o que a saída não significa.</p>
+    Parte da atualização roda no próprio navegador: em <b>Mais → Dados e fontes</b>, o Atlas busca e
+    confere as fontes que permitem leitura direta. O resto está nos scripts da pasta
+    <b>extracao/</b>, que acompanham o pacote. Cada um traz no cabeçalho a fonte, as conferências e o que
+    a saída não significa, e para com erro em vez de completar dado que falta. O passo a passo está em
+    <b>docs/COMO-FAZER-AS-EXTRACOES.md</b>.</p>
   <pre style="background:var(--bg3);border:1px solid var(--line);border-radius:6px;padding:12px;
     font-family:var(--mono);font-size:10.5px;color:var(--txt2);line-height:1.8">extracao/
-├── 1_censo2022_setores.py     universo 2022 por setor (7 municípios)
-├── 2_pib_municipios.py        PIB e VAB, Tabela 5938 do IBGE
-├── 3_equipamentos.py          escolas do INEP e unidades do CNES
-├── 4_censo2010_amostra.py     trabalho, renda, pobreza e Gini (2010)
-├── 5_junta_2010_setores.py    atribuição espacial 2010 → setores de 2022
-└── 6_monta_dados.py           gera os arquivos dados/*.js</pre>`;
+├── 1_servicos_municipais.py   finanças (SICONFI), segurança (SSP/RS), contagens de equipamentos
+├── 2_atualiza_cnes.py         unidades de saúde (CNES, via geobr)
+├── 3_atualiza_escolas.py      escolas (Censo Escolar, via geobr)
+├── 4_indices_municipais.py    IDHM, IVS, IDESE e FIRJAN
+├── 5_base_dos_dados.py        Atlas Brasil 2010, IDEB, Anatel e áreas de risco
+├── 6_ipea.py                  Atlas Brasil 1991–2010 e Acesso a Oportunidades (IPEA)
+└── R/                         Censo 2010 por área de ponderação, Censo Escolar, equipes do
+                               CNES, BigQuery e recorte de arquivos baixados</pre>
+  <p style="font-size:11.5px;color:var(--txt3);line-height:1.6">A base censitária (agregados por setor
+    de 2022 e amostra de 2010 por área de ponderação) foi montada na primeira versão do Atlas; os
+    scripts daquela etapa não acompanham o pacote. Os scripts R 01 e 11 refazem a parte de 2010.</p>`;
 }
 
 function renderFontes(){
@@ -1960,8 +2199,8 @@ function renderFontes(){
       <span class="selo s-ok"><i class="dot"></i>Censo/IBGE · 2022</span></div>
       <p>Resultados do universo por setor censitário, nos blocos Básico, Pessoas, Domicílios,
       Óbitos, Indígenas, Quilombolas e Responsável/Renda. Cobrem os
-      <b>2.744 setores</b> de Porto Alegre e somam exatamente <b>1.332.845</b> pessoas,
-      idêntico ao total municipal publicado. Daí saem sexo, faixas etárias, cor ou raça,
+      <b>4.722 setores</b> dos sete municípios e somam exatamente <b>2.383.002</b> pessoas; em cada
+      município, a soma é idêntica ao total municipal publicado (Porto Alegre: 1.332.845). Daí saem sexo, faixas etárias, cor ou raça,
       alfabetização, rendimento do responsável, tipo e condição do domicílio, água, esgoto,
       lixo e óbitos.</p>
       <p style="margin-top:5px">O acesso foi feito pela distribuição do pacote
@@ -1972,7 +2211,7 @@ function renderFontes(){
     <div class="src-card"><div class="hd"><b>Omissão de células pelo IBGE</b>
       <span class="selo s-pend"><i class="dot"></i>controle de divulgação</span></div>
       <p>Para proteger o sigilo estatístico, o IBGE omite células com poucos casos. Isso aparece
-      de duas formas no Atlas. Primeiro, <b>49 setores especiais</b> — quartel, unidade prisional,
+      de duas formas no Atlas. Em Porto Alegre, por exemplo: primeiro, <b>49 setores especiais</b> — quartel, unidade prisional,
       alojamento, convento, hospital — não têm os blocos de pessoas e domicílios publicados;
       são 2.791 moradores que entram na população total mas não nos recortes por sexo, idade
       ou cor. Segundo, células isoladas somem em setores pequenos: a cor indígena, por exemplo,
@@ -1983,8 +2222,11 @@ function renderFontes(){
       <b>“soma parcial — IBGE omitiu N setores”</b>.</p></div>
 
     <div class="src-card"><div class="hd"><b>Malha de bairros</b>
-      <span class="selo s-ok"><i class="dot"></i>SMUrb/PMPA · 2016</span></div>
-      <p>94 bairros com limites da Lei Municipal nº 12.112, de 22/08/2016. Base aerofotogramétrica
+      <span class="selo s-ok"><i class="dot"></i>SMUrb/PMPA · 2016 · IBGE · 2022</span></div>
+      <p>Canoas, Guaíba e Esteio: bairros do IBGE no Censo 2022, formados pelos setores com o mesmo
+      nome de bairro. Gravataí, Sapucaia do Sul e Cachoeirinha não têm divisão em bairros no IBGE e
+      aparecem como um território só.</p>
+      <p style="margin-top:5px">Porto Alegre: 94 bairros com limites da Lei Municipal nº 12.112, de 22/08/2016. Base aerofotogramétrica
       1:1.000, SIRGAS2000. Geometria generalizada para uso em tela; áreas e cálculos usam o valor
       original. A atribuição de cada setor ao seu bairro vem do próprio IBGE (campo NM_BAIRRO),
       e a população por bairro assim obtida coincide número a número com a série
@@ -1993,8 +2235,8 @@ function renderFontes(){
 
     <div class="src-card"><div class="hd"><b>Malha de setores censitários</b>
       <span class="selo s-ok"><i class="dot"></i>IBGE · 2022</span></div>
-      <p>2.744 setores censitários, todos com dados do Censo 2022 e vinculados ao bairro
-      correspondente.</p></div>
+      <p>4.722 setores censitários nos sete municípios (2.744 em Porto Alegre), todos com dados do
+      Censo 2022 e vinculados ao bairro correspondente.</p></div>
 
     <div class="src-card"><div class="hd"><b>Favelas e Comunidades Urbanas</b>
       <span class="selo s-ok"><i class="dot"></i>IBGE · 2022</span></div>
@@ -2026,7 +2268,7 @@ function renderFontes(){
     <div class="src-card"><div class="hd"><b>Densidade demográfica</b></div>
       <p>População residente do Censo 2022 dividida pela área do polígono oficial do território.
       É um cálculo do Atlas, identificado como tal, e não um número publicado pelo IBGE.
-      Para o município, o Atlas exibe o valor publicado pelo IBGE (2.690,50 hab/km²) em vez do cálculo próprio.</p></div>
+      Para Porto Alegre, o Atlas também exibe o valor publicado pelo IBGE Cidades (2.690,50 hab/km²).</p></div>
     <div class="src-card"><div class="hd"><b>Rendimento do responsável: setor é oficial, bairro é calculado</b></div>
       <p>O IBGE publica, por setor, o rendimento nominal médio mensal das pessoas responsáveis
       com rendimentos. No nível de setor o Atlas exibe esse valor tal como publicado.
@@ -2048,7 +2290,7 @@ function renderFontes(){
     <div class="src-card"><div class="hd"><b>Uma única série de população</b></div>
       <p>Bairro e setor vêm do mesmo arquivo de agregados do Censo 2022: o bairro é a soma dos seus
       setores, usando a atribuição do próprio IBGE. Não há duas séries concorrentes, e a soma dos
-      94 bairros reproduz exatamente o total municipal.</p></div>
+      bairros reproduz exatamente o total de cada município.</p></div>
     <div class="src-card"><div class="hd"><b>Índice sintético de vulnerabilidade</b></div>
       <p>Está no catálogo, com metodologia definida — normalização e média ponderada de baixa renda,
       pobreza, escolaridade, saneamento precário, desemprego e dependência de programas sociais.
@@ -2512,7 +2754,8 @@ function refs(muni){
     a.a15+=q.alfab_15||0; a.p15+=q.pop_15||0;
     return a;},{pop:0,pp:0,rc:0,id:0,cr:0,dppo:0,esg:0,fcu:0,rn:0,rd:0,a15:0,p15:0});
   if(!a.pop)return null;
-  return REFS[chave]={
+  const aopRef=AOP&&muni&&MUNIS_LISTA?((AOP.municipio||{})[String(MUNIS_LISTA.ids[MUNIS_LISTA.nomes.indexOf(muni)])]||{}):{};
+  return REFS[chave]={...aopRef,
     pct_preta_parda:100*a.pp/a.rc, pct_idosos_60:100*a.id/a.pop,
     pct_criancas_0_14:100*a.cr/a.pop, pct_esgoto_adequado:100*a.esg/a.dppo,
     pct_fcu:100*a.fcu/a.pop, resp_renda:a.rn/a.rd,
@@ -2575,6 +2818,14 @@ function entornoHTML(i){
     <div class="v"><span class="num">${fmtN(p.dom_precario,'int')}</span></div></div>
   <div class="row"><div class="k">Domicílios sem banheiro</div>
     <div class="v"><span class="num">${fmtN(p.ban_nenhum,'int')}</span></div></div>
+  ${p.aop_emprego_tp60!=null?`<h3 class="sec">Acesso a oportunidades <span class="chip tag">IPEA · 2019</span></h3>
+  ${linha('Empregos alcançáveis em até 60 min de transporte público (% da cidade)','aop_emprego_tp60','pct1')}
+  ${linha('Tempo a pé até saúde de baixa complexidade (min)','aop_saude_pe','dec1',true)}
+  ${linha('Tempo a pé até escola pública de educação infantil (min)','aop_infantil_pe','dec1',true)}
+  ${linha('Moradores a mais de 30 min a pé de educação infantil','aop_infantil_30pe','pct1',true)}
+  <p style="font-size:11px;color:var(--txt3);line-height:1.55;margin-top:6px">Média dos setores do raio
+    ponderada pela população; só os setores de Porto Alegre cobertos pela grade do IPEA de 2019
+    (${fmtN(p._aop_pop,'int')} moradores). Para tempos, valor menor é melhor.</p>`:''}
 
   <h3 class="sec">Equipamentos no raio <span class="chip tag">públicos e privados</span></h3>
   <div class="row"><div class="k">Escolas
@@ -2881,6 +3132,9 @@ function fontesDoMunicipio(p,codMun){
   Object.assign(p,((window.ATLAS_SERVICOS||{}).municipios||{})[codMun]||{});
   Object.assign(p,((window.ATLAS_INDICES||{}).municipios||{})[codMun]||{});
   Object.assign(p,((window.ATLAS_COMPLEMENTOS||{}).municipios||{})[codMun]||{});
+  if(ADH_IPEA)for(const id in ADH_NOVOS){
+    const s=(ADH_IPEA.valores[ADH_NOVOS[id]]||{})[codMun]; if(s&&s[2]!=null)p[id]=s[2];
+  }
   /* 2010 no município: o valor calculado sobre todos os registros do município, e não a
      média das áreas de ponderação (em Canoas, o Gini médio das áreas dá 0,452; o do município, 0,518) */
   const of=MUNICIPAL_2010[codMun]||{};
@@ -2923,6 +3177,10 @@ function montaGeo(){
     p._pir=B.piramide[i]; p._fcu=B.fcu_nomes[i]; p.fcu_n=B.fcu_nomes[i].length;
     p._omit={};
     for(const k in (B.omissoes||{})){const v=B.omissoes[k][i]; if(v)p._omit[k]=v;}
+    if(AOP&&AOP.bairro){
+      for(const k in AOP.bairro){const v=AOP.bairro[k][i]; if(v!=null)p[k]=v;}
+      if(AOP.cobertura_bairro&&AOP.cobertura_bairro[i]!=null)p._aop_cob=AOP.cobertura_bairro[i];
+    }
     return {type:'Feature',properties:derivados(p),geometry:decGeom(B.geom[i],P,true)};
   })};
 
@@ -2974,11 +3232,17 @@ function garanteSetores(){
   const ns=T.geom.length,colS={};
   C.forEach((c,i)=>colS[c]=decCol(T.valores[c],E[i],ns));
   CE.forEach((c,i)=>{if(XE.setores[c])colS[c]=decCol(XE.setores[c],EE[i],ns);});
+  /* IPEA: valor do hexágono que contém o ponto do setor; "_aop_..._30pe" é 1 quando passa de 30 min */
+  const EXTRA=[];
+  if(AOP&&AOP.setor){
+    for(const k in AOP.setor){colS[k]=decCol(AOP.setor[k],AOP.escala||100,ns);EXTRA.push(k);}
+    for(const k in (AOP.setor_acima||{})){colS['_'+k]=decCol(AOP.setor_acima[k],1,ns);EXTRA.push('_'+k);}
+  }
   const sufixo=decDic(T.ids,null,ns),muni=decDic(T.m,null,ns);
   const bairroS=decDic(T.bairro,T.bairro_dic,ns),fcuS=decDic(T.fcu,T.fcu_dic,ns);
   const cent=decPts(T.cent,P,ns);
   /* içados do laço: antes eram 4.722 arrays descartados e 4.722 slugId() */
-  const TODOS=C.concat(CE).filter(c=>colS[c]);
+  const TODOS=C.concat(CE,EXTRA).filter(c=>colS[c]);
   const PREF=N.munis.ids.map(x=>String(x));
   const slugCache=new Map();
   const slugDe=n=>{let v=slugCache.get(n);if(v===undefined){v=slugId(n);slugCache.set(n,v);}return v;};
@@ -3074,9 +3338,28 @@ function entorno(x,y,raioKm){
   soma._fcu=[...new Set(fs.map(f=>f.properties._fcuNome).filter(Boolean))];
   soma._pir=Array(22).fill(0);
   derivados(soma);
+  if(AOP)Object.assign(soma,mediaAOP(fs.map(f=>f.properties)));
   const esc=(PONTOS&&PONTOS.escolas||[]).filter(p=>distKm(x,y,p.x,p.y)<=raioKm);
   const sau=(PONTOS&&PONTOS.saude||[]).filter(p=>!p.restrito&&distKm(x,y,p.x,p.y)<=raioKm);
   return {soma,setores:fs,escolas:esc,saude:sau};
+}
+
+/* Acesso a oportunidades (IPEA) de um conjunto de setores: tempos e empregos pela
+   média ponderada pela população; a parte acima de 30 minutos pela soma dos moradores. */
+const AOP_MEDIA=['aop_emprego_tp60','aop_saude_pe','aop_infantil_pe','aop_fundamental_pe'];
+const AOP_ACIMA=['aop_saude_30pe','aop_infantil_30pe'];
+function mediaAOP(setores){
+  const r={}, ac={};
+  AOP_MEDIA.concat(AOP_ACIMA).forEach(k=>ac[k]=[0,0]);
+  for(const q of setores){
+    const w=q.pop||0; if(!w)continue;
+    for(const k of AOP_MEDIA)if(q[k]!=null){ac[k][0]+=q[k]*w;ac[k][1]+=w;}
+    for(const k of AOP_ACIMA){const v=q['_'+k]; if(v!=null){ac[k][0]+=v*w;ac[k][1]+=w;}}
+  }
+  for(const k of AOP_MEDIA)r[k]=ac[k][1]?Math.round(100*ac[k][0]/ac[k][1])/100:null;
+  for(const k of AOP_ACIMA)r[k]=ac[k][1]?Math.round(1000*ac[k][0]/ac[k][1])/10:null;
+  r._aop_pop=ac.aop_saude_30pe[1];
+  return r;
 }
 
 /* --- dimensionamento do mapa: o contêiner pode existir antes do layout --- */
@@ -3249,7 +3532,8 @@ function calculaBolsoes(){
     const munis=[...new Set(g.map(q=>q.muni))];
     const bairros=Object.entries(bai).sort((a,b)=>b[1]-a[1]).map(x=>x[0]).filter(n=>!/sem divisão/i.test(n));
     const u=perto(LJ,cx,cy), v=perto(venda,cx,cy);
-    return {ids:g.map(q=>q.id), setores:g.length, pop:s.pop, dppo:s.dppo, cri:s.cri, jov:s.jov,
+    const ac=AOP?mediaAOP(g):{};
+    return {...ac, ids:g.map(q=>q.id), setores:g.length, pop:s.pop, dppo:s.dppo, cri:s.cri, jov:s.jov,
       pct_fcu:s.pop?100*s.fcu/s.pop:null, renda:s.rd?s.rn/s.rd:null,
       sem_fund10:s.np?s.sf/s.np:null, desoc10:s.np?s.de/s.np:null, pct_pp:s.rc?100*s.pp/s.rc:null,
       fcu_nomes:[...new Set(g.map(q=>q._fcuNome).filter(Boolean))], bairros, munis,
@@ -3308,6 +3592,12 @@ function bolsaoHTML(k){
   ${linha('População preta ou parda',fmtN(b.pct_pp,'pct1'),'','Censo 2022')}
   ${linha('Adultos de 25 anos ou mais sem fundamental completo',fmtN(b.sem_fund10,'pct1'),'','Censo 2010 · referência histórica por área de ponderação')}
   ${linha('Taxa de desocupação',fmtN(b.desoc10,'pct1'),'','Censo 2010 · referência histórica por área de ponderação')}
+  ${b.aop_emprego_tp60!=null?`<h3 class="sec">Acesso a oportunidades <span class="chip tag">IPEA · 2019</span></h3>
+  ${linha('Empregos alcançáveis em até 60 min de transporte público',fmtN(b.aop_emprego_tp60,'pct1'),'dos empregos da cidade','Porto Alegre inteira: '+fmtN(((AOP.municipio||{})['4314902']||{}).aop_emprego_tp60,'pct1'))}
+  ${linha('Tempo a pé até saúde de baixa complexidade',fmtN(b.aop_saude_pe,'dec1'),'min','média ponderada pela população')}
+  ${linha('Tempo a pé até escola pública de educação infantil',fmtN(b.aop_infantil_pe,'dec1'),'min','média ponderada pela população')}
+  ${linha('Moradores a mais de 30 min a pé de educação infantil',fmtN(b.aop_infantil_30pe,'pct1'),'','Porto Alegre inteira: '+fmtN(((AOP.municipio||{})['4314902']||{}).aop_infantil_30pe,'pct1'))}
+  ${b.munis.length>1?`<p class="ref-note" style="margin-top:6px">Média só dos setores de Porto Alegre: o projeto do IPEA não cobre ${esc(b.munis.filter(m=>m!=='Porto Alegre').join(', '))}.</p>`:''}`:''}
   <h3 class="sec">Unidades Renner</h3>
   ${linha('Loja de venda mais próxima',esc(b.venda),fmtN(b.dist_venda,'dec1')+' km')}
   ${b.unidade!==b.venda?linha('Unidade mais próxima (inclui aeroporto e administrativa)',esc(b.unidade),fmtN(b.dist_unidade,'dec1')+' km'):''}
@@ -3394,9 +3684,12 @@ function rotulosLegenda(){
   const nulos=g.features.filter(f=>valor(f.properties)==null);
   const nSemMor=nulos.filter(f=>!f.properties.pop).length;
   const nForaFonte=nulos.filter(f=>f.properties.pop&&!cobre(S.nivel,f.properties.muni,i.id)).length;
-  const nSigilo=nulos.length-nSemMor-nForaFonte;
+  const nResto=nulos.length-nSemMor-nForaFonte;
+  /* o resto só é sigilo quando o dado é do Censo; nas outras fontes, a razão é da própria fonte */
+  const resto=/^(CENSO|FAVELAS|ATLAS_CALC)/.test(i.fonte)?'sob sigilo estatístico do IBGE'
+    :i.fonte==='IPEA_AOP'?'fora da grade do IPEA ou com cobertura insuficiente':'sem valor na fonte';
   const motivos=[[nSemMor,'setor especial ou sem moradores'],[nForaFonte,'fora da cobertura da fonte'],
-    [nSigilo,'sob sigilo estatístico do IBGE']].filter(x=>x[0]>0);
+    [nResto,resto]].filter(x=>x[0]>0);
   return {faixas,motivos};
 }
 function exportaMapa(){
@@ -3488,7 +3781,7 @@ const TABELAS_DIAG=[
 const AUSENTES_DIAG={
   '6':'Não estão no Atlas: total de famílias chefiadas por mulheres (há só as mães chefes sem fundamental, de 2010), famílias monoparentais, idosos que vivem sozinhos, pessoas com deficiência, migrantes, população em situação de rua, famílias no Cadastro Único e no Bolsa Família.',
   '7':'Não estão no Atlas: desocupação de mulheres, total de jovens que não estudam nem trabalham (há só os vulneráveis à pobreza, de 2010), dependência de transferências, microempreendedores, renda e pobreza de 2022.',
-  '8':'Não estão no Atlas: mobilidade, segurança alimentar, documentação e acesso a direitos, cultura e lazer. Riscos climáticos só em parte: a camada de áreas de risco é a BATER de 2010 (Porto Alegre e Sapucaia do Sul); faltam a setorização do Serviço Geológico do Brasil e a mancha da enchente de 2024.',
+  '8':'Mobilidade só em parte: o acesso a empregos, saúde e escolas do IPEA (2019) cobre Porto Alegre, por bairro e setor. Não estão no Atlas: segurança alimentar, documentação e acesso a direitos, cultura e lazer. Riscos climáticos só em parte: a camada de áreas de risco é a BATER de 2010 (Porto Alegre e Sapucaia do Sul); faltam a setorização do Serviço Geológico do Brasil e a mancha da enchente de 2024.',
   '10':'Não estão no Atlas: CRAS, CREAS, Centro POP, creches e vagas, transferências de renda por família, restaurantes populares, programas habitacionais, organizações comunitárias.',
   get '11'(){return 'Não estão no Atlas: '+(getInd('gasto_educacao')?'':'despesa em educação, ')+'equipes técnicas, conselhos e sistemas de informação.';}
 };

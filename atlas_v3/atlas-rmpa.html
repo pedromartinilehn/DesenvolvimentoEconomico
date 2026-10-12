@@ -257,12 +257,14 @@ header{grid-area:top;display:flex;align-items:center;gap:12px;padding:0 16px;
 .chip.tag{padding:1px 8px;font-size:11.5px}
 .chip.mono{font-variant-numeric:tabular-nums}
 
-.hero-kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 16px}
+.hero-kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 16px}
 .kpi{background:var(--bg3);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
   display:flex;flex-direction:column;gap:4px;min-height:84px}
 .kpi .lb{font-size:12px;font-weight:500;color:var(--txt3);line-height:1.3}
 .kpi .vl{white-space:nowrap;font-size:21px;font-weight:600;letter-spacing:-.01em;color:var(--txt);font-variant-numeric:tabular-nums;line-height:1.2}
 .kpi .vl small{font-size:13px;color:var(--txt3);font-weight:500;margin-left:2px}
+.kpi .selo{white-space:normal;line-height:1.3;align-items:flex-start}
+.kpi .selo .dot{margin-top:4px;flex:none}
 
 h3.sec{font-size:13.5px;font-weight:600;color:var(--txt);margin:26px 0 8px;padding-bottom:8px;
   border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
@@ -309,6 +311,20 @@ h3.sec .tag{margin-left:auto}
 .chart text{font-family:var(--sans);font-size:11px;fill:var(--txt3)}
 .chart .lbl{font-size:11.5px;fill:var(--txt2)}
 .chart .val{fill:var(--txt);font-weight:600}
+
+/* painel do município: grupos de indicadores e série 1991-2010 */
+details.grupo{border-bottom:1px solid var(--line)}
+details.grupo>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;
+  padding:9px 0;font-size:13px;font-weight:600;color:var(--txt)}
+details.grupo>summary::-webkit-details-marker{display:none}
+details.grupo>summary::after{content:'+';margin-left:auto;color:var(--txt3);font-weight:500;font-size:15px}
+details.grupo[open]>summary::after{content:'−'}
+details.grupo>summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
+details.grupo .row:last-child{border-bottom:none}
+.series{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+figure.mini{margin:0;background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:8px 8px 4px}
+figure.mini figcaption{font-size:11.5px;font-weight:600;color:var(--txt2);line-height:1.3;min-height:30px}
+figure.mini .chart text{font-size:10px}
 .trilho{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
 .empilhada{display:flex;gap:2px;height:14px;border-radius:4px;overflow:hidden;margin:8px 0 10px}
 .leg-mini{font-size:12px;color:var(--txt3);display:inline-flex;align-items:center;gap:5px}
@@ -634,6 +650,8 @@ table.tb.av td:first-child{width:46%}
 </script>
 <script>window.ATLAS_COMPLEMENTOS={"versao":"2026-10-12","prec":100000,"municipios":{"4314902":{"adh_nemnem_vulner":4.93,"adh_maes_chefes_sem_fund":12.53,"adh_desloc_1h_vulner":0.59,"adh_dep_idosos_vulner":0.77,"adh_vulner_pobreza":12.51,"adh_desocup_18_24":12.14,"adh_creche_0_3":30.52,"adh_fora_escola_4_5":39.81,"adh_maes_15_17":5.86,"adh_renda_pc":1758.27,"adh_gini":0.6,"adh_pobreza":3.82,"adh_extrema_pobreza":0.92,"ideb_iniciais":4.9,"ideb_finais":4.1,"ideb_medio":3.6,"banda_larga_100hab":42.16},"4304606":{"adh_nemnem_vulner":4.97,"adh_maes_chefes_sem_fund":15.77,"adh_desloc_1h_vulner":0.74,"adh_dep_idosos_vulner":0.93,"adh_vulner_pobreza":15.72,"adh_desocup_18_24":12.0,"adh_creche_0_3":22.62,"adh_fora_escola_4_5":52.92,"adh_maes_15_17":4.96,"adh_renda_pc":952.13,"adh_gini":0.51,"adh_pobreza":4.4,"adh_extrema_pobreza":0.93,"ideb_iniciais":5.4,"ideb_finais":4.7,"ideb_medio":4.0,"banda_larga_100hab":35.02},"4309209":{"adh_nemnem_vulner":5.42,"adh_maes_chefes_sem_fund":17.64,"adh_desloc_1h_vulner":1.14,"adh_dep_idosos_vulner":0.98,"adh_vulner_pobreza":18.01,"adh_desocup_18_24":12.86,"adh_creche_0_3":12.5,"adh_fora_escola_4_5":62.87,"adh_maes_15_17":4.28,"adh_renda_pc":737.29,"adh_gini":0.44,"adh_pobreza":5.39,"adh_extrema_pobreza":1.54,"ideb_iniciais":5.6,"ideb_finais":4.3,"ideb_medio":3.6,"banda_larga_100hab":27.56},"4320008":{"adh_nemnem_vulner":5.47,"adh_maes_chefes_sem_fund":18.9,"adh_desloc_1h_vulner":1.08,"adh_dep_idosos_vulner":0.97,"adh_vulner_pobreza":18.29,"adh_desocup_18_24":11.3,"adh_creche_0_3":14.59,"adh_fora_escola_4_5":55.42,"adh_maes_15_17":5.65,"adh_renda_pc":733.28,"adh_gini":0.44,"adh_pobreza":4.94,"adh_extrema_pobreza":1.27,"ideb_iniciais":5.8,"ideb_finais":4.9,"ideb_medio":4.1,"banda_larga_100hab":29.48},"4303103":{"adh_nemnem_vulner":3.49,"adh_maes_chefes_sem_fund":12.8,"adh_desloc_1h_vulner":0.55,"adh_dep_idosos_vulner":0.72,"adh_vulner_pobreza":13.22,"adh_desocup_18_24":12.39,"adh_creche_0_3":28.08,"adh_fora_escola_4_5":51.47,"adh_maes_15_17":5.06,"adh_renda_pc":844.04,"adh_gini":0.44,"adh_pobreza":3.91,"adh_extrema_pobreza":1.39,"ideb_iniciais":5.6,"ideb_finais":4.5,"ideb_medio":3.4,"banda_larga_100hab":21.85},"4309308":{"adh_nemnem_vulner":5.83,"adh_maes_chefes_sem_fund":16.4,"adh_desloc_1h_vulner":1.35,"adh_dep_idosos_vulner":0.82,"adh_vulner_pobreza":19.29,"adh_desocup_18_24":13.85,"adh_creche_0_3":15.37,"adh_fora_escola_4_5":55.22,"adh_maes_15_17":4.01,"adh_renda_pc":758.83,"adh_gini":0.47,"adh_pobreza":6.44,"adh_extrema_pobreza":1.49,"ideb_iniciais":5.5,"ideb_finais":4.7,"ideb_medio":4.2,"banda_larga_100hab":24.03},"4307708":{"adh_nemnem_vulner":4.22,"adh_maes_chefes_sem_fund":17.72,"adh_desloc_1h_vulner":0.52,"adh_dep_idosos_vulner":0.66,"adh_vulner_pobreza":13.59,"adh_desocup_18_24":11.11,"adh_creche_0_3":32.18,"adh_fora_escola_4_5":42.07,"adh_maes_15_17":4.03,"adh_renda_pc":955.86,"adh_gini":0.48,"adh_pobreza":4.53,"adh_extrema_pobreza":1.32,"ideb_iniciais":6.0,"ideb_finais":5.2,"ideb_medio":3.9,"banda_larga_100hab":37.61}},"risco":[{"cod":"43149020001","muni":"4314902","origem":"face","acuracia":"otima","obs":null,"geom":[["|xywHb_vuDa`@a@eP`@y^jHsT~NiLbK_[tf@eBfW`D`JxBdg@g@h]mCbK}GzBoHoDtDoTuDo_AnAw\\bKmYfUu[`YcVd^}Hlm@iBja@zBtu@bK`D|CcBxGcKP"]]},{"cod":"43149020002","muni":"4314902","origem":"setor","acuracia":"boa","obs":null,"geom":[["tmuwHru{uD}H|QwN~TiA`HqC|ByR|g@yCdLo@vOhCbTvMy@pEx@`D`BHhIeJkAiAwB}KzFv@rGsGh@{Gqh@v@k_@pQug@|Zin@`BmJ"]]},{"cod":"43149020003","muni":"4314902","origem":"setor","acuracia":"boa","obs":"Aglomerado Subnormal","geom":[["b~rwH`x_vDdEjPa@`BfEfHRd]wf@pFkIkr@`_@wU"]]},{"cod":"43149020004","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["jatwHtxcvDwDIaBuBeKec@bE_g@rFP\\wG`@~GjKn@fAvCuIbCqBpD}BzSjK`c@a@jCdBhHxGrJeBB"]]},{"cod":"43149020005","muni":"4314902","origem":"face","acuracia":"otima","obs":null,"geom":[["|p{wHvn`vD_L{BuAfCwMwAiI}EgRcBNoB{YeEae@nBoK~EqOkAqOxDcB_Dnm@wMfAkFxQuAxQJlCpEvt@hO~BeEd[hHfEzB?jDyDp@"]]},{"cod":"43149020006","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["~wzwHdjevDbBeCdDrE|GM}If@dBpBwBk@c@|EpBn@wDu@}@j@aC~HiCpBfDbFk@~AyD|AyEO{M|I_BpGjA`@aGpM`BvBe@hAuCDgAvBbC|@uAzJkB]f@`JsBdAaEuAoDPq@aJzKrAaAm@hAgD{E]rc@gqApHkO"]]},{"cod":"43149020007","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["`iawHfhlvDmAgCn@{CrBBOaDfG~HaDhE"]]},{"cod":"43149020008","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["zqawH~}kvDxAzB?f@rBPyBbA"]]},{"cod":"43149020009","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["zsawHnclvD_HwG|AeAFiF|FrJqArA"]]},{"cod":"43149020010","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["nsewHp|pvDJsAuCg@qGuM`AgD_Aq@zAApAyCy@nCzBJ`AqA?vAtClAfCdL|@cBh@j@kEtE"]]},{"cod":"43149020011","muni":"4314902","origem":"face","acuracia":"otima","obs":null,"geom":[["nyiwH`ytvDtAuDrB\\uA{BpFfDeC|F"]]},{"cod":"43149020012","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["lpiwHd_uvD~C{@_DpAo@~BcCsAwAhAeCWbCoH"]]},{"cod":"43149020013","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["beuwHdksvDcDIzC_AxE]"]]},{"cod":"43149020014","muni":"4314902","origem":"setor","acuracia":"regular","obs":"Aglomerado Subnormal","geom":[["~~twHlpsvD[cCbB_@dC~FgAaHbH{@fBxI_GtB"]]},{"cod":"43149020015","muni":"4314902","origem":"face","acuracia":"otima","obs":null,"geom":[["dhuwH|jbwDeBhBu@sBwE{@oC~CmEcBoCn@wAoAoPcB_@qApZiBfJnExIu@xDhF"]]},{"cod":"43149020016","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["dvtwH|rbwDoBb@y@_AxAk@vAbAA|@"]]},{"cod":"43149020017","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["hrtwH~ccwDoILoEpBPRnAGk@f@wCAgA}CuCfA|CiBg@_AqEj@`FoAyAiIdJa@GvAjDj@sDQm@pBv@fC|AsAgAjCn@NJ{AhD?zO_G|ART{B`Dg@PkEnFRcDdIcMlG"]]},{"cod":"43149020018","muni":"4314902","origem":"face","acuracia":"boa","obs":null,"geom":[["rnawH|ukvDsFrCgMmCtB{D`FbBxHmA"]]},{"cod":"43200080001","muni":"4320008","origem":"face","acuracia":"otima","obs":null,"geom":[["vmlwHz`{tDlAxIaBoH_BSh@}BiB{HlJeAtE`U"]]},{"cod":"43200080002","muni":"4320008","origem":"face","acuracia":"otima","obs":null,"geom":[["bzkwHla~tDwB^iIcFzBwCBqDhCbApG]GpAtEJF|@uEU"]]},{"cod":"43200080003","muni":"4320008","origem":"face","acuracia":"otima","obs":null,"geom":[["rshwH~cauD_@|@mR|LiGaEhGxCy@_AhGqD|EsH"]]},{"cod":"43200080004","muni":"4320008","origem":"face","acuracia":"boa","obs":null,"geom":[["dxawHd``uDbGvApCaBe@bAnCu@`Dv@WdA}JtAoPeALuB"]]},{"cod":"43200080005","muni":"4320008","origem":"setor","acuracia":"regular","obs":null,"geom":[["bv~vHdw_uDKmArALiDcCkJsCqh@qA}ExC}f@LrBy`@fKaHxOhBjIq@nKeGzM`AZbAdEEzKhDj\\hRj]lMXlAsDl@oWtAoEnDkApF"]]},{"cod":"43200080006","muni":"4320008","origem":"face","acuracia":"boa","obs":null,"geom":[["xnjwHzx|tDoN`HuFOxFKjGaD\\wDhBm@"]]},{"cod":"43200080007","muni":"4320008","origem":"face","acuracia":"boa","obs":null,"geom":[["`p~vHjhcuDki@zSeC~HeC?DgC~CoCsD@oDvAgEw@uIrHjIyIhE~@hK}CtAV`m@aW"]]}],"fontes":{"adh":{"fonte":"Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA, FJP)","ano":2010,"via":"Base dos Dados, mundo_onu_adh.municipio","url":"https://storage.googleapis.com/basedosdados-public/one-click-download/mundo_onu_adh/municipio/municipio.csv.gz"},"ideb":{"fonte":"INEP — Índice de Desenvolvimento da Educação Básica","ano":2023,"via":"Base dos Dados, br_inep_ideb.municipio","url":"https://storage.googleapis.com/basedosdados-public/one-click-download/br_inep_ideb/municipio/municipio.csv.gz"},"anatel":{"fonte":"Anatel — Acessos de banda larga fixa (densidade por 100 habitantes)","ano":2024,"mes":6,"via":"Base dos Dados, br_anatel_banda_larga_fixa.densidade_municipio","url":"https://storage.googleapis.com/basedosdados-public/one-click-download/br_anatel_banda_larga_fixa/densidade_municipio/densidade_municipio.csv.gz"},"bater":{"fonte":"IBGE e CEMADEN — População em áreas de risco no Brasil (BATER)","ano":2010,"via":"Base dos Dados, br_geobr_mapas.area_risco_desastre (geobr, IPEA)","url":"https://storage.googleapis.com/basedosdados-public/one-click-download/br_geobr_mapas/area_risco_desastre/area_risco_desastre.csv.gz"}}};
 </script>
+<script>window.ATLAS_IPEA={"gerado_em":"2026-10-12","adh":{"anos":[1991,2000,2010],"valores":{"idhm":{"4314902":[0.66,0.744,0.805],"4304606":[0.556,0.665,0.75],"4309209":[0.54,0.661,0.736],"4320008":[0.513,0.633,0.726],"4303103":[0.546,0.672,0.757],"4309308":[0.522,0.654,0.73],"4307708":[0.589,0.693,0.754]},"idhm_e":{"4314902":[0.494,0.612,0.702],"4304606":[0.349,0.5,0.636],"4309209":[0.332,0.5,0.636],"4320008":[0.288,0.474,0.624],"4303103":[0.342,0.529,0.675],"4309308":[0.301,0.515,0.639],"4307708":[0.409,0.56,0.662]},"idhm_l":{"4314902":[0.748,0.811,0.857],"4304606":[0.733,0.818,0.864],"4309209":[0.75,0.839,0.862],"4320008":[0.748,0.791,0.844],"4303103":[0.733,0.82,0.857],"4309308":[0.75,0.792,0.833],"4307708":[0.742,0.821,0.843]},"idhm_r":{"4314902":[0.779,0.83,0.867],"4304606":[0.671,0.719,0.768],"4309209":[0.634,0.688,0.727],"4320008":[0.625,0.677,0.726],"4303103":[0.651,0.701,0.749],"4309308":[0.629,0.687,0.732],"4307708":[0.675,0.725,0.769]},"expectativa_vida":{"4314902":[69.87,73.65,76.42],"4304606":[68.95,74.07,76.83],"4309209":[70.01,75.33,76.74],"4320008":[69.87,72.45,75.65],"4303103":[68.95,74.17,76.42],"4309308":[69.97,72.54,74.99],"4307708":[69.54,74.25,75.57]},"mortalidade_1":{"4314902":[21.12,16.04,11.6],"4304606":[21.46,15.3,10.62],"4309209":[19.11,12.83,11.3],"4320008":[19.43,18.0,11.9],"4303103":[21.46,15.2,11.6],"4309308":[19.2,17.9,12.8],"4307708":[20.15,15.0,12.0]},"mortalidade_5":{"4314902":[24.74,18.58,13.09],"4304606":[25.13,17.83,12.07],"4309209":[22.4,15.06,12.75],"4320008":[22.77,20.97,13.89],"4303103":[25.13,17.63,13.09],"4309308":[22.5,20.79,14.89],"4307708":[23.6,17.48,14.01]},"renda_pc":{"4314902":[1021.93,1399.5,1758.27],"4304606":[521.5,703.5,952.13],"4309209":[414.58,577.3,737.29],"4320008":[392.11,539.25,733.28],"4303103":[460.02,628.97,844.04],"4309308":[401.97,575.06,758.83],"4307708":[534.58,728.6,955.86]},"indice_gini":{"4314902":[0.57,0.6,0.6],"4304606":[0.5,0.52,0.51],"4309209":[0.44,0.48,0.44],"4320008":[0.45,0.45,0.44],"4303103":[0.46,0.47,0.44],"4309308":[0.48,0.51,0.47],"4307708":[0.48,0.49,0.48]},"indice_theil":{"4314902":[0.61,0.7,0.69],"4304606":[0.44,0.49,0.46],"4309209":[0.35,0.4,0.35],"4320008":[0.35,0.37,0.34],"4303103":[0.36,0.4,0.34],"4309308":[0.4,0.46,0.39],"4307708":[0.4,0.43,0.42]},"razao_10_ricos_40_pobres":{"4314902":[19.73,25.02,23.68],"4304606":[12.66,14.6,12.99],"4309209":[9.47,11.26,9.18],"4320008":[9.77,9.88,9.0],"4303103":[10.08,11.09,9.05],"4309308":[11.28,13.41,10.68],"4307708":[11.22,11.88,11.0]},"prop_renda_20_pobres":{"4314902":[2.65,2.14,2.52],"4304606":[4.09,3.48,4.21],"4309209":[4.83,4.21,4.89],"4320008":[4.74,4.44,5.02],"4303103":[4.78,4.23,5.02],"4309308":[4.5,3.92,4.5],"4307708":[4.23,4.03,4.4]},"prop_pobreza":{"4314902":[9.78,8.49,3.82],"4304606":[15.0,11.27,4.4],"4309209":[16.55,11.83,5.39],"4320008":[19.87,12.2,4.94],"4303103":[14.54,9.88,3.91],"4309308":[19.93,12.79,6.44],"4307708":[13.68,8.14,4.53]},"prop_pobreza_extrema":{"4314902":[2.37,2.37,0.92],"4304606":[3.64,3.28,0.93],"4309209":[4.18,3.03,1.54],"4320008":[5.0,3.08,1.27],"4303103":[3.83,2.55,1.39],"4309308":[5.38,3.73,1.49],"4307708":[3.14,1.88,1.32]},"prop_pobreza_criancas":{"4314902":[16.7,18.17,9.7],"4304606":[22.3,19.45,9.67],"4309209":[22.23,19.5,10.85],"4320008":[27.18,19.7,10.05],"4303103":[19.93,17.22,7.73],"4309308":[26.55,20.32,13.12],"4307708":[19.41,13.67,9.64]},"prop_pobreza_extrema_criancas":{"4314902":[4.7,5.66,2.56],"4304606":[6.05,6.48,1.98],"4309209":[6.25,5.42,3.13],"4320008":[8.11,5.3,2.72],"4303103":[6.05,4.75,2.67],"4309308":[7.96,6.53,3.03],"4307708":[5.1,4.08,2.86]},"prop_vulner_pobreza":{"4314902":[24.35,20.41,12.51],"4304606":[38.19,28.99,15.72],"4309209":[42.32,30.42,18.01],"4320008":[46.18,29.74,18.29],"4303103":[39.9,26.27,13.22],"4309308":[47.72,34.85,19.29],"4307708":[35.08,22.79,13.59]},"taxa_analfabetismo_15_mais":{"4314902":[5.23,3.45,2.27],"4304606":[6.92,4.36,2.61],"4309209":[8.26,5.13,3.2],"4320008":[8.76,5.51,3.33],"4303103":[7.8,4.51,2.94],"4309308":[9.12,5.76,3.83],"4307708":[6.58,3.91,2.65]},"expectativa_anos_estudo":{"4314902":[10.53,10.45,9.76],"4304606":[10.37,10.12,9.89],"4309209":[10.51,10.5,10.16],"4320008":[10.04,9.97,9.71],"4303103":[10.73,10.4,10.05],"4309308":[9.79,10.18,10.02],"4307708":[10.83,10.69,10.25]},"taxa_fundamental_18_mais":{"4314902":[57.33,64.54,74.78],"4304606":[36.43,48.6,64.57],"4309209":[31.74,45.46,61.11],"4320008":[27.44,42.9,58.86],"4303103":[32.87,49.16,65.99],"4309308":[29.02,45.24,59.96],"4307708":[38.91,52.67,64.6]},"taxa_medio_18_20":{"4314902":[35.65,44.25,48.18],"4304606":[15.2,31.96,41.18],"4309209":[16.71,30.94,43.78],"4320008":[11.25,28.52,39.11],"4303103":[18.56,35.09,45.62],"4309308":[12.03,33.25,42.06],"4307708":[23.18,35.32,41.25]},"taxa_criancas_fora_escola_6_14":{"4314902":[13.43,5.27,3.37],"4304606":[15.54,7.49,4.12],"4309209":[13.85,5.09,4.27],"4320008":[17.81,5.66,2.61],"4303103":[15.75,4.97,4.01],"4309308":[15.23,3.85,2.69],"4307708":[9.36,3.95,2.39]},"taxa_atraso_2_fundamental":{"4314902":[16.96,12.54,14.86],"4304606":[17.52,12.56,15.08],"4309209":[16.0,10.97,10.78],"4320008":[18.13,13.55,16.12],"4303103":[15.92,11.02,10.11],"4309308":[19.69,12.63,12.86],"4307708":[15.5,9.43,10.59]},"prop_ocupados_formalizacao":{"4314902":[null,69.09,73.48],"4304606":[null,68.51,74.51],"4309209":[null,63.72,71.67],"4320008":[null,66.88,74.32],"4303103":[null,66.49,74.33],"4309308":[null,67.43,71.29],"4307708":[null,71.46,77.97]},"taxa_desocupacao_18_mais":{"4314902":[null,13.09,5.12],"4304606":[null,15.84,6.03],"4309209":[null,15.75,6.84],"4320008":[null,15.72,6.66],"4303103":[null,13.13,6.15],"4309308":[null,17.52,6.65],"4307708":[null,17.03,5.67]},"taxa_agua_esgoto_inadequados":{"4314902":[0.89,1.02,0.38],"4304606":[1.06,1.18,0.78],"4309209":[1.31,2.83,1.35],"4320008":[1.69,1.35,0.41],"4303103":[0.24,0.91,0.6],"4309308":[0.74,1.64,0.33],"4307708":[0.46,0.29,0.02]},"taxa_densidade_2_mais":{"4314902":[30.41,25.17,19.0],"4304606":[34.79,28.16,20.45],"4309209":[33.24,26.37,19.54],"4320008":[35.83,26.69,19.7],"4303103":[35.69,25.99,18.87],"4309308":[36.19,29.99,18.32],"4307708":[30.94,24.17,16.41]},"taxa_sem_fund_informal":{"4314902":[null,25.7,17.34],"4304606":[null,37.24,24.41],"4309209":[null,40.26,27.83],"4320008":[null,41.97,29.07],"4303103":[null,36.67,24.52],"4309308":[null,38.93,29.11],"4307708":[null,34.88,24.52]},"taxa_criancas_dom_sem_fund":{"4314902":[null,29.78,18.31],"4304606":[null,35.9,22.7],"4309209":[null,34.86,20.57],"4320008":[null,39.55,21.14],"4303103":[null,29.82,15.77],"4309308":[null,34.86,22.69],"4307708":[null,29.7,23.44]},"taxa_mulheres_com_filho_10_14":{"4314902":[0.29,0.32,0.14],"4304606":[0.23,0.14,0.58],"4309209":[0.23,0.04,0.28],"4320008":[0.12,0.3,0.0],"4303103":[0.21,0.29,0.21],"4309308":[0.0,0.0,0.34],"4307708":[0.0,0.0,0.0]}},"fonte":"Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA e FJP), via Base dos Dados","tabela":"mundo_onu_adh.municipio"},"aop":{"fonte":"IPEA, Projeto Acesso a Oportunidades, via Base dos Dados","tabela":"br_ipea_acesso_oportunidades.indicadores_2019","ano":2019,"limite_min":30,"escala":100,"setor":{"aop_emprego_tp60":"??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????{cRa_Ra_Ra_Ra`R{cRobR{cRabRabRobRabRabRabRabRmuQabRa_RarQarQarQarQarQarQw}Qi}Qo}Qo}Qo}Qo}Q{~Qa`Ra`RmbRobRobRi}QobRobRmbRi}Qi}Qi}Qi}Qi}Qq|Qq|Qi}QwxQq|Qq|Qq|QaxQaxQq|Qq|QaxQmuQmuQaxQaxQooQinQinQinQmuQarQinQinQinQinQooQooQooQa|Qa|QooQukQukQukQukQukQukQukQukQa|Qa|Qa|Qa|Qi`Ri`RayQeyQi`R{zQ{zQy`Re_RitQe_RitQitQitQitQitQ{zQwzQ{zQwzQiuQwzQe|Qe|Qs~QwzQwzQwzQw_Rs~Qk`Rw_Rw_RwxQwxQwxQwxQwxQwxQk`Rk`Rk`Rk`Rk`R{`RiiRiiRmdRiiRmdRmdRmdRm~Qm~Qm~QwbRwbRm~Qq}Qq}Qq}Qq}Q{dR{dR{dRq}QmhRmhRmhR}_R}}Q}_RgeRgeRi~Q}}Qu}QqsQq}Qi~Qi~Qi~QabRabRkyQkyQguQ{_RafRafRg_RqcRsbRg_Ru_Ru_RsbRkcRm{QsbR}`Ru_RqmQgvQqmQ}`RkcRcdRcdRqmQ}lQchQgmQq{QcdRcdRi{Qs}Qs}QubRqnQqnQchQsvQgtQgtQgtQ}lQsvQuaRw{QmbRu|Qu|Qu|Qs}QihQihQuoQuoQwlQ}iQgrQyxQk`RgaRgrQoyQgrQoyQmbRe~Qe~QsyQonQa|Q}lQkwQkwQmoQi|QcuQcuQgtQcuQi|Qa|Qa|Qk~Qk~Qe|Q}lQwvQazQazQekQ_zQorQ_zQklQklQklQopQk}Ok}Om_Q}{P{qQazPcgQcgQ}cPc~OaoOaoO}cPs|Os|OakNs|OuyP_yO}iP{cQ{cQonQopQuyPglQ_uQgzQ}|QopQ}|QonQgzQgrQypQitPwlQ_{Pc~Oc~O{kO{kOe|O_{PmfQmfQcwOcwOkkQg}Nu_Mm{MwePemOksHwjPyeQ}iQ}lP}iQqpOkmO?uvK{|B{jMwpNwpN{jM?qhPqhPq_PqhP{cCobE}eC}eCe~M{qMmvG_fCgoG_`HyjHinNm{GakNqlO{rQqqPobQobQsiQasOefPefPsbPspPw`Pw`P{cPa~Na~NasOqhNqhN{vLozMozMadPmvNmvNuuNuuNadP}_MuuNypLugNcqJypLsuIu{QulQulQulQkvQ{rQ{rQ{kQ}kQ}kQoxQslPswNswNw`Pc~OmvNuzQoxQk_QkzPapPgaQapPemQkfPkfPkfPoxPc_P}zNa|HomMikOmdPslPqoN{qMotIunNi~MeqLknKsdQsdQ}aQsaQ}fQ_mPemPm_QoxPowPyiP}aQ{|QguQkyQo`Ro`RywQysQiqQ_yQmoQuxQuxQuxQmoQuxQeuQeuQaxQs_ReuQcmPcmPwtP_mPilOojPojPk|OclQclQaxQc_RclQclQojPgrPgrPgrP_hPapPgcQoaRqiQuvQuzQu{Q{zQ{zQ{zQ{_RipQ{_Rm`RubQuiQu}PkfQkfQeyPu}Pk|PqvP_jQu{PkxQe}IcxQuoQqwQg}QchQchQchQchQchQ_uQ}zQ}zQkwQ_tQ_tQ_tQg}Qg}Q_uQkwQkwQgpPyjQoaP_sQ{`Rs_Re|Qe|QiiRiiRgaRe|QwbRwbRwbRqeRgmQodRodRgmQuwQuwQmxQmxQuaRmxQgiQysQysQiuQgaRgaRwnQwnQysQwnQgaRgoQwkQwkQehQ_jQwkQwkQ_lQ_lQqmQ_jQqmQqmQyhQqmQw_QeyQeyQw_Q_iQwxPwxPcnQwxPmjOmjOmrPmrPmrPicOicOicOwyPyvPgiQu|Ou|OkkPejQ{bP{bPolOgfOqvPqvPqvPqoOa|Qc{Q}zQ}iQmrQyyQ{vQexQqxQa|Qw|Pa|QurQ{dPo|Q{dOuzOu`QynNwwLu_Mu_Ma~Pa~PeuI}~Jy_MinOqqOg_Os_O{oMajPajP_lPiiPiiPeiPqqO}dPahOahOekP{dPy~Ny~NcuOgcN{nN}dP}dPinO{nNinOy_MioLioLqbNioOyoNioOa_Ma_MydN_vOgvLqjKqjK_rOmhOarNghQ_fP_fPgvLufNg_Ng_Ng_NytOomP}_PwmNg_NufNufNiyNiyNqeP?ahK}_MovNwaOwaOw`MwyLazNuyOuyOu{LuuNciKciKcdMa_MywLywLukNukNukNozNozNozNuhOcsMcsMeaQqaQ_`PczNywLs}MixL{}N{}NqzNccNqmLghOghOuhPuhPqaQqaQorOgeOipM}tCgrLitM?ccOccOaoPaoPusMmeL?eiQurPodQ_rPi`PuhOenPaeQyaKmcP{fOodQ_{OcsNyWcgE{xOcsNszLscNytN}aNywOwiMcfL}aNytNe}N_tNscN_wIcwN{eLcdLoeLmeE??ms@a|Fs~J{qN{qNaiMgoHgoHocDg~FuxFo]sgFiyN{jMcsEw}KijFgmFwjM_jM_jMgaEccFccFgvEumGkmF_sEwyCapCemCq~@enBwyC_lFoeE??inBysCeBwSqk@qk@a]}jAa\\es@oYoTeUom@q]q]wn@wn@ov@i|@_}Ayw@yw@qeAg_@{n@i`Akh@o~@g|Ci`Ag|C_cA_cAql@yg@yg@u^u^i\\{fEuyAa}@g|Ckd@kd@quBquBquBql@???cfDc`CmiI?_rAktDmsMw|K{hJmfHenJobKusMusMooKilJahLy_LkgMseKseKmqIoiKoiKmqIoiKy|GcmFmlFcmFefFyzEefFeyAexGexG}mDmnM{eO{eOkbMioJioJc{Nc{NyuOqzNo|No`Oc{Nm~Mm~MyfNqxMqrNqxMegIadLanKunKunK}bM}bMadLaqK}nLw`MwxL}yKm_LsgLmdLmdL_gKerJk~LmsMqvLmsMioLioLk~Ii}Gi}G_yGioLitKitK_yGawF{}GghHs}IqnHqfGsnJglLinKe_JmpNq{LmpNq`K}~LwbLi|JumM}~Lq`Kq`K_gK}rKieNehHmtJwnFmsGmsKehHmpIk|FadFggI}rI?{vJ}nL?ksLgvN_iG}_KyfGalIqbH_{GydH{rJwkI}dJkjKsgLs}EkoJmpFuvIsnCwuEkuJsrFuiDqxJisKwoEwoEqiDe`EoeCufBcpBcpBao@ol@qcAarD?inKirJirJcuHijJonI?_dE?w]?ih@?cuA}{JukH}eEgmJc~JcgI{hDi}Dw_Gmy@a_K__Gku@_bIo}GmuFmuF}bFsdAgcAsdAcf@g~AwiE}bFsiD{l@g~AckCk|AckC?}`Cs\\?ai@?ub@}Jgz@obAgUonAwgAe{@_d@w\\ic@yX???oAuCcG?ecBeJ??aFgJ?_C???I_vH_vHsdFecQecQesCq_Mq_MksNksN{lN{lN}dO{lNy{Ny{NksNksN_hO_wO_hOmqOmqO}xOgjOmvOm~Oa|P_wO}dO}`O}`O}`OkiNilNkiNkiNamOamOy~P?myPgeQgeQscQejQueQcvPokQ{fQomQg|PumQomQyrQyrQ_hQerQyvQ_qQ_hQssQulQguQgkQywQwwQutQmyQmyQ_lQgzQgzQqkQqkQqkQ{~Q{~Q}wQgyQ{nQoaQ}wQs~Qs~Q{~QqrQqrQqrQgxQ_|Q_|QoaQ{uQ_|Qe{Qi~Qi~Qy|Q}_Rg`Rg`Ro_Ro_Re~Qe~Qe~Qw`Rw`Rw`Rw`Ry|Qs_Rs_Rk}Qk}Qy|QkyQkyQwxQe~Qy`Ry`Ry`Re~Qm`Ry`Rm`Rm`Rm`Rm`RobR{`R{`RobRs_Rs_Rs_Rs_R{`R{`RgcR_aR_aRu{Qu{Qs_Rk}Qu{Q_aR_aR_aRuaRuaRc`R_aRu{Qc`Ru{Qs|Qs|Qs|Qc`RuaRuaRuaRq~Q_cRq~Qq~QatQoxQmzQmzQoxQoxQkpQmrQk{Q_cRqcRk{Qk{Qe{Pe{PseQuuQqaRwlQwlQa`Qi{Q{{Q{{Qm{Qm{Qm{Qm{QcqQ{kQ{kQuqQuqQkzQkzQyyQyyQszQ_`RknQkzQ}sQknQebQ}sQkiQi~QgxQamQoxQamQ_tQiwQcuQoxQqzQiwQqrQcsQcqQ{tQcsQ_oQwrQwrQwrQ{tQgrQwrQ_oQawQykQawQevQ_oQqzQcfQchQchQkvQkvQsbQuuQuuQckQ}rPqhQqhQ}rPqtPmjQgzQgzQmjQ_qQ_qQ_qQyvQ}fQcqQchQchQyfQ{eQyfQ{xPoaQojQojQ_oQcmQ}nQkhQylP?q}P_cQq}PovPayOayO{`PwaP{eQ{eQ{zP{kPupP{wPizPupPudQg~PenQg~PgoP{`PgoPumQgmPumQumQcyPudQ{wPueQueQscQshQshQ}hQ}hQkjQ}lQceQ?gxQmuQygQkeQiyP{wPiyPysPmiQqaQ{uQ{uQs_R}tQsdQyuQiyQwgQokQagOamQagOkePqzPo{QwsQarPmgParPy|PazPazPwsPslPy|PawPa~Pa~PukPi~PigQ}qQ}qQmiQmiQmiQkePaxQkjQkjQkjQkjQ{gQ{gQ{gQkwPkjOkqPkqPkqPkqPeaQi_PkjOghPerO{uP{uPghPghP_cOuvOuvOsxPshOshO_aPskPskPqfPoqPe_Oe_OexOexOwrPudO_eP_eP{eP}wOemP}uP}wOizPizPizPmjOajOajO{mPuePagPagPeaQ{pP{pPwfPwfPwfP}xP{pPkjQw|Nw|NqhOqhOa|Pa|PcyPixPctOmfPcyP{qO{qO{qOawOq`NayM{uOsxPusOsxPkuOm_OqqMm_Om_OknOipMqiNqiNk|Nk|NadPadPaqPagPguOagPmzNknMknMscNscN{aOiyOcrNctPctP_pPsuP_pPo~NktOwhOcgNcgNakPofOisPewPewPorPk{PyrNkdO_lOqgPkdOigP}hQ}hQ}pQigP}pQ}pQifQifQquKunKunKskDsqJsqJkhKi|Ki|KepKepK{oK}qJ}qJauKunKucLepKi|Ki|KasPwrQyfQqkNmjOehNiuLiuLs_MiiMquKiiMesLesL}}MaqMesLesL_rK}dMieMogNcnOumN{wMsbNceNceNceNsaOgkPwkQgrPgrPuuCyyMkaOwkLwkL}dMaqMqmOwxOqmOqgPqgP{_NicMicMkxNmzO_hOmgOagOizNizNisNisNisN_}N_}NecPqjNkxNexNweNweNexNu{NyfNosMgqNwcQ_cQ_cQyfOq}LchNchNo`NchNo`N_`Oo`N{sN{sNozM{sNeeFqlL{fJ}zKasLasLuuLaxLaxLs`Ks`Ke`Me`Me`My_MmrKemKemKyrHkdIkdIkdIynKynKojKojKovKojKsgMmrKsgMquIilJa{KwfLi`NcnNmwOmwOo_NwmJm{MqyNanM}qHudIudIg|IgxJaqIwyKe`NehMehMspJspJkjNehMehMspJ{oJ{oJkjN_iNkjNkjNa`O_iN_iNcxGqcM{_I_uJ{oJs|B_hO}iNudNaxMaxMamGamGisNisNivN}~OmgN_hO_hOohPubOopPagN?q_OeqOeqOqdPuzNgwNgwN}zN{{N{{N{{N}zNwiMuqNuqN{{N{{N{{NqyNuqNuqNuqNkzNe`NkzNe`Ne`Ne`NovNovNovNa`OmbModLkpMy_NgjNydOyvNe_OwpNe_Oq`NakK}uMuuN_rPunPunPc~PmlPwfMuiPmlPc~P_gQ_gQyaKyaKmpOmqOisOuwNwcQyjQyjQyjQmrP?q_NabRaxQs~Qw_RafR}lQm_Qs|Om_Q{zQu}P}zQe|QocR_lQw_QqmQwxPicOylQioOwpFgcDcwNwuGgkNakFg_AoaLksF}kE}[a]o`@k}@cjBa|Ks_GkiK}aKmsMg~LccGilGe|FqG_hOm`RoxQqcR_hQuqQygQkoPiyPysPgoQsuQawO}`Rq{QqnQ_rQ}iQsyQoyQejQkuO_rQadL}wFyiMisF{uDukHcuAwgCmwAuvGw`EksNatQoxQyzQuuQseQa`Q_oQebQcnNo_NykQaxPeyPqaQshOcrNg|N}uOweNq^k~QwiMkpMcdMc~Kc~Kc~Kc~Kc~Kc~KkwQkwQkwQ{`R{`R{`RshOorP_}NyaG}uP}xP_iNi}PovNeKuu@udNajOmgNuaCgzFcfQcUcJyG}v@swNciKynOkeGkeGkeGilJccIq}Lu_MshO_aPskPskPshOmvGwsNmiQkeP?ukPkkQe`EemD?AabMe{@ggFggFisFq`OyhQyvPatEwnHk[gk@oqM{uO_cQuuLs_Ms_MuaMeqG}yCinC}oGakKo_N{gQ{dRk`QwiMguQcPkgMadKskPs|Q_aRk{Q{lNeyLceN{oJqcMksNoiK_|JasL}oGc~PalDskG}uIihNklBkbM{eO{bEiqBipDceCceC_yDuh@q_NadEqyPqyPmzQapP{_PikOuuMgvLodBe~CueOueOwpNe_O??ea@?_uQeeQweQweQgaRwbRysQysQ?kxF??{oQmwQ?wmQqnQg}Qo`RgmQgvQoiKmqIihK?akNwvPyoQu}Qe|Oe|OobIcaKkiKkiKuuMuuNayM_ePmpFw~CuiDwlEqkDuf@c|Nc|NuF?uvG__Go_KaqK{e@?iwBucAucAipPwsPQCebOebO_hOahOmgOmpIm}Ha_RgmQonHoEu|Pa`RsgDo~MqzQqoKqsQqsQgaRgbRmaPmaP}`QkbQipQipQ_lQuwQkkPolO_lFyvE{fOuvKocRocRwu@wu@?aqK_|J_|JgrLm_LgrL}hH}hHc_DkhDam@}xO}`O}`OokMybN_|Kg{NqhQssQywQiyPwpPygQeyP{gQkpPovNiqNk{PmuPqdJqdJa|Ja|JsmPqoK_~GkuIq_OeyNytNuvNw|KirKccGglQglQopPopPoaAoaAcnDudBgsCo~@?qcDqcDkqPkjO?odLwiMkoPwpPkwPmgPqjNecPkb@kb@up@kbRa_RsiQekOwwNwwNe}I{fO_{OisB}dC???c~B?}[}[kW{\\e\\e\\k]k]{\\???}xPuhQ{`KwmJqeIqeI{_IcxGstNy_NeoJcnMcnMoH_^?qNuMk[ivBi~As|A?edA[?qcMibR???ygKslPmdP??oI?_iN_uJcxAulNgrIouPouPocC?ouPgeOggIcnHeiQ_rQolJkwIqhM??gA??kuN{`F{`Fe~CylBglLgvJ}}N}}NwmO?usMilJqpO{iQ{iQmkN}Au{Nu{NalDwjHckMckM}fQ}fQuvHceQceQ}hQ}hQ{_Nc}NasLozM??kxG}vGysPckQ?mhN?erJciLkxD?}tOqzN{bE???gvQqmQ}lQgvQesQooKahLe~Qe~Qe_Rq|QcrQkkQ}xPi}PuZku@?wlQ__Qm_OgpNulNyvNq`OyyOqwGohNs}H_vHunNqoNmnMuyOeyLmjOadNanLeiPeiPcjOmiP{~Q{~Q?AobQobQobQ_hQ_hQ{kA?kkCedEcEqWwFwF?qGi~P_kQmm@iJ_H???yT?kd@i{Ki{Ki{KapNapN_vO_vO?ooNmgM_gKadK_gK_gK?y~D?u_EkiCobEwqP_hOeyM}xOivNivNq}LeoJc|MeoJ{mD{mDg~Mc{F{mD{mDohPohP????E?EomMwxOwtQqiQwtQ}zK}zKozMo`N_`O?_hHynO{nNekCyiAuu@uu@k{Pk{P{`KqhMy{LilL?yfN?}j@cyQ}qQ_sQ_sQgzKw{LqiNqiNqiNqiN}aNqiNiqHw{L_|N??ovEqlEgcNgcNsgIsgI_eIg~I}wNukH?cmPoaPk|OA?cgOcgOcgOcgOo_OytO?{[?aQeqNeqNoeF}tGkdAeoEucJ????????????gkNcfPwvP{cQ{cQonQ{kO{kOsuP{rLitF??}|M{jMgrLw_OqoOmzNsmO?sO?ihNaeO??????????knMytQ????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????","aop_saude_pe":"??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????wkAmf@mf@ca@__AwkAoy@wkAov@ov@oy@ov@ov@ov@ov@uIov@mf@sGsGsGsGsGsGcEalAu`@u`@u`@u`@qF__A__A}z@oy@oy@ajAoy@oy@}z@ajAajAajAajAajAo{@o{@ajAaeAo{@o{@o{@agAagAo{@o{@agAuIuIagAagAimAgu@gu@gu@uIsGgu@gu@gu@gu@imAimAimAwkAwkAimA{l@{l@{l@{l@{l@{l@{l@{l@wkAwkAwkAwkAmn@mn@cx@ekAmn@ub@ub@agAozAij@ozAij@ij@ij@ij@ij@ub@cAub@cA}y@cAai@ai@u`@cAcAcAww@u`@eaBww@ww@aeAaeAaeAaeAaeAaeAeaBeaBeaBeaBeaBykA}k@}k@ww@}k@ww@ww@ww@ie@ie@ie@it@it@ie@}t@}t@}t@}t@uIuIuI}t@c_Ac_Ac_Agp@mm@gp@aSaSqn@mm@{qA_u@kAqn@qn@qn@_k@_k@wu@wu@wxAo{@ktBktB{gByeAwi@{gBycAycAwi@eGca@wi@ab@ycA_sA{mB_sAab@eGym@ym@_sAygCwrC_qBypAym@ym@kn@e~Ae~AawAucCucCwrCyuCgaCgaCgaCkiEyuC}dCalDahCayBayBayBe~AqnAqnAyo@yo@yeAmqAwjB_jCs{Bu|BwjBeuBwjBeuBahCoyDcaDkmCuqAmkDygCs|As|Aeh@eoAwsBwsBgaCwsBeoA{~A{~A}lC}lCedDkiEuxDoc@oc@ocAm_@e`Am_@kLkLkLgI}m@}m@{s@{p@un@qKiEiEyl@glAyo@yo@yl@wk@wk@mp@wk@}cAqsAayA_r@_r@wA}y@}cAqjBghCe|Aww@}y@ww@wAe|Aol@an@wEagAwh@glAglA_B_Bkn@wh@_z@_z@sp@sp@osBgp@{sAejAwqAikBc}B}iCyuBivB{rCivBiiBg|C?g|CooEky@_B_Bky@?yw@yw@ulAyw@_qCijCsbDsbD}kB_aBip@wp@_o@}zB{CouBan@akB_hDgl@{q@g{@g{@wnAinAwiAwiAim@qFki@ki@mu@okAokAinAgb@gb@}Eem@em@ab@iaAiaA{D{Dab@ej@{Deo@uDyrAeo@{yA_z@uIuIuIkq@gl@gl@gg@ifAifAqjAsH_w@_w@ki@cn@iaAyyAqjAypAmf@snAytAkFsp@avAavAavAcAee@wnAakB_wA{eBmu@sH}@im@spAs_A_cAckA{gAssBssBo_DitCsxBanCe|B{sAcAmpA}dCo_D}sBwxAwu@}iA}iAueBcgBwvBmc@eh@qAqAqAeh@qAk`Ak`Ako@mn@k`A_vB_vBwtCanCqkCssAssAoyAiuAiuAko@goAiuAiuAssAmk@mk@mk@ey@kFws@ue@ob@_m@yyA_z@{iA{iA{iAskAag@skAipA}Oqk@c|@gjAgjAe|Ac|@ciBymAy|AmbBgz@{sAcx@}h@waAq`ByByByByByBgq@ih@ih@epAij@ij@ij@q`Bq`Bgq@u~Au~Ao}BmbCexB{}AwzAmn@ai@ai@}k@}k@ofAai@yo@yo@yo@sm@{jAeg@eg@{jA_o@_o@uy@uy@}Juy@uy@{gA{gA}y@ofAofAmqAmqA{gAmqAofAw_BcjBcjBgmBurBcjBcjBc}@c}@{jBurB{jB{jBoyA{jBalAekAekAalAej@awAawAymAawAck@ck@gHgHgH}r@}r@}r@}~@kyAuy@{eB{eBuj@arA{oA{oA{sAeoA{sA{sA{sA}sAcm@yh@ih@e_BkkBurAilBsgCy|Bi_BweCi_Bq~Aut@ivBue@qs@cqBqjAoOy{@y{@ekCekCoE}f@cn@mx@yh@mn@qqAsqBmf@mf@wiAyLyLwFyh@idAgx@gx@sCut@uIuIeo@gDcpAidAidAmx@cpAmx@cn@us@us@_o@qFko@qFki@ki@sBal@qb@}f@}f@o|Aky@usC}@ic@ic@aIga@ye@ye@ye@cx@cbAkjAcAye@ga@ga@_dA_dAmsA?coCgcBmqAm`Bm`B_o@m|@gdAev@ev@iz@wh@yy@yy@c@ki@kl@kl@im@im@im@ajAajAajAoh@aqAaqAqg@kFye@a~@kl@mMyj@}xA}xAaoBo_BqoAir@ir@un@un@kFkF{Mwk@koAuxDkrA_~@?y|Ay|Ao|Ao|AgcCqbB?mlCcgBsxBo_Bs}Aoh@ky@u`BigDs_A{wCsxBugDc`BkmFgbEwpAc`BywAus@wFcu@qv@sdB}m@cu@wFgx@arAy~A{rBan@}rAuqDgs@egC??yeDyfBsj@}mA}mAouA_Q_QopAyoAkyBcyCgaDu~@}kBuhCy~@qjBmoBs|@kcBkcBav@skAskAgMio@_sA{d@oyA{gAs}AiqB_dBoyAsj@g_A??qnActBerGcsAyt@ki@sB_o@ww@}cAkv@ckAw`BeaAsgBsgBetAetAycAikA{qAus@us@_C}|@yq@ojAmkAccCeq@ojAeq@kv@kv@cr@ej@ej@}E}E_p@qdDuhBst@eq@}h@}h@eh@eh@eh@cr@???_aBsvCyeA?yiBkgAmcCcgAa~BoIgqAotAobCobCmsByiBqd@mm@ci@{`B{`Bo@qq@qq@o@qq@ifBqlBmvBqlBqcCo{CqcCwaAezAezAeuBsCus@us@ycBir@ir@}kB}kBamBaoBiwAklA}kBymBymBeo@mbAomAmbAug@eb@yaAifAifAinAinA_e@sr@}f@_o@kGkj@er@_cAuy@uy@sBkn@et@ej@}`@ej@wAwAi@u`@u`@yq@wAk`Ak`Ayq@qsAirAirDavDs{CioEysDy}BayBwbCq_AqnAq_Aeo@wgAepAu{@mh@wgAeo@eo@sBofAsCyjA}a@ecBw_Bai@yjAoaAeuBevCqbBemA?gvE}f@?_}Aud@sgCidCm|CugFesBaoAmp@cAciAsvBofBacB_t@wpAgyBwmCezA_u@wbCgqAcjBs}CelCoNoNqvAicAcjBskBq|Dq|D__FggFmnEilC?or@sCsC[ql@ktA?ysB?{iF?soD?yiDgtBgdEafDqqEydDq~CshE}fAyoA_sA{i@oIabFguCanDwkAwkA{IyrAiz@yrAcqA_mAso@{Iqz@w`B_mAmCofAmC?mxEu{F?yaC?odDobHe{E{f@iuAwKsy@ks@_pA_mAa`AgtB????g`AmfA?_qC???_kJivI?q{F????spA_k@s{B{`B{`BqoG_H_Hol@ol@uo@uo@yr@uo@qAqAol@er@uo@og@uo@_p@_p@cAwkAai@qnAwvBog@yr@g}Ag}Ag}A}xBqjC}xB}xBamBamB_sC?m_Ek}Ck}C}{CarFq}D}bDyaBkkDw`C{sA_kAw`CkaDkaDuj@gqBudDobCuj@cJigC{aCeyAa{@odHol@mk@mk@ucAsfBsfBm}Am}Am}AyhAyhAmc@_HmM_dAmc@qoAqoAyhA{{B{{B{{Bq{B{mB{mB_dAaaB{mBcgBodBodBgb@_hAim@im@ui@ui@sHsHsHwOwOwOwOgb@uj@uj@gu@gu@gb@kmAkmAeh@sHgbAgbAgbAsH_j@gbA_j@_j@_j@_j@o~@aIaIo~@uj@uj@uj@uj@aIaIy{@ms@ms@im@im@uj@gu@im@ms@ms@ms@cdAcdAy`@ms@im@y`@im@mHmHmHy`@cdAcdAcdAwiAgjBwiAwiAcdBifA}p@}p@ifAifAsnBklAot@gjByeAot@ot@epBepBmbAagAgtByeAyeAue@kn@yo@yo@ca@ca@ca@ca@o_CgfDgfDm|Cm|CmsBmsB{mC{mCikBwgCklAmsBqrBklAkaBqrB_nCodBq{BwbB{iAwbBkkB_eCwxB{iAcvB_eC{{BgmDo_CukCgmDmeDecEecEecEukCkkDecEeqCigDcdEigDadDeqC_jCelD{fD{fDqcCqcCktB_gC_gCucB_}A{lB{lB_}Aer@qyCsfBsfBqyCg|Cg|Cg|CudD}rDo{DqzCqzCwlBqlAwlB_eCsmDshEshE_rD}~EehEo~Fo_D?ctBc`BctBwsAa`Ba`B}mAogCqlAqlAmm@cJy{@}w@qk@y{@yl@cF_m@cFs~@}mAs~@cr@{qAcr@cr@qFyl@}w@mn@mn@_h@sr@sr@geAgeAst@ssA}m@?_}BiiBubAinBifB}w@ifBgoAs_CixCebDebDezCseCkgDmjB{{@wtBs`Ceq@oaBeq@ubAurAmc@ki@a{@ma@a{@mf@eGeG_w@aeAmf@_c@av@av@iJ}u@wkAoe@oe@{bB{bB{bBubAmsAst@st@st@st@yjAyjAyjAm}AuDkg@kg@kg@kg@ij@w@uDul@ih@}c@}c@ul@ul@qrBg~Bg~BkaBahCahCk_DquCquC{mC_zAa~Aa~A}kA}kAgs@ahAekAekAm_@wm@sw@qAwm@oh@oh@oh@m{Bq}Aq}AwkAu~@uq@uq@ij@_Q_Qcw@cw@cw@kb@_Qst@g`Bg`BidBidBsmAsmA{bBa`A}p@aD{bBalAalAalAev@a|AsvBeyAkaBcyBkaB_h@gIk{@gIgIuj@yq@}pA}pA}}A}}AyiCyiC_nBcgAsnBcgAwlA_j@_j@qn@qn@cJ_o@_u@_iA_iAmCqu@mC{eBij@gvBg{Ag{AmxAqvByrAohAohAalA_~@c~CqdAwyC}yCqdAsaAmdAmdAgoAsaAgoAgoAwx@wx@alAmi@mi@epAsz@sz@qFui@ui@kj@kj@md@ax@ax@kFmi@{_@kj@ui@ui@khAmjBe`A{q@kt@ukBglAglAmqAggAalAggAkqAkqAwx@{u@kqAkqAenBgeBinBupB_xAqcByo@_w@aNaNaNg\\u_@q_Aag@ag@crDew@azByrAyrAgeB{u@wEcu@wEa~@a~@_m@sc@sc@ax@erAaeA_jDwtCokBokBe}Ce}Ce}CarCarCwhCkdCax@auBckAckAauBcn@sk@ca@kFih@c@c@yw@_t@}j@}j@y~A}j@y~AglBy~AqnAqnAik@qnAsfBsCmr@ot@cx@cx@eq@sc@sc@wJwJw_@w_@w_@o|@ay@clAclA{qAyzAyzAyzAugAugAst@st@wi@st@qAay@qA_u@gf@gi@eq@ym@__Acs@cs@isAofAcuAgk@azBskAyoAyoAuhAglAkFiqBicA}mA}mAwnAwnAyt@}mA}mAwnA_k@_k@yt@qAyt@yt@ye@qAqAcd@kAgCuD_k@sk@ipAmvAkg@qKqKcAcAsdBsdBkrAgcBkcCipAipAyq@srAcJcJ?wpAi`@i`@qsAeo@{~A{~AefAej@ej@ej@efAiz@yGyGej@ej@ej@gk@yGyGyGyq@icAyq@icAicAicAsdAsdAsdAye@yzAckAawA}bBejAip@kx@mi@iEmi@ut@{D_kAofCcbBomAomAgDyc@inCsh@yc@gDke@ke@???siF}dBajAih@qq@qq@qq@md@?mjCov@agAu`@ww@ktBygC{s@wk@{sA{iAc|@ih@ai@yq@c}@alA{jBawA}r@kaBqFg~AavEan@_xCgsAoq@wlCyv@_k@_aAorBwpAoh@edBko@kfCsa@ai@qv@ej@smA{bEerF}o@usJuo@_j@ifAyeAocEm|CubAic@ifBgoAanDypBev@ab@ypAucCwoBmqAkmCeuBmkD}u@i`DsgCilBgCwrCms@qbAyiDgqBifB}t@gfDer@cdBifAqjBagAmbAue@meDkaB__AisAcdEsj@ifBetAahC_u@ch@siAckAoE}lCiz@awAitC__B__B__B__B__B__Bu~Au~Au~AwzAwzAwzAahCalAarCqg@qAkb@qA{mBsnB}rIqqAkg@q}AkcC_gCgyCelDulEic@i`HmnE_w@yy@a{@ic@ic@ic@gf@wu@mk@y{@ahCk_DquCquCahCip@ugD{bBubA?iJosBicAqgA??oNks@_aAwaAwrC{hCoyAkyAqoBynB{i@wuDs_BeyAc@eq@{H{Hg_A{oB_yE_tEwfD{Dcr@yjAuI{IsdBwxAs{Bci@ki@mlAmHms@ot@isAwc@aN_k@kAol@qq@sr@wm@ck@gDmp@}bBszAo~@mm@ycBus@y|A{hDepC{~C{~C_fAu|CmjCaxEy~@y~@om@snA}kB{eBmi@qb@yoD{|B_qD_qDiEmi@??kqA?ghCkqEqdEqdEofAyo@{gA{gA?gzC??sGacA?eaBwaAq`B}iA_qB{mBqq@o@ixA?mp@mm@sz@keBkn@kn@av@wAai@ai@mi@wh@svBekAgyB_{BcjBmzAkfCiqDe_De_DypG?}t@oI}@sr@edB?sc@uoAuoAgf@_w@??_rA_rAaeAigB_jDoaAqhBca@{jAo{CsfEonGyfAwzDutBcvBks@_u@_u@u|BmvC{zC{zCglAkwBag@ag@c}@_o@uj@{sAsj@wuAeuBg|Cyq@yq@uxDuxD?sr@sr@sr@yfAer@yfA_`C_`CeqDgIow@cAc|@c|@esCipBgaDgpC{g@cJa{@ws@wKubAifByjAs_BsnBomA_~@{Imw@mw@an@an@s|@ks@u|AkcAwpAcr@m|@}cAcgAysBslCs_As_AcJcJus@us@w}BqlBoqCypB?k{Dk{Dkg@uD?ckAiz@ic@wKm}Ama@kdCwhCc_Gc_GgzEysBayAwnAsiCmxBmxB{sA{wCugD{~BwhD???grB?mnBmnBs~Ca{@}O}OcnAcnAa{@???kb@cYgDofAih@ih@gCcd@kwA}bB{l@}|A}|AklDao@?csAkeB{i@upCy|Eul@?qoB??kAgiA???ykAsHmu@??auC?qAuD_HemAmbC}iA}iAwqB?}iAwk@qbBeuFmlCi`DkwC}zA{`A?????}kAomBomB{|Bc~DomB}o@e|Be|BglB?obCyiBiiBsh@sh@sf@?cn@cn@mp@mk@w~Bw~B}rD}rD}pB}m@}m@geAgeA_m@}c@cx@ik@??kzBukDkhBucB?o~@?kn@sk@mjD?a_CaoBg_F???{mB_sAygC{mBamBmsBqd@caDoyDozAo{@_r@glBaD{mBciEabF?agAwvBgIifAemAkx@{hC{cDatBgvAq`B_k@s_A}@sCev@wc@kt@}fAkrCwFwFmvCmiBmm@mm@??g{@g{@g{@ocEocEwuA?eeD_vDcwCo~F???usJsvCg|Dg{Ga_H}gI???eiI?wiFij@ij@ij@qi@qi@al@al@?}rAciBsBki@sBsB?cyB?syC_yDijCsh@ipAkpBmfAkrAkrAmk@{l@}`@{l@kfBkfBkn@kv@kfBkfByq@yq@???????kcBcu@g}Aob@g}Aot@ot@ik@y~AglB?akDa{@cpAit@oj@qqAqqAmh@mh@gD{`Aq}Aa|A?sk@?sjCsmAm}AqdAqdAk}@uDmr@mr@mr@mr@k`Amr@gtAuDwm@??ekC{uCgDgDi_Bi_BcdAkfIkjGgdE?_vBexBoyA??cc@cc@cc@cc@ym@cx@?mnB?s_B_[_[}dA}iAgNko@awB????????????gsAorAmm@_r@_r@wA_B_BywAocBeuC??sw@}p@krAakB}sAcKa{@?{oA?o~@u_E??????????ud@}dA????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????","aop_infantil_pe":"??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????wlCwoBwoB}qC{cCwlCkfBwlCiqBiqBkfBiqBiqBiqBiqBmxAiqBwoBkmAkmAkmAkmAkmAkmAiuB_wAkfBkfBkfBkfBgqA{cC{cC_|@kfBkfBymBkfBkfB_|@ymBymBymBymBymBu{Au{AymBotAu{Au{Au{AmfAmfAu{Au{AmfAmxAmxAmfAmfAqFik@ik@ik@mxAkmAik@ik@ik@ik@qFqFqF_z@_z@qFmc@mc@mc@mc@mc@mc@mc@mc@_z@_z@_z@_z@}J}Jwc@ycB}Jol@ol@cJow@wm@ow@wm@wm@wm@wm@wm@ol@}j@ol@}j@ee@}j@gRgRsy@}j@}j@}j@g~Asy@ibBg~Ag~AotAotAotAotAotAotAibBibBibBibBibB_xAgeAgeAyhBgeAyhByhByhB_nC_nC_nCcvBcvB_nCc}Bc}Bc}Bc}B_xA_xA_xAc}BspAspAspAqvAcxAqvAglAglAuj@cxAq|ByhAck@uj@uj@uj@oEoEmp@mp@srAmyCeeDeeDwcDupD_~DwcD{oC{oC_~DgfEspE_~DygD{oCazC}sCazCygDgfEmzEmzEazCmrCotD}wD_aEmzEmzEgqGwtGwtG{jFksEksEotDgfEuqDuqDuqDyyFgfEmdFyhFuaG}nG}nG}nGwtGc{Hc{HykHykHylHmmIs}Ha}HemGenGs}H{rGs}H{rGuaGwpEkzGobHanDa_DmrCggBggB_fAe_CuxCuxCuqDuxCe_C}nC}nC}|D}|DstEyyFehFgdDgdDaxCgwBelCgwB__B__B__BkoAw@w@wk@_m@_iAwk@}xA}xAcx@erBicAicAcx@_C_CwdA_Cim@{l@emBahAahA_nBumAim@ybCqhBi|AesBumAesB_nBi|Aq}AmlA}{Bg{A{yCerBerBiaBiaBkfC{yCwvCwvCclCclCqwDgzDmiEqtCc|CuuDogEazDgaD{`Cy`D{`Ci{DmdE?kuGy{I_dFqsDqsD_dF?muDmuDivDmuDaiHe}DmuEmuEu|H?ydGquHoeEooEaxE_cEg{FeuFssHw_AgMs~@s~@ydBw{A_o@_o@uj@mu@k`Ak`A{Der@er@w{AwiAwiAoo@yy@yy@sf@_iB_iBuhAuhAsf@_t@uhAeo@uDyrAeo@izBagA{~B{~B{~BkfBw_Aw_Asf@oxBoxBi~@utAufBufBk`AayB_iBse@i~@yq@oo@snAqFixBqoCojDojDojDsyDibDq|Ce~DksCcnBkyAutAqcCkuCueEq`CwxB_bDypByfByfBkaCmkAgxAcdAywBqfCsyDauCacCkaCq~BsrAmp@_aA_aAy_BwqAewAgl@_fAmn@mn@mn@_fAmn@iu@iu@et@{Miu@euBeuB}nAcdAsqBygCygCecBg{Ag{Aet@csAg{Ag{AygCwgCwgCwgCcqCixB_}B{qAorA_}Ase@agA}c@}c@}c@ekAclAekAmm@iuBipBkfBohAohA}o@kfBut@qFqf@wd@qk@kj@qjBawCsaAir@}kA}kA}kA}kA}kA{jAofBofBkwB_sB_sB_sBir@ir@{jAa|Aa|A{gBmtB}uAsz@uv@{MgRgRgeAgeAgp@gRot@ot@ot@}z@ee@cp@cp@ee@{qB{qBegCegCanCegCqiDkq@kq@ee@gp@gp@scAscAkq@scAgp@ij@qvAqvAm}Ae|BqvAqvAejAejA_uBe|B_uB_uB{{B_uBgwCycBycBgwCqjCgyCgyCanCgyCm|Dm|DanDanDanDiuEiuEiuEwpD_oCqiDghDghD{sEkeF}_F}_FomEapDmqCmqCmqC}sAkrC_lBofBy}By`Ao|B_wAyg@}k@k{@e|Bk{@mp@ekB{Do}D_rEykG_oCsfE_|D_|DyfFyfFedB_gBoaC}qBm{Aw`B{cCsqBmf@mf@k{AyLyL_z@m{AajBgmBgmBuhAekBmmCmmC{nAcw@ymBajBajB}qBymB}qBoaCsmAsmA_o@qFefAqF}k@}k@sBal@ql@ahBahBicDiqBi_FweBerAerAeeAuwAeg@eg@eg@iTus@qp@cx@eg@uwAuwA}nA}nAucA?w~Co_CmqA_bB_bB_o@m|@gdAe~Ae~AaoAo`@umAumAmn@}k@shAshAo~Ao~Ao~AcgCcgCcgC{oCgrCgrCoxDmyCunCsaBshAe_BoeAsqBsqBumAezBocBkaBkaBkdCkdCmyCmyCkqEoaFc|DagIiuFcxE?gmCgmCmnBmnBazByrB?wk@_zAwvBq_DsbC{oC}gDe_DeyD{yCkjBwvBawA{bA}}HavIyuB{bAax@syCi{BgzCadEk_EiqDgzCi{BgrCufCccDsiGakHw~I?wcIsgD??}aFkkDsj@}mA}mAouA_Q_QopAasC_~D{iE_uEuzCeeD_tDc|@it@cuAysBkrAkrAyw@wOwOskAqrCa_DamBulAiiByaByq@kn@ulA}aB{kC??_cEe`@?qrByt@ki@sBsCyr@_r@gxA}pAcqAat@sLsLmi@mi@_BcA_p@}J}J_C}|@wn@qq@mkAs}Aw_Aqq@w_AgdAgdAmh@w@w@ej@ej@_xB{|CabAeLw_Aiz@iz@qjAqjAqjAmh@???ctIinC}jE?c}EaeF_nAekBqtC_xAgqAotAe|@e|@msBwEqd@mm@uD}r@}r@yq@_B_Byq@_BifB{b@mk@{b@_z@kx@_z@}kBa`Ba`By_DqsAq|Bq|BayAcqAcqA}u@}u@yb@umAu~@aI}u@}hA}hAmbAy~AeuAy~AqmB{lBolC_qC_qCefCefCmqBggA}f@_o@kGkj@er@_cAuy@uy@m~ByaC_fBkrByfCkrB_qB_qBmzAyzByzBifA_qBe}Be}BifAg{@{vBc`H}sGsiFioEysDseDmyDu~E_`Ca|A_`CgaDq_Ek{EeaGgiFq_EgaDgaDm~BquE{vFwkEcbHssHaaDe~EwkEulEkvAm~B{mGywF?exH}f@?_}Aud@cdEefF_yEeaHqzEayEmpEscDwqCqgBu`B_hA_tE}mDquEgkCqiFiaGugDkqEkwFqaDmwC{hG{hGkgIkdHolJgvJ?????gzI?ulFmvGmvGidH{mIsuJ?uqI?elE?ghD?yiDgoBqk@a{@iiAg~CwaEyGabD{~ByhFqk@gd@abFomFwnEueBueBso@cvAgu@cvAshAe`@{Cso@or@cu@e`@mCofAmC?aqEu{F?yaC?odDc{GsvH????????????????o~D???????????et@uqAktEejAejAckJqcDqcDgwCgwCwyBwyBeuAwyBayBayBgwCalDqrCkhBqrCylDylDe`EuyFo~EcrEwuDkhBeuAcs@cs@cs@gNeo@gNgNwcDwcDebD?elDkwCkwCsoCgdDwoBetAql@ezAao@ws@_Hao@uoAuoAkj@iy@}y@uv@kj@ikAgHee@{n@clAedGw{Ae~Ae~AwfAcxAcxAyuAyuAyuAyaCyaC_gBgrB}dBy|A_gBq{Aq{AyaCgfCgfCgfC}sA}aA}aAy|Aio@}aAgD_f@_f@k~Aa}@y~@y~@u~Au~AcbAcbAcbA{jB{jB{jB{jBk~AwkAwkAad@ad@k~A{eA{eAyGcbAsLsLsLcbAsaAsLsaAsaAsaAsaAgi@u|Au|Agi@wkAwkAwkAwkAu|Au|As|AatBatB_kA_kAwkAad@_kAatBatBatBedBedB{`AatB_kA{`A_kAih@ih@ih@{`AedBedBedByiBijCyiByiBedCwbBmx@mx@wbBwbBqvBygDygEijCupDygEygEkuDkuDiuEsvGkpHylHylHa}EgqG{tF{tFspEspEspEspEoxBanDanDe}De}Dy|Ey|EgcGgcGgxFaaH_aFy|EycE_aFseEycE_gD_f@}sA}aAai@}aA_`CedB}wAai@{vAedBgfCqmCoxBw}BqmCafCkbDkbDkbDw}BeyDkbDwaFieEuxCieEseDwaFsiFwvBqcBqcBixCixCwzEypFypFgwDqbFm`Gm`GqbF}tEskAcxAcxAskAs~@s~@s~@}y@igBg}A}pB}pBylDuyEylDgzEq}DcxBcxBugAixC{bBmuDyxD?yrFiwEyrF}aGoeFoeFmpEudDuyEuyE{xFehGeyFymFqeFeyFwkEk{EcgFk{EegEmpEegEe}Cs{De}Ce}CgyCwkEymFepCepCs}BqeBqeBkiCkiCodCqcDilD?{`H}vGkcHogIuuHymFuuHceGouHyqIqpIqpI_~HewGm{GkvFymEkoF_aFwuDqlEwuDydD_~CkfCynD{`Cc|C{`CwsAeiBeiBopAck@wsAem@kmAkmAgyCobC}bC}sB}sBufCufCufCydDymBodCodCodCodCuzCuzCuzCseDuiCk_Ck_Ck_Ck_CirA}aBuiCw{CihDksCksCw{Cw{Ce{CkdDkdD}xAk~Bk~BuuC}qD}qDovD_jE{iD{iD}jC}jCk_C}rAsc@sc@ih@waA}dByy@waA_e@_e@_e@wqB{wB{wB_dAkg@cfAcfAirAcw@cw@gMgMgM{{@cw@odCsvBsvBoaCoaCiiCiiC}eC}_Bol@eq@}eC_lB_lB_lBoqCe~AulAmqA}xAsuB}xAyuCwpDcmCwpDwpDclCuzDshDshDgrCgrCuiEuiE_eEatBa{AatBmdAeeAeeA_wA_wAe_BepCobCycEycEokCw~CokC}qCk~Bk_DcrCcrCqwBwgCalAgb@gb@qAcx@_gCql@w|C_{Dql@kGwvAwvA_sAkG_sA_sAc{Bc{BarCafCafCinCsz@sz@qFui@ui@mn@mn@y_B}uB}uBgyAafC}zBmn@ui@ui@amCk}DksEicEayBq{AglAglAiqBsdCarCsdCkqAkqAwx@{u@kqAkqAenBgeBinBupBkwB{iDivDcrD{lE{lE{lEiuEymE}oD_eD_eDg}EukCazByrAyrAgeB{u@wEcu@wEa~@a~@}zBoqCoqCysBerAaeA}jDa}CudCudCinCinCinC}qB}qBawAqkCysB_sAaaDaaD_sAsuAaaDkkCujBmx@{s@{s@{HkGgp@gp@efBgp@efBeoAefBalAalAci@alAarCst@{}AcF{s@{s@ckAwfAwfAae@ae@qvAqvAqvAmr@waAkj@kj@csAms@ms@ms@y|@y|@_G_Gu`@_Gsh@waAsh@ui@yh@eb@utBcyC_dCkaBkaBwtC{uCkzCoxCm_Baj@an@an@qFa`AmxAiqBqaC}mA}mAeoAeoAw}@}mA}mAeoA_k@_k@w}@eoAw}@w}@{eBeoAeoAkFcd@yo@uD_k@mCycBugA{`B{oA{oAcwCcwCmCmCki@ck@khAycBycBy|AkaBqhCydB?un@wJwJwp@qFm}Am}AkvAgcCgcCgcCkvA_gCgoCgoCgcCgcCgcCoxCgoCgoCgoC}~CqaC}~CqaCqaCqaCaoBaoBaoB{eB}gCmtCchCmwCacCip@kx@cqA{jBcqAsnCwwCgaDokAsiCgfCgfCmbCydBwzAqaDydBmbCqhCqhCsoCsoCucAg{A{_Di{Bmx@u_Cu_Cu_CydC?}gCiqBmfAsy@g~AeeDmrCwk@_CqfC}c@kfBofBgRym@ejAgwC_uBgyCiuEcnFqF__C{iJakH_xCgsAoq@kqEq{AamA{hBorBwpAyGmdAeaB??md@qv@krByyDoyF_r@ymB?qrCsaAwbBupDasCe}DkcHayEuuHceGq_Iy`DoqCygD_aEksEgrImmIobH{rG}zEgtB{q@ke@mHgC_kAifAa|CyiDgqBifB_mAsaEalDedCwbBsbDsvGiuEa}EafCseE_dCwtCuxC}bBuuHipEk~BobCsxAqnDaaDoh@}|D_gCchC}h@m~Bm~Bm~Bm~Bm~Bm~Ba|Aa|Aa|Auv@uv@uv@k~BqA}qBg_Dyy@{{@eoAcyBgrC?aeB{`B{wBkhA?eaFwvBc_G??_`HufBumAsdAsm@sm@sm@yh@o|Ai~@_|Dk~BuuC}qD}qDk~BydGs}BufCydD?gyCqwDkdHgrI????e_Cu_C_kAyoA{{B_oCgtCupCqxAwuDyyEmqA{s@ckAsf@sf@ytDgeFkrF}`HatFwwCyzBuzC_xAun@k_EsrA}k@uDobDqaEih@atBygEstD{jA{lE_k@cd@gwC_Bsr@yeDg~GmbC{g@uD_{BozA_h@ayAq|B}}CknDuuCkdDkdDk{AgrD}gCquEyuByuBqjBsnAowAcnBcEql@?swIklFklF{jBcqA??kqA?qhBgmIavIavIgp@ot@kq@kq@?orF??}mAqgA?oaCazDir@_aA}wD}sC_Byq@qjC?wdAcbBkl@o@kfCkfCodBwAmd@md@cEo`@ulAsc@quEecGkwFi`HkhHunJgv@gv@moH?_mAgd@wnBggAagA?sc@uoAuoAatBopA??q{Bq{BaeAczD}jDulEcnE}qCee@yuC?eeDwlAm_F}_B{vA}mAyhAyhAenG_nFseCseCobDatEclAclAejA{qB{sEomE}aBas@q}EkuGym@ym@uxDuxD?ggAsr@sr@skAer@skAcbGcbG}{HwwD_pEe`Em_Gm_Gg}@_u@_fBgpDciBikAclAa{DmaEkcHuuHuzCkbEgrCwaDcx@clAyLyLiEiEefB}mAu|AofAun@{Hs`@}h@ekBynBsiAkqFkqFqhCqhCkhAkhAsxC}~CgjCejA?}`E}`Ek_CuiC?mtC_gCayEmaEseDc|CqkCawA{hG{hG_dFcfDaoAydBynBqwBqwBkj@kjBawA?ynG???_wE?enCenCm~DacCytAytAefBefBacC???{{@{qAuuB{uC{`A{`Ayo@kFawCmwCaoAikAikAimEeg@?yaCoiCqxAkbEgnAqs@?cgB??cd@}nC???ecButAkyA??a}E?eoAuDsk@{vAcJiyDiyD??iyDoaF{mGkiJwk@{q@al@mqAmjC?????waDukCukCswIcpJkeBmrCctCctCcmD?e|@wEi{DegDegDikE?suAsuA{g@mpAmuDmuDigBigB{cDilDilDkiCkiC}zBqhB{s@ci@???atF_eDgwD?cgA?yaCiwAe{E?}fAumAekH???}sCazCmrC}sCsjCmsBqd@kzGwpEow@u{Aa~AkpDquCcyBaqFabF?g{AoaBwpDa|B{vAkx@yoAm~B_MctByq@uqAq`CqcCqsAe~A{jAayBwlBybC_z@_z@ceDmyBofBofB??s~@s~@s~@asCasCutF?eeD_vD??????olIq|GgC{_@a{A?????y{J}fA}fA}fAy_Cy_Cal@al@?g_EmuEm~BobDm~Bm~B?c}E?sgC}dGe}DwgCycBewBufCki@ki@i~@aoAuoBaoAscEscE{~B}yCscEscEy|Ay|A???????kcBcu@yzBorAyzBcFcFci@efBeoA?amHsdAymB}cAgvAaeBaeB{cC{cCuuBmjCw{BueB?aaD?adCgrBusCsxBsxBgfHqyG}}F}}F}}F}}F}yE}}FkwHqyGsgG??{tFyhEcw@cw@}e@}e@olDubFufDqk@?euB}uAecB??y`@y`@y`@y`@og@iT?enC?uzBetDetDkg@skBafBqgA?????????????gsA}bCcbBahAahA_nBiaBiaB}_BaxEihF??s|E_~EiuF{|B}sAkmBakB???ozA???????????i}BgiA????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????","aop_fundamental_pe":"??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????ql@mf@mf@ehAepAql@ko@ql@iEiEko@iEiEiEiEuIiEmf@oj@oj@oj@oj@oj@oj@}mAqgBkfBkfBkfBkfBgqAepAepAwp@ko@ko@_~@ko@ko@wp@_~@_~@_~@_~@_~@y`@y`@_~@ko@y`@y`@y`@yo@yo@y`@y`@yo@uIuIyo@yo@yw@at@at@at@uIoj@at@at@at@at@yw@yw@yw@khAkhAyw@cnAcnAcnAcnAcnAcnAcnAcnAkhAkhAkhAkhAsdAsdAymAew@sdAmn@mn@sm@ot@sHot@sHsHsHsHsHmn@u`@mn@u`@}m@u`@sy@sy@cEu`@u`@u`@mf@cEaNmf@mf@ko@ko@ko@ko@ko@ko@aNaNaNaNaNkl@ad@ad@kLad@kLkLkLyj@yj@yj@_k@_k@yj@eGeGeGeG}t@}t@}t@eGag@ag@ag@}iAec@}iAan@an@izAec@{Nsu@wu@izAizAizAip@ip@sGsG{d@ai@_t@_t@oo@ol@oNoo@m|@m|@oNwi@wdAoNwx@m|@gtAopAgtAwx@wi@_hA_hAgtAw_AaNol@ekA_hA_hAal@ykAykA_dA{k@{k@aNyg@k{@k{@k{@cbByg@ofAwqAwh@qg@qg@qg@ykAmf@mf@_H_Hir@or@}_Ac_BmyBozA}_AsB}_AsBwh@im@amAe|@qxAugAw_Aq`Aq`Aeh@}o@er@er@k{@er@}o@uo@uo@wp@wp@cz@cbBipAqgAqgA{s@aj@iu@aj@_c@_c@_c@gIw@w@wk@_m@st@wk@iEiEyl@ucAicAicAyl@_C_CwdA_Cim@{l@k|AahAahAsz@g{@im@wFgk@ai@ql@g{@ql@sz@ai@iiAclAwh@wlAqAucAucA}y@}y@em@qAwAwAqiAqiAem@kwA_{Bq{Aun@m|@kcB{p@uI}fAeg@}fA}kAiJ?siBgxDidCmlAmlAidC?uq@uq@_z@uq@udDijCsbDsbDqq@ih@gmCcpEakBmsAauCcgCizBooA{tAw_AgMow@ow@wm@}|@oEoEmp@shAun@un@sf@kl@kl@}|@wiAwiAoo@_w@_w@o@yb@yb@ab@ab@o@_t@ab@eo@uDyrAeo@}w@arAmfAmfAmfAca@w_Aw_Asf@sHsH}fAsH_w@_w@un@cn@yb@c}@}fAoXmf@{p@uq@kFmm@gn@gn@gn@cAee@wnA}bC{oBqjAmu@sHcw@okAkoAwJeBuq@kF{iA{iAsy@_Ggp@cdAue@qKcA_m@_aBsy@{dA{d@sG}u@}u@sr@qKuo@mc@eh@qAqAqAeh@qAiu@iu@ko@{Miu@cnAcnA}nAcdA_xAwk@wk@yr@cAcAko@ip@cAcAwk@{C{C{Ceg@kFkg@qbAob@_m@c}@arA}c@}c@}c@ekAav@ekAej@c|@wk@_M{C{Com@_Mut@qFif@wd@qk@kj@qp@kGqjAalAyByByByByBgq@ih@ih@c@ij@ij@ij@alAalAgq@gyAgyA_Qow@icAkt@uv@{Msy@sy@ad@ad@ax@sy@ot@ot@ot@{Cee@cp@cp@ee@kBkBmMmMuy@mMey@}kA}kA}m@ax@ax@qKqK}kAqKax@ij@ob@ob@mp@gg@ob@ob@e~@e~@et@gg@et@et@kKet@kLew@ew@kLyr@ym@ym@wc@ym@ye@ye@alAalAalAq`Aq`Aq`AueAa`Aey@gyAgyAkq@{jA}T}Tut@}o@iw@iw@iw@cEglAorAih@s~@iEgp@yq@yg@}k@m_@scAm_@_C_L{DwdAq{AslBqs@kaB}nB}nBi}Bi}BgyA}~@qAaj@}J}e@_Cgb@ym@ym@yg@atAatAsh@}Jky@qgAqgAst@_LmnAmnA{nAcw@ubAky@ky@aj@ubAaj@qAmz@mz@_o@qFefAqF}k@}k@sBal@ql@erAerAyy@qKqpEc|@em@em@ky@ao@eg@eg@eg@iTus@wc@ym@eg@ao@ao@qPqPch@?e_CwsA{q@sj@sj@_o@m|@}Ewx@wx@{v@o`@}p@}p@uj@}k@su@su@o~Ao~Ao~AgeCgeCgeCso@iiBiiB{vAspA_kA_iAsu@mM{Iev@ev@ov@sp@kGci@ci@un@un@spAspAow@krAwp@woDeh@qv@?cn@cn@}J}Jae@kwA?uj@}c@wh@em@khAso@qoAk{@ov@ai@ug@wh@kd@{bAk{Dmn@ui@{bAax@__AewAal@qv@siAktAal@ewA{{BufCccD__BsrAg|BqcBs|A}|A??exBux@uvAyb@yb@_rAer@er@m_BeeAeqCwuDmeBinBo{C_tDc|@it@cuAysBkrAkrAyw@wOwOskAsiB_iCifAulAiiByaByq@kn@ulAuI}z@??yrBe`@}fEibBkAki@{{A{k@yr@_r@gxA}pAcqAat@sLsLmi@mi@{q@cAkv@}J}J_C}|@wn@eBmkAs}Aws@eBws@ax@ax@oOw@w@ej@ej@_xB{yCabAeLws@iz@iz@uv@uv@uv@oO???_aBinCyfB?qzCmmCaeBeLiuBggAgqAotAomBomB_uAyiBqd@mm@ci@}r@}r@yq@_B_Byq@_BifB{b@mk@{b@_z@kx@_z@}kBezAezAeuBcdA_|@_|@eeAcqAcqAgjAgjAsxAov@cfAqs@gjA{_A{_Aad@mf@wa@mf@sp@qlAsc@kBkB{u@{u@_e@sr@sH_o@kGkj@er@_cAuy@uy@snAsxA{vAmr@{Dmr@}`@}`@_dAmdBmdBkvA}`@wa@wa@kvAmqBwgBue@ih@at@}lCqhDikBcpAaq@mz@cJmz@s~@cu@acAu{@md@cu@s~@s~@snAwPsCqx@khAsiCayBay@qx@uwAekC}oC{hCosB?_wDsH?_}Aud@cbAaeB_wAweDkyAa}@yo@_t@sw@_lBamB_hAoE_~@{yAahAwk@ugA{~AmfA__B_oCmwCom@om@}kA{i@c{A_nB[[wp@ko@gk@{eB?k`Acp@cp@[ih@yq@?gyA?elE?ghD?yiDwKqk@a{@iiAg~CklDyG}fAyoA_sAqk@gd@wkDqi@al@ueBueBso@cvAgu@cvAshAe`@{Cso@or@cu@e`@mCofAmC?aqEu{F?yaC?yyAc{GoqEcFeoA{f@{k@sk@oe@oh@im@ohA???q|HkrCyoA?}eCy}H??}jJeqJ?_`H???{_Iyq@goAu]qg@qg@oiGg`Bg`Bol@ol@uo@uo@ia@uo@qAqAol@er@ym@oJym@yByBcp@qcBas@_iA_r@oJia@_r@_r@_r@gNeo@gNgNk~@k~@}w@?_aAkFkFkq@yj@qnAcnBqaCmoBkwBi}Bw{AkwBwbBwbB{sAujAmbBycA{sAwm@{n@uj@i@uj@e|F_Cal@al@ih@}k@}k@wm@wm@wm@ih@ih@gl@sk@_dAcYgl@ktAktAih@}~@}~@}~@}uAaeAaeAcY}nAaeAa}@ui@ui@u~@gMy~@y~@m`Bm`BcbAcbAcbA_hA_hA_hA_hAu~@if@if@gDgDu~@ch@ch@{d@cbAsLsLsLcbA_j@sL_j@_j@_j@_j@gi@aIaIgi@if@if@if@if@aIaIcm@ms@ms@el@el@if@gDel@ms@ms@ms@_iB_iBemAms@el@emAel@mu@mu@mu@emA_iB_iB_iBc_ByyAc_Bc_BqqBem@_f@_f@em@em@qs@agA_u@yyAol@_u@_u@krBkrBohB{p@at@ir@ir@epAal@_mA_mAwdAwdAwdAwdAqi@ktAktAkgAkgAuIuIao@ao@sLwa@{u@uImk@{u@szAmk@ayAui@}uAe~Acr@e~AkjAsz@mlAcr@mc@sz@}~@uIqi@iTuIyw@yv@yv@yv@iTsmAyv@og@ypAmiAypA{jBog@wuA_xAqhBqhBu_Cu_CahAcvAcvAqcBwp@q`Aq`Awp@er@}pA}k@}k@}pAwgAwgAwgAmbBypC}bCyvCyvCibBqlAibBm}@wgBcsAcsAysB{n@gxAeLajB?{k@io@{k@{IsLsLag@okAqlAqlAmm@cJyv@uoAqk@yv@yfAcF_m@cFs~@ag@s~@otA{qAotAotA{{AyfAuoAujBujBg|BqqAqqAk}@k}@sHij@k|A?iz@qf@{Cim@}f@uoA}f@mvAwc@}Ekg@kg@wqBykC{eBamBokAym@scAeq@gIeq@ubAifAcEmm@a{@ma@a{@mf@eGeG_w@ck@mf@em@cgAcgAiJ}u@iuAoe@oe@{bB{bB{bBubAohAsHsHsHsH_a@_a@_a@m}AuDej@ej@ej@ej@uo@ud@uDul@ih@qi@qi@ul@ul@_G{d@{d@_k@ofAofA_h@q}@q}@ee@a~@}c@}c@cAcAqx@o@sc@sc@ih@gd@{n@yy@gd@_e@_e@_e@mfAs|@s|@mHkg@cfAcfAuo@cw@cw@gMgMgM{{@cw@sHky@ky@em@em@uwAuwAm{A}_Bol@eq@m{A_lB_lB_lBiaBso@ulAoe@_k@clA_k@efAuq@wPuq@uq@cu@oS}j@}j@}p@}p@cr@cr@}nAw`BuyAw`BmdAeeAeeA_wA_wAktAwr@emA_j@_j@qb@aj@qb@{xAkeAwqB_z@_z@}iAkeAqb@gb@gb@qAoo@kyAktAs`@kUktA}hAkg@kg@acA}hAacAacAqqAqqAcEyg@yg@epAajAajAiw@}f@}f@{d@{d@md@ax@ax@kFyg@{_@{d@}f@}f@uq@omBgbA{Hk~AiJ_C_Cai@wr@cEwr@wpAwpAwx@{u@wpAwpAgi@snAmdBog@cf@qcB}p@wnA_r@_r@_r@spAkj@iwAw}Aw}A_hFqyAkgAyrAyrAsnA{u@wE_m@wEa~@a~@aDog@og@_c@sw@_GcaAyeA{dA{dAcr@cr@cr@ux@ux@gv@}c@_c@esBomAomAesBepAoJsh@{dAmx@ax@ax@{He|@}j@}j@y~A}j@y~AeoAy~AqnAqnAik@qnAsfBsCmr@oq@cx@cx@yoAuj@uj@ae@ae@cFcFcFqq@ks@kj@kj@ke@cc@cc@cc@y|@y|@_G_Gu`@_Gut@ks@ut@{~AwKeb@yrA}z@csAq{@q{@isAqgBiuAgk@m_Baj@cw@cw@qFa`AkFkVwm@ud@ud@ucAucAw}@ud@ud@ucA_k@_k@w}@eoAw}@w}@{eBeoAeoAkFcd@yo@uD_k@mCcxAugA{`B{oA{oAmgAmgAmCmCki@ck@khAcxAcxAyw@wTokAcJ?{nAi`@i`@mh@qF{n@{n@wPej@ej@ej@wPws@yGyGej@ej@ej@gk@yGyGyGyq@wm@yq@wm@wm@wm@mlAmlAmlA{eBahBckAgoAwlCwlBip@kx@cqA{jBcqAu{AomAgaDokAyy@wnBwnBke@m|@wzAgeBm|@ke@sBsBsoCsoCucAg{AamCi{Bmx@u_Cu_Cu_CydC?mjCiEyo@cEmf@_t@w_Awk@_CqK}c@_Mih@sy@qjAe~@kLet@ym@q`A}nAqF__CwOsrA_xCel@cu@qdDwh@amAud@spBue@yGyr@eaBuqAwyCmd@qv@mr@smAm}B_r@wgAaaIym@_j@em@ol@gd@kgA{CutB}f@mvAmtBoEiaBwx@ekA{k@eyAor@e|@sBm_BurAoq@qlAmHgC_kAifAgeAyiDgqBifB_mA_pBer@qqBem@arA{p@ohBepAyw@szAcsAisAmiAqsA}f@cdAofAemAsxAsdAomAoh@wp@ws@goA}h@mbAmbAmbAmbAmbAmbAgyAgyAgyAuv@uv@uv@ofAqAux@qg@yy@{{@eoAkgAuo@gfIaeB{`Bs|@khA{tAagD_xA}a@}bBytDmnE_w@}p@sdAsm@sm@sm@wK}w@mk@}nBofA_h@q}@q}@ofAgmCmM{bBubA?iJem@{i@ezA??qsAsk@e_Cu_C_kAyoAkKa`Ag~AuhBiwAwuDolCoe@ax@yoAsf@sf@okBwxBqfCc`CgsAomAyzB_a@}t@iqBsiA{d@}k@ci@_y@at@mu@ms@_u@u`B{jA_r@_k@cd@ol@_Bmi@w~Bck@ke@{g@uDip@ozA_h@eeA_|@y|A_tCefC{tC{tCk{AgrDmjCaxEy~@y~@om@{p@as@qjAcEql@ey@mH}p@}p@{jBcqA??qgA?gk@eoA{eB{eBax@ot@}kA}kA?chD??er@qgA?atAkeBalA}u@ol@opA_Byq@io@?wdAwp@kQo@em@em@av@wAmd@md@cEo`@ulAsc@{yA_aA__B_t@}_B{jCgv@gv@}hE?_mAgd@}@sr@agA?sc@uoAuoAqdA_w@??q{Bq{B_Ggu@caAuwAeiCehAee@}zAo`Eeq@al@oiDeq@mc@}mAsu@su@ozAyc@k|Ak|A_y@iiAav@av@e~@kBkq@ut@uIas@yq@siBqjAqjA_eD_eD?sr@mi@mi@skAer@skAamAamAi}BgIow@cp@}sA}sAg}@yl@w}AsaBqqAwm@uj@ws@omB{C}f@_a@uhAuo@}Eoo@clAyLyLal@al@efB}mAy_BofA{nA{Hs`@if@eLgoAsiAyoAyoAokAokAkhAkhAsxC}~CgjCejA?}@}@ej@uD?ckAws@utBomBm}Ama@}c@gv@{~B{~B{}AiwAaoAwm@ke@gp@gp@kj@ug@kd@ymBydB???_wE?yq@yq@m|@acCytAytAefBefBacC???{{@{q@{qAqgB{`A{`Ayo@kF_tCwlC{l@}y@}y@imEeg@?kkCoiCiwAkbEgnAqs@?cgBinG?cd@}nC???ecBsHmu@??a}E?eoAuDsk@{vAcJsrAsrAu`B?srAkrA{hCehFuj@oq@al@mqA}iA??aeB??cpAomBomBmHmgAa}@g{AeoAeoAg_A?omByiB}kA{iA{iA_nB?epAepA{g@mk@ky@ky@ypCypCklAk|Ak|Ak}@k}@aDkd@cx@ik@??wnB}oCkhBqcB?cgA?sxAev@{rD?_o@ov@o{C???opAgtAw_AopAucC_uAqd@amAim@ot@y`@_BgHujAkgAw{CwkD?wlAo|Buq@yeA{vAkx@yoAw}@_Muy@sHgoAwJcw@cdAwx@{jAk~AwlBybCsh@sh@qjA_cAeh@eh@??ow@ow@ow@gd@gd@y{C?eeDqiD}fFcd@yfHyfH?aaI{_AonBgC{_@a{A???uy@?ofAic@ic@ic@y_Cy_Cal@al@?arBghCsnA_y@snAsnA?cyB?sgC_yDijCwbBcxA{lBk|Bki@ki@mk@{l@}`@{l@kfBkfBkn@kv@kfBkfByw@yw@????{R?{RkcB_m@azBob@azBoq@oq@ik@y~AeoA?sdCsdAubA}cAgvAaeBaeBwn@wn@{qA}iAewAcaA?oJ?adCmr@ypB{wB{wBcr@mr@sLsLsLsLsr@sL}dCmr@eo@??wvCiqBcw@cw@}e@}e@i`CubFufDqk@?cnAicAyr@??y`@y`@y`@y`@aNiT?yq@?uzBodBodBkg@yzA}`@iaAawB????????????el@kGwp@ahAahAsz@}y@}y@iy@}hAoiB??gNcd@eh@}m@cEkmBu~A?_aB?ozAu_E??????????a~Agn@????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????"},"setor_acima":{"aop_saude_30pe":"??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?ACAAAA?AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?AAAAAA?AAAAAAAAAAAAAACCAAAAAAAAAAAAAAAAAAAA??AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA??AACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA???AAA?AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?CA?AAAAACAAAAAAAAAAAAAAAAAAAAAAAAACCCCCA?AAAAAA?A?C?A?AACACAACAAAAACAAAAAAAAAAAAAAAAAA?CC?A?ACCAAAAAAAAA???CAA?AC??CC?C???CAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?CAAACCAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCCAACAACAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAACCACCCA?AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCCCAAAAAAA?AAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAACCACAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAACACCAAAAAAAAAAAAAAAAAAA?AAAA?CAAAAAAAAAAAAAAAAAAAACCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAA??A?ACCCAAAA?A??AA?AAAAAAAAA?AAAAAAAAAAAAAAAAAAAAAAC?AAAAA?AAAAACCAAAAAAAAAACCACAAAAAAAAAAAAAAAAAAAAAAAAA?AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?CCAA?AAAAAAAACCCAAAAAAAAAAA???A?AAAAAAAAA???AAAAAAAAAAAAAAA?AAAACA?AC?AA???AAA??A?AAAAAAAA?AAACAAAAA??C??AAAACAAAAA?AAAAAACAAAAAAAAAAAAAAAAA??AAAA?A?AAA?AAC???AAAAAAAAAAAAAAACC?AAAAAAAAAAAAAAAAAAAAAAAAAA?CAAACCA?AAACCC?CACCCC???C?CAAAAAAA?AAAAAA?A?AAAAAAAAAAAAAAAAAAAAA????C?CAAAAAAAAAA?AAAAAAAAAAAAA?A?AAAAAAAAAAAAAAAA??AAAAAAACCC?AAAC?AAAAAA?A?AAAAAAAA????????????AAAAAAAAAAA??AAAAAAA?A?AC??????????AA????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????","aop_infantil_30pe":"??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAACCCCAAAAAACCCAAAACCCCCCCCCACAAACCCCCCCCCCCCCCCCCCCCCCCCCCCAAAAAAAAAAAAAACCCCCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAACAAAAACC?CCCAAC?AAAACCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCAAACCCAAAAACCCCCAAAAAAAAAAAAAAAAAAAACCCACCCCCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAA?AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCCCCC?AAAAAA?AAAAAAAAAAAAAACCAAAAAACCAAAAAACCCCCA??CAAAAAAAAACCCAAAAAAAAAAAAAAAAAAAAAAAA??CACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA???CAC?CCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCCCAAACAAAACCCCCAAACCCCCACCCAACC?CA?AACCCCCCCAAAAACACACCACCAACCCCCCCCCCCC?CCCCCC?C?C?A?AAAAAACAAACAACCCAAAAAAAAAAAAAAAA?CC?A?ACCCCCCCCCCC???CCC?CC??CC?C???CAACAACAAAAAAAAAAAAAAAAACCCCAAAAAAAAAAAAA?AAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAACCAACCCCCCCCCCCCCAAACCCCCCCCCCCCCCAAAAAAAAAAAAAAAAAAAAAAAACCACACCAAAAACCCACCCCCAAAAAAAAAAAAACACCAAAAAAA?CCCCCCCACCCCCCCCCCCCCCCACAAACCAAAAAAAAAA?CCCCCCCCCCCCCCCCCCCACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAACCCAAAAAAAAAAACCAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCCAAAAAAAAAAAAAAAAAAAAAACCCCCAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA?AAAAAAAAAAAAAAAAAAACCAACCAAACAAAAAAAACCAAAACAACAAAAACCCCCCAAACCCCCCCAAAAAAAAAAAACAAAACCCACAAAACCAAAAAACAAAAAAAAAAAAAAAAAAAAAAAACAAAACCACCCCAAAAAAAAACAAAAACAAA?AACC?CCCAAAAAAAAAACAAAAAACCCCAAAAACAAAACAACAACAAAAAACAAAAAAAAAAAAAAAACAAAAAAAACCCCAA??A?ACCCAAAA?C??AA?AAAAAAAAA?AAAAAAAAAAAAAACCCCCCAAC?AAAAA?AAAAACCAAAAACCAAACAACAAAAACCAAACAAAACCAACCAAAA?AAAAAACCCACCCCAAAAAAACCCCACAAAAAAAAAAAAAAAAAAACCAAAAAAAA?CCAA?AACCAAAACCCAAAAAAAAACC???C?AACAAAAAA???AAAAAAAAAAAAACA?AAACAA?AC?AA???AAA??C?AAAAAAAC?ACCCAAAAA??C??AAACCAAAAA?AACAACCAAAAAAAAAAAAAAAAA??CCAA?A?AAC?AAC???AAAAAAACCAAAAAACC?AAAAAAAAAAAAAAAAAAAAAAAAAA?CAAAAAC?AACCCC?CCCAAA???C?CAAAAAAA?CCAAAA?C?ACCAAAAAAAAAACCAACCAA????C?CAAAAAAAAAA?CAAAAAAAAAAAA?A?AAAAACCCCCCCCCCC??CCAAAAACAA?AAAC?AAAAAA?A?AAAAAAAC????????????AAAAAAAAACC??CCCAAAA?C?AC??????????AA????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????"},"bairro":{"aop_emprego_tp60":[44.7,93.52,68.42,47.79,95.05,96.77,94.65,6.25,30.51,91.2,1.6,97.46,90.37,61.37,33.31,63.1,67.02,96.37,14.33,91.06,96.77,74.05,72.32,76.65,88.77,41.68,0.88,82.5,97.51,95.68,82.36,29.73,93.58,80.19,25.61,97.24,50.84,96.08,87.92,89.52,88.92,44.86,83.65,77.65,83.74,89.44,85.4,94.8,1.38,1.45,45.03,93.94,91.44,95.88,95.03,78.64,54.22,93.68,79.98,64.7,90.86,89.51,78.72,59.23,96.08,9.52,13.49,94.75,8.6,96.72,61.84,97.77,89.05,73.36,80.44,97.38,95.2,72.6,13.76,null,95.4,94.14,81.39,49.01,77.44,60.37,95.15,52.14,53.11,87.53,91.5,89.95,50.5,81.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"aop_saude_pe":[12.55,8.85,43.43,15.76,27.95,8.47,9.94,17.83,18.54,18.78,43.48,7.45,6.86,7.11,15.65,16.79,9.7,8.54,10.81,11.66,8.37,12.42,8.94,7.94,8.18,18.16,59.62,8.0,11.93,11.87,12.17,17.5,18.78,22.2,22.45,5.0,20.21,19.25,12.49,8.22,9.82,29.6,11.93,9.67,13.14,13.21,15.13,11.4,47.8,18.83,13.74,15.1,12.02,17.56,19.98,13.6,11.42,22.38,9.93,12.17,11.89,7.6,7.06,34.81,17.04,19.65,29.78,9.22,13.17,10.77,9.03,13.12,16.06,9.59,7.4,7.36,11.56,12.04,29.8,null,13.64,24.93,13.78,17.73,21.37,11.38,24.72,27.33,14.83,14.38,9.01,6.5,14.75,8.18,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"aop_infantil_pe":[48.04,18.26,22.14,18.56,26.96,12.01,37.81,49.53,52.94,49.21,null,12.3,11.79,16.18,27.68,47.33,11.45,13.29,10.81,29.16,10.21,19.5,18.4,11.99,10.2,33.43,null,28.28,13.44,13.16,21.65,49.5,31.72,15.55,26.43,12.74,19.34,24.5,22.93,23.71,13.87,37.47,22.29,20.98,17.76,11.93,20.87,13.83,null,null,20.71,14.09,21.64,14.77,33.04,28.28,16.26,12.13,21.37,14.26,14.02,30.21,12.5,50.71,38.16,27.26,29.35,9.05,12.89,18.99,10.89,26.46,36.61,12.74,15.58,13.64,13.21,18.94,59.4,null,12.61,18.63,26.49,39.49,20.33,27.59,47.79,36.4,42.2,23.55,19.22,15.44,13.95,9.7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"aop_fundamental_pe":[11.46,8.22,19.75,13.04,9.28,6.97,12.38,13.41,12.9,6.97,44.36,5.88,7.45,10.72,15.89,11.36,7.64,8.33,10.27,7.74,5.2,9.06,11.64,7.73,6.9,14.47,42.01,8.64,7.23,8.6,10.2,13.87,13.12,9.16,15.7,8.46,9.63,9.26,9.88,5.95,11.43,20.25,10.77,9.02,11.32,8.56,10.29,6.2,51.28,26.56,13.19,5.94,8.0,9.67,9.13,12.47,12.38,15.98,10.39,10.37,7.42,11.81,11.49,30.04,9.43,16.85,29.35,11.56,11.56,11.17,7.76,7.39,4.97,11.94,8.65,6.79,8.13,9.93,7.89,null,9.68,15.92,8.82,22.97,10.72,11.19,17.2,13.7,20.96,6.67,9.22,6.96,12.76,7.7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"aop_saude_30pe":[0.0,0.0,100.0,23.51,41.72,0.0,0.0,23.9,9.8,4.17,67.79,0.0,0.0,0.0,7.42,17.96,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,0.68,0.0,0.0,0.0,0.0,0.0,7.18,20.62,0.0,28.22,3.69,0.0,0.0,0.0,52.01,0.0,0.0,0.0,0.0,0.0,0.0,100.0,36.86,2.09,0.0,0.0,0.0,0.0,2.28,2.52,6.73,0.0,0.0,0.0,2.52,0.0,100.0,0.94,0.0,41.73,0.0,4.16,0.0,0.0,0.0,0.0,4.23,0.0,0.0,0.0,0.29,75.1,null,3.64,20.47,0.0,0.0,8.57,0.0,22.51,28.81,0.0,0.0,0.0,0.0,2.29,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"aop_infantil_30pe":[100.0,0.0,0.0,60.21,25.49,0.0,87.53,100.0,100.0,100.0,100.0,0.0,0.0,0.0,36.16,99.66,0.0,0.0,0.0,31.51,0.0,7.83,0.0,1.74,0.0,58.95,100.0,37.79,0.0,0.0,8.36,100.0,51.94,9.06,42.49,0.0,25.7,25.75,10.51,7.58,0.0,85.3,15.23,0.0,0.0,4.65,0.0,0.0,100.0,100.0,28.31,0.0,22.08,0.0,76.08,39.87,13.76,0.0,19.32,0.0,0.0,61.35,0.0,100.0,73.34,46.15,41.73,0.0,8.07,11.69,0.0,15.67,96.21,4.23,12.19,0.0,0.0,12.19,100.0,null,3.64,12.91,9.12,100.0,8.57,44.01,100.0,78.84,100.0,2.34,0.0,0.0,13.04,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"cobertura_bairro":[72.9,54.6,56.9,82.0,100.0,100.0,100.0,60.1,72.1,95.8,64.7,100.0,100.0,100.0,93.6,97.5,98.8,100.0,89.2,100.0,100.0,97.0,100.0,99.1,100.0,100.0,71.5,97.0,100.0,100.0,98.6,100.0,100.0,91.6,91.0,100.0,100.0,99.0,97.9,81.2,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,65.7,61.9,89.0,100.0,100.0,100.0,100.0,93.2,87.8,85.1,93.8,100.0,100.0,100.0,100.0,100.0,100.0,54.8,70.3,99.6,88.8,100.0,100.0,100.0,100.0,98.6,100.0,100.0,100.0,99.8,93.6,0.0,100.0,100.0,100.0,98.0,100.0,100.0,100.0,100.0,61.5,100.0,100.0,100.0,90.9,95.8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"municipio":{"4314902":{"aop_emprego_tp60":72.22,"aop_saude_pe":12.78,"aop_infantil_pe":19.84,"aop_fundamental_pe":10.41,"aop_saude_30pe":3.95,"aop_infantil_30pe":20.71}},"conferencia":{"hexagonos":3338,"cma_series_nao_monotonas":0,"cma_maximo":100.0,"tmi_testes":73449,"tmi_coerentes_div100":73449,"tmi_coerentes_sem_divisao":4810,"setores_poa":2744,"setores_fora_da_grade":134,"pop_fora_da_grade":61079,"pop_coberta_pct":95.42,"setores_sem_equipamento_no_limite":{"aop_saude_pe":18,"aop_infantil_pe":58,"aop_fundamental_pe":6},"bairros_sem_valor_por_cobertura":["São Caetano"]}}};
+</script>
 <script>/* ══════════════════════════════════════════════════════════════════════════
    ATLAS SOCIOECONÔMICO INTERATIVO DE PORTO ALEGRE
    Organização conceitual dos módulos (equivalente a dados/*.json + src/*.js):
@@ -720,6 +738,9 @@ const FONTES = {
   SICONFI:{n:'Tesouro Nacional — SICONFI / FINBRA',s:'SICONFI/STN',u:'https://siconfi.tesouro.gov.br/',d:''},
   ATLAS:{n:'PNUD / IPEA / FJP — Atlas do Desenvolvimento Humano',s:'Atlas Brasil',
     u:'https://www.atlasbrasil.org.br/perfil/municipio/431490',d:'IDHM calculado sobre Censos Demográficos de 1991, 2000 e 2010. O IDHM dos sete municípios e os indicadores de vulnerabilidade de 2010 foram lidos do espelho público da Base dos Dados (tabela mundo_onu_adh.municipio), que republica o Atlas Brasil sem alterar os valores.'},
+  IPEA_AOP:{n:'IPEA — Projeto Acesso a Oportunidades (2019)',s:'IPEA',
+    u:'https://www.ipea.gov.br/acessooportunidades/',
+    d:'Tempo de viagem e oportunidades alcançáveis a pé, de bicicleta e de transporte público, calculados pelo IPEA por hexágono para as maiores cidades do país, com dados de 2019. Lido do espelho público da Base dos Dados (br_ipea_acesso_oportunidades.indicadores_2019). Na tabela da Base dos Dados o tempo mínimo vem multiplicado por 100; o Atlas divide por 100 depois de conferir a coerência com os indicadores cumulativos (ver Metodologia).'},
   ANATEL:{n:'Anatel — Acessos de banda larga fixa',s:'Anatel',
     u:'https://storage.googleapis.com/basedosdados-public/one-click-download/br_anatel_banda_larga_fixa/densidade_municipio/densidade_municipio.csv.gz',
     d:'Densidade de banda larga fixa calculada pela Anatel: acessos por 100 habitantes. Lida do espelho público da Base dos Dados (br_anatel_banda_larga_fixa.densidade_municipio).'},
@@ -749,7 +770,7 @@ const FONTES = {
     u:'https://github.com/ipeaGIT/censobr',
     d:'Pacote do IPEA que empacota e distribui os agregados por setor censitário publicados pelo IBGE, sem alterar os valores. É a via de acesso usada por este Atlas; a fonte primária continua sendo o IBGE.'},
   ATLAS_CALC:{n:'Cálculo do Atlas sobre fontes oficiais',s:'Cálculo do Atlas',u:'',
-    d:'Indicador derivado. A metodologia é explicitada na ficha do indicador.'}
+    d:'Indicador que não aparece pronto em nenhuma publicação: o Atlas o calcula a partir de contagens oficiais (Censo 2022 por setor, PIB do IBGE, CNES), pela fórmula descrita na Metodologia. O ano é o dos dados de origem, não o do cálculo. No bairro e no município, as contagens são somadas antes de calcular a taxa; nunca é média de percentuais.'}
 };
 
 /* ─────────────────────────────────────────────── 2. NÍVEIS GEOGRÁFICOS ─ */
@@ -785,7 +806,7 @@ const CATS=[
   {id:'saneamento',n:'Saneamento'},{id:'assistencia',n:'Assistência Social'},
   {id:'seguranca',n:'Segurança'},{id:'idh',n:'Desenvolvimento Humano'},
   {id:'financas',n:'Finanças Públicas'},{id:'agro',n:'Produção Agropecuária'},
-  {id:'ambiente',n:'Ambiente Urbano'}
+  {id:'ambiente',n:'Ambiente Urbano'},{id:'mobilidade',n:'Mobilidade e acesso'}
 ];
 
 const IND=[];
@@ -805,7 +826,7 @@ const slugId=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
 /* ---- 4.1 INDICADORES DO CENSO 2022 — CARREGADOS ----------------------- */
 ind({id:'pop',cat:'visao',n:'População residente',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua',obs:'Total de pessoas recenseadas. Soma exatamente 1.332.845 no município.'});
 ind({id:'dens_hab',cat:'visao',n:'Densidade demográfica',u:'hab/km²',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec1',ramp:'brasa',obs:'População dividida pela área do polígono do território.'});
-ind({id:'area_km2',cat:'visao',n:'Área do polígono',u:'km²',fonte:'SMURB',ano:2016,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'terra',obs:'Porto Alegre — bairros: malha SMUrb (Lei 12.112/2016), 94 bairros, 472,81 km² no total. Setores: área do IBGE, 495,39 km². A área municipal do IBGE é 496,83 km² — a malha de bairros não recobre toda a lâmina d’água. Medidas de produtores distintos, nunca somadas entre si.'});
+ind({id:'area_km2',cat:'visao',n:'Área do polígono',u:'km²',fonte:'SMURB',ano:2016,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'terra',obs:'Nos outros seis municípios, a área do bairro é a soma dos setores do IBGE que o formam. Porto Alegre — bairros: malha SMUrb (Lei 12.112/2016), 94 bairros, 472,81 km² no total. Setores: área do IBGE, 495,39 km². A área municipal do IBGE é 496,83 km² — a malha de bairros não recobre toda a lâmina d’água. Medidas de produtores distintos, nunca somadas entre si.'});
 ind({id:'pop_pct_mun',cat:'visao',n:'Participação na população do município',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro'],status:'ok',fmt:'pct2',ramp:'agua'});
 ind({id:'pop_h',cat:'demografia',n:'População masculina',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'pop_m',cat:'demografia',n:'População feminina',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
@@ -986,6 +1007,71 @@ munInd('ideb_medio','educacao','IDEB do ensino médio, rede pública','índice',
 
 munInd('banda_larga_100hab','ambiente','Acessos de banda larga fixa por 100 habitantes','acessos por 100 hab.','ANATEL',(COMP_F.anatel||{}).ano||null,'dec1','agua',
   `Densidade calculada pela Anatel com a sua própria base populacional${COMP_F.anatel?`, referente a ${String(COMP_F.anatel.mes).padStart(2,'0')}/${COMP_F.anatel.ano}`:''}. A Anatel também divulga a densidade por 100 domicílios, que dá valores maiores: as duas medidas não se comparam. Mede contratos de internet fixa, não o acesso pelo celular.`);
+
+/* ---- 4.3.3 DADOS DO IPEA ----------------------------------------------
+   Vêm de dados/dados-ipea.js, gerado por extracao/6_ipea.py a partir do
+   espelho público da Base dos Dados. Duas bases: o Atlas do Desenvolvimento
+   Humano (PNUD, IPEA e FJP), com os Censos de 1991, 2000 e 2010, e o projeto
+   Acesso a Oportunidades (IPEA), de 2019, que entre as sete cidades só cobre
+   Porto Alegre. Sem o arquivo, verificaCatalogo() tira estes indicadores. */
+const IPEA=window.ATLAS_IPEA||{}, ADH_IPEA=IPEA.adh||null, AOP=IPEA.aop||null;
+/* id no Atlas -> coluna do Atlas Brasil (mundo_onu_adh.municipio) */
+const ADH_NOVOS={
+  adh_expectativa_estudo:'expectativa_anos_estudo', adh_fora_escola_6_14:'taxa_criancas_fora_escola_6_14',
+  adh_atraso_fund:'taxa_atraso_2_fundamental', adh_fund_18_mais:'taxa_fundamental_18_mais',
+  adh_medio_18_20:'taxa_medio_18_20', adh_mort_infantil:'mortalidade_1', adh_mort_5:'mortalidade_5',
+  adh_theil:'indice_theil', adh_razao_10_40:'razao_10_ricos_40_pobres', adh_renda_20_pobres:'prop_renda_20_pobres',
+  adh_pobreza_criancas:'prop_pobreza_criancas', adh_extrema_criancas:'prop_pobreza_extrema_criancas',
+  adh_formalizacao:'prop_ocupados_formalizacao', adh_desocup_18_mais:'taxa_desocupacao_18_mais',
+  adh_densidade_2:'taxa_densidade_2_mais', adh_agua_esgoto_inadeq:'taxa_agua_esgoto_inadequados',
+  adh_sem_fund_informal:'taxa_sem_fund_informal', adh_criancas_dom_sem_fund:'taxa_criancas_dom_sem_fund',
+  adh_maes_10_14:'taxa_mulheres_com_filho_10_14'
+};
+const ADHC=c=>`Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA e FJP), Censo 2010; coluna ${c} da Base dos Dados. A série 1991-2010 está no painel do município. `;
+munInd('adh_expectativa_estudo','educacao','Expectativa de anos de estudo','anos','ATLAS',2010,'dec2','agua',
+  ADHC('expectativa_anos_estudo')+'Anos de estudo que uma geração de crianças que entra na escola deve completar até os 18 anos, se os padrões de 2010 se mantiverem.');
+munInd('adh_fora_escola_6_14','educacao','Crianças de 6 a 14 anos fora da escola','%','ATLAS',2010,'pct2','brasa',ADHC('taxa_criancas_fora_escola_6_14'));
+munInd('adh_atraso_fund','educacao','Alunos do fundamental com 2 anos ou mais de atraso idade-série','%','ATLAS',2010,'pct1','brasa',
+  ADHC('taxa_atraso_2_fundamental')+'Percentual sobre os que frequentam o ensino fundamental regular.');
+munInd('adh_fund_18_mais','educacao','Pessoas de 18 anos ou mais com fundamental completo','%','ATLAS',2010,'pct1','agua',ADHC('taxa_fundamental_18_mais'));
+munInd('adh_medio_18_20','educacao','Jovens de 18 a 20 anos com ensino médio completo','%','ATLAS',2010,'pct1','agua',ADHC('taxa_medio_18_20'));
+munInd('adh_mort_infantil','saude','Mortalidade infantil, até 1 ano (Atlas Brasil, 2010)','por mil nascidos vivos','ATLAS',2010,'dec1','brasa',
+  ADHC('mortalidade_1')+'Estimativa do Atlas Brasil sobre o Censo, comparável entre 1991, 2000 e 2010. Não é a taxa do registro civil.');
+munInd('adh_mort_5','saude','Mortalidade até 5 anos de idade (Atlas Brasil, 2010)','por mil nascidos vivos','ATLAS',2010,'dec1','brasa',ADHC('mortalidade_5'));
+munInd('adh_theil','renda','Índice de Theil-L da renda (Atlas Brasil)','índice','ATLAS',2010,'dec2','brasa',
+  ADHC('indice_theil')+'Desigualdade da renda domiciliar per capita: zero quando todos têm a mesma renda; cresce com a desigualdade.');
+munInd('adh_razao_10_40','renda','Renda dos 10% mais ricos ÷ renda dos 40% mais pobres','vezes','ATLAS',2010,'dec1','brasa',
+  ADHC('razao_10_ricos_40_pobres')+'Compara a renda per capita média do décimo mais rico com a dos dois quintos mais pobres.');
+munInd('adh_renda_20_pobres','renda','Parte da renda total que fica com os 20% mais pobres','%','ATLAS',2010,'pct2','agua',ADHC('prop_renda_20_pobres'));
+munInd('adh_pobreza_criancas','pobreza','Crianças pobres (Atlas Brasil)','%','ATLAS',2010,'pct1','brasa',
+  ADHC('prop_pobreza_criancas')+'Crianças em domicílios com renda per capita de até R$ 140 (agosto de 2010), na definição do Atlas Brasil.');
+munInd('adh_extrema_criancas','pobreza','Crianças extremamente pobres (Atlas Brasil)','%','ATLAS',2010,'pct2','brasa',
+  ADHC('prop_pobreza_extrema_criancas')+'Crianças em domicílios com renda per capita de até R$ 70 (agosto de 2010).');
+munInd('adh_formalizacao','trabalho','Grau de formalização dos ocupados de 18 anos ou mais','%','ATLAS',2010,'pct1','agua',
+  ADHC('prop_ocupados_formalizacao')+'Ocupados com carteira assinada, militares, servidores estatutários, e empregadores e trabalhadores por conta própria que contribuem para a previdência, sobre o total de ocupados de 18 anos ou mais.');
+munInd('adh_desocup_18_mais','trabalho','Taxa de desocupação de 18 anos ou mais (Atlas Brasil)','%','ATLAS',2010,'pct1','brasa',
+  ADHC('taxa_desocupacao_18_mais')+'Número publicado; serve de referência para a desocupação de 2010 calculada pelo Atlas.');
+munInd('adh_densidade_2','habitacao','Pessoas em domicílios com mais de 2 moradores por dormitório','%','ATLAS',2010,'pct2','brasa',ADHC('taxa_densidade_2_mais'));
+munInd('adh_agua_esgoto_inadeq','saneamento','Pessoas em domicílios com água e esgoto inadequados','%','ATLAS',2010,'pct2','brasa',
+  ADHC('taxa_agua_esgoto_inadequados')+'Abastecimento de água e esgotamento sanitário inadequados ao mesmo tempo, na definição do Atlas Brasil.');
+munInd('adh_sem_fund_informal','vulner','Pessoas de 18 anos ou mais sem fundamental completo e em ocupação informal','%','ATLAS',2010,'pct1','brasa',ADHC('taxa_sem_fund_informal'));
+munInd('adh_criancas_dom_sem_fund','vulner','Crianças em domicílios em que ninguém tem fundamental completo','%','ATLAS',2010,'pct1','brasa',ADHC('taxa_criancas_dom_sem_fund'));
+munInd('adh_maes_10_14','saude','Meninas de 10 a 14 anos que tiveram filhos','%','ATLAS',2010,'pct2','brasa',ADHC('taxa_mulheres_com_filho_10_14'));
+
+/* Acesso a Oportunidades: só Porto Alegre. Setor e bairro. */
+const OBS_AOP='Projeto Acesso a Oportunidades (IPEA), 2019: rotas calculadas pelo IPEA sobre a malha viária do OpenStreetMap e, no transporte público, sobre a programação publicada das linhas (GTFS), no pico da manhã de um dia útil. Empregos são os vínculos formais da RAIS; escolas e estabelecimentos de saúde, os da rede pública. Cada setor de 2022 recebe o valor do hexágono do IPEA que contém o seu ponto representativo; o bairro, a média dos setores ponderada pela população. Entre as sete cidades, só Porto Alegre está no projeto. A grade de 2019 não alcança 134 setores, quase todos na periferia (extremo sul, zona leste e ilhas): eles ficam sem valor, e o bairro só tem valor se os setores cobertos somam ao menos metade da sua população.';
+const aop=(id,n,u,fmt,ramp,niveis,obs)=>ind({id,cat:'mobilidade',n,u,fonte:'IPEA_AOP',ano:2019,niveis,status:'ok',fmt,ramp,obs:(obs?obs+' ':'')+OBS_AOP});
+aop('aop_emprego_tp60','Empregos alcançáveis em até 60 minutos de transporte público','% dos empregos da cidade','pct1','agua',['bairro','setor'],
+  'Parte dos empregos formais de Porto Alegre que se alcança em até uma hora, combinando transporte público e caminhada.');
+aop('aop_saude_pe','Tempo a pé até o estabelecimento de saúde de baixa complexidade mais próximo','min','dec1','brasa',['bairro','setor'],
+  'Baixa complexidade na classificação do IPEA. Setor que não alcança nenhum estabelecimento no limite de cálculo fica sem valor e entra na população a mais de 30 minutos.');
+aop('aop_infantil_pe','Tempo a pé até a escola pública de educação infantil mais próxima','min','dec1','brasa',['bairro','setor'],
+  'Setor que não alcança nenhuma escola no limite de cálculo fica sem valor e entra na população a mais de 30 minutos.');
+aop('aop_fundamental_pe','Tempo a pé até a escola pública de ensino fundamental mais próxima','min','dec1','brasa',['bairro','setor']);
+aop('aop_saude_30pe','População a mais de 30 minutos a pé da saúde de baixa complexidade','%','pct1','brasa',['bairro'],
+  'Moradores de setores cujo tempo a pé passa de 30 minutos ou que não alcançam nenhum estabelecimento no limite de cálculo, sobre os moradores dos setores cobertos.');
+aop('aop_infantil_30pe','População a mais de 30 minutos a pé de escola pública de educação infantil','%','pct1','brasa',['bairro'],
+  'Moradores de setores cujo tempo a pé passa de 30 minutos ou que não alcançam nenhuma escola no limite de cálculo, sobre os moradores dos setores cobertos.');
 
 
 
@@ -1233,12 +1319,6 @@ const MUN={
   m_mortinf:7.32, m_receita:11109224367.43, m_despesa:12061040035.33,
   m_idhm:0.805, m_idhm00:0.744,
   m_resp_renda:null, fcu_pop:175519, fcu_n:125, pop_reportada:1330054, setores_sem_pessoas:49
-};
-/* série histórica com metodologia homogênea (§24) */
-const SERIES={
-  idhm:{n:'IDHM — Porto Alegre',fonte:'ATLAS',u:'índice',
-    obs:'Série calculada com metodologia homogênea sobre os Censos Demográficos. Não existe IDHM oficial posterior a 2010.',
-    pts:[[2000,0.744],[2010,0.805]]}
 };
 
 /* ─────────────────────────────────────────────────────── 6. ESTADO ───── */
@@ -1724,93 +1804,155 @@ function ligaPainel(){
   const c=$('#btnAddCmp'); if(c)c.onclick=()=>{addCmp(S.sel);abreModal('mdAnalise');};
   const r=$('#btnRankAqui'); if(r)r.onclick=()=>abreRanking();
   $$('[data-goto]').forEach(x=>x.onclick=()=>selecionar(x.dataset.goto));
+  $$('[data-filtra]').forEach(x=>x.onclick=()=>filtraMunicipio(+x.dataset.filtra));
+  const fm=$('#btnFichaMun');
+  if(fm)fm.onclick=()=>{const p=muniSelecionado(); if(!p)return; setNivel('municipio',true); selecionar(p.id);};
 }
 
+/* ── Painel de abertura: o município escolhido no seletor do topo ou, sem
+   escolha, a região. Até a versão 3.4 mostrava sempre Porto Alegre, mesmo com
+   outro município filtrado no mapa. */
+function muniSelecionado(){
+  if(S.muniFiltro==null)return null;
+  const f=((S.geo.municipio||{}).features||[]).find(x=>x.properties.muni_id===S.muniFiltro);
+  return f?f.properties:null;
+}
+/* indicador só municipal; os do IBGE Cidades (estado "mun") existem só para Porto Alegre */
+function valorMunicipal(p,i){
+  if(p[i.id]!=null&&p[i.id]!=='')return p[i.id];
+  return p.nome===MUN.nome&&MUN[i.id]!=null?MUN[i.id]:null;
+}
+/* setores por município e os que o IBGE publica sem os blocos de pessoas */
+let CONTA_SET=null;
+function contaSetores(){
+  if(CONTA_SET)return CONTA_SET;
+  const T=RAW_SETORES,N=RAW_NUCLEO; if(!T||!N)return CONTA_SET={};
+  const ns=T.geom.length, muni=decDic(T.m,null,ns), C=N.campos, E=N.escalas;
+  const col=k=>{const i=C.indexOf(k);return i<0||!T.valores[k]?null:decCol(T.valores[k],E[i],ns);};
+  const pop=col('pop'),ph=col('pop_h'),pm=col('pop_m'), r={};
+  for(let i=0;i<ns;i++){
+    const o=r[muni[i]]||(r[muni[i]]={setores:0,semBloco:0,popSem:0});
+    o.setores++;
+    if(ph&&pm&&ph[i]==null&&pm[i]==null){o.semBloco++; if(pop&&pop[i]>0)o.popSem+=pop[i];}
+  }
+  return CONTA_SET=r;
+}
+function filtraMunicipio(k){
+  S.muniFiltro=k; const sm=$('#selMuni'); if(sm)sm.value=k==null?'':String(k);
+  S.sel=null; S._fit=false; desenhaMapa(); renderPainel();
+}
 function aberturaHTML(){
-  const poaM=(((S.geo.municipio||{}).features||[]).find(f=>f.properties.nome===MUN.nome)||{}).properties||{};
+  const p=muniSelecionado(), R=p?null:regiaoProps(), q=p||R||{};
+  const cs=contaSetores(), soma=k=>Object.values(cs).reduce((a,o)=>a+(o[k]||0),0);
+  const info=p?(cs[p.muni_id]||{}):{setores:soma('setores'),semBloco:soma('semBloco'),popSem:soma('popSem')};
+  const bs=S.geo.bairro.features.filter(f=>!p||f.properties.muni_id===p.muni_id);
+  const semBairros=p&&bs.length===1&&/sem divisão de bairros/i.test(bs[0].properties.nome);
+  const cod=p&&MUNIS_LISTA?String(MUNIS_LISTA.ids[p.muni_id]):null;
   const kpis=[
-    ['População','pop_2022',MUN.pop_2022,'int','Censo/IBGE · 2022'],
-    ['Área','area_km2',MUN.area_km2,'dec2','SMUrb/IBGE · 2016',' km²'],
-    ['PIB','__pib',(((RAW_NUCLEO||{}).pib||{}).municipios||{})[MUN.nome]
-      ?RAW_NUCLEO.pib.municipios[MUN.nome].pib*1000:null,'brlc',
-      'IBGE · '+((((RAW_NUCLEO||{}).pib)||{}).ano_pib||2023)],
-    ['PIB per capita','pib_pc',poaM.pib_pc??MUN.m_pib_pc,'brl0','IBGE · '+ANO.pib],
-    ['Rendimento médio do responsável','m_resp_renda',MUN.m_resp_renda,'brl0','Censo/IBGE · 2022'],
-    ['IDHM','idhm',poaM.idhm??MUN.m_idhm,'dec3','Atlas Brasil · 2010']
+    ['População',q.pop,'int','Censo/IBGE · 2022'],
+    ['Área',q.area_km2,'dec2','setores IBGE · 2022',' km²'],
+    ['PIB',q.pib!=null?q.pib*1000:null,'brlc',(p?'IBGE · ':'IBGE · soma dos sete · ')+ANO.pib],
+    ['PIB per capita',q.pib_pc,'brl0','Cálculo do Atlas · '+ANO.pib],
+    ['Rendimento médio do responsável',q.resp_renda,'brl0','Cálculo do Atlas · 2022'],
+    ['IDHM',p?p.idhm:null,'dec3','Atlas Brasil · 2010']
   ];
   /* só entra o que tem valor: o painel nunca exibe cartão vazio */
-  const cards=kpis.filter(k=>k[2]!=null).map(([lb,id,val,f,src,suf])=>{
-    return `<div class="kpi"><span class="lb">${esc(lb)}</span>
+  const cards=kpis.filter(k=>k[1]!=null).map(([lb,val,f,src,suf])=>`<div class="kpi"><span class="lb">${esc(lb)}</span>
       <span class="vl">${fmtN(val,f)}${suf?`<small>${suf}</small>`:''}</span>
-      <span class="selo s-ok"><i class="dot"></i>${esc(src)}</span></div>`;
-  }).join('');
+      <span class="selo s-ok"><i class="dot"></i>${esc(src)}</span></div>`).join('');
 
-  const municipais=IND.filter(i=>i.status==='mun'&&MUN[i.id]!=null);
+  /* indicadores que só existem por município, agrupados por tema */
+  const soMun=IND.filter(i=>i.niveis.includes('municipio')&&!i.niveis.includes('bairro')
+    &&!i.niveis.includes('setor')&&i.status!=='pend');
+  const itens=soMun.map(i=>({i,v:p?valorMunicipal(p,i):q[i.id]}))
+    .filter(o=>o.v!=null&&o.v!==''&&!isNaN(+o.v));
+  const grupos=CATS.map(c=>({c,l:itens.filter(o=>o.i.cat===c.id)})).filter(g=>g.l.length);
+  const linhaMun=({i,v})=>`<div class="row"><div class="k">${esc(i.n)}${selo(i,'municipio')}</div>
+     <div class="v"><span class="num">${fmtN(+v,i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`;
+
+  const munis=((S.geo.municipio||{}).features||[]).map(f=>f.properties);
+  const aopM=p&&AOP?(AOP.municipio||{})[cod]:null;
   return `
   <div class="terr-h">
-    <span class="eyebrow">Atlas socioeconômico interativo</span>
-    <h2>Porto Alegre</h2>
-    <div class="sub"><span class="chip acc">RS · 4314902</span>
-      <span class="chip">94 bairros</span><span class="chip">2.744 setores</span></div>
+    <span class="eyebrow">${p?'Município selecionado':'Atlas socioeconômico interativo'}</span>
+    <h2>${esc(p?p.nome:'Região metropolitana')}</h2>
+    <div class="sub">${p?`<span class="chip acc">RS · ${esc(cod)}</span>`:'<span class="chip acc">7 municípios</span>'}
+      <span class="chip">${semBairros?'sem divisão de bairros no IBGE':nf.format(bs.length)+' bairros'}</span>
+      <span class="chip">${nf.format(info.setores||0)} setores</span></div>
   </div>
   <div class="hero-kpi">${cards}</div>
   <p style="font-size:12px;color:var(--txt2);line-height:1.6">
-    Selecione um indicador na coluna à esquerda para explorar as desigualdades socioeconômicas
-    dentro do município, ou clique em um território no mapa para abrir seu perfil completo.</p>
+    ${p?`Selecione um indicador na coluna à esquerda para explorar as desigualdades dentro de
+    ${esc(p.nome)}, ou clique em um território no mapa para abrir o perfil completo.`
+    :`Selecione um indicador na coluna à esquerda para comparar os territórios dos sete municípios,
+    ou escolha um município no seletor do topo.`}</p>
 
-  <h3 class="sec">Indicadores só do município <span class="chip tag">${municipais.length}</span></h3>
-  <p style="font-size:11.5px;color:var(--txt3);margin-bottom:8px;line-height:1.55">
-    Estes indicadores não têm representatividade abaixo do município e por isso
-    <b>não são rateados entre bairros</b>.</p>
-  ${municipais.map(i=>`<div class="row"><div class="k">${esc(i.n)}${selo(i)}</div>
-     <div class="v"><span class="num">${fmtN(MUN[i.id],i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`).join('')}
+  ${p?'':`<h3 class="sec">Os sete municípios</h3>
+  ${munis.map(m=>`<button class="row muni-row" data-filtra="${m.muni_id}"><div class="k"><b>${esc(m.nome)}</b>
+      ${m.idhm!=null?`<span class="ref-note">IDHM ${fmtN(m.idhm,'dec3')} · Atlas Brasil 2010</span>`:''}</div>
+    <div class="v"><span class="num">${fmtN(m.pop,'int')}</span><span class="u">moradores · 2022</span></div></button>`).join('')}
+  <p class="ref-note" style="margin-top:6px">Clique em um município para ver o painel dele.</p>`}
 
-  <h3 class="sec">Evolução histórica</h3>
-  ${serieHTML('idhm')}
+  <h3 class="sec">${p?'Indicadores só do município':'Indicadores municipais, somados na região'}
+    <span class="chip tag">${itens.length}</span></h3>
+  <p style="font-size:12px;color:var(--txt3);margin-bottom:8px;line-height:1.55">
+    ${p?`Estes indicadores não têm representatividade abaixo do município e por isso
+    <b>não são rateados entre bairros</b>.`:`Somas dos sete municípios, ou taxas recalculadas sobre as somas.
+    Índices como o IDHM não se somam e ficam de fora.`}</p>
+  ${grupos.map((g,k)=>`<details class="grupo"${k===0?' open':''}><summary>${esc(g.c.n)}<span class="chip tag">${g.l.length}</span></summary>
+    ${g.l.map(linhaMun).join('')}</details>`).join('')}
+  ${p?`<div class="btn-row"><button class="btn" id="btnFichaMun">Abrir a ficha completa de ${esc(p.nome)}</button></div>`:''}
 
-  <h3 class="sec">Retrato do município — Censo 2022</h3>
-  ${retratoHTML()}
+  ${aopM?`<h3 class="sec">Acesso a oportunidades <span class="chip tag">IPEA · 2019</span></h3>
+  ${Object.keys(aopM).map(k=>{const i=getInd(k);return i&&aopM[k]!=null?`<div class="row"><div class="k">${esc(i.n)}</div>
+    <div class="v"><span class="num">${fmtN(aopM[k],i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`:'';}).join('')}
+  <p class="ref-note" style="margin-top:6px">Média da cidade ponderada pela população dos setores cobertos.
+    Mapa por bairro e setor em <b>Mobilidade e acesso</b>.</p>`:''}
+
+  ${p?seriesMunicipioHTML(cod):''}
+
+  <h3 class="sec">Retrato ${p?'do município':'da região'} — Censo 2022</h3>
+  ${retratoHTML(q,info,p)}
 
   <h3 class="sec">Cobertura do Atlas</h3>
   ${coberturaHTML()}`;
 }
 
-/* agregados do município calculados a partir dos 94 bairros de Porto Alegre
-   (a camada de bairros também traz os outros seis municípios) */
-function retratoHTML(){
-  const f=S.geo.bairro.features.filter(x=>x.properties.muni===MUN.nome),
-    T=k=>f.reduce((a,x)=>a+(x.properties[k]||0),0);
+/* agregados do Censo 2022 do município (ou da região): são as somas dos setores */
+function retratoHTML(q,info,p){
+  const T=k=>+q[k]||0;
   const rc=T('raca_branca')+T('raca_preta')+T('raca_amarela')+T('raca_parda')+T('raca_indigena');
-  const dp=T('dppo');
+  const dp=T('dppo'), pc=(a,b)=>b?100*a/b:null;
   const linhas=[
-    ['População feminina', T('pop_m'), 'int', 100*T('pop_m')/(T('pop_h')+T('pop_m'))],
-    ['Idosos (60 anos ou mais)', T('idosos_60'), 'int', 100*T('idosos_60')/T('pop')],
-    ['Crianças e adolescentes (0 a 14)', T('criancas_0_14'), 'int', 100*T('criancas_0_14')/T('pop')],
-    ['População preta ou parda', T('raca_preta_parda'), 'int', 100*T('raca_preta_parda')/rc],
+    ['População feminina', T('pop_m'), 'int', pc(T('pop_m'),T('pop_h')+T('pop_m'))],
+    ['Idosos (60 anos ou mais)', T('idosos_60'), 'int', pc(T('idosos_60'),T('pop'))],
+    ['Crianças e adolescentes (0 a 14)', T('criancas_0_14'), 'int', pc(T('criancas_0_14'),T('pop'))],
+    ['População preta ou parda', T('raca_preta_parda'), 'int', pc(T('raca_preta_parda'),rc)],
     ['População indígena (quesito específico)', T('indigenas'), 'int', null],
     ['População quilombola', T('quilombolas'), 'int', null],
-    ['Em favelas e comunidades urbanas', T('fcu_pop'), 'int', 100*T('fcu_pop')/T('pop')],
-    ['Domicílios com esgoto adequado', T('esg_adequado'), 'int', 100*T('esg_adequado')/dp],
-    ['Domicílios com água de rede geral', T('agua_rede'), 'int', 100*T('agua_rede')/dp],
-    ['Domicílios com coleta de lixo', T('lixo_coletado'), 'int', 100*T('lixo_coletado')/dp],
-    ['Taxa de alfabetização (15+)', 100*T('alfab_15')/T('pop_15'), 'pct1', null]
+    ['Em favelas e comunidades urbanas', T('fcu_pop'), 'int', pc(T('fcu_pop'),T('pop'))],
+    ['Domicílios com esgoto adequado', T('esg_adequado'), 'int', pc(T('esg_adequado'),dp)],
+    ['Domicílios com água de rede geral', T('agua_rede'), 'int', pc(T('agua_rede'),dp)],
+    ['Domicílios com coleta de lixo', T('lixo_coletado'), 'int', pc(T('lixo_coletado'),dp)],
+    ['Taxa de alfabetização (15+)', pc(T('alfab_15'),T('pop_15')), 'pct1', null]
   ];
-  return linhas.map(([k,v,fm,pc])=>`<div class="row"><div class="k">${esc(k)}</div>
+  const sem=info.semBloco||0, morad=info.popSem||0;
+  return linhas.map(([k,v,fm,pcv])=>`<div class="row"><div class="k">${esc(k)}</div>
     <div class="v"><span class="num">${fmtN(v,fm)}</span>
-    <span class="u">${pc!=null?fmtN(pc,'pct1'):''}</span></div></div>`).join('')+
+    <span class="u">${pcv!=null?fmtN(pcv,'pct1'):''}</span></div></div>`).join('')+
     `<p style="font-size:11px;color:var(--txt3);line-height:1.6;margin-top:9px">
-      Somas dos 94 bairros, calculadas sobre os agregados por setor censitário do Censo 2022.
-      Os blocos de pessoas e domicílios não são publicados para ${MUN.setores_sem_pessoas} setores
-      especiais (quartel, unidade prisional, alojamento, convento, hospital), com
-      ${nf.format(MUN.pop_2022-MUN.pop_reportada)} moradores no total — por isso alguns denominadores
-      ficam em ${nf.format(MUN.pop_reportada)}, e não em ${nf.format(MUN.pop_2022)}.</p>`;
+      Somas dos setores censitários do Censo 2022${p?' de '+esc(p.nome):' dos sete municípios'}.
+      ${sem?`O IBGE não publica os blocos de pessoas e domicílios de ${nf.format(sem)} setores
+      (quartéis, unidades prisionais, alojamentos, conventos, hospitais e setores sem moradores)${morad?`, onde
+      moram ${nf.format(morad)} pessoas. Por isso alguns denominadores ficam em ${nf.format(T('pop')-morad)},
+      e não em ${nf.format(T('pop'))}`:''}.`:'O IBGE publica os blocos de pessoas e domicílios de todos os setores.'}</p>`;
 }
 function coberturaHTML(){
   const t=IND.length, ok=IND.filter(i=>i.status==='ok').length,
     ext=IND.filter(i=>i.status==='ext').length, imp=IND.filter(i=>i.status==='imp').length,
     mun=IND.filter(i=>i.status==='mun').length, est=IND.filter(i=>i.status==='est').length;
   const seg=[[ok,'var(--ok)','oficial, Censo 2022 e fontes recentes'],[est,'var(--est)','histórico, Censo 2010'],
-    [mun,'var(--mun)','só Porto Alegre'],[imp,'var(--imp)','arquivo do usuário'],
+    [mun,'var(--mun)','só Porto Alegre (IBGE Cidades)'],[imp,'var(--imp)','arquivo do usuário'],
     [ext,'var(--sim)','não oficial']].filter(x=>x[0]>0);
   return `<div style="display:flex;height:9px;border-radius:5px;overflow:hidden;margin-bottom:9px">
     ${seg.map(([n,c])=>`<div style="width:${100*n/t}%;background:${c}"></div>`).join('')}</div>
@@ -1822,27 +1964,44 @@ function coberturaHTML(){
       ${t} indicadores com fonte, ano e nível geográfico explícitos — ver <b>Cobertura</b> no topo.</p>`;
 }
 
-function serieHTML(k){
-  const s=SERIES[k]; if(!s)return '';
-  const w=300,h=112,pad={l:36,r:10,t:10,b:20};
-  const xs=s.pts.map(p=>p[0]), ys=s.pts.map(p=>p[1]);
-  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys)*.97,y1=Math.max(...ys)*1.02;
+/* Série 1991-2000-2010 do Atlas Brasil para o município: quatro gráficos pequenos,
+   um por indicador, cada um na própria escala (nunca dois eixos no mesmo gráfico). */
+const SERIES_ADH=[['IDHM','idhm','dec3'],['Renda per capita, R$ de ago/2010','renda_pc','brl0'],
+  ['Pessoas pobres','prop_pobreza','pct1'],['Mortalidade infantil, por mil','mortalidade_1','dec1']];
+function seriesMunicipioHTML(cod){
+  if(!ADH_IPEA||!cod)return '';
+  const V=ADH_IPEA.valores, anos=ADH_IPEA.anos;
+  const graf=SERIES_ADH.map(([t,c,f])=>{const v=(V[c]||{})[cod]; if(!v)return '';
+    const pts=anos.map((a,k)=>[a,v[k]]).filter(x=>x[1]!=null); return pts.length>1?serieMini(t,pts,f):'';}).join('');
+  if(!graf)return '';
+  return `<h3 class="sec">Evolução de 1991 a 2010 <span class="chip tag">Atlas Brasil</span></h3>
+    <div class="series">${graf}</div>
+    <p class="ref-note" style="margin-top:6px">Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA e FJP),
+      Censos de 1991, 2000 e 2010. Renda e linha de pobreza (R$ 140) em reais de agosto de 2010 nos três anos.
+      Não há IDHM oficial posterior a 2010.</p>`;
+}
+function serieMini(titulo,pts,fmt){
+  const w=170,h=100,pad={l:30,r:30,t:20,b:18};
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs), lo=Math.min(...ys),hi=Math.max(...ys);
+  const m=(hi-lo)*.18||Math.abs(hi)*.05||1, y0=lo-m, y1=hi+m;
   const px=v=>pad.l+(v-x0)/((x1-x0)||1)*(w-pad.l-pad.r);
   const py=v=>h-pad.b-(v-y0)/((y1-y0)||1)*(h-pad.t-pad.b);
-  const d=s.pts.map((p,i)=>(i?'L':'M')+px(p[0])+' '+py(p[1])).join(' ');
-  return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(s.n)}">
-    <line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="var(--line2)"/>
+  const d=pts.map((p,i)=>(i?'L':'M')+px(p[0]).toFixed(1)+' '+py(p[1]).toFixed(1)).join(' ');
+  return `<figure class="mini"><figcaption>${esc(titulo)}</figcaption>
+    <svg class="chart" viewBox="0 0 ${w} ${h}" role="img"
+      aria-label="${esc(titulo)}: ${esc(pts.map(p=>p[0]+', '+fmtN(p[1],fmt)).join('; '))}">
+    <line x1="4" y1="${h-pad.b}" x2="${w-4}" y2="${h-pad.b}" stroke="var(--line2)"/>
     <path d="${d}" fill="none" stroke="${COR.cat[0]}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    ${s.pts.map(p=>`<circle cx="${px(p[0])}" cy="${py(p[1])}" r="4.5" fill="${COR.cat[0]}" stroke="var(--bg2)" stroke-width="2"/>
-      <text x="${px(p[0])}" y="${py(p[1])-9}" text-anchor="middle" class="val">${fmtN(p[1],'dec3')}</text>
-      <text x="${px(p[0])}" y="${h-6}" text-anchor="middle">${p[0]}</text>`).join('')}
-  </svg>
-  <div class="row"><div class="k">${esc(s.n)}${selo({fonte:s.fonte,ano:2010,status:'mun'})}</div></div>
-  <p style="font-size:11px;color:var(--txt3);line-height:1.55">${esc(s.obs)}</p>`;
+    ${pts.map(p=>`<g><title>${p[0]}: ${esc(fmtN(p[1],fmt))}</title>
+      <circle cx="${px(p[0]).toFixed(1)}" cy="${py(p[1]).toFixed(1)}" r="4" fill="${COR.cat[0]}" stroke="var(--bg2)" stroke-width="2"/>
+      <text x="${px(p[0]).toFixed(1)}" y="${(py(p[1])-8).toFixed(1)}" text-anchor="middle" class="val">${esc(fmtN(p[1],fmt))}</text>
+      <text x="${px(p[0]).toFixed(1)}" y="${h-4}" text-anchor="middle">${p[0]}</text></g>`).join('')}
+  </svg></figure>`;
 }
 
 function distribuicaoHTML(){
-  const i=indAtual(), g=S.geo[S.nivel];
+  const i=indAtual(), g=geoDoNivel();
   if(!g||i.status==='pend'||i.status==='mun')return '';
   const arr=g.features.map(f=>({id:f.properties.id,n:f.properties.nome,v:valor(f.properties)}))
     .filter(o=>o.v!=null).sort((a,b)=>b.v-a.v);
@@ -2075,7 +2234,9 @@ function perfilHTML(id){
   html+=`<h3 class="sec">Ficha do território</h3>
     <p style="font-size:11.5px;color:var(--txt3);line-height:1.6">
       Geometria: ${isSetor?'malha de setores censitários do IBGE (Censo 2022)'
-      :'malha de bairros da SMUrb/PMPA, Lei Municipal nº 12.112/2016'}.
+      :p.muni==='Porto Alegre'?'malha de bairros da SMUrb/PMPA, Lei Municipal nº 12.112/2016'
+      :/sem divisão de bairros/i.test(p.nome||'')?'o município inteiro: o IBGE não divide este município em bairros'
+      :'bairros do IBGE no Censo 2022, formados pelos setores com o mesmo nome de bairro'}.
       Geometria generalizada para uso em tela; áreas e cálculos usam os valores originais.</p>`;
   return html;
 }
@@ -2461,7 +2622,7 @@ function renderMatriz(){
 const FORMULAS=[
  ['Densidade demográfica','hab/km²','população residente ÷ área do polígono do território',
   'Censo 2022 (população) e malha SMUrb/IBGE (área)','ok'],
- ['Participação na população do município','%','população do bairro ÷ 1.332.845 × 100','Censo 2022','ok'],
+ ['Participação na população do município','%','população do bairro ÷ população do município do bairro × 100','Censo 2022','ok'],
  ['Razão de sexo','homens por 100 mulheres','população masculina ÷ população feminina × 100','Censo 2022','ok'],
  ['Índice de envelhecimento','idosos por 100 crianças','população de 60+ ÷ população de 0 a 14 × 100','Censo 2022','ok'],
  ['Razão de dependência','%','(0 a 14 + 60 ou mais) ÷ (15 a 59) × 100','Censo 2022','ok'],
@@ -2506,6 +2667,38 @@ function renderMetodo(){
     &nbsp;valor adicional importado localmente, sem validação automática da origem</div>
     <div class="v"><span class="num">${IND.filter(i=>i.status==='imp').length}</span></div></div>
 
+  <h3 class="sec">O que quer dizer “Cálculo do Atlas”</h3>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    O selo <b>Cálculo do Atlas · 2022</b> quer dizer que o número não aparece pronto em nenhuma
+    publicação: o Atlas o calculou a partir de contagens oficiais, por uma fórmula descrita nesta
+    página. <b>O ano é o dos dados de origem, não o do cálculo</b>: “2022” significa que as contagens
+    vêm do Censo 2022; “${ANO.pib}”, do PIB dos Municípios daquele ano.</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>Os insumos são oficiais</b> e estão no próprio Atlas: contagens por setor do Censo 2022,
+      PIB do IBGE, estabelecimentos do CNES.</li>
+    <li><b>Primeiro soma, depois divide.</b> No bairro, no município, na região e no entorno das lojas,
+      o Atlas soma as contagens dos setores e só então calcula a taxa. Nunca faz média de percentuais.</li>
+    <li><b>A fórmula de cada um</b> está na tabela “Fórmulas, uma a uma”, abaixo, e na ficha do indicador.</li>
+  </ul>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    Por isso esses indicadores levam o selo verde: o dado de origem é oficial e a conta é direta e
+    reproduzível. Podem diferir de um número publicado pelo IBGE quando o denominador é outro. Por
+    exemplo, os percentuais de cor ou raça usam só as respostas declaradas. São estes:</p>
+  ${(()=>{const c=IND.filter(i=>i.fonte==='ATLAS_CALC'&&i.status!=='pend'), anos=[...new Set(c.map(i=>i.ano))].sort();
+    /* de onde vêm os dados de cada linha, pelo tipo de indicador (os anos mudam com as fontes ao vivo) */
+    const de=a=>{const ids=c.filter(i=>i.ano===a).map(i=>i.id);
+      const todos=re=>ids.every(id=>re.test(id));
+      if(todos(/^(pib|pct_vab)/))return 'PIB dos Municípios (IBGE)';
+      if(todos(/^(fin_|gasto_)|_hab$/))return 'Finanças municipais (DCA/SICONFI)';
+      if(todos(/_100mil$/))return 'Ocorrências da SSP/RS';
+      if(todos(/_10mil$/))return 'Estabelecimentos do CNES';
+      return a===2022?'Censo 2022, contagens por setor':'';};
+    return `<table class="tb"><thead><tr><th style="width:16%">Ano dos dados</th><th>Indicadores</th></tr></thead><tbody>
+      ${anos.map(a=>`<tr><td><b>${a}</b><div style="color:var(--txt3);font-size:11px">${esc(de(a))}</div></td>
+        <td>${c.filter(i=>i.ano===a).map(i=>esc(i.n)).join(' · ')}</td></tr>`).join('')}</tbody></table>
+      <p style="font-size:11.5px;color:var(--txt3);line-height:1.6;margin-top:6px">Nas taxas por habitante,
+        a população usada como denominador está na ficha de cada indicador.</p>`;})()}
+
   <h3 class="sec">Por que trabalho e pobreza vêm de 2010</h3>
   <div class="note warn" style="border-left-color:var(--est)">
     O universo do Censo 2022 — que sustenta o resto do Atlas — <b>não pergunta</b> trabalho,
@@ -2520,6 +2713,63 @@ function renderMetodo(){
     antiga. Use como ordenação relativa do território, não como medida do presente.
   </div>
 
+  ${AOP?`<h3 class="sec">Acesso a oportunidades (IPEA, 2019)</h3>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    O projeto Acesso a Oportunidades, do IPEA, calcula por hexágono quanto tempo se leva a pé, de
+    bicicleta e de transporte público até empregos, estabelecimentos de saúde e escolas, com dados de
+    2019. Entre as sete cidades, só Porto Alegre está no projeto. O Atlas usa a tabela publicada no
+    espelho da Base dos Dados.</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>Do hexágono ao território.</b> Cada setor de 2022 recebe o valor do hexágono que contém o seu
+      ponto representativo; o bairro, a média dos setores ponderada pela população. É o mesmo método dos
+      indicadores de 2010.</li>
+    <li><b>Correção da unidade.</b> Na tabela da Base dos Dados, o tempo mínimo vem multiplicado por 100.
+      Dividido por 100, ele concorda com os indicadores cumulativos em ${nf.format(AOP.conferencia.tmi_coerentes_div100)}
+      de ${nf.format(AOP.conferencia.tmi_testes)} testes; sem a divisão, só em ${nf.format(AOP.conferencia.tmi_coerentes_sem_divisao)}.
+      O teste: quem alcança um estabelecimento em 15 minutos tem de ter tempo mínimo de até 15.</li>
+    <li><b>Cobertura.</b> A grade de 2019 não alcança ${nf.format(AOP.conferencia.setores_fora_da_grade)} setores, com
+      ${nf.format(AOP.conferencia.pop_fora_da_grade)} moradores, quase todos na periferia (extremo sul, zona leste e ilhas).
+      Eles ficam sem valor, e o bairro só tem valor quando os setores cobertos somam ao menos metade
+      da sua população.</li>
+    <li><b>“Sem estabelecimento no limite”.</b> Onde o IPEA não acha nenhum estabelecimento no tempo máximo
+      de cálculo, o tempo não entra em média; entra na parte da população a mais de 30 minutos.</li>
+  </ul>`:''}
+
+  <h3 class="sec">Áreas de risco (2010)</h3>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    A camada vem da <b>BATER</b>, a Base Territorial Estatística de Áreas de Risco do IBGE e do CEMADEN,
+    do estudo <i>População em áreas de risco no Brasil</i>. As áreas de risco de deslizamento, inundação
+    e enxurrada dos municípios monitorados pelo CEMADEN foram ajustadas pelo IBGE à malha do Censo 2010,
+    por setor censitário ou por face de quadra, para contar quem morava nelas.</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>No Atlas:</b> ${nf.format(AREAS_RISCO.length)} áreas, ${(()=>{const c={};AREAS_RISCO.forEach(a=>{const k=MUNIS_LISTA?MUNIS_LISTA.ids.indexOf(+a.muni):-1;const n=k>=0?MUNIS_LISTA.nomes[k]:a.muni;c[n]=(c[n]||0)+1;});return Object.entries(c).map(([n,v])=>`${v} em ${esc(n)}`).join(' e ');})()}.
+      Os outros municípios não têm área na BATER.</li>
+    <li><b>Cada área traz</b> o código, o recorte usado (setor ou face de quadra) e o grau de ajuste ao
+      recorte, de ótimo a regular.</li>
+    <li><b>O que ela não é:</b> não é a setorização de risco atual do Serviço Geológico do Brasil e não
+      inclui a enchente de 2024. A ausência de polígono não quer dizer ausência de risco. O Atlas
+      desenha as áreas; não calcula a população de 2022 dentro delas.</li>
+  </ul>
+
+  <h3 class="sec">Bolsões do quintil mais pobre</h3>
+  ${(()=>{const Q=quintisSetores(), B=calculaBolsoes(), pop=B.reduce((a,b)=>a+b.pop,0);
+  return `<p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    Os bolsões mostram onde se concentra a população de menor renda perto das unidades Renner, o recorte
+    territorial da análise do entorno. São ${nf.format(B.length)} bolsões, com ${nf.format(pop)} moradores.</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>Quintis de renda.</b> Os ${nf.format(Q.com.length)} setores dos sete municípios com renda publicada são
+      ordenados pelo rendimento médio do responsável (Censo 2022) e divididos em cinco grupos com a mesma
+      população. O quintil mais pobre vai até ${fmtN(Q.lim[0],'brl0')} por mês.</li>
+    <li><b>Bolsão.</b> Setores do quintil mais pobre a até 5 km, em linha reta, de uma unidade Renner,
+      agrupados quando o centro de um setor fica a até 600 m do centro de outro do grupo.</li>
+    <li><b>Ficha do bolsão.</b> Moradores, domicílios, crianças e jovens somados dos setores; renda média
+      do responsável ponderada pelo número de responsáveis; desocupação e escolaridade de 2010 como
+      referência histórica; acesso a oportunidades do IPEA, só nos setores de Porto Alegre.</li>
+    <li><b>Limites.</b> O rendimento do responsável não é renda domiciliar per capita. O setor entra
+      inteiro: a parte pobre de um setor de renda média não aparece. Os 5 km e os 600 m são parâmetros
+      da análise, não definições oficiais.</li>
+  </ul>`;})()}
+
   <h3 class="sec">Fórmulas, uma a uma</h3>
   <table class="tb"><thead><tr><th style="width:30%">Indicador</th><th style="width:12%">Unidade</th>
     <th>Cálculo</th><th style="width:16%">Fonte</th></tr></thead><tbody>
@@ -2532,8 +2782,9 @@ function renderMetodo(){
 
   <h3 class="sec">Omissão de células pelo IBGE</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
-    Para proteger o sigilo estatístico o IBGE omite células com poucos casos. Isso aparece de duas
-    formas. Primeiro, <b>49 setores especiais</b> de Porto Alegre — quartel, unidade prisional,
+    Para proteger o sigilo estatístico o IBGE omite células com poucos casos. Nos sete municípios,
+    ${(()=>{const c=Object.values(contaSetores());return `${nf.format(c.reduce((a,o)=>a+o.semBloco,0))} setores não têm os blocos de pessoas e domicílios publicados, com ${nf.format(c.reduce((a,o)=>a+o.popSem,0))} moradores`;})()}.
+    Em Porto Alegre, isso aparece de duas formas. Primeiro, <b>49 setores especiais</b> — quartel, unidade prisional,
     alojamento, convento, hospital — não têm os blocos de pessoas e domicílios publicados: são
     2.791 moradores que entram na população total mas não nos recortes por sexo, idade ou cor.
     Segundo, células isoladas somem em setores pequenos: a cor indígena é omitida em 764 dos 2.744
@@ -2543,7 +2794,7 @@ function renderMetodo(){
 
   <h3 class="sec">Duas medidas de área, dois produtores</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
-    A área dos bairros vem do polígono da malha SMUrb e os 94 bairros somam <b>472,81 km²</b>.
+    Em Porto Alegre, a área dos bairros vem do polígono da malha SMUrb e os 94 bairros somam <b>472,81 km²</b>.
     A área dos setores vem do IBGE e soma <b>495,39 km²</b>. A área municipal publicada pelo IBGE
     é <b>496,83 km²</b>. A diferença é a lâmina d’água dentro do limite municipal que a malha de
     bairros não recobre. Por isso o indicador se chama “área do polígono”, e não “área territorial
@@ -2551,18 +2802,24 @@ function renderMetodo(){
 
   <h3 class="sec">Código de extração</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
-    Todo dado deste Atlas é reproduzível. Os scripts de extração acompanham a distribuição, na
-    pasta <b>extracao/</b>: download da fonte, filtro, cálculo e gravação dos arquivos de dados.
-    São Python puro, sem dependência de serviço pago, e cada um traz no cabeçalho a fonte, o
-    motivo das escolhas e o que a saída não significa.</p>
+    Parte da atualização roda no próprio navegador: em <b>Mais → Dados e fontes</b>, o Atlas busca e
+    confere as fontes que permitem leitura direta. O resto está nos scripts da pasta
+    <b>extracao/</b>, que acompanham o pacote. Cada um traz no cabeçalho a fonte, as conferências e o que
+    a saída não significa, e para com erro em vez de completar dado que falta. O passo a passo está em
+    <b>docs/COMO-FAZER-AS-EXTRACOES.md</b>.</p>
   <pre style="background:var(--bg3);border:1px solid var(--line);border-radius:6px;padding:12px;
     font-family:var(--mono);font-size:10.5px;color:var(--txt2);line-height:1.8">extracao/
-├── 1_censo2022_setores.py     universo 2022 por setor (7 municípios)
-├── 2_pib_municipios.py        PIB e VAB, Tabela 5938 do IBGE
-├── 3_equipamentos.py          escolas do INEP e unidades do CNES
-├── 4_censo2010_amostra.py     trabalho, renda, pobreza e Gini (2010)
-├── 5_junta_2010_setores.py    atribuição espacial 2010 → setores de 2022
-└── 6_monta_dados.py           gera os arquivos dados/*.js</pre>`;
+├── 1_servicos_municipais.py   finanças (SICONFI), segurança (SSP/RS), contagens de equipamentos
+├── 2_atualiza_cnes.py         unidades de saúde (CNES, via geobr)
+├── 3_atualiza_escolas.py      escolas (Censo Escolar, via geobr)
+├── 4_indices_municipais.py    IDHM, IVS, IDESE e FIRJAN
+├── 5_base_dos_dados.py        Atlas Brasil 2010, IDEB, Anatel e áreas de risco
+├── 6_ipea.py                  Atlas Brasil 1991–2010 e Acesso a Oportunidades (IPEA)
+└── R/                         Censo 2010 por área de ponderação, Censo Escolar, equipes do
+                               CNES, BigQuery e recorte de arquivos baixados</pre>
+  <p style="font-size:11.5px;color:var(--txt3);line-height:1.6">A base censitária (agregados por setor
+    de 2022 e amostra de 2010 por área de ponderação) foi montada na primeira versão do Atlas; os
+    scripts daquela etapa não acompanham o pacote. Os scripts R 01 e 11 refazem a parte de 2010.</p>`;
 }
 
 function renderFontes(){
@@ -2596,8 +2853,8 @@ function renderFontes(){
       <span class="selo s-ok"><i class="dot"></i>Censo/IBGE · 2022</span></div>
       <p>Resultados do universo por setor censitário, nos blocos Básico, Pessoas, Domicílios,
       Óbitos, Indígenas, Quilombolas e Responsável/Renda. Cobrem os
-      <b>2.744 setores</b> de Porto Alegre e somam exatamente <b>1.332.845</b> pessoas,
-      idêntico ao total municipal publicado. Daí saem sexo, faixas etárias, cor ou raça,
+      <b>4.722 setores</b> dos sete municípios e somam exatamente <b>2.383.002</b> pessoas; em cada
+      município, a soma é idêntica ao total municipal publicado (Porto Alegre: 1.332.845). Daí saem sexo, faixas etárias, cor ou raça,
       alfabetização, rendimento do responsável, tipo e condição do domicílio, água, esgoto,
       lixo e óbitos.</p>
       <p style="margin-top:5px">O acesso foi feito pela distribuição do pacote
@@ -2608,7 +2865,7 @@ function renderFontes(){
     <div class="src-card"><div class="hd"><b>Omissão de células pelo IBGE</b>
       <span class="selo s-pend"><i class="dot"></i>controle de divulgação</span></div>
       <p>Para proteger o sigilo estatístico, o IBGE omite células com poucos casos. Isso aparece
-      de duas formas no Atlas. Primeiro, <b>49 setores especiais</b> — quartel, unidade prisional,
+      de duas formas no Atlas. Em Porto Alegre, por exemplo: primeiro, <b>49 setores especiais</b> — quartel, unidade prisional,
       alojamento, convento, hospital — não têm os blocos de pessoas e domicílios publicados;
       são 2.791 moradores que entram na população total mas não nos recortes por sexo, idade
       ou cor. Segundo, células isoladas somem em setores pequenos: a cor indígena, por exemplo,
@@ -2619,8 +2876,11 @@ function renderFontes(){
       <b>“soma parcial — IBGE omitiu N setores”</b>.</p></div>
 
     <div class="src-card"><div class="hd"><b>Malha de bairros</b>
-      <span class="selo s-ok"><i class="dot"></i>SMUrb/PMPA · 2016</span></div>
-      <p>94 bairros com limites da Lei Municipal nº 12.112, de 22/08/2016. Base aerofotogramétrica
+      <span class="selo s-ok"><i class="dot"></i>SMUrb/PMPA · 2016 · IBGE · 2022</span></div>
+      <p>Canoas, Guaíba e Esteio: bairros do IBGE no Censo 2022, formados pelos setores com o mesmo
+      nome de bairro. Gravataí, Sapucaia do Sul e Cachoeirinha não têm divisão em bairros no IBGE e
+      aparecem como um território só.</p>
+      <p style="margin-top:5px">Porto Alegre: 94 bairros com limites da Lei Municipal nº 12.112, de 22/08/2016. Base aerofotogramétrica
       1:1.000, SIRGAS2000. Geometria generalizada para uso em tela; áreas e cálculos usam o valor
       original. A atribuição de cada setor ao seu bairro vem do próprio IBGE (campo NM_BAIRRO),
       e a população por bairro assim obtida coincide número a número com a série
@@ -2629,8 +2889,8 @@ function renderFontes(){
 
     <div class="src-card"><div class="hd"><b>Malha de setores censitários</b>
       <span class="selo s-ok"><i class="dot"></i>IBGE · 2022</span></div>
-      <p>2.744 setores censitários, todos com dados do Censo 2022 e vinculados ao bairro
-      correspondente.</p></div>
+      <p>4.722 setores censitários nos sete municípios (2.744 em Porto Alegre), todos com dados do
+      Censo 2022 e vinculados ao bairro correspondente.</p></div>
 
     <div class="src-card"><div class="hd"><b>Favelas e Comunidades Urbanas</b>
       <span class="selo s-ok"><i class="dot"></i>IBGE · 2022</span></div>
@@ -2662,7 +2922,7 @@ function renderFontes(){
     <div class="src-card"><div class="hd"><b>Densidade demográfica</b></div>
       <p>População residente do Censo 2022 dividida pela área do polígono oficial do território.
       É um cálculo do Atlas, identificado como tal, e não um número publicado pelo IBGE.
-      Para o município, o Atlas exibe o valor publicado pelo IBGE (2.690,50 hab/km²) em vez do cálculo próprio.</p></div>
+      Para Porto Alegre, o Atlas também exibe o valor publicado pelo IBGE Cidades (2.690,50 hab/km²).</p></div>
     <div class="src-card"><div class="hd"><b>Rendimento do responsável: setor é oficial, bairro é calculado</b></div>
       <p>O IBGE publica, por setor, o rendimento nominal médio mensal das pessoas responsáveis
       com rendimentos. No nível de setor o Atlas exibe esse valor tal como publicado.
@@ -2684,7 +2944,7 @@ function renderFontes(){
     <div class="src-card"><div class="hd"><b>Uma única série de população</b></div>
       <p>Bairro e setor vêm do mesmo arquivo de agregados do Censo 2022: o bairro é a soma dos seus
       setores, usando a atribuição do próprio IBGE. Não há duas séries concorrentes, e a soma dos
-      94 bairros reproduz exatamente o total municipal.</p></div>
+      bairros reproduz exatamente o total de cada município.</p></div>
     <div class="src-card"><div class="hd"><b>Índice sintético de vulnerabilidade</b></div>
       <p>Está no catálogo, com metodologia definida — normalização e média ponderada de baixa renda,
       pobreza, escolaridade, saneamento precário, desemprego e dependência de programas sociais.
@@ -3148,7 +3408,8 @@ function refs(muni){
     a.a15+=q.alfab_15||0; a.p15+=q.pop_15||0;
     return a;},{pop:0,pp:0,rc:0,id:0,cr:0,dppo:0,esg:0,fcu:0,rn:0,rd:0,a15:0,p15:0});
   if(!a.pop)return null;
-  return REFS[chave]={
+  const aopRef=AOP&&muni&&MUNIS_LISTA?((AOP.municipio||{})[String(MUNIS_LISTA.ids[MUNIS_LISTA.nomes.indexOf(muni)])]||{}):{};
+  return REFS[chave]={...aopRef,
     pct_preta_parda:100*a.pp/a.rc, pct_idosos_60:100*a.id/a.pop,
     pct_criancas_0_14:100*a.cr/a.pop, pct_esgoto_adequado:100*a.esg/a.dppo,
     pct_fcu:100*a.fcu/a.pop, resp_renda:a.rn/a.rd,
@@ -3211,6 +3472,14 @@ function entornoHTML(i){
     <div class="v"><span class="num">${fmtN(p.dom_precario,'int')}</span></div></div>
   <div class="row"><div class="k">Domicílios sem banheiro</div>
     <div class="v"><span class="num">${fmtN(p.ban_nenhum,'int')}</span></div></div>
+  ${p.aop_emprego_tp60!=null?`<h3 class="sec">Acesso a oportunidades <span class="chip tag">IPEA · 2019</span></h3>
+  ${linha('Empregos alcançáveis em até 60 min de transporte público (% da cidade)','aop_emprego_tp60','pct1')}
+  ${linha('Tempo a pé até saúde de baixa complexidade (min)','aop_saude_pe','dec1',true)}
+  ${linha('Tempo a pé até escola pública de educação infantil (min)','aop_infantil_pe','dec1',true)}
+  ${linha('Moradores a mais de 30 min a pé de educação infantil','aop_infantil_30pe','pct1',true)}
+  <p style="font-size:11px;color:var(--txt3);line-height:1.55;margin-top:6px">Média dos setores do raio
+    ponderada pela população; só os setores de Porto Alegre cobertos pela grade do IPEA de 2019
+    (${fmtN(p._aop_pop,'int')} moradores). Para tempos, valor menor é melhor.</p>`:''}
 
   <h3 class="sec">Equipamentos no raio <span class="chip tag">públicos e privados</span></h3>
   <div class="row"><div class="k">Escolas
@@ -3517,6 +3786,9 @@ function fontesDoMunicipio(p,codMun){
   Object.assign(p,((window.ATLAS_SERVICOS||{}).municipios||{})[codMun]||{});
   Object.assign(p,((window.ATLAS_INDICES||{}).municipios||{})[codMun]||{});
   Object.assign(p,((window.ATLAS_COMPLEMENTOS||{}).municipios||{})[codMun]||{});
+  if(ADH_IPEA)for(const id in ADH_NOVOS){
+    const s=(ADH_IPEA.valores[ADH_NOVOS[id]]||{})[codMun]; if(s&&s[2]!=null)p[id]=s[2];
+  }
   /* 2010 no município: o valor calculado sobre todos os registros do município, e não a
      média das áreas de ponderação (em Canoas, o Gini médio das áreas dá 0,452; o do município, 0,518) */
   const of=MUNICIPAL_2010[codMun]||{};
@@ -3559,6 +3831,10 @@ function montaGeo(){
     p._pir=B.piramide[i]; p._fcu=B.fcu_nomes[i]; p.fcu_n=B.fcu_nomes[i].length;
     p._omit={};
     for(const k in (B.omissoes||{})){const v=B.omissoes[k][i]; if(v)p._omit[k]=v;}
+    if(AOP&&AOP.bairro){
+      for(const k in AOP.bairro){const v=AOP.bairro[k][i]; if(v!=null)p[k]=v;}
+      if(AOP.cobertura_bairro&&AOP.cobertura_bairro[i]!=null)p._aop_cob=AOP.cobertura_bairro[i];
+    }
     return {type:'Feature',properties:derivados(p),geometry:decGeom(B.geom[i],P,true)};
   })};
 
@@ -3610,11 +3886,17 @@ function garanteSetores(){
   const ns=T.geom.length,colS={};
   C.forEach((c,i)=>colS[c]=decCol(T.valores[c],E[i],ns));
   CE.forEach((c,i)=>{if(XE.setores[c])colS[c]=decCol(XE.setores[c],EE[i],ns);});
+  /* IPEA: valor do hexágono que contém o ponto do setor; "_aop_..._30pe" é 1 quando passa de 30 min */
+  const EXTRA=[];
+  if(AOP&&AOP.setor){
+    for(const k in AOP.setor){colS[k]=decCol(AOP.setor[k],AOP.escala||100,ns);EXTRA.push(k);}
+    for(const k in (AOP.setor_acima||{})){colS['_'+k]=decCol(AOP.setor_acima[k],1,ns);EXTRA.push('_'+k);}
+  }
   const sufixo=decDic(T.ids,null,ns),muni=decDic(T.m,null,ns);
   const bairroS=decDic(T.bairro,T.bairro_dic,ns),fcuS=decDic(T.fcu,T.fcu_dic,ns);
   const cent=decPts(T.cent,P,ns);
   /* içados do laço: antes eram 4.722 arrays descartados e 4.722 slugId() */
-  const TODOS=C.concat(CE).filter(c=>colS[c]);
+  const TODOS=C.concat(CE,EXTRA).filter(c=>colS[c]);
   const PREF=N.munis.ids.map(x=>String(x));
   const slugCache=new Map();
   const slugDe=n=>{let v=slugCache.get(n);if(v===undefined){v=slugId(n);slugCache.set(n,v);}return v;};
@@ -3710,9 +3992,28 @@ function entorno(x,y,raioKm){
   soma._fcu=[...new Set(fs.map(f=>f.properties._fcuNome).filter(Boolean))];
   soma._pir=Array(22).fill(0);
   derivados(soma);
+  if(AOP)Object.assign(soma,mediaAOP(fs.map(f=>f.properties)));
   const esc=(PONTOS&&PONTOS.escolas||[]).filter(p=>distKm(x,y,p.x,p.y)<=raioKm);
   const sau=(PONTOS&&PONTOS.saude||[]).filter(p=>!p.restrito&&distKm(x,y,p.x,p.y)<=raioKm);
   return {soma,setores:fs,escolas:esc,saude:sau};
+}
+
+/* Acesso a oportunidades (IPEA) de um conjunto de setores: tempos e empregos pela
+   média ponderada pela população; a parte acima de 30 minutos pela soma dos moradores. */
+const AOP_MEDIA=['aop_emprego_tp60','aop_saude_pe','aop_infantil_pe','aop_fundamental_pe'];
+const AOP_ACIMA=['aop_saude_30pe','aop_infantil_30pe'];
+function mediaAOP(setores){
+  const r={}, ac={};
+  AOP_MEDIA.concat(AOP_ACIMA).forEach(k=>ac[k]=[0,0]);
+  for(const q of setores){
+    const w=q.pop||0; if(!w)continue;
+    for(const k of AOP_MEDIA)if(q[k]!=null){ac[k][0]+=q[k]*w;ac[k][1]+=w;}
+    for(const k of AOP_ACIMA){const v=q['_'+k]; if(v!=null){ac[k][0]+=v*w;ac[k][1]+=w;}}
+  }
+  for(const k of AOP_MEDIA)r[k]=ac[k][1]?Math.round(100*ac[k][0]/ac[k][1])/100:null;
+  for(const k of AOP_ACIMA)r[k]=ac[k][1]?Math.round(1000*ac[k][0]/ac[k][1])/10:null;
+  r._aop_pop=ac.aop_saude_30pe[1];
+  return r;
 }
 
 /* --- dimensionamento do mapa: o contêiner pode existir antes do layout --- */
@@ -3885,7 +4186,8 @@ function calculaBolsoes(){
     const munis=[...new Set(g.map(q=>q.muni))];
     const bairros=Object.entries(bai).sort((a,b)=>b[1]-a[1]).map(x=>x[0]).filter(n=>!/sem divisão/i.test(n));
     const u=perto(LJ,cx,cy), v=perto(venda,cx,cy);
-    return {ids:g.map(q=>q.id), setores:g.length, pop:s.pop, dppo:s.dppo, cri:s.cri, jov:s.jov,
+    const ac=AOP?mediaAOP(g):{};
+    return {...ac, ids:g.map(q=>q.id), setores:g.length, pop:s.pop, dppo:s.dppo, cri:s.cri, jov:s.jov,
       pct_fcu:s.pop?100*s.fcu/s.pop:null, renda:s.rd?s.rn/s.rd:null,
       sem_fund10:s.np?s.sf/s.np:null, desoc10:s.np?s.de/s.np:null, pct_pp:s.rc?100*s.pp/s.rc:null,
       fcu_nomes:[...new Set(g.map(q=>q._fcuNome).filter(Boolean))], bairros, munis,
@@ -3944,6 +4246,12 @@ function bolsaoHTML(k){
   ${linha('População preta ou parda',fmtN(b.pct_pp,'pct1'),'','Censo 2022')}
   ${linha('Adultos de 25 anos ou mais sem fundamental completo',fmtN(b.sem_fund10,'pct1'),'','Censo 2010 · referência histórica por área de ponderação')}
   ${linha('Taxa de desocupação',fmtN(b.desoc10,'pct1'),'','Censo 2010 · referência histórica por área de ponderação')}
+  ${b.aop_emprego_tp60!=null?`<h3 class="sec">Acesso a oportunidades <span class="chip tag">IPEA · 2019</span></h3>
+  ${linha('Empregos alcançáveis em até 60 min de transporte público',fmtN(b.aop_emprego_tp60,'pct1'),'dos empregos da cidade','Porto Alegre inteira: '+fmtN(((AOP.municipio||{})['4314902']||{}).aop_emprego_tp60,'pct1'))}
+  ${linha('Tempo a pé até saúde de baixa complexidade',fmtN(b.aop_saude_pe,'dec1'),'min','média ponderada pela população')}
+  ${linha('Tempo a pé até escola pública de educação infantil',fmtN(b.aop_infantil_pe,'dec1'),'min','média ponderada pela população')}
+  ${linha('Moradores a mais de 30 min a pé de educação infantil',fmtN(b.aop_infantil_30pe,'pct1'),'','Porto Alegre inteira: '+fmtN(((AOP.municipio||{})['4314902']||{}).aop_infantil_30pe,'pct1'))}
+  ${b.munis.length>1?`<p class="ref-note" style="margin-top:6px">Média só dos setores de Porto Alegre: o projeto do IPEA não cobre ${esc(b.munis.filter(m=>m!=='Porto Alegre').join(', '))}.</p>`:''}`:''}
   <h3 class="sec">Unidades Renner</h3>
   ${linha('Loja de venda mais próxima',esc(b.venda),fmtN(b.dist_venda,'dec1')+' km')}
   ${b.unidade!==b.venda?linha('Unidade mais próxima (inclui aeroporto e administrativa)',esc(b.unidade),fmtN(b.dist_unidade,'dec1')+' km'):''}
@@ -4030,9 +4338,12 @@ function rotulosLegenda(){
   const nulos=g.features.filter(f=>valor(f.properties)==null);
   const nSemMor=nulos.filter(f=>!f.properties.pop).length;
   const nForaFonte=nulos.filter(f=>f.properties.pop&&!cobre(S.nivel,f.properties.muni,i.id)).length;
-  const nSigilo=nulos.length-nSemMor-nForaFonte;
+  const nResto=nulos.length-nSemMor-nForaFonte;
+  /* o resto só é sigilo quando o dado é do Censo; nas outras fontes, a razão é da própria fonte */
+  const resto=/^(CENSO|FAVELAS|ATLAS_CALC)/.test(i.fonte)?'sob sigilo estatístico do IBGE'
+    :i.fonte==='IPEA_AOP'?'fora da grade do IPEA ou com cobertura insuficiente':'sem valor na fonte';
   const motivos=[[nSemMor,'setor especial ou sem moradores'],[nForaFonte,'fora da cobertura da fonte'],
-    [nSigilo,'sob sigilo estatístico do IBGE']].filter(x=>x[0]>0);
+    [nResto,resto]].filter(x=>x[0]>0);
   return {faixas,motivos};
 }
 function exportaMapa(){
@@ -4124,7 +4435,7 @@ const TABELAS_DIAG=[
 const AUSENTES_DIAG={
   '6':'Não estão no Atlas: total de famílias chefiadas por mulheres (há só as mães chefes sem fundamental, de 2010), famílias monoparentais, idosos que vivem sozinhos, pessoas com deficiência, migrantes, população em situação de rua, famílias no Cadastro Único e no Bolsa Família.',
   '7':'Não estão no Atlas: desocupação de mulheres, total de jovens que não estudam nem trabalham (há só os vulneráveis à pobreza, de 2010), dependência de transferências, microempreendedores, renda e pobreza de 2022.',
-  '8':'Não estão no Atlas: mobilidade, segurança alimentar, documentação e acesso a direitos, cultura e lazer. Riscos climáticos só em parte: a camada de áreas de risco é a BATER de 2010 (Porto Alegre e Sapucaia do Sul); faltam a setorização do Serviço Geológico do Brasil e a mancha da enchente de 2024.',
+  '8':'Mobilidade só em parte: o acesso a empregos, saúde e escolas do IPEA (2019) cobre Porto Alegre, por bairro e setor. Não estão no Atlas: segurança alimentar, documentação e acesso a direitos, cultura e lazer. Riscos climáticos só em parte: a camada de áreas de risco é a BATER de 2010 (Porto Alegre e Sapucaia do Sul); faltam a setorização do Serviço Geológico do Brasil e a mancha da enchente de 2024.',
   '10':'Não estão no Atlas: CRAS, CREAS, Centro POP, creches e vagas, transferências de renda por família, restaurantes populares, programas habitacionais, organizações comunitárias.',
   get '11'(){return 'Não estão no Atlas: '+(getInd('gasto_educacao')?'':'despesa em educação, ')+'equipes técnicas, conselhos e sistemas de informação.';}
 };
