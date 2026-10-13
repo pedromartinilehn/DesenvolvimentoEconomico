@@ -1,4 +1,4 @@
-# Atlas Metropolitano RMPA — versão 3.5.1
+# Atlas Metropolitano RMPA — versão 3.6
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios:
 Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio.
@@ -9,6 +9,33 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Para desenvolvimento: mantenha `index.html`, `atlas.css`, `atlas.js` e a pasta `dados/` juntos.
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
 - O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
+
+## O que mudou na versão 3.6: séries do Ipeadata
+
+O script novo `extracao/7_ipeadata.py` lê na API pública do Ipeadata (IPEA) as séries que têm valor
+para os sete municípios e grava `dados/dados-ipeadata.js`. O Atlas carrega esse arquivo como os
+demais: não é preciso abrir extração nenhuma. As séries aparecem na categoria **Ipeadata (IPEA)**, no
+nível município.
+
+```bash
+python3 extracao/7_ipeadata.py          # depois: python3 build_single.py
+```
+
+- **Um ano no mapa:** cada série aparece no ano mais recente em que os sete municípios têm valor.
+  A série desde 2000 (`--ano-minimo`) fica numa tabela no painel e num CSV.
+- **Ficam de fora**, com o motivo listado em `extracao/fontes/ipeadata/inventario.csv`: séries sem
+  ano com os sete municípios, mensais ou trimestrais, não numéricas e com a mesma data repetida com
+  valores diferentes.
+- **Sem conversão:** os valores vão como o Ipeadata publica, com a unidade e o multiplicador da
+  série. O selo de cada indicador mostra o Ipeadata e a fonte original (IBGE, Tesouro, MTE...).
+- Para levar só parte das séries: `--temas "emprego,educação"`, `--incluir COD1,COD2` ou
+  `--excluir COD3`.
+- Precisa só do Python, sem pacotes extras, e de acesso a `www.ipeadata.gov.br`. As respostas da
+  API ficam guardadas por sete dias em `extracao/fontes/ipeadata/`; `--sem-cache` baixa de novo.
+
+O pacote sai com o arquivo de partida, sem séries: a categoria só aparece depois de rodar o script.
+O script foi testado contra uma cópia simulada da API, porque o ambiente de desenvolvimento não
+alcança o Ipeadata.
 
 ## Versão 3.5.1: os scripts R rodam de qualquer pasta
 
@@ -301,7 +328,8 @@ atlas_v3/
 │   ├── dados-pontos.js
 │   ├── dados-indices.js
 │   ├── dados-complementares.js
-│   └── dados-ipea.js
+│   ├── dados-ipea.js
+│   └── dados-ipeadata.js
 └── extracao/
     ├── 1_servicos_municipais.py
     ├── 2_atualiza_cnes.py
@@ -309,6 +337,7 @@ atlas_v3/
     ├── 4_indices_municipais.py
     ├── 5_base_dos_dados.py
     ├── 6_ipea.py
+    ├── 7_ipeadata.py
     ├── indices.json
     ├── R/                 (scripts R para os dados que faltam; ver docs/EXTRACAO-dados-faltantes.md)
     ├── saida_R/           (saídas dos scripts R, não versionadas)
@@ -326,6 +355,7 @@ python3 extracao/1_servicos_municipais.py
 python3 extracao/5_base_dos_dados.py
 python3 extracao/4_indices_municipais.py
 python3 extracao/6_ipea.py
+python3 extracao/7_ipeadata.py
 python3 build_single.py
 ```
 

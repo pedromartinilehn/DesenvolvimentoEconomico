@@ -424,6 +424,44 @@ aop('aop_infantil_30pe','População a mais de 30 minutos a pé de escola públi
   'Moradores de setores cujo tempo a pé passa de 30 minutos ou que não alcançam nenhuma escola no limite de cálculo, sobre os moradores dos setores cobertos.');
 
 
+/* ---- 4.3.4 IPEADATA ----------------------------------------------------
+   Vêm de dados/dados-ipeadata.js, gerado por extracao/7_ipeadata.py a partir da
+   API pública do Ipeadata (IPEA). Cada série é um indicador do nível município,
+   no ano mais recente em que os sete municípios têm valor; os outros anos ficam
+   na tabela do painel. O Ipeadata republica outras fontes (IBGE, Tesouro, MTE):
+   a fonte original vai no selo e na nota. Arquivo sem séries (o de partida, antes
+   de rodar o script): a categoria não aparece. */
+const IPD=window.ATLAS_IPEADATA&&Array.isArray(window.ATLAS_IPEADATA.series)?window.ATLAS_IPEADATA:null;
+const IPD_SERIES=IPD?IPD.series:[];
+const ipdUnidade=s=>{const u=[s.unidade,s.mult].filter(Boolean).join(' ').trim(); return /^\(?%\)?$/.test(u)?'%':u;};
+function ipdFmt(s){
+  const vs=[].concat(...s.v).filter(x=>x!=null);
+  if(/%/.test(ipdUnidade(s)))return 'pct1';
+  if(vs.every(Number.isInteger))return 'int';
+  const mx=Math.max(...vs.map(Math.abs));
+  return mx>=1000?'dec0':mx>=10?'dec1':'dec2';
+}
+function ipdObs(s){
+  const dt=d=>d.split('-').reverse().join('/');
+  return `Série ${s.cod} do Ipeadata${s.tema?', tema '+s.tema:''}. Fonte original: ${s.fonte_nome||s.fonte||'não informada'}. `
+    +`O mapa mostra ${s.ano}, o ano mais recente em que os sete municípios têm valor`
+    +(s.anos.length>1?`; o painel traz a série de ${s.anos[0]} a ${s.anos[s.anos.length-1]}`:'')+'. '
+    +'Valores como o Ipeadata publica, sem conversão e sem completar ano vazio.'
+    +(s.atualizada?` Atualizada no Ipeadata em ${dt(s.atualizada)}.`:'')+(s.status==='I'?' Série encerrada no Ipeadata.':'')
+    +(s.obs?` Nota do Ipeadata: ${s.obs}`:'');
+}
+if(IPD_SERIES.length){
+  CATS.push({id:'ipeadata',n:'Ipeadata (IPEA)'});
+  IPD_SERIES.forEach(s=>{
+    const fk='IPD_'+(slugId(s.fonte||'')||'outras');
+    if(!FONTES[fk])FONTES[fk]={n:`Ipeadata (IPEA) — séries de ${s.fonte_nome||s.fonte||'outras fontes'}`,
+      s:`Ipeadata · ${s.fonte||'IPEA'}`,u:'https://www.ipeadata.gov.br/',
+      d:`Séries republicadas pelo Ipeadata e lidas na API pública (${IPD.api}) por extracao/7_ipeadata.py, em ${IPD.gerado_em}. `
+        +`Fonte original: ${s.fonte_nome||s.fonte||'não informada'}${s.fonte_url?` (${s.fonte_url})`:''}.`};
+    ind({id:s.id,cat:'ipeadata',n:s.nome,u:ipdUnidade(s),fonte:fk,ano:s.ano,niveis:['municipio'],status:'ok',
+      fmt:ipdFmt(s),ramp:'agua',ipd:s,obs:ipdObs(s)});
+  });
+}
 
 /* ---- 4.7 ECONOMIA: PIB e VAB por município ---------------------------- */
 function eco(id,n,u,fmt,ramp,fonte,ano,obs){
@@ -1146,8 +1184,24 @@ function painelMunicipiosHTML(){
     ${S.muniFiltro==null?`<div class="row muni-row regiao"><div class="k"><b>Região (7 municípios)</b>
       <span class="ref-note">${valor(regiaoProps())==null?(i.ano===2010?'o valor de 2010 é calculado só por município':'a fonte publica por município; o valor não se soma entre eles'):'somas e taxas recalculadas a partir das contagens'}</span></div>
       <div class="v"><span class="num">${fmtN(valor(regiaoProps()),i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`:''}
+    ${i.ipd?ipdSerieHTML(i):''}
     <div class="note" style="margin-top:14px">Clique em um município para ver, em uma única ficha,
       saúde, assistência, segurança, emprego, finanças e agro.</div>`;
+}
+/* Série do Ipeadata: até quatro anos (os mais recentes, sempre com o ano do mapa), nos sete
+   municípios; a série toda vai no CSV. Quatro colunas cabem na largura do painel. */
+function ipdSerieHTML(i){
+  const s=i.ipd;
+  let js=s.anos.map((a,j)=>j).slice(-4);
+  const jm=s.anos.indexOf(s.ano);
+  if(jm>=0&&!js.includes(jm))js=[jm].concat(js.slice(-3));
+  return `<h3 class="sec">Série no Ipeadata <span class="chip tag">${s.anos[0]}${s.anos.length>1?'–'+s.anos[s.anos.length-1]:''}</span></h3>
+  <div class="tb-scroll"><table class="tb ipd"><thead><tr><th>Município</th>${js.map(j=>`<th class="n${s.anos[j]===s.ano?' destaque':''}">${s.anos[j]}</th>`).join('')}</tr></thead>
+  <tbody>${IPD.municipios.map((c,k)=>`<tr><td>${esc(nomeDoCod(c)||c)}</td>${js.map(j=>{const v=s.v[j][k];
+    return `<td class="n${s.anos[j]===s.ano?' destaque':''}">${v==null?'—':esc(fmtN(v,i.fmt))}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>
+  <p class="ref-note" style="margin-top:6px">Em destaque, ${s.ano}: o ano do mapa, o mais recente com os sete municípios.
+    “—”: o Ipeadata não tem o valor. ${unid(i)?`Unidade: ${esc(unid(i))}.`:''}</p>
+  <div class="btn-row"><button class="btn" id="btnIpdCsv" data-ipd="${esc(i.id)}">Baixar a série${s.anos.length>js.length?` toda (${s.anos.length} anos)`:''} em CSV</button></div>`;
 }
 function ligaPainel(){
   const v=$('#btnVoltar'); if(v)v.onclick=()=>{S.sel=null;marcaSelecao();renderPainel();};
@@ -1157,6 +1211,10 @@ function ligaPainel(){
   $$('[data-filtra]').forEach(x=>x.onclick=()=>filtraMunicipio(+x.dataset.filtra));
   const fm=$('#btnFichaMun');
   if(fm)fm.onclick=()=>{const p=muniSelecionado(); if(!p)return; setNivel('municipio',true); selecionar(p.id);};
+  const ic=$('#btnIpdCsv');
+  if(ic)ic.onclick=()=>{const i=getInd(ic.dataset.ipd); if(!i||!i.ipd)return; const s=i.ipd;
+    baixaCSV([['ano'].concat(IPD.municipios.map(c=>nomeDoCod(c)||c))].concat(s.anos.map((a,j)=>[a].concat(s.v[j].map(v=>v??'')))),
+      `ipeadata-${s.cod}.csv`);};
 }
 
 /* ── Painel de abertura: o município escolhido no seletor do topo ou, sem
@@ -2085,6 +2143,25 @@ function renderMetodo(){
       de cálculo, o tempo não entra em média; entra na parte da população a mais de 30 minutos.</li>
   </ul>`:''}
 
+  <h3 class="sec">Séries do Ipeadata</h3>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    O Ipeadata, do IPEA, reúne séries de várias fontes (IBGE, Tesouro, Ministério do Trabalho e outras) numa
+    API pública. O script <b>extracao/7_ipeadata.py</b> lê nessa API os valores dos sete municípios e grava
+    <b>dados/dados-ipeadata.js</b>, que o Atlas carrega como os demais arquivos de dados.
+    ${IPD_SERIES.length?`O arquivo atual, de ${esc(IPD.gerado_em.split('-').reverse().join('/'))}, traz ${nf.format(IPD_SERIES.length)}
+      séries, na categoria <b>Ipeadata (IPEA)</b>.`:'O arquivo deste pacote ainda não tem séries: o script precisa rodar num computador com acesso à API.'}</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>Um ano no mapa.</b> Cada série aparece no ano mais recente em que os sete municípios têm valor.
+      Série sem esse ano fica de fora, em vez de comparar municípios de anos diferentes.</li>
+    <li><b>Sem conversão.</b> Os valores vão como o Ipeadata publica, com a unidade e o multiplicador da série
+      (por exemplo, “mil”). Ano sem valor fica vazio; nada é completado.</li>
+    <li><b>Ficam de fora</b> as séries com mais de um valor por ano (mensais, trimestrais), as não numéricas e
+      as que trazem a mesma data com dois valores. O script lista cada uma, com o motivo, em
+      extracao/fontes/ipeadata/inventario.csv.</li>
+    <li><b>Fonte original.</b> O selo de cada indicador mostra o Ipeadata e a fonte de origem. Quando o Atlas
+      já tem o mesmo dado lido direto na fonte, vale o da fonte.</li>
+  </ul>
+
   <h3 class="sec">Áreas de risco (2010)</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
     A camada vem da <b>BATER</b>, a Base Territorial Estatística de Áreas de Risco do IBGE e do CEMADEN,
@@ -2167,6 +2244,7 @@ function renderMetodo(){
 ├── 4_indices_municipais.py    IDHM, IVS, IDESE e FIRJAN
 ├── 5_base_dos_dados.py        Atlas Brasil 2010, IDEB, Anatel e áreas de risco
 ├── 6_ipea.py                  Atlas Brasil 1991–2010 e Acesso a Oportunidades (IPEA)
+├── 7_ipeadata.py              séries municipais do Ipeadata (API do IPEA)
 └── R/                         Censo 2010 por área de ponderação, Censo Escolar, equipes do
                                CNES, BigQuery e recorte de arquivos baixados</pre>
   <p style="font-size:11.5px;color:var(--txt3);line-height:1.6">A base censitária (agregados por setor
@@ -3145,6 +3223,9 @@ function fontesDoMunicipio(p,codMun){
   if(ADH_IPEA)for(const id in ADH_NOVOS){
     const s=(ADH_IPEA.valores[ADH_NOVOS[id]]||{})[codMun]; if(s&&s[2]!=null)p[id]=s[2];
   }
+  /* Ipeadata: o valor do ano do mapa de cada série */
+  const kIpd=IPD_SERIES.length?IPD.municipios.indexOf(codMun):-1;
+  if(kIpd>=0)IPD_SERIES.forEach(s=>{const j=s.anos.indexOf(s.ano), v=j>=0?s.v[j][kIpd]:null; if(v!=null)p[s.id]=v;});
   /* 2010 no município: o valor calculado sobre todos os registros do município, e não a
      média das áreas de ponderação (em Canoas, o Gini médio das áreas dá 0,452; o do município, 0,518) */
   const of=MUNICIPAL_2010[codMun]||{};

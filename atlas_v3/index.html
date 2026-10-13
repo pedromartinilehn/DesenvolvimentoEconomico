@@ -91,7 +91,7 @@
     <div class="side-foot">Todo valor traz fonte, ano e nível geográfico. Onde um território não
       tem dado publicado, o Atlas mostra o do território que o contém, com o nome dele.
       <button class="ao-vivo" id="aoVivoStatus" type="button">Dados embarcados</button>
-      <span class="ver">Versão 3.5 · outubro de 2026</span></div>
+      <span class="ver">Versão 3.6 · outubro de 2026</span></div>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════════ MAPA ═══ -->
@@ -167,6 +167,7 @@
 <script defer src="dados/dados-indices.js"></script>
 <script defer src="dados/dados-complementares.js"></script>
 <script defer src="dados/dados-ipea.js"></script>
+<script defer src="dados/dados-ipeadata.js"></script>
 <script id="carregador">
 /* Fecha o carregamento depois que os scripts `defer` já rodaram (eles executam
    antes do DOMContentLoaded). No layout normal, só acrescenta o atlas.js — que
@@ -175,10 +176,10 @@
 (function () {
   var ARQS = ['dados-nucleo.js', 'dados-bairros.js', 'dados-municipios.js',
               'dados-setores.js', 'dados-estimados.js', 'dados-servicos.js', 'dados-pontos.js',
-              'dados-indices.js', 'dados-complementares.js', 'dados-ipea.js'];
+              'dados-indices.js', 'dados-complementares.js', 'dados-ipea.js', 'dados-ipeadata.js'];
   var GLOBAIS = ['ATLAS_NUCLEO', 'ATLAS_BAIRROS', 'ATLAS_MUNICIPIOS',
                  'ATLAS_SETORES', 'ATLAS_EST', 'ATLAS_SERVICOS', 'ATLAS_PONTOS',
-                 'ATLAS_INDICES', 'ATLAS_COMPLEMENTOS', 'ATLAS_IPEA'];
+                 'ATLAS_INDICES', 'ATLAS_COMPLEMENTOS', 'ATLAS_IPEA', 'ATLAS_IPEADATA'];
   window.__ATLAS_ORIGEM = window.__ATLAS_ORIGEM || {};
 
   function carregaAtlas() {

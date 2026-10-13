@@ -69,6 +69,7 @@ python3 extracao/1_servicos_municipais.py      # SICONFI, SSP/RS, contagens de e
 python3 extracao/5_base_dos_dados.py           # Atlas Brasil, IDEB, Anatel, áreas de risco
 python3 extracao/4_indices_municipais.py       # IDHM, IVS, IDESE, FIRJAN
 python3 extracao/6_ipea.py                     # Atlas do Desenvolvimento Humano e Acesso a Oportunidades
+python3 extracao/7_ipeadata.py                 # séries municipais do Ipeadata (API do IPEA)
 python3 build_single.py                        # regenera o atlas-rmpa.html
 ```
 

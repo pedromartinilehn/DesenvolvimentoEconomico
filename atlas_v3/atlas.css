@@ -517,3 +517,8 @@ table.tb.av td{vertical-align:top}
 table.tb.av td:first-child{width:46%}
 .av-sub{font-size:11px;color:var(--txt3);margin-top:3px;line-height:1.45}
 .av-falha{color:var(--pend)}
+
+/* série do Ipeadata no painel */
+table.tb.ipd th,table.tb.ipd td{padding:7px 6px}
+table.tb.ipd th.n{text-align:right}
+table.tb.ipd .destaque{background:var(--bg4);font-weight:700;color:var(--txt)}

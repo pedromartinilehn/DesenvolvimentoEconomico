@@ -1,7 +1,7 @@
 # Como fazer as extrações
 
 Passo a passo para atualizar os dados do Atlas e para extrair os que ainda faltam. Vale para a
-versão 3.5.1.
+versão 3.6.
 
 Os dados entram no Atlas por quatro caminhos:
 
@@ -9,7 +9,7 @@ Os dados entram no Atlas por quatro caminhos:
 |---|---|---|---|
 | **1. Automático, no navegador** | a própria página, ao abrir | Atlas Brasil, IDEB, Anatel, áreas de risco, população estimada, PIB, finanças municipais | no navegador de quem abriu, por 30 dias |
 | **2. Central de extração, no navegador** | qualquer pessoa, sem instalar nada (*Mais → Extrair dados*) | OpenStreetMap, tabelas do IBGE (SIDRA), matrículas do INEP, amostra do Censo 2010, equipes do CNES e qualquer arquivo nacional com código de município | no navegador de quem extraiu, até ser removido; com *Baixar o Atlas com os dados*, num novo arquivo do Atlas para distribuir |
-| **3. Scripts Python** | quem mantém o Atlas | os arquivos `dados/*.js` que vão dentro do pacote: pontos de saúde e escolas, serviços municipais, índices | no pacote, para todos |
+| **3. Scripts Python** | quem mantém o Atlas | os arquivos `dados/*.js` que vão dentro do pacote: pontos de saúde e escolas, serviços municipais, índices, dados do IPEA e séries do Ipeadata | no pacote, para todos |
 | **4. Scripts R e downloads manuais** | quem precisa de um dado que a central ainda não extrai | Censo 2022 por setor, enchente de 2024, RAIS, CAGED e outras consultas da Base dos Dados; também refazem o que a central faz | CSV em `extracao/saida_R/`, que se carrega no Atlas |
 
 Regra que vale para os quatro: **nenhum passo estima, interpola ou completa valor**. Quando a fonte
@@ -247,7 +247,26 @@ Acesso a Oportunidades de 2019 (só Porto Alegre), confere as duas tabelas e gra
 do tempo mínimo), o script para e diz qual. O que foi conferido e o que os dados mostram estão em
 [`ANALISE-IPEA.md`](ANALISE-IPEA.md).
 
-### 4.6 Gerar o arquivo único e conferir
+### 4.6 Séries do Ipeadata
+
+```bash
+python3 extracao/7_ipeadata.py
+python3 extracao/7_ipeadata.py --temas "emprego,educação"     # só alguns temas
+python3 extracao/7_ipeadata.py --incluir COD1,COD2             # só algumas séries
+```
+
+Lê na API pública do Ipeadata (`www.ipeadata.gov.br/api/odata4`, sem chave) os valores dos sete
+municípios em todas as séries e grava `dados/dados-ipeadata.js`. Só usa a biblioteca padrão do Python.
+
+- Primeiro confere os sete municípios na tabela de territórios e acha o nome do nível municipal.
+- Tenta baixar os valores por município, em sete consultas. Se a API recusar esse filtro, consulta
+  série a série, o que leva mais tempo. As respostas ficam guardadas por sete dias em
+  `extracao/fontes/ipeadata/`, e uma nova rodada não baixa de novo (`--sem-cache` força).
+- Cada série entra no ano mais recente em que os sete municípios têm valor. As que ficam de fora vão
+  para `extracao/fontes/ipeadata/inventario.csv`, com o motivo.
+- Se o Python reclamar do certificado HTTPS, use `--base http://www.ipeadata.gov.br/api/odata4`.
+
+### 4.7 Gerar o arquivo único e conferir
 
 ```bash
 python3 build_single.py
