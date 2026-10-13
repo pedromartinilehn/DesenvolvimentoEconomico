@@ -1,15 +1,15 @@
 # Como fazer as extrações
 
 Passo a passo para atualizar os dados do Atlas e para extrair os que ainda faltam. Vale para a
-versão 3.6.
+versão 3.7.
 
 Os dados entram no Atlas por quatro caminhos:
 
 | caminho | quem faz | o que cobre | onde fica o resultado |
 |---|---|---|---|
 | **1. Automático, no navegador** | a própria página, ao abrir | Atlas Brasil, IDEB, Anatel, áreas de risco, população estimada, PIB, finanças municipais | no navegador de quem abriu, por 30 dias |
-| **2. Central de extração, no navegador** | qualquer pessoa, sem instalar nada (*Mais → Extrair dados*) | OpenStreetMap, tabelas do IBGE (SIDRA), matrículas do INEP, amostra do Censo 2010, equipes do CNES e qualquer arquivo nacional com código de município | no navegador de quem extraiu, até ser removido; com *Baixar o Atlas com os dados*, num novo arquivo do Atlas para distribuir |
-| **3. Scripts Python** | quem mantém o Atlas | os arquivos `dados/*.js` que vão dentro do pacote: pontos de saúde e escolas, serviços municipais, índices, dados do IPEA e séries do Ipeadata | no pacote, para todos |
+| **2. Central de extração, no navegador** | qualquer pessoa, sem instalar nada (*Mais → Extrair dados*) | OpenStreetMap, tabelas do IBGE (SIDRA), séries municipais do Ipeadata, matrículas do INEP, amostra do Censo 2010, equipes do CNES e qualquer arquivo nacional com código de município | no navegador de quem extraiu, até ser removido; com *Baixar o Atlas com os dados*, num novo arquivo do Atlas para distribuir |
+| **3. Scripts Python** | quem mantém o Atlas | os arquivos `dados/*.js` que vão dentro do pacote: pontos de saúde e escolas, serviços municipais, índices, dados do IPEA, séries do Ipeadata e séries complementares | no pacote, para todos |
 | **4. Scripts R e downloads manuais** | quem precisa de um dado que a central ainda não extrai | Censo 2022 por setor, enchente de 2024, RAIS, CAGED e outras consultas da Base dos Dados; também refazem o que a central faz | CSV em `extracao/saida_R/`, que se carrega no Atlas |
 
 Regra que vale para os quatro: **nenhum passo estima, interpola ou completa valor**. Quando a fonte
@@ -54,7 +54,7 @@ Censo Escolar, SSP/RS, Cadastro Único e Censo SUAS. Para esses, os caminhos 2 e
 
 Para quem não vai usar R nem Python. Abra o `atlas-rmpa.html` e vá em *Mais → Extrair dados*. Tudo
 roda dentro do arquivo do Atlas, no navegador: os arquivos que você soltar não são enviados a
-servidor nenhum. Na central, a internet só é usada para as buscas diretas (OpenStreetMap e IBGE) e,
+servidor nenhum. Na central, a internet só é usada para as buscas diretas (OpenStreetMap, IBGE e Ipeadata) e,
 na primeira planilha aberta, para baixar o leitor de planilhas (SheetJS, do cdnjs). O mapa em si
 continua precisando de internet para a biblioteca Leaflet, como antes.
 
@@ -64,6 +64,7 @@ continua precisando de internet para a biblioteca Leaflet, como antes.
 |---|---|---|
 | Cultura, lazer e espaços públicos | clique em *Buscar no OpenStreetMap* | parques, parquinhos, quadras, centros esportivos, academias ao ar livre, bibliotecas, centros comunitários, teatros, centros culturais, cinemas e centros sociais. Viram uma camada de pontos e quatro indicadores por bairro e município: lugares de lazer, lugares de cultura e os dois por 10 mil habitantes. O OpenStreetMap é colaborativo: o que ninguém mapeou não aparece |
 | Qualquer tabela do IBGE por município | procure pelo assunto, escolha a tabela, o período, a variável e as categorias | o valor dos sete municípios, inclusive dos resultados do Censo 2022 já publicados no SIDRA. Valor "-" do IBGE entra como zero; "X" (sigilo) e "..." ficam sem valor |
+| Séries municipais do Ipeadata | escolha o primeiro ano e clique em *Varrer o Ipeadata*. Na lista, marque as séries (ou *Marcar as sugeridas*) e clique em *Trazer as marcadas para o Atlas* | as séries marcadas, na categoria Ipeadata (IPEA), no ano mais recente com os sete municípios, com a série no painel. As sugeridas são Bolsa Família, homicídios, suicídios e mortes no trânsito do DATASUS e IFDM. A lista marca o que o Atlas já tem e diz por que cada série fora do mapa ficou fora. Só funciona se o servidor do Ipeadata liberar a leitura pelo navegador; se não liberar, use o script da seção 4.6. Detalhes em [`VARREDURA-IPEADATA.md`](VARREDURA-IPEADATA.md) |
 
 ### 2.2 Arquivo baixado da fonte
 
@@ -108,7 +109,9 @@ programa.
 - Não estima, não interpola e não completa: município sem linha no arquivo fica sem valor, e não
   zero. Os indicadores do Censo 2010 entram como referência histórica.
 - Não alcança fontes que só abrem com login ou por FTP, como o BigQuery da Base dos Dados (RAIS,
-  CAGED por consulta) e o FTP do DATASUS: para essas, use os scripts R da seção 5.
+  CAGED por consulta) e o FTP do DATASUS: para essas, use os scripts R da seção 5. Os óbitos do
+  DATASUS por causa (homicídio, suicídio, trânsito) chegam pelo cartão do Ipeadata, que os
+  republica por município.
 - Não divide valor municipal entre bairros. Na central, dado por bairro só entra quando o arquivo
   traz coordenadas (vira contagem de pontos por bairro). Um CSV já organizado por bairro, com o nome
   do bairro, carrega-se em *Mais → Dados e fontes* (seção 7.1).
@@ -265,8 +268,31 @@ municípios em todas as séries e grava `dados/dados-ipeadata.js`. Só usa a bib
 - Cada série entra no ano mais recente em que os sete municípios têm valor. As que ficam de fora vão
   para `extracao/fontes/ipeadata/inventario.csv`, com o motivo.
 - Se o Python reclamar do certificado HTTPS, use `--base http://www.ipeadata.gov.br/api/odata4`.
+- O cartão *Séries municipais do Ipeadata* (seção 2.1) faz a mesma varredura pelo navegador, para
+  quem não roda Python. O que ele traz fica no navegador ou no arquivo baixado, não no pacote.
 
-### 4.7 Gerar o arquivo único e conferir
+### 4.7 Séries complementares
+
+```bash
+python3 extracao/8_series_complementares.py
+```
+
+Lê no espelho público da Base dos Dados as bases que o Ipeadata republica e que faltavam no Atlas, e
+grava `dados/dados-series.js`, com 38 séries:
+
+- Atlas do Desenvolvimento Humano: fecundidade, sobrevivência, frequência escolar, renda por quinto e
+  ocupação, 1991 a 2010;
+- cobertura vacinal do PNI, 2012 a 2021;
+- água e esgoto do SNIS, 2013 a 2022;
+- esgotamento sanitário da ANA, 2013;
+- matrícula na pré-escola da Fundação Abrinq, 2010 a 2019.
+
+Cada série entra na sua categoria, no ano mais recente com os sete municípios. O script para se
+faltar município no ano do mapa, se um valor sair da faixa possível ou se os índices da ANA não
+somarem 100%. Os arquivos baixados ficam em `extracao/fontes/basedosdados/`. O que foi varrido, o que
+entrou e o que ficou de fora estão em [`VARREDURA-IPEADATA.md`](VARREDURA-IPEADATA.md).
+
+### 4.8 Gerar o arquivo único e conferir
 
 ```bash
 python3 build_single.py

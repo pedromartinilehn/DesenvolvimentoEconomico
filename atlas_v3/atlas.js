@@ -434,6 +434,8 @@ aop('aop_infantil_30pe','População a mais de 30 minutos a pé de escola públi
 const IPD=window.ATLAS_IPEADATA&&Array.isArray(window.ATLAS_IPEADATA.series)?window.ATLAS_IPEADATA:null;
 const IPD_SERIES=IPD?IPD.series:[];
 const ipdUnidade=s=>{const u=[s.unidade,s.mult].filter(Boolean).join(' ').trim(); return /^\(?%\)?$/.test(u)?'%':u;};
+/* a Firjan (IFDM) tem termos de uso próprios, como na fonte FIRJAN das planilhas */
+const ipdAvisoUso=(sigla,nome)=>/firjan/i.test(`${sigla||''} ${nome||''}`)?' A Firjan tem termos de uso próprios: confira antes de redistribuir estes valores.':'';
 function ipdFmt(s){
   const vs=[].concat(...s.v).filter(x=>x!=null);
   if(/%/.test(ipdUnidade(s)))return 'pct1';
@@ -450,6 +452,15 @@ function ipdObs(s){
     +(s.atualizada?` Atualizada no Ipeadata em ${dt(s.atualizada)}.`:'')+(s.status==='I'?' Série encerrada no Ipeadata.':'')
     +(s.obs?` Nota do Ipeadata: ${s.obs}`:'');
 }
+/* Séries municipais com vários anos: as do Ipeadata e as do dados-series.js. Cada uma vira um
+   indicador do nível município, no ano do mapa; i.serie guarda os anos para o painel e o CSV. */
+const SERIES_REG=[];
+function registraSerie(s,o){
+  const serie={anos:s.anos,v:s.v,ano:s.ano,mun:o.mun,cod:s.cod,titulo:o.titulo};
+  ind({id:s.id,cat:o.cat,n:s.nome,u:o.u,fonte:o.fonte,ano:s.ano,niveis:['municipio'],status:'ok',
+    fmt:o.fmt,ramp:o.ramp||'agua',obs:o.obs,serie});
+  SERIES_REG.push({id:s.id,serie});
+}
 if(IPD_SERIES.length){
   CATS.push({id:'ipeadata',n:'Ipeadata (IPEA)'});
   IPD_SERIES.forEach(s=>{
@@ -457,10 +468,22 @@ if(IPD_SERIES.length){
     if(!FONTES[fk])FONTES[fk]={n:`Ipeadata (IPEA) — séries de ${s.fonte_nome||s.fonte||'outras fontes'}`,
       s:`Ipeadata · ${s.fonte||'IPEA'}`,u:'https://www.ipeadata.gov.br/',
       d:`Séries republicadas pelo Ipeadata e lidas na API pública (${IPD.api}) por extracao/7_ipeadata.py, em ${IPD.gerado_em}. `
-        +`Fonte original: ${s.fonte_nome||s.fonte||'não informada'}${s.fonte_url?` (${s.fonte_url})`:''}.`};
-    ind({id:s.id,cat:'ipeadata',n:s.nome,u:ipdUnidade(s),fonte:fk,ano:s.ano,niveis:['municipio'],status:'ok',
-      fmt:ipdFmt(s),ramp:'agua',ipd:s,obs:ipdObs(s)});
+        +`Fonte original: ${s.fonte_nome||s.fonte||'não informada'}${s.fonte_url?` (${s.fonte_url})`:''}.`+ipdAvisoUso(s.fonte,s.fonte_nome)};
+    registraSerie(s,{cat:'ipeadata',u:ipdUnidade(s),fonte:fk,fmt:ipdFmt(s),obs:ipdObs(s)+ipdAvisoUso(s.fonte,s.fonte_nome),mun:IPD.municipios,titulo:'Série no Ipeadata'});
   });
+}
+
+/* ---- 4.3.5 SÉRIES COMPLEMENTARES ----------------------------------------
+   Vêm de dados/dados-series.js, gerado por extracao/8_series_complementares.py a partir do
+   espelho público da Base dos Dados: as bases que o Ipeadata republica e que ainda não estavam
+   no Atlas (Atlas Brasil, vacinação, SNIS, ANA e Fundação Abrinq). Cada série entra na sua
+   categoria, no ano mais recente em que os sete municípios têm valor. */
+const SCOMP=window.ATLAS_SERIES&&Array.isArray(window.ATLAS_SERIES.series)?window.ATLAS_SERIES:null;
+if(SCOMP){
+  for(const k in (SCOMP.fontes||{}))if(!FONTES[k])FONTES[k]=SCOMP.fontes[k];
+  SCOMP.series.forEach(s=>registraSerie(s,{cat:s.cat,u:s.unidade,fonte:s.fonte,fmt:s.fmt,ramp:s.ramp,
+    obs:s.obs+` O mapa mostra ${s.ano}, o ano mais recente em que os sete municípios têm valor.`,mun:SCOMP.municipios,
+    titulo:'Série histórica'}));
 }
 
 /* ---- 4.7 ECONOMIA: PIB e VAB por município ---------------------------- */
@@ -1184,24 +1207,25 @@ function painelMunicipiosHTML(){
     ${S.muniFiltro==null?`<div class="row muni-row regiao"><div class="k"><b>Região (7 municípios)</b>
       <span class="ref-note">${valor(regiaoProps())==null?(i.ano===2010?'o valor de 2010 é calculado só por município':'a fonte publica por município; o valor não se soma entre eles'):'somas e taxas recalculadas a partir das contagens'}</span></div>
       <div class="v"><span class="num">${fmtN(valor(regiaoProps()),i.fmt)}</span><span class="u">${esc(unid(i))}</span></div></div>`:''}
-    ${i.ipd?ipdSerieHTML(i):''}
+    ${i.serie?serieMunHTML(i):''}
     <div class="note" style="margin-top:14px">Clique em um município para ver, em uma única ficha,
       saúde, assistência, segurança, emprego, finanças e agro.</div>`;
 }
-/* Série do Ipeadata: até quatro anos (os mais recentes, sempre com o ano do mapa), nos sete
-   municípios; a série toda vai no CSV. Quatro colunas cabem na largura do painel. */
-function ipdSerieHTML(i){
-  const s=i.ipd;
+/* Série municipal (Ipeadata, complementares ou extraída): até quatro anos (os mais recentes,
+   sempre com o ano do mapa), nos sete municípios; a série toda vai no CSV. Quatro colunas
+   cabem na largura do painel. */
+function serieMunHTML(i){
+  const s=i.serie;
   let js=s.anos.map((a,j)=>j).slice(-4);
   const jm=s.anos.indexOf(s.ano);
   if(jm>=0&&!js.includes(jm))js=[jm].concat(js.slice(-3));
-  return `<h3 class="sec">Série no Ipeadata <span class="chip tag">${s.anos[0]}${s.anos.length>1?'–'+s.anos[s.anos.length-1]:''}</span></h3>
+  return `<h3 class="sec">${esc(s.titulo||'Série histórica')} <span class="chip tag">${s.anos[0]}${s.anos.length>1?'–'+s.anos[s.anos.length-1]:''}</span></h3>
   <div class="tb-scroll"><table class="tb ipd"><thead><tr><th>Município</th>${js.map(j=>`<th class="n${s.anos[j]===s.ano?' destaque':''}">${s.anos[j]}</th>`).join('')}</tr></thead>
-  <tbody>${IPD.municipios.map((c,k)=>`<tr><td>${esc(nomeDoCod(c)||c)}</td>${js.map(j=>{const v=s.v[j][k];
+  <tbody>${s.mun.map((c,k)=>`<tr><td>${esc(nomeDoCod(c)||c)}</td>${js.map(j=>{const v=s.v[j][k];
     return `<td class="n${s.anos[j]===s.ano?' destaque':''}">${v==null?'—':esc(fmtN(v,i.fmt))}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>
   <p class="ref-note" style="margin-top:6px">Em destaque, ${s.ano}: o ano do mapa, o mais recente com os sete municípios.
-    “—”: o Ipeadata não tem o valor. ${unid(i)?`Unidade: ${esc(unid(i))}.`:''}</p>
-  <div class="btn-row"><button class="btn" id="btnIpdCsv" data-ipd="${esc(i.id)}">Baixar a série${s.anos.length>js.length?` toda (${s.anos.length} anos)`:''} em CSV</button></div>`;
+    “—”: a fonte não tem o valor. ${unid(i)?`Unidade: ${esc(unid(i))}.`:''}</p>
+  <div class="btn-row"><button class="btn" id="btnSerieCsv" data-serie="${esc(i.id)}">Baixar a série${s.anos.length>js.length?` toda (${s.anos.length} anos)`:''} em CSV</button></div>`;
 }
 function ligaPainel(){
   const v=$('#btnVoltar'); if(v)v.onclick=()=>{S.sel=null;marcaSelecao();renderPainel();};
@@ -1211,10 +1235,10 @@ function ligaPainel(){
   $$('[data-filtra]').forEach(x=>x.onclick=()=>filtraMunicipio(+x.dataset.filtra));
   const fm=$('#btnFichaMun');
   if(fm)fm.onclick=()=>{const p=muniSelecionado(); if(!p)return; setNivel('municipio',true); selecionar(p.id);};
-  const ic=$('#btnIpdCsv');
-  if(ic)ic.onclick=()=>{const i=getInd(ic.dataset.ipd); if(!i||!i.ipd)return; const s=i.ipd;
-    baixaCSV([['ano'].concat(IPD.municipios.map(c=>nomeDoCod(c)||c))].concat(s.anos.map((a,j)=>[a].concat(s.v[j].map(v=>v??'')))),
-      `ipeadata-${s.cod}.csv`);};
+  const ic=$('#btnSerieCsv');
+  if(ic)ic.onclick=()=>{const i=getInd(ic.dataset.serie); if(!i||!i.serie)return; const s=i.serie;
+    baixaCSV([['ano'].concat(s.mun.map(c=>nomeDoCod(c)||c))].concat(s.anos.map((a,j)=>[a].concat(s.v[j].map(v=>v??'')))),
+      `serie-${i.id}.csv`);};
 }
 
 /* ── Painel de abertura: o município escolhido no seletor do topo ou, sem
@@ -2143,23 +2167,39 @@ function renderMetodo(){
       de cálculo, o tempo não entra em média; entra na parte da população a mais de 30 minutos.</li>
   </ul>`:''}
 
-  <h3 class="sec">Séries do Ipeadata</h3>
+  <h3 class="sec">Séries complementares e Ipeadata</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
-    O Ipeadata, do IPEA, reúne séries de várias fontes (IBGE, Tesouro, Ministério do Trabalho e outras) numa
-    API pública. O script <b>extracao/7_ipeadata.py</b> lê nessa API os valores dos sete municípios e grava
-    <b>dados/dados-ipeadata.js</b>, que o Atlas carrega como os demais arquivos de dados.
-    ${IPD_SERIES.length?`O arquivo atual, de ${esc(IPD.gerado_em.split('-').reverse().join('/'))}, traz ${nf.format(IPD_SERIES.length)}
-      séries, na categoria <b>Ipeadata (IPEA)</b>.`:'O arquivo deste pacote ainda não tem séries: o script precisa rodar num computador com acesso à API.'}</p>
+    O Ipeadata, do IPEA, reúne numa API pública séries de várias fontes (IBGE, Ministério da Saúde, Tesouro,
+    Ministério do Trabalho, Atlas Brasil e outras). A varredura dessas bases procurou o que tem valor para os
+    sete municípios e ainda não estava no Atlas. Entrou por dois caminhos:</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>Séries complementares</b> (dados/dados-series.js, gerado por extracao/8_series_complementares.py a partir do
+      espelho público da Base dos Dados):
+      ${SCOMP?`${nf.format(SCOMP.series.length)} séries de ${listaPt([...new Set(SCOMP.series.map(x=>(FONTES[x.fonte]||{}).s||x.fonte))])}`
+        :'o arquivo não está neste pacote'}. Cada uma está na sua categoria (saúde, saneamento, educação, trabalho, renda, demografia).</li>
+    <li><b>Ipeadata</b> (dados/dados-ipeadata.js, gerado por extracao/7_ipeadata.py, ou pelo cartão <b>Séries municipais
+      do Ipeadata</b> em <b>Mais → Extrair dados</b>, que faz a mesma varredura pelo próprio navegador quando o servidor
+      do Ipeadata permite):
+      ${IPD_SERIES.length?`${nf.format(IPD_SERIES.length)} séries na categoria <b>Ipeadata (IPEA)</b>, de
+        ${esc(IPD.gerado_em.split('-').reverse().join('/'))}.`:'o arquivo deste pacote ainda não tem séries.'}
+      ${(()=>{const x=XT_APLICADOS.get('ipeadata_navegador'); const n=x?(x.indicadores||[]).length:0;
+        return n?` Trazidas pelo navegador: ${nf.format(n)} série${n===1?'':'s'}.`:'';})()}</li>
+  </ul>
   <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
     <li><b>Um ano no mapa.</b> Cada série aparece no ano mais recente em que os sete municípios têm valor.
-      Série sem esse ano fica de fora, em vez de comparar municípios de anos diferentes.</li>
-    <li><b>Sem conversão.</b> Os valores vão como o Ipeadata publica, com a unidade e o multiplicador da série
-      (por exemplo, “mil”). Ano sem valor fica vazio; nada é completado.</li>
+      Série sem esse ano fica de fora, em vez de comparar municípios de anos diferentes. Os outros anos estão
+      na tabela do painel e no CSV.</li>
+    <li><b>Sem conversão.</b> Os valores vão como a fonte publica, com a unidade e o multiplicador da série
+      (por exemplo, “mil”). A exceção são os índices da ANA, publicados de 0 a 1 e mostrados em %. Ano sem
+      valor fica vazio; nada é completado.</li>
     <li><b>Ficam de fora</b> as séries com mais de um valor por ano (mensais, trimestrais), as não numéricas e
-      as que trazem a mesma data com dois valores. O script lista cada uma, com o motivo, em
+      as que trazem a mesma data com dois valores. O 7_ipeadata.py lista cada uma, com o motivo, em
       extracao/fontes/ipeadata/inventario.csv.</li>
-    <li><b>Fonte original.</b> O selo de cada indicador mostra o Ipeadata e a fonte de origem. Quando o Atlas
-      já tem o mesmo dado lido direto na fonte, vale o da fonte.</li>
+    <li><b>Fonte original.</b> O selo de cada indicador mostra a fonte de origem. Quando o Atlas já tem o mesmo
+      dado lido direto na fonte, vale o da fonte.</li>
+    <li><b>O que o Atlas já tem.</b> Na varredura pelo navegador, a série com os mesmos valores de um indicador do
+      Atlas nos sete municípios, num ano em comum, aparece como “já no Atlas”. As sugeridas são as que o Atlas
+      não tem por outra fonte: Bolsa Família, homicídios, suicídios e mortes no trânsito do DATASUS e o IFDM.</li>
   </ul>
 
   <h3 class="sec">Áreas de risco (2010)</h3>
@@ -2245,6 +2285,7 @@ function renderMetodo(){
 ├── 5_base_dos_dados.py        Atlas Brasil 2010, IDEB, Anatel e áreas de risco
 ├── 6_ipea.py                  Atlas Brasil 1991–2010 e Acesso a Oportunidades (IPEA)
 ├── 7_ipeadata.py              séries municipais do Ipeadata (API do IPEA)
+├── 8_series_complementares.py vacinação, SNIS, ANA, Abrinq e mais Atlas Brasil (Base dos Dados)
 └── R/                         Censo 2010 por área de ponderação, Censo Escolar, equipes do
                                CNES, BigQuery e recorte de arquivos baixados</pre>
   <p style="font-size:11.5px;color:var(--txt3);line-height:1.6">A base censitária (agregados por setor
@@ -3223,9 +3264,9 @@ function fontesDoMunicipio(p,codMun){
   if(ADH_IPEA)for(const id in ADH_NOVOS){
     const s=(ADH_IPEA.valores[ADH_NOVOS[id]]||{})[codMun]; if(s&&s[2]!=null)p[id]=s[2];
   }
-  /* Ipeadata: o valor do ano do mapa de cada série */
-  const kIpd=IPD_SERIES.length?IPD.municipios.indexOf(codMun):-1;
-  if(kIpd>=0)IPD_SERIES.forEach(s=>{const j=s.anos.indexOf(s.ano), v=j>=0?s.v[j][kIpd]:null; if(v!=null)p[s.id]=v;});
+  /* séries municipais (Ipeadata e complementares): o valor do ano do mapa */
+  SERIES_REG.forEach(({id,serie:s})=>{const k=s.mun.indexOf(codMun), j=s.anos.indexOf(s.ano);
+    const v=k>=0&&j>=0?s.v[j][k]:null; if(v!=null)p[id]=v;});
   /* 2010 no município: o valor calculado sobre todos os registros do município, e não a
      média das áreas de ponderação (em Canoas, o Gini médio das áreas dá 0,452; o do município, 0,518) */
   const of=MUNICIPAL_2010[codMun]||{};
@@ -4468,8 +4509,12 @@ function xtAplica(item){
   FONTES[fk]={n:item.fonte.n,s:item.fonte.s||item.fonte.n,u:item.fonte.u||'',
     d:(item.fonte.d||'')+` Extraído no navegador em ${new Date(item.quando).toLocaleDateString('pt-BR')}`+
       (item.origem?`, de ${item.origem}`:'')+'.',naoOficial:item.status==='ext'};
+  /* fontes próprias de alguns indicadores do item (Ipeadata: a fonte original de cada série) */
+  const fx=item.fontesExtra||{};
+  for(const k in fx)FONTES[k]=Object.assign({},fx[k],{d:(fx[k].d||'')+` Extraído no navegador em ${new Date(item.quando).toLocaleDateString('pt-BR')}.`});
+  if((item.indicadores||[]).some(d=>d.cat==='ipeadata')&&!CATS.some(c=>c.id==='ipeadata'))CATS.push({id:'ipeadata',n:'Ipeadata (IPEA)'});
   (item.indicadores||[]).forEach(d=>{
-    const o=Object.assign({},d,{fonte:fk,ano:d.ano??item.ano,status:d.status||item.status||'ok'});
+    const o=Object.assign({},d,{fonte:d.fonte&&fx[d.fonte]?d.fonte:fk,ano:d.ano??item.ano,status:d.status||item.status||'ok'});
     const ex=getInd(d.id);
     if(ex)Object.assign(ex,o); else ind(o);
   });
@@ -5382,7 +5427,257 @@ async function xtSidraValores(id,meta,el){
   $('#xtSRes').innerHTML=`<div class="note">Pronto: ${esc(item.resumo)}. Está em <b>Visão Geral</b>, no nível município.</div>`;
 }
 
-/* ---- 27.6 a tela "Extrair dados" ------------------------------------------ */
+/* ---- 27.6 Ipeadata pelo navegador -----------------------------------------
+   A varredura das séries do Ipeadata (IPEA) com valor para os sete municípios, com as
+   mesmas regras do extracao/7_ipeadata.py. Funciona se o servidor do Ipeadata liberar a
+   leitura por páginas (CORS). Se não liberar, o cartão diz isso e indica o script, que faz
+   o mesmo trabalho e grava o arquivo de dados do Atlas. O endereço ?ipeadata=... troca a
+   API (serve para testes). */
+const IPD_API=(new URLSearchParams(location.search).get('ipeadata')||'https://www.ipeadata.gov.br/api/odata4').replace(/\/+$/,'');
+const XT_IPD={series:null,aspas:true,nivel:null,anoMin:2000,filtro:{q:'',tema:'',so:true},marcadas:new Set(),rodando:false};
+/* a tela pode ser fechada e aberta de novo durante a leitura: escreve sempre no cartão da tela aberta */
+const ipdCorpo=el=>document.getElementById('xt-corpo-ipeadata')||el;
+/* GET com tempo-limite; separa o bloqueio do navegador (CORS) da falta de rede */
+async function ipdPega(url){
+  const ctl=new AbortController(), t0=setTimeout(()=>ctl.abort(),120000);
+  let r;
+  try{r=await fetch(url,{signal:ctl.signal});}
+  catch(e){
+    clearTimeout(t0);
+    if(e.name==='AbortError')throw Object.assign(new Error('o Ipeadata não respondeu em 2 minutos'),{tipo:'tempo'});
+    let cors=false; try{await fetch(url,{mode:'no-cors'}); cors=true;}catch(e2){}
+    throw Object.assign(new Error(cors?'o servidor do Ipeadata responde, mas não libera a leitura pelo navegador (CORS)'
+      :'sem acesso ao Ipeadata (rede ou firewall)'),{tipo:cors?'cors':'rede'});
+  }
+  clearTimeout(t0);
+  const txt=await r.text(); let j=null; try{j=JSON.parse(txt);}catch(e){}
+  if(!r.ok)throw Object.assign(new Error(`o Ipeadata respondeu HTTP ${r.status}${j&&j.error&&j.error.message?': '+j.error.message:''}`),{status:r.status});
+  if(!j)throw new Error('a resposta do Ipeadata não é JSON');
+  return j;
+}
+/* segue as páginas (@odata.nextLink); com a API em https, a página seguinte também vai por https */
+async function ipdOdata(caminho,params){
+  let url=`${IPD_API}/${caminho}`+(params?'?'+params:''), n=0; const out=[];
+  while(url){
+    const j=await ipdPega(url);
+    if(!Array.isArray(j.value))throw new Error('resposta do Ipeadata sem a lista "value"');
+    for(const v of j.value)out.push(v);
+    const prox=j['@odata.nextLink'];
+    url=prox?new URL(prox,url).href:null;
+    if(url&&/^https:/.test(IPD_API))url=url.replace(/^http:/,'https:');
+    if(++n>2000)throw new Error('resposta do Ipeadata grande demais');
+  }
+  return out;
+}
+/* com $select; se a API recusar o $select, repete sem ele */
+async function ipdCampos(caminho,params,campos){
+  try{return await ipdOdata(caminho,(params?params+'&':'')+'$select='+campos);}
+  catch(e){if(e.status===400)return ipdOdata(caminho,params);throw e;}
+}
+const ipdFiltro=c=>'$filter='+encodeURIComponent(`TERCODIGO eq ${XT_IPD.aspas?`'${c}'`:c}`);
+const ipdNome=s=>String(s||'').replace(/\s+/g,' ').trim();
+/* O que o Atlas já tem. Primeiro pelos valores: se os sete municípios têm o mesmo valor
+   (até o arredondamento) num ano em comum com um indicador municipal do Atlas, é o mesmo
+   dado. Depois pelo nome da série no Ipeadata; com nota, o Atlas tem algo parecido, mas
+   com outra definição ou de outra fonte. */
+const IPD_NO_ATLAS=[
+  [/^IDHM\b.*educação/i,'idhm_educacao'],[/^IDHM\b.*longevidade/i,'idhm_longevidade'],[/^IDHM\b.*renda/i,'idhm_renda'],
+  [/^IDHM\b/i,'idhm'],[/^Esperança de vida ao nascer \(Atlas DH/i,'idhm_esperanca_vida'],
+  [/mortalidade até um ano de idade \(Atlas DH/i,'adh_mort_infantil'],[/mortalidade até cinco anos de idade \(Atlas DH/i,'adh_mort_5'],
+  [/^Taxa de fecundidade total \(Atlas DH/i,'adh_fecundidade'],[/sobrevivência até 40 anos \(Atlas DH/i,'adh_sobrev_40'],
+  [/sobrevivência até 60 anos \(Atlas DH/i,'adh_sobrev_60'],[/^Rendimento médio dos ocupados \(Atlas DH/i,'adh_renda_ocupados'],
+  [/^População total \(/i,'pop'],[/^Índice de Gini.*\(Atlas DH/i,'adh_gini'],
+  [/^PIB\b.*per capita/i,'pib_pc'],[/^PIB\b.*preços correntes/i,'pib'],[/^IFDM\b/i,'ifdm'],
+  [/^Razão de dependência \(Atlas DH/i,'razao_dependencia','com outro corte de idade: o Atlas usa 60 anos; o Atlas DH, 65'],
+  [/^Número de homicídios\b/i,'seg_vitimas_homicidio','de outra fonte: a SSP-RS conta registros policiais; o DATASUS, óbitos']];
+/* vetores dos sete municípios por ano, de cada indicador municipal do Atlas */
+function ipdVetoresAtlas(){
+  const cods=XT_CODS(), pr={}, out=[];
+  ((S.geo.municipio||{}).features||[]).forEach(f=>pr[String(MUNIS_LISTA.ids[f.properties.muni_id])]=f.properties);
+  const num=x=>x==null||x===''||isNaN(+x)?null:+x;
+  IND.forEach(i=>{
+    if(!(i.niveis||[]).includes('municipio')||/^ipdn?_/.test(i.id))return;
+    if(i.serie){
+      const mun=i.serie.mun.map(String);
+      i.serie.anos.forEach((a,j)=>out.push({ano:+a,n:i.n,v:cods.map(c=>{const k=mun.indexOf(c);return k>=0?num(i.serie.v[j][k]):null;})}));
+    }else if(i.ano!=null)out.push({ano:+i.ano,n:i.n,v:cods.map(c=>num((pr[c]||{})[i.id]))});
+  });
+  /* só vetores completos e com valores diferentes entre si: sete zeros não identificam nada */
+  return out.filter(x=>x.v.every(y=>y!=null)&&new Set(x.v.map(y=>y.toFixed(4))).size>=3);
+}
+const ipdPerto=(a,b)=>Math.abs(a-b)<=Math.max(0.003*Math.abs(b),0.006);
+function ipdNoAtlas(cod,nome,r,vet){
+  if(IPD_SERIES.some(s=>s.cod===cod))return {k:'mesmo',t:'no arquivo do Ipeadata do pacote'};
+  if(getInd('ipdn_'+slugId(String(cod))))return {k:'mesmo',t:'trazida desta varredura'};
+  if(r)for(const x of vet){
+    const j=r.anos.indexOf(x.ano); if(j<0)continue;
+    if(r.v[j].every((y,k)=>y!=null&&ipdPerto(y,x.v[k])))return {k:'mesmo',t:`${x.n} (mesmos valores em ${x.ano})`};
+  }
+  const m=IPD_NO_ATLAS.find(([re])=>re.test(ipdNome(nome))), i=m&&getInd(m[1]);
+  return i?(m[2]?{k:'outro',t:`${i.n}, ${m[2]}`}:{k:'nome',t:i.n}):null;
+}
+const ipdJaTem=s=>!!s.noAtlas&&s.noAtlas.k!=='outro';
+/* sugeridas: Bolsa Família, mortes violentas do DATASUS e IFDM, que o Atlas não tem por outra fonte */
+const IPD_SUGERIDAS=/^(Programa Bolsa Família \(PBF\) - (número de benefícios|valor total dos benefícios) em dezembro|Número de (homicídios|suicídios|vítimas a óbito em acidente de trânsito)|IFDM)/i;
+const ipdSugerida=s=>IPD_SUGERIDAS.test(ipdNome(s.m.SERNOME));
+/* as regras do 7_ipeadata.py: um valor por ano, ano do mapa com os sete, nada completado */
+function ipdAvalia(porMun,m,anoMin){
+  if(!m)return [null,'sem metadado no Ipeadata'];
+  if(m.SERNUMERICA===false)return [null,'série não numérica'];
+  const tab={}, cods=XT_CODS();
+  for(const mun in porMun){
+    const porDia={}, cont={};
+    for(const [d,v] of porMun[mun]){
+      if(v==null)continue;
+      if(typeof v!=='number'||!isFinite(v))return [null,'valor não numérico'];
+      const dia=d.slice(0,10);
+      if(dia in porDia&&porDia[dia]!==v)return [null,`a mesma data veio com dois valores (${nomeDoCod(mun)}, ${dia})`];
+      porDia[dia]=v;
+    }
+    for(const dia in porDia){const a=dia.slice(0,4); cont[a]=(cont[a]||0)+1;
+      if(cont[a]>1)return [null,`mais de um valor por ano (${m.PERNOME||'frequência menor que anual'})`];}
+    for(const dia in porDia)(tab[+dia.slice(0,4)]=tab[+dia.slice(0,4)]||{})[mun]=porDia[dia];
+  }
+  const anos=Object.keys(tab).map(Number).filter(a=>a>=anoMin).sort((a,b)=>a-b);
+  if(!anos.length)return [null,`sem valor desde ${anoMin}`];
+  const comp=anos.filter(a=>cods.every(c=>tab[a][c]!=null));
+  if(!comp.length)return [null,`nenhum ano desde ${anoMin} com os sete municípios`];
+  return [{ano:comp[comp.length-1],anos,v:anos.map(a=>cods.map(c=>tab[a][c]??null))},'entrou'];
+}
+async function xtIpeadata(el){
+  const anoMin=+(($('#xtIpdAno')||{}).value)||2000, cods=XT_CODS();
+  XT_IPD.anoMin=anoMin; XT_IPD.aspas=true;
+  xtProgresso(ipdCorpo(el),0.03,'Conferindo os sete municípios na API do Ipeadata…');
+  const niveis={};
+  for(const c of cods){
+    let t;
+    try{t=await ipdOdata('Territorios',ipdFiltro(c));}
+    catch(e){if(e.status===400&&XT_IPD.aspas){XT_IPD.aspas=false;t=await ipdOdata('Territorios',ipdFiltro(c));}else throw e;}
+    if(!t.length)throw new Error(`${nomeDoCod(c)} não está na tabela de territórios do Ipeadata`);
+    niveis[c]=new Set(t.map(x=>x.NIVNOME));
+  }
+  let comuns=[...niveis[cods[0]]].filter(n=>cods.every(c=>niveis[c].has(n)));
+  if(comuns.length>1)comuns=comuns.filter(n=>/munic/.test(norm(n)));
+  if(comuns.length!==1)throw new Error('não achei um nível único para os sete municípios na tabela de territórios do Ipeadata');
+  XT_IPD.nivel=comuns[0];
+  const porSerie={};
+  for(let k=0;k<cods.length;k++){
+    const c=cods[k];
+    xtProgresso(ipdCorpo(el),0.08+0.67*k/cods.length,`Lendo todos os valores de ${nomeDoCod(c)} no Ipeadata (${k+1} de ${cods.length})…`);
+    const vs=await ipdCampos('Valores',ipdFiltro(c),'SERCODIGO,VALDATA,VALVALOR,NIVNOME,TERCODIGO');
+    for(const v of vs){
+      if(v.NIVNOME!=null&&v.NIVNOME!==XT_IPD.nivel)continue;
+      if(v.TERCODIGO!=null&&String(v.TERCODIGO)!==c)continue;
+      const s=porSerie[v.SERCODIGO]=porSerie[v.SERCODIGO]||{};
+      (s[c]=s[c]||[]).push([String(v.VALDATA),v.VALVALOR]);
+    }
+  }
+  if(!Object.keys(porSerie).length)throw new Error('o Ipeadata não trouxe nenhum valor para os sete municípios');
+  xtProgresso(ipdCorpo(el),0.8,'Lendo o catálogo do Ipeadata…');
+  const md=await ipdCampos('Metadados','',
+    'SERCODIGO,SERNOME,SERCOMENTARIO,SERATUALIZACAO,BASNOME,FNTSIGLA,FNTNOME,FNTURL,PERNOME,UNINOME,MULNOME,SERSTATUS,SERNUMERICA,TEMCODIGO');
+  const meta=new Map(md.map(m=>[m.SERCODIGO,m])), temas={};
+  try{(await ipdOdata('Temas')).forEach(t=>temas[t.TEMCODIGO]=t.TEMNOME);}catch(e){}
+  xtProgresso(ipdCorpo(el),0.95,'Conferindo o que o Atlas já tem…');
+  const vet=ipdVetoresAtlas();
+  XT_IPD.series=Object.keys(porSerie).map(cod=>{
+    const m=meta.get(cod), [r,motivo]=ipdAvalia(porSerie[cod],m,anoMin);
+    const anosTodos=[...new Set(Object.values(porSerie[cod]).flat().filter(x=>x[1]!=null).map(x=>+x[0].slice(0,4)))].sort((a,b)=>a-b);
+    return {cod,m:m||{},tema:(m&&(m.TEMNOME||temas[m.TEMCODIGO]))||'',r,motivo,anosTodos,noAtlas:ipdNoAtlas(cod,m&&m.SERNOME,r,vet)};
+  }).sort((a,b)=>String(a.tema).localeCompare(String(b.tema),'pt-BR')||ipdNome(a.m.SERNOME||a.cod).localeCompare(ipdNome(b.m.SERNOME||b.cod),'pt-BR'));
+  XT_IPD.marcadas=new Set();
+  xtIpdLista(ipdCorpo(el));
+}
+function xtIpdSituacao(s){
+  const a=s.noAtlas, sug=s.r&&ipdSugerida(s);
+  if(a&&a.k==='mesmo')return `já no Atlas: ${esc(a.t)}`;
+  if(a&&a.k==='nome')return `o Atlas tem: ${esc(a.t)}`;
+  const base=s.r?(sug?'<b>sugerida</b>':'nova'):esc(s.motivo);
+  return a?`${base} · o Atlas tem ${esc(a.t)}`:base;
+}
+function xtIpdLista(el,aviso){
+  const L=XT_IPD.series, F=XT_IPD.filtro, marcadas=XT_IPD.marcadas, entram=L.filter(s=>s.r), jaTem=entram.filter(ipdJaTem);
+  const temas=[...new Set(L.map(s=>s.tema).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  el.innerHTML=`${aviso?`<div class="note">${aviso}</div>`:''}
+    <div class="note">${nf.format(L.length)} séries do Ipeadata têm valor para algum dos sete municípios no nível
+      “${esc(XT_IPD.nivel)}”. <b>${nf.format(entram.length)}</b> têm um ano com os sete desde ${XT_IPD.anoMin} e podem ir para o mapa;
+      ${nf.format(jaTem.length)} delas o Atlas já tem.</div>
+    <div class="xt-busca xt-ipd-busca"><input type="search" id="xtIpdQ" placeholder="filtrar por nome, tema, fonte ou código" value="${esc(F.q)}">
+      <select id="xtIpdTema"><option value="">todos os temas</option>${temas.map(t=>`<option${t===F.tema?' selected':''}>${esc(t)}</option>`).join('')}</select></div>
+    <label class="xt-check"><input type="checkbox" id="xtIpdSoMapa"${F.so?' checked':''}> só as que podem ir para o mapa</label>
+    <div class="btn-row"><button class="btn" id="xtIpdSug">Marcar as sugeridas</button><button class="btn" id="xtIpdNada">Desmarcar todas</button>
+      <button class="btn" id="xtIpdCsv">Baixar a varredura (CSV)</button></div>
+    <p class="ref-note" id="xtIpdConta"></p>
+    <div class="tb-scroll xt-ipd"><table class="tb"><thead><tr><th></th><th>Série</th><th>Anos</th><th>No mapa</th><th>Situação</th></tr></thead>
+      <tbody id="xtIpdCorpo"></tbody></table></div>
+    <div class="btn-row"><button class="btn pri" id="xtIpdTraz">Trazer as marcadas para o Atlas</button></div>`;
+  const linha=s=>`<tr><td>${s.r?`<input type="checkbox" data-ipd="${esc(s.cod)}" aria-label="marcar ${esc(ipdNome(s.m.SERNOME||s.cod))}"${marcadas.has(s.cod)?' checked':''}>`:''}</td>
+    <td>${esc(ipdNome(s.m.SERNOME||s.cod))}<br><small class="ref-note">${esc([s.tema,s.m.FNTSIGLA||s.m.FNTNOME,s.m.PERNOME].filter(Boolean).join(' · '))} · ${esc(s.cod)}</small></td>
+    <td>${s.anosTodos.length?s.anosTodos[0]+(s.anosTodos.length>1?'–'+s.anosTodos[s.anosTodos.length-1]:''):'—'}</td><td>${s.r?s.r.ano:'—'}</td>
+    <td>${xtIpdSituacao(s)}</td></tr>`;
+  const MAX=1500;
+  const desenha=()=>{
+    F.q=$('#xtIpdQ').value||''; F.tema=$('#xtIpdTema').value; F.so=$('#xtIpdSoMapa').checked;
+    const q=norm(F.q);
+    const f=L.filter(s=>(!F.so||s.r)&&(!F.tema||s.tema===F.tema)&&(!q||norm([s.m.SERNOME,s.tema,s.m.FNTSIGLA,s.m.FNTNOME,s.cod].join(' ')).includes(q)));
+    $('#xtIpdCorpo').innerHTML=f.slice(0,MAX).map(linha).join('')||'<tr><td colspan="5" class="ref-note">Nada com esse filtro.</td></tr>';
+    $('#xtIpdConta').textContent=`${f.length>MAX?`Mostrando ${nf.format(MAX)} de ${nf.format(f.length)}; use o filtro para achar as outras. `:`${nf.format(f.length)} na lista. `}`
+      +`${nf.format(marcadas.size)} marcada${marcadas.size===1?'':'s'}.`;
+    $$('#xtIpdCorpo input[data-ipd]').forEach(x=>x.onchange=()=>{x.checked?marcadas.add(x.dataset.ipd):marcadas.delete(x.dataset.ipd);
+      $('#xtIpdConta').textContent=$('#xtIpdConta').textContent.replace(/[\d.]+ marcadas?\.$/,`${nf.format(marcadas.size)} marcada${marcadas.size===1?'':'s'}.`);});
+  };
+  $('#xtIpdQ').oninput=desenha; $('#xtIpdTema').onchange=desenha; $('#xtIpdSoMapa').onchange=desenha;
+  $('#xtIpdSug').onclick=()=>{const sug=entram.filter(s=>!ipdJaTem(s)&&ipdSugerida(s)); sug.forEach(s=>marcadas.add(s.cod)); desenha();
+    toast(sug.length?`${sug.length} série${sug.length===1?'':'s'} sugerida${sug.length===1?'':'s'} marcada${sug.length===1?'':'s'}.`
+      :'Nenhuma das sugeridas (Bolsa Família, mortes violentas do DATASUS, IFDM) pode ir para o mapa nesta varredura.',sug.length?'ok':'err');};
+  $('#xtIpdNada').onclick=()=>{marcadas.clear();desenha();};
+  $('#xtIpdCsv').onclick=()=>baixaCSV([['codigo','serie','tema','fonte','frequencia','unidade','anos_com_dado','ano_no_mapa','situacao']]
+    .concat(L.map(s=>[s.cod,ipdNome(s.m.SERNOME),s.tema,s.m.FNTSIGLA||s.m.FNTNOME||'',s.m.PERNOME||'',[s.m.UNINOME,s.m.MULNOME].filter(Boolean).join(' '),
+      s.anosTodos.length?s.anosTodos[0]+'-'+s.anosTodos[s.anosTodos.length-1]:'',s.r?s.r.ano:'',
+      xtIpdSituacao(s).replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')])),
+    'ipeadata-varredura.csv');
+  $('#xtIpdTraz').onclick=()=>xtIpdTraz(el).catch(e=>xtIpdErro(ipdCorpo(el),e));
+  desenha();
+}
+/* As marcadas viram uma extração: indicadores do nível município, na categoria Ipeadata,
+   com a série para o painel. A fonte original de cada série vai no selo. */
+async function xtIpdTraz(el){
+  const marcadas=XT_IPD.marcadas, sel=XT_IPD.series.filter(s=>s.r&&marcadas.has(s.cod));
+  if(!sel.length)return toast('Marque ao menos uma série que pode ir para o mapa.','err');
+  const cods=XT_CODS(), ant=XT_APLICADOS.get('ipeadata_navegador'), hoje=new Date().toISOString().slice(0,10);
+  const inds=new Map(((ant&&ant.indicadores)||[]).map(i=>[i.id,i])), fontes=Object.assign({},ant&&ant.fontesExtra), vals={municipio:{}};
+  cods.forEach(c=>vals.municipio[c]=Object.assign({},ant&&ant.valores&&ant.valores.municipio&&ant.valores.municipio[c]||{}));
+  sel.forEach(s=>{
+    const id='ipdn_'+slugId(String(s.cod)), m=s.m, fk='XT_IPD_'+(slugId(String(m.FNTSIGLA||''))||'outras');
+    if(!fontes[fk])fontes[fk]={n:`Ipeadata (IPEA) — séries de ${m.FNTNOME||m.FNTSIGLA||'outras fontes'}`,s:`Ipeadata · ${m.FNTSIGLA||'IPEA'}`,
+      u:'https://www.ipeadata.gov.br/',d:`Séries republicadas pelo Ipeadata e lidas pelo navegador na API pública (${IPD_API}). `
+        +`Fonte original: ${m.FNTNOME||m.FNTSIGLA||'não informada'}${m.FNTURL?` (${m.FNTURL})`:''}.`+ipdAvisoUso(m.FNTSIGLA,m.FNTNOME)};
+    const base={cod:s.cod,tema:s.tema,fonte:m.FNTSIGLA||'',fonte_nome:m.FNTNOME||'',ano:s.r.ano,anos:s.r.anos,v:s.r.v,
+      unidade:m.UNINOME||'',mult:m.MULNOME||'',atualizada:String(m.SERATUALIZACAO||'').slice(0,10),status:m.SERSTATUS||'',
+      obs:String(m.SERCOMENTARIO||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0,500)};
+    inds.set(id,{id,cat:'ipeadata',n:ipdNome(m.SERNOME||s.cod),u:ipdUnidade(base),ano:s.r.ano,fonte:fk,
+      niveis:['municipio'],fmt:ipdFmt(base),ramp:'agua',obs:ipdObs(base)+` Lida pelo navegador em ${hoje.split('-').reverse().join('/')}.`+ipdAvisoUso(m.FNTSIGLA,m.FNTNOME),
+      serie:{anos:s.r.anos,v:s.r.v,ano:s.r.ano,mun:cods,cod:s.cod,titulo:'Série no Ipeadata'}});
+    const j=s.r.anos.indexOf(s.r.ano);
+    cods.forEach((c,k)=>{const v=s.r.v[j][k]; if(v!=null)vals.municipio[c][id]=v;});
+  });
+  const item={id:'ipeadata_navegador',titulo:'Séries do Ipeadata',ano:null,status:'ok',origem:'API do Ipeadata',
+    fonte:{n:'Ipeadata (IPEA) — séries trazidas pelo navegador',s:'Ipeadata',u:'https://www.ipeadata.gov.br/',
+      d:`Séries escolhidas na varredura do Ipeadata e lidas na API pública (${IPD_API}). A fonte original de cada série está no selo e na nota do indicador.`},
+    fontesExtra:fontes,indicadores:[...inds.values()],valores:vals,resumo:`${nf.format(inds.size)} série${inds.size===1?'':'s'} do Ipeadata`};
+  await xtConclui(item);
+  sel.forEach(s=>{s.noAtlas={k:'mesmo',t:'trazida desta varredura'}; marcadas.delete(s.cod);});
+  xtIpdLista(ipdCorpo(el),`Pronto: ${sel.length} série${sel.length===1?'':'s'} na categoria <b>Ipeadata (IPEA)</b>, no nível município.
+    O painel mostra a série nos sete municípios.`);
+}
+function xtIpdErro(el,e){
+  if(e&&e.tipo==='cors')el.innerHTML=`<div class="note warn"><b>O navegador não pôde ler a API do Ipeadata.</b> O servidor responde,
+    mas não libera a leitura pelo navegador (CORS). O mesmo trabalho sai pelo script
+    <code>python3 extracao/7_ipeadata.py</code>, seguido de <code>python3 build_single.py</code>: as séries passam a vir dentro do arquivo do Atlas.</div>`;
+  else xtErro(el,'Ipeadata: '+((e&&e.message)||String(e))+(e&&e.tipo==='rede'?'. Sem acesso pelo navegador, rode o script extracao/7_ipeadata.py.':''));
+}
+
+/* ---- 27.7 a tela "Extrair dados" ------------------------------------------ */
 const XT_RECEITAS={inep:xtInep,censo2010:xtCenso2010,
   cnes:(files,el)=>xtGeralInicia(files,el), geral:(files,el)=>xtGeralInicia(files,el)};
 function xtCartao(id,titulo,sub,passos,zona){
@@ -5412,6 +5707,14 @@ function renderExtrair(){
     `<p class="xt-msg">Procure pelo assunto, escolha a tabela, a variável e as categorias. O valor dos sete municípios entra como indicador.</p>
     <div class="xt-busca"><input type="search" id="xtSidraTxt" placeholder="ex.: rendimento domiciliar, alfabetização, deslocamento">
       <button class="btn" id="xtSidraBtn">Procurar</button></div>`)}
+  ${xtCartao('ipeadata','Séries municipais do Ipeadata','IPEA · API pública do Ipeadata, que republica IBGE, DATASUS, Firjan e outras fontes',
+    `<p class="xt-msg">Lê na API do Ipeadata todas as séries com valor para os sete municípios e mostra quais podem ir para o mapa:
+      as que têm um ano com os sete e um valor por ano. Você escolhe quais trazer. As sugeridas são as que o Atlas não tem por outra fonte:
+      Bolsa Família (benefícios e valor em dezembro), homicídios, suicídios e mortes no trânsito do DATASUS e o IFDM.</p>
+    <div class="xt-busca xt-ipd-ano"><label for="xtIpdAno">Anos a partir de</label><input type="number" id="xtIpdAno" value="2000" min="1900" max="2100" step="1">
+      <button class="btn pri" id="xtIpdVarre">Varrer o Ipeadata</button></div>
+    <p class="ref-note">A leitura leva alguns minutos. Se o servidor do Ipeadata não liberar a leitura pelo navegador,
+      o mesmo trabalho sai pelo script <code>extracao/7_ipeadata.py</code>.</p>`)}
 
   <h3 class="sec">Arquivo baixado da fonte <span class="chip tag">baixe e solte aqui</span></h3>
   ${xtCartao('inep','Matrículas por etapa e rede','INEP · microdados do Censo Escolar (até a edição de 2024)',
@@ -5458,6 +5761,12 @@ function renderExtrair(){
     xtProgresso(c,0.2,'Procurando nas tabelas do IBGE…');
     try{await xtSidraBusca(t,c);}catch(e){xtErro(c,e instanceof ErroFonte?'O IBGE não respondeu: '+e.message:e.message);}};
   $('#xtSidraBtn').onclick=sb;
+  $('#xtIpdVarre').onclick=async()=>{const c=$('#xt-corpo-ipeadata'); $('#xtIpdVarre').disabled=true; XT_IPD.rodando=true;
+    try{await xtIpeadata(c);}catch(e){xtIpdErro(ipdCorpo(c),e);}
+    finally{XT_IPD.rodando=false; const b=$('#xtIpdVarre'); if(b)b.disabled=false;}};
+  /* a última varredura continua na tela; durante uma leitura, o botão fica desligado */
+  if(XT_IPD.rodando){$('#xtIpdVarre').disabled=true; xtProgresso($('#xt-corpo-ipeadata'),0.5,'Varredura do Ipeadata em andamento…');}
+  else if(XT_IPD.series)xtIpdLista($('#xt-corpo-ipeadata'));
   $('#xtSidraTxt').onkeydown=e=>{if(e.key==='Enter')sb();};
   $('#xtBaixaAtlas').onclick=xtBaixaAtlas;
 }

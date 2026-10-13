@@ -1,4 +1,4 @@
-# Atlas Metropolitano RMPA — versão 3.6
+# Atlas Metropolitano RMPA — versão 3.7
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios:
 Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio.
@@ -10,7 +10,47 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
 - O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
 
-## O que mudou na versão 3.6: séries do Ipeadata
+## O que mudou na versão 3.7: varredura do Ipeadata
+
+A varredura procurou no Ipeadata as séries com valor para os sete municípios que o Atlas ainda não
+tinha. O resultado está em [`../docs/VARREDURA-IPEADATA.md`](../docs/VARREDURA-IPEADATA.md) e entra
+no Atlas por dois caminhos.
+
+**38 séries novas dentro do pacote.** O script `extracao/8_series_complementares.py` lê as mesmas
+bases no espelho público da Base dos Dados e grava `dados/dados-series.js`. O arquivo único já sai
+com elas:
+
+| fonte | séries | ano no mapa | categorias |
+|---|---|---|---|
+| Atlas do Desenvolvimento Humano | 19: fecundidade, sobrevivência, frequência escolar, renda por quinto, ocupação | 2010 | demografia, saúde, educação, renda, trabalho |
+| Programa Nacional de Imunizações | 6 coberturas vacinais | 2021 | saúde |
+| SNIS | 7 de água e esgoto, com o código do SNIS | 2022 | saneamento |
+| ANA, Atlas Esgotos | 4 sobre o destino do esgoto | 2013 | saneamento |
+| Fundação Abrinq | 2 de matrícula na pré-escola | 2019 | educação |
+
+- **Ano do mapa:** cada série fica na sua categoria, no ano mais recente com os sete municípios.
+- **Painel:** a tabela *Série histórica* mostra os últimos anos, com o ano do mapa em destaque. O
+  botão baixa a série toda em CSV. A tabela vale também para as séries do Ipeadata.
+
+**Cartão novo em *Mais → Extrair dados*: "Séries municipais do Ipeadata".** Varre a API do
+Ipeadata pelo navegador, com as regras do `7_ipeadata.py`, e lista cada série com os anos, o ano que
+iria para o mapa e a situação: sugerida, nova, já no Atlas ou fora do mapa (com o motivo).
+
+- **Sugeridas:** o que só o Ipeadata traz por município. São o Bolsa Família (benefícios e valor em
+  dezembro, 2004–2025), os homicídios, suicídios e mortes no trânsito do DATASUS (até 2024) e o IFDM.
+- **Já no Atlas:** a série que repete um indicador do Atlas, com os mesmos valores nos sete
+  municípios. Quando o Atlas tem algo parecido com outra definição ou de outra fonte, a lista diz qual
+  é a diferença. Exemplos: homicídios da SSP-RS e do DATASUS; razão de dependência com 60 ou 65 anos.
+- **Trazer:** as marcadas entram na categoria **Ipeadata (IPEA)**, com a fonte original no selo, e
+  ficam guardadas no navegador. *Baixar o Atlas com os dados* leva as séries no arquivo.
+- **Limite:** a varredura só roda se o servidor do Ipeadata liberar a leitura pelo navegador (CORS).
+  Se não liberar, o cartão avisa e indica o `7_ipeadata.py`, que faz o mesmo e põe as séries no
+  pacote.
+
+O cartão foi testado contra uma cópia simulada da API, porque o ambiente de desenvolvimento não
+alcança o Ipeadata. O `8_series_complementares.py` rodou contra o espelho real da Base dos Dados.
+
+## Versão 3.6: séries do Ipeadata
 
 O script novo `extracao/7_ipeadata.py` lê na API pública do Ipeadata (IPEA) as séries que têm valor
 para os sete municípios e grava `dados/dados-ipeadata.js`. O Atlas carrega esse arquivo como os
@@ -329,7 +369,8 @@ atlas_v3/
 │   ├── dados-indices.js
 │   ├── dados-complementares.js
 │   ├── dados-ipea.js
-│   └── dados-ipeadata.js
+│   ├── dados-ipeadata.js
+│   └── dados-series.js
 └── extracao/
     ├── 1_servicos_municipais.py
     ├── 2_atualiza_cnes.py
@@ -338,6 +379,7 @@ atlas_v3/
     ├── 5_base_dos_dados.py
     ├── 6_ipea.py
     ├── 7_ipeadata.py
+    ├── 8_series_complementares.py
     ├── indices.json
     ├── R/                 (scripts R para os dados que faltam; ver docs/EXTRACAO-dados-faltantes.md)
     ├── saida_R/           (saídas dos scripts R, não versionadas)
@@ -356,6 +398,7 @@ python3 extracao/5_base_dos_dados.py
 python3 extracao/4_indices_municipais.py
 python3 extracao/6_ipea.py
 python3 extracao/7_ipeadata.py
+python3 extracao/8_series_complementares.py
 python3 build_single.py
 ```
 

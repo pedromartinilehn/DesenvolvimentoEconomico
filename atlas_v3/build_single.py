@@ -12,7 +12,7 @@ import re, pathlib, sys
 D = pathlib.Path(__file__).parent
 ARQS = ['dados-nucleo.js', 'dados-bairros.js', 'dados-municipios.js',
         'dados-setores.js', 'dados-estimados.js', 'dados-servicos.js', 'dados-pontos.js',
-        'dados-indices.js', 'dados-complementares.js', 'dados-ipea.js', 'dados-ipeadata.js']
+        'dados-indices.js', 'dados-complementares.js', 'dados-ipea.js', 'dados-ipeadata.js', 'dados-series.js']
 
 html = (D / 'index.html').read_text(encoding='utf-8')
 
@@ -60,7 +60,7 @@ for marca, rotulo in [('ATLAS_NUCLEO', 'dados-nucleo'), ('ATLAS_SETORES', 'dados
                       ('ATLAS_EST', 'dados-estimados'), ('ATLAS_PONTOS', 'dados-pontos'),
                       ('ATLAS_SERVICOS', 'dados-servicos'),
                       ('ATLAS_COMPLEMENTOS', 'dados-complementares'), ('ATLAS_IPEA=', 'dados-ipea'),
-                      ('ATLAS_IPEADATA=', 'dados-ipeadata'),
+                      ('ATLAS_IPEADATA=', 'dados-ipeadata'), ('ATLAS_SERIES=', 'dados-series'),
                       ('function montaGeo', 'atlas.js'), ('--atlas-css-ok', 'atlas.css')]:
     if marca not in html:
         sys.exit(f'ERRO: {rotulo} não entrou no arquivo final')
