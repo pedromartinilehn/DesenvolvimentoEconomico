@@ -1,6 +1,6 @@
 # Como as extrações entram no HTML
 
-Outubro de 2026, versão 3.8 do Atlas.
+Outubro de 2026, versão 3.9 do Atlas.
 
 O Atlas é um arquivo só, o `atlas-rmpa.html`. Um dado está no Atlas para todo mundo quando está
 dentro desse arquivo. Até a versão 3.7, várias bases só entravam depois de alguém rodar uma
@@ -37,7 +37,8 @@ soma parcial.
    fonte, ano, nível e nota). Os valores entram nos territórios: setor (`garanteSetores`), bairro e
    município (`montaGeo`, `fontesDoMunicipio`).
 
-Exemplo da 3.8: `dados/dados-censo2022.js`, gravado pelo `extracao/9_censo2022_setores.py`.
+Exemplos: `dados/dados-censo2022.js`, gravado pelo `extracao/9_censo2022_setores.py` (3.8), e
+`dados/dados-atlasbrasil.js`, gravado pelo `extracao/11_atlas_brasil.py` (3.9).
 
 - **Formato:** usa o formato compacto do pacote, o mesmo de `dados-setores.js`. As colunas estão
   na ordem dos setores, dos bairros e dos municípios do pacote.
@@ -74,6 +75,7 @@ Campos de um item:
 | `indicadores` | lista no formato do catálogo: `id`, `cat`, `n`, `u`, `fmt`, `ramp`, `niveis`, `status`, `obs` e, se houver, `ano` e `serie` (anos para a tabela do painel) |
 | `valores` | `{municipio: {código IBGE: {id: valor}}, bairro: {id do bairro: {id: valor}}}` |
 | `pontos` | opcional: `{chave, itens: [{nome, x, y, ...}], cor, rot}`, para uma camada de pontos |
+| `atlasbr` | opcional, nos itens do cartão "Atlas Brasil": as partes `udh`, `regional`, `rms`, `radar` e `dic`, no mesmo formato de `dados/dados-atlasbrasil.js`. O Atlas troca só a parte que veio (`abAplica`) |
 | outros | o item pode levar o que a sua tela precisar: o do Censo 2010 leva `e3` (a conferência da renda) e `ap` (a tabela por área de ponderação) |
 
 O script 10 troca só o próprio item. Outros scripts podem acrescentar itens ao mesmo arquivo, desde
@@ -100,6 +102,21 @@ extração feita no navegador.
    em *Mais → Metodologia* e no painel de um município.
 
 ## 2. O que estava fora e onde está agora
+
+### Entrou na 3.9: bases do Atlas Brasil
+
+As bases da biblioteca do Atlas Brasil entram pelos dois caminhos. No pacote, vêm por
+`dados/dados-atlasbrasil.js`, gravado pelo `extracao/11_atlas_brasil.py`. No navegador, pelo cartão
+"Atlas Brasil" da central, que lê os mesmos arquivos e produz o mesmo resultado. O detalhe está em
+[`ATLAS-BRASIL-bases.md`](ATLAS-BRASIL-bases.md).
+
+| item | antes | agora |
+|---|---|---|
+| UDHs (Unidades de Desenvolvimento Humano), Censos 2000 e 2010 | não existia | nível UDH no mapa: 483 UDHs, 53 indicadores de 2010 e o valor de 2000 na ficha; 33 indicadores municipais do Atlas Brasil ganharam o nível UDH |
+| Desigualdade dentro do município | não existia | número de UDHs, menor e maior IDHM e população em UDHs de IDHM abaixo de 0,700, por município e na região |
+| Radar IDHM (PNAD Contínua), 2012 a 2024 | não existia | aba "Contexto metropolitano" do Diagnóstico: RM de Porto Alegre, RS, Brasil, sexo, cor e posição entre as 21 RMs |
+| RM de Porto Alegre entre as 20 RMs e as 17 regiões de Porto Alegre (Censos 2000 e 2010) | não existia | a mesma aba e a ficha da UDH |
+| Taxa de analfabetismo de 15 anos ou mais (Atlas Brasil, 2010) | estava em `dados-ipea.js`, sem indicador | indicador no município e na UDH |
 
 ### Entrou na 3.8
 
@@ -145,6 +162,8 @@ item entra por um dos caminhos abaixo.
 | Mancha da enchente de maio de 2024 (item B9) | Zenodo bloqueado | script R 07 |
 | Taxa de escolarização de 6 a 14 anos nos sete municípios | o cálculo com os microdados de 2010 dá 96,63% em Porto Alegre e o IBGE Cidades publica 96,69%; como não reproduz, não entra | continua só Porto Alegre, com o número do IBGE |
 | Mortalidade infantil, receita e despesa do IBGE Cidades | IBGE Cidades e DATASUS bloqueados | continuam só Porto Alegre |
+| Registros administrativos do Atlas Brasil (2013 a 2017) | dos arquivos recebidos, só veio o dicionário (78 siglas); a planilha com os valores não estava entre eles, e o atlasbrasil.org.br não abre aqui | cartão "Atlas Brasil" na central, com a planilha baixada da biblioteca |
+| IDHM municipal depois de 2010 | não existe: o Radar IDHM vai até 2024, mas só para a RM, as UFs e o Brasil | — |
 
 ## 3. Como foi conferido
 
@@ -177,6 +196,19 @@ item entra por um dos caminhos abaixo.
   perfil, o ranking e a matriz, todos pelos indicadores novos. Somas, escalas de cor, entorno das
   lojas e busca ficaram iguais.
 
+**`11_atlas_brasil.py` e o cartão "Atlas Brasil".**
+
+- As UDHs da base são as do shapefile, nos dois anos.
+- A população das UDHs soma a de cada município publicada pelo Atlas Brasil: exata em 2010, com
+  diferença de até 22 pessoas em 2000.
+- O IDHM confere com os subíndices em todas as linhas: as 722 UDHs, as regiões, as RMs e o Radar.
+- As regiões de Porto Alegre e a RM somam as suas UDHs.
+- No navegador, o cartão produz exatamente o que o script grava: geometria idêntica nas 483 UDHs e
+  65.377 valores iguais (UDHs, regiões, RMs e Radar), além das 361 siglas do dicionário.
+- Uma base de UDHs com um IDHM adulterado é recusada sem mudar nada no Atlas.
+- No arquivo único, o ciclo extrair, *Baixar o Atlas com os dados* e abrir em outro navegador leva
+  as extrações do Atlas Brasil embutidas.
+
 ## 4. Fontes
 
 - [censobr](https://github.com/ipeaGIT/censobr), do IPEA. Os arquivos estão nas *releases* do
@@ -186,6 +218,10 @@ item entra por um dos caminhos abaixo.
 
   Os dois são do IBGE. Nas versões anteriores, esses arquivos estavam bloqueados neste ambiente;
   na 3.8 passaram a abrir.
+- [Biblioteca do Atlas Brasil](https://www.atlasbrasil.org.br/acervo/biblioteca) (PNUD, IPEA e FJP):
+  bases UDH, REGIONAL e 20 RMs da RM de Porto Alegre, Radar IDHM e metadados. Os arquivos foram
+  recebidos em 15/10/2026; o site não abre neste ambiente. Tamanho e SHA-256 em
+  [`ATLAS-BRASIL-bases.md`](ATLAS-BRASIL-bases.md).
 - Dicionários do `censobr` (release `censo_docs`): `2022_dictionary_tracts.xlsx` e
   `2010_dictionary_microdata.xlsx`. Deles saem os códigos das variáveis usadas, que estão listados
   em `dados/dados-censo2022.js` e no cabeçalho dos scripts.

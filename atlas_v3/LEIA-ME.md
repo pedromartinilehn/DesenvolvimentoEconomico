@@ -1,4 +1,4 @@
-# Atlas Metropolitano RMPA — versão 3.8
+# Atlas Metropolitano RMPA — versão 3.9
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios:
 Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio.
@@ -10,7 +10,47 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
 - O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
 
-## O que mudou na versão 3.8: extrações dentro do HTML
+## O que mudou na versão 3.9: bases do Atlas Brasil, UDHs e Radar IDHM
+
+As bases da biblioteca do Atlas Brasil (PNUD, IPEA e FJP) entram no Atlas por dois caminhos. No
+pacote, pelo script `extracao/11_atlas_brasil.py`. No navegador, pelo cartão "Atlas Brasil" da
+central de extração, que lê os mesmos arquivos e chega exatamente ao mesmo resultado.
+
+- **Nível UDH no mapa** (botão entre Bairro e Setor). São 483 Unidades de Desenvolvimento Humano nos
+  sete municípios, com 53 indicadores do Censo 2010.
+  - **Ficha.** Mostra o valor de 2000 da mesma UDH embaixo de cada valor de 2010, a região de Porto
+    Alegre e o município.
+  - **Indicadores compartilhados.** 33 indicadores municipais do Atlas Brasil que o Atlas já tinha
+    ganharam o nível UDH: IDHM e componentes, renda, pobreza, educação, trabalho e vulnerabilidade.
+    São os que a base de UDHs traz com a mesma definição.
+  - **Indicadores novos.** Outros 20 existem só na UDH, mais a variação do IDHM e a da renda de 2000
+    a 2010.
+- **Desigualdade dentro do município.** Para cada município: o número de UDHs, o menor e o maior IDHM
+  e a população em UDHs de IDHM abaixo de 0,700. Nos sete, são 583.947 pessoas (24,2%) em 2010.
+- **Diagnóstico regional → Contexto metropolitano.** Mostra o Radar IDHM da RM de Porto Alegre de
+  2012 a 2024, calculado com a PNAD Contínua, com:
+  - a comparação com o RS e o Brasil;
+  - os recortes por sexo e por cor;
+  - a posição entre as RMs;
+  - a RM entre as 20 RMs dos Censos e as 17 regiões de Porto Alegre.
+
+  A aba tem 2 gráficos e exporta para CSV e para o Word.
+- **Cartão "Atlas Brasil" na central.** Lê planilhas .xlsx sem internet, shapefile e bases municipais
+  com siglas do Atlas Brasil, como os registros administrativos. Faz as conferências do script e
+  recusa a base que não passa. O .rar não abre no navegador: extraia no computador ou use o script.
+- **Conferências.** A população das UDHs soma a de cada município (exata em 2010). O IDHM confere
+  com os subíndices em todas as linhas, e as regiões e a RM somam as suas UDHs.
+
+```bash
+pip install openpyxl                         # uma vez
+python3 extracao/11_atlas_brasil.py          # arquivos em extracao/fontes/atlasbrasil/
+python3 build_single.py
+```
+
+O que veio da biblioteca, o que entrou e como foi conferido estão em
+[`../docs/ATLAS-BRASIL-bases.md`](../docs/ATLAS-BRASIL-bases.md).
+
+## Versão 3.8: extrações dentro do HTML
 
 O que antes só entrava rodando uma extração agora vem pronto dentro do arquivo do Atlas. Os arquivos
 do IPEA para o pacote censobr, com os dados do Censo do IBGE, passaram a abrir no ambiente em que o
@@ -419,7 +459,8 @@ atlas_v3/
 │   ├── dados-ipeadata.js
 │   ├── dados-series.js
 │   ├── dados-censo2022.js
-│   └── dados-extracoes.js
+│   ├── dados-extracoes.js
+│   └── dados-atlasbrasil.js
 └── extracao/
     ├── 1_servicos_municipais.py
     ├── 2_atualiza_cnes.py
@@ -431,6 +472,7 @@ atlas_v3/
     ├── 8_series_complementares.py
     ├── 9_censo2022_setores.py
     ├── 10_censo2010_amostra.py
+    ├── 11_atlas_brasil.py
     ├── indices.json
     ├── R/                 (scripts R para os dados que faltam; ver docs/EXTRACAO-dados-faltantes.md)
     ├── saida_R/           (saídas dos scripts R, não versionadas)
@@ -452,6 +494,7 @@ python3 extracao/7_ipeadata.py
 python3 extracao/8_series_complementares.py
 python3 extracao/9_censo2022_setores.py
 python3 extracao/10_censo2010_amostra.py
+python3 extracao/11_atlas_brasil.py
 python3 build_single.py
 ```
 

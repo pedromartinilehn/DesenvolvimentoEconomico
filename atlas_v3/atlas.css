@@ -84,6 +84,7 @@ header{grid-area:top;display:flex;align-items:center;gap:12px;padding:0 16px;
 .seg button[aria-pressed=true]{background:var(--bg2);color:var(--txt);font-weight:600;
   box-shadow:0 1px 2px rgba(21,33,46,.12),0 0 0 1px rgba(21,33,46,.04)}
 .seg button:disabled{opacity:.4;cursor:not-allowed}
+.seg .nv-c{display:none}
 
 .search{position:relative;flex:1 1 260px;min-width:150px;max-width:380px}
 .search input{width:100%;height:36px;background:var(--bg3);border:1px solid var(--line2);
@@ -268,6 +269,7 @@ h3.sec .tag{margin-left:auto}
 .row .v{text-align:right;flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
 .row .v .num{font-size:14.5px}
 .row .v .u{font-size:12px;color:var(--txt3);display:block;line-height:1.35}
+.row .v .ant{font-size:11px;color:var(--txt3);display:block;line-height:1.35;white-space:nowrap}
 .row.ref .v .num{color:var(--txt2);font-weight:500}
 .ref-note{font-size:12px;color:var(--txt3);line-height:1.4}
 .row.np .v{font-size:12px;color:var(--pend);max-width:130px}
@@ -379,6 +381,7 @@ table.tb .worst{color:var(--pend)}
 .xt-drop:focus-within{outline:2px solid var(--acc);outline-offset:2px}
 .xt-corpo:empty{display:none}
 .xt-corpo{margin-top:10px}
+ul.xt-lista{margin:6px 0 0 18px;line-height:1.6}
 .xt-prog{height:8px;border-radius:4px;background:var(--bg4);overflow:hidden;margin:8px 0 4px}
 .xt-prog i{display:block;height:100%;background:var(--acc);border-radius:4px;transition:width .2s}
 .xt-campo{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--txt2);margin:10px 0}
@@ -484,6 +487,9 @@ table.xt-prev td{font-size:12px;white-space:nowrap}
 }
 @media(max-width:620px){
   .seg button{padding:0 9px;font-size:12.5px}
+  /* quatro níveis: no celular, "Mun." no lugar de "Município" */
+  #segNivel button{padding:0 7px}
+  #segNivel .nv-l{display:none} #segNivel .nv-c{display:inline}
   .prov .meta .chip,.prov .ramp-sel{display:none}
   .brand .b-long{display:none}.brand .b-short{display:inline}
   /* legenda e camadas lado a lado, acima da atribuição (que quebra em duas linhas) */
@@ -495,6 +501,10 @@ table.xt-prev td{font-size:12px;white-space:nowrap}
   .legend:not(.min)~.layers{display:none}
   .mbox{max-height:92vh;border-radius:14px}
   .mbody{padding:16px}
+}
+@media(max-width:380px){
+  #segNivel button{padding:0 4px;font-size:12px}
+  .brand b{font-size:15px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
@@ -512,6 +522,12 @@ table.tb.diag{font-size:12.5px}
 table.tb.diag th{white-space:normal;vertical-align:bottom}
 table.tb.diag tr.tot td{background:var(--bg3);font-weight:600}
 .diag-fonte{font-size:11.5px;color:var(--txt3);margin:4px 0 10px;line-height:1.5}
+.ctx-grafs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0 4px}
+@media(max-width:900px){.ctx-grafs{grid-template-columns:1fr}}
+figure.ctx-graf{margin:0;background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:10px 10px 4px}
+figure.ctx-graf figcaption{font-size:12.5px;font-weight:600;color:var(--txt);margin-bottom:4px}
+.ctx-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:var(--txt2);margin-bottom:2px}
+.ctx-leg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 .diag-falta{font-size:12px;color:var(--pend);margin:-4px 0 14px;line-height:1.5}
 table.mx select{font:inherit;padding:3px 4px;border:1px solid var(--line2);border-radius:6px;background:var(--bg2)}
 table.mx input{font:inherit;width:100%;min-width:140px;padding:4px 6px;border:1px solid var(--line2);border-radius:6px;background:var(--bg2)}

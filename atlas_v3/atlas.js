@@ -88,6 +88,15 @@ const FONTES = {
   SICONFI:{n:'Tesouro Nacional — SICONFI / FINBRA',s:'SICONFI/STN',u:'https://siconfi.tesouro.gov.br/',d:''},
   ATLAS:{n:'PNUD / IPEA / FJP — Atlas do Desenvolvimento Humano',s:'Atlas Brasil',
     u:'https://www.atlasbrasil.org.br/perfil/municipio/431490',d:'IDHM calculado sobre Censos Demográficos de 1991, 2000 e 2010. O IDHM dos sete municípios e os indicadores de vulnerabilidade de 2010 foram lidos do espelho público da Base dos Dados (tabela mundo_onu_adh.municipio), que republica o Atlas Brasil sem alterar os valores.'},
+  ATLASBR_UDH:{n:'PNUD / IPEA / FJP — Atlas Brasil: Unidades de Desenvolvimento Humano (UDH), Censos 2000 e 2010',s:'Atlas Brasil (UDH)',
+    u:'https://www.atlasbrasil.org.br/acervo/biblioteca',
+    d:'Base de UDHs da RM de Porto Alegre, da biblioteca do Atlas Brasil (arquivo dados_pa.zip), com o shapefile das UDHs. A UDH é um recorte do Atlas Brasil dentro dos municípios das regiões metropolitanas, formado por setores censitários do Censo 2010. A base traz as mesmas UDHs em 2000 e em 2010. Lida pelo extracao/11_atlas_brasil.py, que confere a população das UDHs com a do município e o IDHM com os subíndices.'},
+  ATLASBR_RM:{n:'PNUD / IPEA / FJP — Atlas Brasil: regiões de Porto Alegre e 20 regiões metropolitanas, Censos 2000 e 2010',s:'Atlas Brasil',
+    u:'https://www.atlasbrasil.org.br/acervo/biblioteca',
+    d:'Bases REGIONAL (as 17 regiões de Porto Alegre) e 20 RMs, que vêm no mesmo arquivo da RM de Porto Alegre na biblioteca do Atlas Brasil. A RM de Porto Alegre do Atlas Brasil tem 34 municípios; a "Região" do Atlas Metropolitano, os sete do pacote.'},
+  ATLASBR_RADAR:{n:'PNUD / IPEA / FJP — Radar IDHM, PNAD Contínua, 2012 a 2024',s:'Radar IDHM',
+    u:'https://www.atlasbrasil.org.br/acervo/biblioteca',
+    d:'IDHM e indicadores calculados pela Fundação João Pinheiro com os microdados da PNAD Contínua (IBGE): primeira visita de 2012 a 2019 e em 2023; quinta visita em 2020 e 2021. Existe para o Brasil, as grandes regiões, as UFs e as regiões metropolitanas; não há valor por município. Para as RMs, a esperança de vida vem de tábuas calculadas com o SIM/DATASUS. Base adh_radar_base_2012_2024.xlsx e metadados da biblioteca do Atlas Brasil.'},
   IPEA_AOP:{n:'IPEA — Projeto Acesso a Oportunidades (2019)',s:'IPEA',
     u:'https://www.ipea.gov.br/acessooportunidades/',
     d:'Tempo de viagem e oportunidades alcançáveis a pé, de bicicleta e de transporte público, calculados pelo IPEA por hexágono para as maiores cidades do país, com dados de 2019. Lido do espelho público da Base dos Dados (br_ipea_acesso_oportunidades.indicadores_2019). Na tabela da Base dos Dados o tempo mínimo vem multiplicado por 100; o Atlas divide por 100 depois de conferir a coerência com os indicadores cumulativos (ver Metodologia).'},
@@ -128,6 +137,7 @@ const NIVEIS = {
   municipio:{n:'Municípios',ab:'MUN',plural:'municípios'},
   regiao:{n:'Regiões',ab:'REG',plural:'regiões'},
   bairro:{n:'Bairros',ab:'BAIRRO',plural:'bairros'},
+  udh:{n:'UDHs do Atlas Brasil',ab:'UDH',plural:'UDHs',min:'UDHs do Atlas Brasil'},
   setor:{n:'Setores censitários',ab:'SETOR',plural:'setores censitários'}
 };
 
@@ -463,6 +473,100 @@ aop('aop_infantil_30pe','População a mais de 30 minutos a pé de escola públi
   'Moradores de setores cujo tempo a pé passa de 30 minutos ou que não alcançam nenhuma escola no limite de cálculo, sobre os moradores dos setores cobertos.');
 
 
+/* ---- 4.3.3b ATLAS BRASIL: UDH, REGIÕES DE PORTO ALEGRE, RMs E RADAR IDHM ----
+   Vêm de dados/dados-atlasbrasil.js, gerado por extracao/11_atlas_brasil.py com as bases da
+   biblioteca do Atlas Brasil (atlasbrasil.org.br/acervo/biblioteca). O cartão "Atlas Brasil"
+   da central de extração lê os mesmos arquivos no navegador e grava no mesmo formato; uma base
+   extraída vale por cima da que veio no pacote (abAplica, seção 28).
+   UDH: Unidade de Desenvolvimento Humano, recorte do Atlas Brasil dentro dos municípios das RMs,
+   com dados dos Censos 2000 e 2010. O mapa mostra 2010; a ficha mostra 2000 ao lado. */
+let ATLASBR=window.ATLAS_ATLASBR&&window.ATLAS_ATLASBR.udh?window.ATLAS_ATLASBR:null;
+/* sigla do Atlas Brasil -> indicador do Atlas. Só a sigla e o id: o indicador já existe no nível
+   município (mesma fonte, mesmo ano, mesma definição; a soma ponderada das UDHs dá o valor do
+   município, ver Metodologia) e ganha o nível UDH. Com nome e unidade: indicador novo, só da UDH,
+   cuja nota é a definição dos metadados do Atlas Brasil. */
+const UDH_IND=[
+  ['IDHM','idhm'],['IDHM_R','idhm_renda'],['IDHM_L','idhm_longevidade'],['IDHM_E','idhm_educacao'],['ESPVIDA','idhm_esperanca_vida'],
+  ['RDPC','adh_renda_pc'],['GINI','adh_gini'],['THEIL','adh_theil'],['R1040','adh_razao_10_40'],['PREN20','adh_renda_20_pobres'],
+  ['PIND','adh_extrema_pobreza'],['PMPOB','adh_pobreza'],['PPOB','adh_vulner_pobreza'],['PINDCRI','adh_extrema_criancas'],
+  ['PMPOBCRI','adh_pobreza_criancas'],['MORT1','adh_mort_infantil'],['MORT5','adh_mort_5'],
+  ['E_ANOSESTUDO','adh_expectativa_estudo'],['T_FUND18M','adh_fund_18_mais'],['T_MED18A20','adh_medio_18_20'],
+  ['T_ATRASO_2_FUND','adh_atraso_fund'],['T_FORA6A14','adh_fora_escola_6_14'],
+  ['T_DES18M','adh_desocup_18_mais'],['T_DES1824','adh_desocup_18_24'],['P_FORMAL','adh_formalizacao'],
+  ['T_DENS','adh_densidade_2'],['AGUA_ESGOTO','adh_agua_esgoto_inadeq'],
+  ['T_FUNDIN18MINF','adh_sem_fund_informal'],['T_CRIFUNDIN_TODOS','adh_criancas_dom_sem_fund'],
+  ['T_NESTUDA_NTRAB_MMEIO','adh_nemnem_vulner'],['T_MULCHEFEFIF014','adh_maes_chefes_sem_fund'],
+  ['T_RMAXIDOSO','adh_dep_idosos_vulner'],['T_OCUPDESLOC_1','adh_desloc_1h_vulner'],
+  ['PESOTOT','udh_pop','visao','População (Censo 2010)','pessoas','int','agua'],
+  ['RAZDEP','udh_razdep','demografia','Razão de dependência, menores de 15 e 65 anos ou mais (2010)','%','pct1','terra'],
+  ['T_ENV','udh_t_env','demografia','Taxa de envelhecimento, 65 anos ou mais (2010)','%','pct1','brasa'],
+  ['FECTOT','udh_fectot','demografia','Taxa de fecundidade total (2010)','filhos por mulher','dec2','terra'],
+  ['RDPC1','udh_rdpc1','renda','Renda per capita média do quinto mais pobre','R$/mês (ago/2010)','brl','terra'],
+  ['PRENTRAB','udh_prentrab','renda','Parte da renda que vem do trabalho','%','pct1','agua'],
+  ['RENOCUP','udh_renocup','trabalho','Rendimento médio dos ocupados (Atlas Brasil, 2010)','R$/mês (ago/2010)','brl','terra'],
+  ['T_ATIV18M','udh_t_ativ18m','trabalho','Taxa de atividade, 18 anos ou mais (2010)','%','pct1','agua'],
+  ['T_ANALF15M','adh_analf_15','educacao','Taxa de analfabetismo, 15 anos ou mais (Atlas Brasil, 2010)','%','pct2','brasa'],
+  ['T_SUPER25M','udh_t_super25m','educacao','Pessoas de 25 anos ou mais com ensino superior completo (2010)','%','pct1','agua'],
+  ['T_MED25M','udh_t_med25m','educacao','Pessoas de 25 anos ou mais com ensino médio completo (2010)','%','pct1','agua'],
+  ['T_FREQ0A5','udh_t_freq0a5','educacao','Crianças de 0 a 5 anos na escola ou creche (2010)','%','pct1','agua'],
+  ['T_FREQ15A17','udh_t_freq15a17','educacao','Jovens de 15 a 17 anos na escola (2010)','%','pct1','agua'],
+  ['T_FUND15A17','udh_t_fund15a17','educacao','Jovens de 15 a 17 anos com fundamental completo (2010)','%','pct1','agua'],
+  ['T_AGUA','udh_t_agua','saneamento','Pessoas em domicílios com água encanada (2010)','%','pct2','agua'],
+  ['T_BANAGUA','udh_t_banagua','saneamento','Pessoas em domicílios com banheiro e água encanada (2010)','%','pct2','agua'],
+  ['T_LIXO','udh_t_lixo','saneamento','Pessoas em domicílios urbanos com coleta de lixo (2010)','%','pct2','agua'],
+  ['T_LUZ','udh_t_luz','habitacao','Pessoas em domicílios com energia elétrica (2010)','%','pct2','agua'],
+  ['T_FUNDIN_TODOS','udh_t_fundin_todos','vulner','Pessoas em domicílios em que ninguém tem fundamental completo (2010)','%','pct1','brasa'],
+  ['T_M10A17CF','udh_t_m10a17cf','saude','Meninas de 10 a 17 anos que tiveram filhos (2010)','%','pct2','brasa']
+];
+const OBS_UDH='Valor da UDH no Censo 2010, publicado pelo Atlas Brasil. A ficha da UDH mostra também o de 2000, na mesma UDH.';
+const abDef=s=>{const d=((ATLASBR||{}).dic||{})[s]; return d&&d.d?d.d:'';};
+/* põe o nível UDH no catálogo; chamado de novo quando a central traz uma base de UDHs */
+function abCatalogo(){
+  if(!ATLASBR||!ATLASBR.udh)return;
+  /* roda no carregamento, antes do índice do catálogo (seção 7): busca direta */
+  const acha=id=>IND.find(x=>x.id===id);
+  const tem=new Set(ATLASBR.udh.campos);
+  UDH_IND.forEach(([s,id,cat,n,u,fmt,ramp])=>{
+    if(!tem.has(s))return;
+    let i=acha(id);
+    if(!i&&IND_FORA.has(id)){const f=IND_FORA.get(id);IND.splice(Math.min(f.pos,IND.length),0,f.i);IND_FORA.delete(id);IND_IDX=null;i=f.i;}
+    if(i){
+      if(!i.niveis.includes('udh'))i.niveis=i.niveis.concat('udh');
+      i.fontePorNivel=Object.assign({},i.fontePorNivel,{udh:'ATLASBR_UDH'});
+      if(i.status==='pend'||i.status==='mun')i.status='ok';
+    }else if(cat){
+      /* analfabetismo: o Atlas Brasil municipal (dados-ipea.js) traz o valor dos sete */
+      const mun=id==='adh_analf_15'&&ADH_IPEA&&ADH_IPEA.valores.taxa_analfabetismo_15_mais;
+      ind({id,cat,n,u,fonte:'ATLASBR_UDH',ano:2010,niveis:mun?['municipio','udh']:['udh'],status:'ok',fmt,ramp,
+        fontePorNivel:mun?{municipio:'ATLAS'}:undefined,
+        obs:(abDef(s)?abDef(s)+' ':'')+OBS_UDH});
+    }
+  });
+  /* IDHM de 2000: o indicador municipal ganha o nível UDH, com o valor de 2000 de cada UDH */
+  const i00=acha('m_idhm00');
+  if(i00&&tem.has('IDHM')&&!i00.niveis.includes('udh')){i00.niveis=i00.niveis.concat('udh');
+    i00.fontePorNivel=Object.assign({},i00.fontePorNivel,{udh:'ATLASBR_UDH'});}
+  if(!acha('udh_var_idhm')&&tem.has('IDHM'))ind({id:'udh_var_idhm',cat:'idh',n:'Variação do IDHM de 2000 a 2010',u:'pontos do índice',
+    fonte:'ATLAS_CALC',ano:2010,niveis:['udh'],status:'ok',fmt:'dec3',ramp:'terra',
+    obs:'IDHM de 2010 menos o de 2000, na mesma UDH, com os valores publicados pelo Atlas Brasil. Positivo: o índice subiu.'});
+  if(!acha('udh_var_rdpc')&&tem.has('RDPC'))ind({id:'udh_var_rdpc',cat:'renda',n:'Variação real da renda per capita de 2000 a 2010',u:'%',
+    fonte:'ATLAS_CALC',ano:2010,niveis:['udh'],status:'ok',fmt:'pct1',ramp:'terra',
+    obs:'Renda per capita de 2010 sobre a de 2000, menos 1, vezes 100, na mesma UDH. O Atlas Brasil publica as duas em reais de agosto de 2010, então a variação já desconta a inflação.'});
+  /* desigualdade dentro do município, a partir das UDHs de 2010 */
+  const M=(id,n,u,fmt,ramp,obs)=>{if(!acha(id))ind({id,cat:'idh',n,u,fonte:'ATLAS_CALC',ano:2010,niveis:['municipio'],status:'ok',fmt,ramp,obs});};
+  if(tem.has('IDHM')&&tem.has('PESOTOT')){
+    M('udh_n','UDHs no município','UDHs','int','agua','Número de Unidades de Desenvolvimento Humano do Atlas Brasil no município.');
+    M('udh_idhm_min','IDHM da UDH de menor índice (2010)','índice','dec3','agua','O menor IDHM entre as UDHs do município, no Censo 2010 (Atlas Brasil).');
+    M('udh_idhm_max','IDHM da UDH de maior índice (2010)','índice','dec3','agua','O maior IDHM entre as UDHs do município, no Censo 2010 (Atlas Brasil).');
+    M('udh_pop_idhm_baixo','Pessoas em UDHs de IDHM abaixo de 0,700 (2010)','pessoas','int','brasa',
+      'Soma da população das UDHs com IDHM abaixo de 0,700, isto é, nas faixas média, baixa e muito baixa do Atlas Brasil (0,700 é o início da faixa alta). Censo 2010.');
+    M('udh_pct_idhm_baixo','Parte da população em UDHs de IDHM abaixo de 0,700 (2010)','%','pct1','brasa',
+      'População das UDHs com IDHM abaixo de 0,700 sobre a população de todas as UDHs do município, no Censo 2010.');
+  }
+  IND_IDX=null;
+}
+abCatalogo();
+
 /* ---- 4.3.4 IPEADATA ----------------------------------------------------
    Vêm de dados/dados-ipeadata.js, gerado por extracao/7_ipeadata.py a partir da
    API pública do Ipeadata (IPEA). Cada série é um indicador do nível município,
@@ -782,7 +886,7 @@ const S={
 /* ─────────────────────────────────────────────────── 7. UTILITÁRIOS ──── */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const nf=new Intl.NumberFormat('pt-BR');
-const NIVEL_CURTO={municipio:'município',bairro:'bairro',setor:'setor'};
+const NIVEL_CURTO={municipio:'município',bairro:'bairro',udh:'UDH',setor:'setor'};
 /* unidade ao lado de um valor já formatado em reais: tira o "R$" repetido */
 const unid=i=>!i.u?'':(/^brl/.test(i.fmt||'')&&/^R\$/.test(i.u))
   ?i.u.replace(/^R\$\s*/,'').replace(/^\//,'por ')
@@ -832,6 +936,8 @@ function indAtual(){
 }
 const norm=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 
+/* a fonte do indicador naquele nível (o IDHM do município e o da UDH vêm de bases diferentes) */
+const fonteDe=(i,nivel)=>FONTES[(nivel&&i.fontePorNivel&&i.fontePorNivel[nivel])||i.fonte]||{};
 function selo(i,nivel){
   const chave=(nivel&&i.fontePorNivel&&i.fontePorNivel[nivel])||i.fonte;
   const f=FONTES[chave]||{s:chave};
@@ -929,7 +1035,7 @@ function iniciaMapa(){
   map.addControl(new Exp());
   map.attributionControl.setPrefix('');
   map.attributionControl.addAttribution(
-    'Malhas: IBGE 2022 · SMUrb/PMPA — Dados: IBGE, INEP, DATASUS, SICONFI, SSP/RS');
+    'Malhas: IBGE 2022 · SMUrb/PMPA · UDH: Atlas Brasil — Dados: IBGE, INEP, DATASUS, SICONFI, SSP/RS, Atlas Brasil');
 }
 function baseOn(on){
   if(on&&!camadaBase){
@@ -1067,16 +1173,19 @@ function tooltipHTML(p){
   const linhas=[[i.n, v==null?'sem dado':fmtN(v,i.fmt)+(i.u&&!/^%/.test(i.u)?' '+i.u.replace('%',''):'')]];
   const extras = S.nivel==='bairro'
     ? [['População (2022)','pop_2022','int'],['Densidade','dens_hab_km2','dec1'],['Área','area_km2','dec2']]
+    : S.nivel==='udh'
+    ? [['População (2010)','udh_pop','int'],['IDHM (2010)','idhm','dec3'],['Renda per capita (2010)','adh_renda_pc','brl0']]
     : [['População (2022)','pop_2022','int'],['Domicílios','dom_total','int'],['Moradores/dom.','moradores_dom','dec2']];
   extras.forEach(([n,k,f])=>{ if(k!==S.indId) linhas.push([n, p[k]==null?'sem dado':fmtN(+p[k],f)]); });
-  return `<b>${esc(p.nome)}${p.bairro&&S.nivel==='setor'?` <span class="tt-sub">· ${esc(p.bairro)}</span>`:''}</b>`+
+  return `<b>${esc(p.nome)}${p.bairro&&S.nivel==='setor'?` <span class="tt-sub">· ${esc(p.bairro)}</span>`
+    :S.nivel==='udh'&&p.muni?` <span class="tt-sub">· ${esc(p.muni)}</span>`:''}</b>`+
     linhas.map(([k,val])=>`<div class="kv"><span>${esc(k)}</span><span class="num">${esc(val)}</span></div>`).join('')+
     `<div class="hint">clique para o perfil completo</div>`;
 }
 
 /* ──────────────────────────────────────────── 10. PROVENIÊNCIA + LEGENDA */
 function renderProv(){
-  const i=indAtual(), f=FONTES[i.fonte]||{}, n=NIVEIS[S.nivel];
+  const i=indAtual(), f=FONTES[(i.fontePorNivel&&i.fontePorNivel[S.nivel])||i.fonte]||{}, n=NIVEIS[S.nivel];
   /* o conjunto desenhado (já com o filtro de município), não a camada inteira */
   const g=S._g||S.geo[S.nivel];
   let cob='';
@@ -1084,7 +1193,7 @@ function renderProv(){
     const tot=g.features.length;
     let com=0,pc=0,pt=0;                  /* antes: duas varreduras separadas */
     for(let k=0;k<tot;k++){
-      const q=g.features[k].properties, pq=+q.pop_2022||0;
+      const q=g.features[k].properties, pq=+(q._popRef??q.pop_2022)||0;
       pt+=pq;
       if(valor(q)!=null){com++;pc+=pq;}
     }
@@ -1131,7 +1240,7 @@ function renderLegenda(){
   const rot=faixas.map(r=>`<div class="lrow"><i class="lsw" style="background:${r.cor}"></i><span>${r.txt}</span></div>`);
   el.classList.toggle('min',!!S.legMin);
   el.innerHTML=`<button class="lg-hd" id="lgToggle" aria-expanded="${!S.legMin}"><h4>${esc(i.n)}</h4><span class="lg-chev" aria-hidden="true"></span></button>
-    <div class="lg-body"><div class="un">${esc(i.u||'')} · ${esc(NIVEIS[S.nivel].n.toLowerCase())} · ${i.ano||'s/ ano'}</div>
+    <div class="lg-body"><div class="un">${esc(i.u||'')} · ${esc(NIVEIS[S.nivel].min||NIVEIS[S.nivel].n.toLowerCase())} · ${i.ano||'s/ ano'}</div>
     ${rot.reverse().join('')}
     ${motivos.map(([n,t])=>`<div class="lrow nd"><i class="lsw nodata"></i>
       <span>${esc(t)} · ${nf.format(n)}</span></div>`).join('')}
@@ -1165,7 +1274,7 @@ function renderCats(){
           data-busca="${esc(norm(i.n+' '+c.n))}">
           <span class="nm">${esc(i.n)}</span>
           <span class="meta"><i class="dot"></i>${esc(f)}${i.ano?' · '+i.ano:''}${i.status==='est'?' · histórico':''}${i.status==='ext'?' · não oficial':''}
-            <span class="lvl">${listaPt(['municipio','bairro','setor'].filter(n=>i.niveis.includes(n)).map(n=>NIVEL_CURTO[n]))}</span></span></button>`;
+            <span class="lvl">${listaPt(['municipio','bairro','udh','setor'].filter(n=>i.niveis.includes(n)).map(n=>NIVEL_CURTO[n]))}</span></span></button>`;
       }).join('')}</div></div>`;
   }).join('');
   $$('.cat>button').forEach(b=>b.onclick=()=>{
@@ -1193,6 +1302,7 @@ function escolheIndicador(id){
 function setNivel(n,silent){
   if(NIVEIS[n]===undefined)return;
   if(n==='setor')garanteSetores();
+  if(n==='udh'&&!garanteUDH())return;
   S.nivel=n; S.sel=null; S.cmp=[]; S._fit=false; S.bolsao=null;
   $$('#segNivel button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.nivel===n));
   if(!silent){desenhaMapa();renderPainel();}
@@ -1205,6 +1315,7 @@ function renderPainel(){
   if(S.nivel==='municipio') b.innerHTML=painelMunicipiosHTML();
   else if(S.sel) b.innerHTML=perfilHTML(S.sel);
   else if(S.nivel==='municipio'||S.nivel==='regiao') b.innerHTML=aberturaHTML();
+  else if(S.nivel==='udh') b.innerHTML=aberturaHTML()+udhNotaHTML()+distribuicaoHTML();
   else b.innerHTML=aberturaHTML()+distribuicaoHTML();
   ligaPainel();
 }
@@ -1471,6 +1582,15 @@ function serieMini(titulo,pts,fmt){
   </svg></figure>`;
 }
 
+/* nível UDH sem território escolhido: o que é a UDH e de quando são os dados */
+function udhNotaHTML(){
+  const g=geoDoNivel(); if(!g)return '';
+  return `<h3 class="sec">UDHs do Atlas Brasil <span class="chip tag">${nf.format(g.features.length)}</span></h3>
+    <p style="font-size:12px;color:var(--txt2);line-height:1.6">A Unidade de Desenvolvimento Humano (UDH) é o recorte do
+    Atlas Brasil dentro dos municípios das regiões metropolitanas, formado por setores do Censo 2010. O mapa mostra 2010;
+    a ficha de cada UDH mostra também 2000. Os dados do Censo 2022 continuam nos níveis bairro e setor: os recortes
+    são outros e os anos também, por isso os números não se comparam diretamente.</p>`;
+}
 function distribuicaoHTML(){
   const i=indAtual(), g=geoDoNivel();
   if(!g||i.status==='pend'||i.status==='mun')return '';
@@ -1595,6 +1715,7 @@ function ligaCliqueDoMapa(){
   map.on('mouseout',limpaHoverReserva);
 }
 const BLOCOS=[
+  {t:'Desenvolvimento humano',cats:['idh']},
   {t:'Perfil populacional',cats:['visao','demografia','idade']},
   {t:'Perfil racial',cats:['raca']},
   {t:'Perfil econômico',cats:['renda','pobreza','trabalho','economia']},
@@ -1618,6 +1739,7 @@ function cobre(nivel,muni,id){
    o perfil mostra o do território que o contém, com o nome dele no rótulo. */
 function continentes(p){
   const out=[];
+  if(S.nivel==='udh'&&p._reg){const r=abRegiaoProps(p._reg); if(r)out.push({p:r,rot:'da região '+r.nome+' (Atlas Brasil)'});}
   if(S.nivel==='setor'&&p.bairro&&S.geo.bairro){
     const b=S.geo.bairro.features.find(x=>x.properties.muni===p.muni&&x.properties.nome===p.bairro);
     if(b)out.push({p:b.properties,rot:'do bairro '+b.properties.nome});
@@ -1630,16 +1752,18 @@ function continentes(p){
 }
 function perfilHTML(id){
   const f=feature(id); if(!f)return aberturaHTML();
-  const p=f.properties, isSetor=S.nivel==='setor';
+  const p=f.properties, isSetor=S.nivel==='setor', isUdh=S.nivel==='udh';
   const pctMun=p.pop_pct_mun??null;
 
   let html=`<div class="terr-h">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
       <button class="btn" id="btnVoltar" style="padding:3px 8px;font-size:11px">← Visão geral</button>
-      <span class="eyebrow">${isSetor?'Setor censitário':'Bairro'}</span></div>
+      <span class="eyebrow">${isSetor?'Setor censitário':isUdh?'Unidade de Desenvolvimento Humano':'Bairro'}</span></div>
     <h2>${esc(p.nome)}</h2>
     <div class="sub">
       ${isSetor?`<span class="chip acc">${esc(p.bairro||p.muni||'')}</span><span class="chip mono">${esc(p.id)}</span>`
+        :isUdh?`<span class="chip acc">${esc(p.muni||'—')}</span>${p.regiao?`<span class="chip">região ${esc(p.regiao)}</span>`:''}
+          <span class="chip mono">${esc(p.id)}</span>${p.udh_pop!=null?`<span class="chip">${fmtN(p.udh_pop,'int')} pessoas em 2010</span>`:''}`
         :`<span class="chip acc">${fmtN(pctMun,'pct2')} de ${esc(p.muni||'—')}</span>`}
       ${p.area_km2!=null?`<span class="chip">${fmtN(+p.area_km2,'dec2')} km²</span>`:''}
     </div>
@@ -1654,36 +1778,42 @@ function perfilHTML(id){
         :'O IBGE não publica os dados de pessoas deste setor: é um setor especial (quartel, hospital, alojamento) ou está sob sigilo.'}
       Onde falta o dado do setor, a linha mostra o valor ${c?esc(c.rot):'do município'} e traz essa indicação.</div>`;
   }
+  if(isUdh)html+=`<div class="note">Valores do Censo 2010 publicados pelo Atlas Brasil. Embaixo de cada valor, o de 2000
+    na mesma UDH, quando o Atlas Brasil o publica.</div>`;
   BLOCOS.forEach(b=>{
-    const inds=IND.filter(i=>b.cats.includes(i.cat)&&i.niveis.includes(S.nivel));
+    /* na UDH, o IDHM de 2000 já aparece embaixo do IDHM */
+    const inds=IND.filter(i=>b.cats.includes(i.cat)&&i.niveis.includes(S.nivel)&&!(isUdh&&i.id==='m_idhm00'));
     if(!inds.length)return;
     const disp=inds.filter(i=>i.status!=='pend'&&p[i.id]!=null);
     /* faltantes que a fonte cobre neste município: recebem o valor do continente */
-    const falt=inds.filter(i=>!disp.includes(i)&&i.status!=='pend'&&cobre(S.nivel,p.muni,i.id));
+    /* variação 2000–2010 da UDH: é conta do Atlas e só existe com os dois anos; sem um deles, a linha não entra */
+    const falt=inds.filter(i=>!disp.includes(i)&&i.status!=='pend'&&!/^udh_var_/.test(i.id)&&cobre(S.nivel,p.muni,i.id));
     if(!disp.length&&!falt.length)return;
     html+=`<h3 class="sec">${esc(b.t)}<span class="chip tag">${disp.length+falt.length}</span></h3>`;
     if(disp.length){
       html+=disp.map(i=>{
-        const om=p._omit&&p._omit[i.id];
+        const om=p._omit&&p._omit[i.id], ant=isUdh&&p._2000?p._2000[i.id]:null;
         return `<div class="row"><div class="k">${esc(i.n)}${selo(i,S.nivel)}
           ${om?`<div style="font-size:10px;color:var(--pend);margin-top:2px">
             soma parcial — IBGE omitiu ${om} setor${om>1?'es':''}</div>`:''}</div>
         <div class="v"><span class="num">${fmtN(+p[i.id],i.fmt)}</span>
-        <span class="u">${esc(unid(i))}</span></div></div>`;}).join('');
+        <span class="u">${esc(unid(i))}</span>${ant!=null?`<span class="ant">2000: ${esc(fmtN(ant,i.fmt))}</span>`:''}</div></div>`;}).join('');
     }
-    if(b.t==='Perfil populacional')html+=piramideHTML(p);
-    if(b.t==='Perfil racial')html+=racaHTML(p);
+    /* pirâmide e cor ou raça são do Censo 2022; a UDH tem dados de 2000 e 2010 */
+    if(b.t==='Perfil populacional'&&!isUdh)html+=piramideHTML(p);
+    if(b.t==='Perfil racial'&&!isUdh)html+=racaHTML(p);
     if(falt.length){
-      const cont=continentes(p), aqui=isSetor?'este setor':S.nivel==='bairro'?'este bairro':'este município';
+      const cont=continentes(p), aqui=isSetor?'este setor':isUdh?'esta UDH':S.nivel==='bairro'?'este bairro':'este município';
+      const quem=isUdh?'O Atlas Brasil não publica':'IBGE não publica';
       html+=falt.map(i=>{
         let ref=null; for(const c of cont){if(c.p[i.id]!=null){ref=c;break;}}
         return ref
           ?`<div class="row ref"><div class="k">${esc(i.n)}${selo(i,S.nivel)}
-              <span class="ref-note">IBGE não publica para ${aqui} · valor ${esc(ref.rot)}</span></div>
+              <span class="ref-note">${quem} para ${aqui} · valor ${esc(ref.rot)}</span></div>
             <div class="v"><span class="num">${fmtN(+ref.p[i.id],i.fmt)}</span>
             <span class="u">${esc(unid(i))}</span></div></div>`
           :`<div class="row ref"><div class="k">${esc(i.n)}${selo(i,S.nivel)}
-              <span class="ref-note">IBGE não publica para ${aqui} nem para o território que o contém</span></div>
+              <span class="ref-note">${quem} para ${aqui} nem para o território que o contém</span></div>
             <div class="v"><span class="num">—</span></div></div>`;
       }).join('');
     }
@@ -1705,6 +1835,7 @@ function perfilHTML(id){
   html+=`<h3 class="sec">Ficha do território</h3>
     <p style="font-size:11.5px;color:var(--txt3);line-height:1.6">
       Geometria: ${isSetor?'malha de setores censitários do IBGE (Censo 2022)'
+      :isUdh?'malha das Unidades de Desenvolvimento Humano do Atlas Brasil (shapefile da RM de Porto Alegre, setores do Censo 2010)'
       :p.muni==='Porto Alegre'?'malha de bairros da SMUrb/PMPA, Lei Municipal nº 12.112/2016'
       :/sem divisão de bairros/i.test(p.nome||'')?'o município inteiro: o IBGE não divide este município em bairros'
       :'bairros do IBGE no Censo 2022, formados pelos setores com o mesmo nome de bairro'}.
@@ -1817,7 +1948,7 @@ function addCmp(id){
 function renderAnalise(){
   const b=$('#analiseBody');
   if(S.nivel==='municipio'){
-    b.innerHTML=`<div class="note warn">Selecione <b>Bairros</b> ou <b>Setores</b> no topo
+    b.innerHTML=`<div class="note warn">Selecione <b>Bairros</b>, <b>UDHs</b> ou <b>Setores</b> no topo
       para ranquear e comparar territórios.</div>`;return;}
   const disp=IND.filter(i=>i.niveis.includes(S.nivel)&&i.status!=='pend'&&i.status!=='mun');
   if(!disp.length){b.innerHTML='<div class="note warn">Nenhum indicador com dado neste nível.</div>';return;}
@@ -1825,7 +1956,7 @@ function renderAnalise(){
   const i=disp.find(x=>x.id===cur.id)||disp[0];
   const g=S.geo[S.nivel];
   let feats=g.features;
-  if(S.nivel==='setor'&&S.muniFiltro!=null)feats=feats.filter(f=>f.properties.muni_id===S.muniFiltro);
+  if((S.nivel==='setor'||S.nivel==='udh')&&S.muniFiltro!=null)feats=feats.filter(f=>f.properties.muni_id===S.muniFiltro);
   const arr=feats.map(f=>({id:f.properties.id,n:f.properties.nome,b:f.properties.bairro,
       m:f.properties.muni,v:f.properties[i.id]==null?null:+f.properties[i.id]}))
     .filter(o=>o.v!=null).sort((a,c)=>S._rankAsc?a.v-c.v:c.v-a.v);
@@ -1842,7 +1973,7 @@ function renderAnalise(){
     <div class="seg"><button id="anDesc" aria-pressed="${!S._rankAsc}">Maior → menor</button>
       <button id="anAsc" aria-pressed="${!!S._rankAsc}">Menor → maior</button></div>
     <span class="chip">${NIVEIS[S.nivel].n}</span>
-    ${S.nivel==='setor'&&S.muniFiltro!=null?`<span class="chip acc">${esc(MUNIS_LISTA.nomes[S.muniFiltro])}</span>`:''}
+    ${(S.nivel==='setor'||S.nivel==='udh')&&S.muniFiltro!=null?`<span class="chip acc">${esc(MUNIS_LISTA.nomes[S.muniFiltro])}</span>`:''}
     ${selo(i,S.nivel)}
     <button class="btn" id="anCsv" style="margin-left:auto">Exportar CSV</button>
   </div>
@@ -1859,7 +1990,8 @@ function renderAnalise(){
         ${arr.slice(0,300).map((o,k)=>`<tr style="cursor:pointer" data-add="${esc(o.id)}"
           ${S.cmp.includes(o.id)?'class="best"':''}>
           <td class="n" style="color:var(--txt3)">${k+1}</td>
-          <td>${esc(o.n)}${o.b&&S.nivel==='setor'?`<br><span style="color:var(--txt3);font-size:10.5px">${esc(o.b)} · ${esc(o.m)}</span>`:''}</td>
+          <td>${esc(o.n)}${o.b&&S.nivel==='setor'?`<br><span style="color:var(--txt3);font-size:10.5px">${esc(o.b)} · ${esc(o.m)}</span>`
+            :S.nivel==='udh'&&o.m?`<br><span style="color:var(--txt3);font-size:10.5px">${esc(o.m)}</span>`:''}</td>
           <td class="n">${fmtN(o.v,i.fmt)}</td></tr>`).join('')}
       </tbody></table></div>
       ${arr.length>300?`<p style="font-size:11px;color:var(--txt3);margin-top:7px">
@@ -1879,7 +2011,7 @@ function renderAnalise(){
   $('#anAsc').onclick=()=>{S._rankAsc=true;renderAnalise();};
   $('#anCsv').onclick=()=>baixaCSV(
     [['posicao','territorio','municipio','valor','indicador','unidade','fonte','ano','nivel','status']]
-      .concat(arr.map((o,k)=>[k+1,o.n,o.m||'',o.v,i.n,i.u,(FONTES[i.fonte]||{}).n||i.fonte,
+      .concat(arr.map((o,k)=>[k+1,o.n,o.m||'',o.v,i.n,i.u,fonteDe(i,S.nivel).n||i.fonte,
         i.ano,S.nivel,i.status==='est'?'HISTÓRICO 2010':'oficial'])),
     'ranking_atlas_rs1.csv');
   $$('#analiseBody [data-add]').forEach(tr=>tr.onclick=()=>{
@@ -1929,7 +2061,7 @@ function renderCmp(){
   const b=$('#cmpBody');
   if(S.nivel==='municipio'||S.nivel==='regiao'){
     b.innerHTML=`<div class="note warn">A comparação exige um nível intramunicipal.
-      Selecione <b>Bairros</b> ou <b>Setores</b> no topo.</div>`;return;
+      Selecione <b>Bairros</b>, <b>UDHs</b> ou <b>Setores</b> no topo.</div>`;return;
   }
   const feats=S.cmp.map(feature).filter(Boolean);
   const slots=[0,1,2,3].map(k=>{
@@ -1991,7 +2123,7 @@ function exportaCmp(feats){
   feats.forEach(f=>inds.forEach(i=>{
     const v=f.properties[i.id]; if(v==null)return;
     linhas.push([`${f.properties.id}::${i.id}`,f.properties.nome,i.n,v,i.u,
-      (FONTES[i.fonte]||{}).n||i.fonte,i.ano,S.nivel,i.obs||'']);
+      fonteDe(i,S.nivel).n||i.fonte,i.ano,S.nivel,i.obs||'']);
   }));
   baixaCSV(linhas,'comparacao_atlas_poa.csv');
 }
@@ -2009,7 +2141,7 @@ function abreRanking(){abreModal('mdAnalise');}
 function renderRank(){
   const b=$('#rankBody');
   if(S.nivel==='municipio'||S.nivel==='regiao'){
-    b.innerHTML=`<div class="note warn">Ranking exige nível de bairro ou setor censitário.</div>`;return;}
+    b.innerHTML=`<div class="note warn">Ranking exige nível de bairro, UDH ou setor censitário.</div>`;return;}
   const disp=IND.filter(i=>i.niveis.includes(S.nivel)&&i.status!=='pend'&&i.status!=='mun');
   const g=S.geo[S.nivel]; if(!g)return;
   if(!disp.length){b.innerHTML='<div class="note warn">Nenhum indicador com dado carregado neste nível.</div>';return;}
@@ -2017,7 +2149,7 @@ function renderRank(){
   const i=cur.niveis.includes(S.nivel)&&cur.status!=='pend'?cur:disp[0];
   const ordem=S._rankAsc?1:-1;
   const arr=g.features.map(f=>({id:f.properties.id,n:f.properties.nome,
-      b:f.properties.bairro,v:f.properties[i.id]==null?null:+f.properties[i.id]}))
+      b:S.nivel==='udh'?f.properties.muni:f.properties.bairro,v:f.properties[i.id]==null?null:+f.properties[i.id]}))
     .filter(o=>o.v!=null).sort((a,c)=>(a.v-c.v)*ordem);
   b.innerHTML=`
     <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:13px">
@@ -2030,11 +2162,11 @@ function renderRank(){
       <button class="btn" id="rkCsv" style="margin-left:auto">Exportar CSV</button></div>
     ${selo(i,S.nivel)}
     <table class="tb" style="margin-top:9px"><thead><tr><th style="width:44px">#</th><th>Território</th>
-      ${S.nivel==='setor'?'<th>Bairro</th>':''}
+      ${S.nivel==='setor'?'<th>Bairro</th>':S.nivel==='udh'?'<th>Município</th>':''}
       <th style="text-align:right">${esc(i.u||'valor')}</th></tr></thead><tbody>
       ${arr.slice(0,200).map((o,k)=>`<tr style="cursor:pointer" data-goto2="${esc(o.id)}">
         <td class="n" style="color:var(--txt3)">${k+1}</td><td>${esc(o.n)}</td>
-        ${S.nivel==='setor'?`<td style="color:var(--txt3)">${esc(o.b||'')}</td>`:''}
+        ${S.nivel==='setor'||S.nivel==='udh'?`<td style="color:var(--txt3)">${esc(o.b||'')}</td>`:''}
         <td class="n">${fmtN(o.v,i.fmt)}</td></tr>`).join('')}
     </tbody></table>
     ${arr.length>200?`<p style="font-size:11px;color:var(--txt3);margin-top:9px">
@@ -2044,7 +2176,7 @@ function renderRank(){
   $('#rkAsc').onclick=()=>{S._rankAsc=true;renderRank();};
   $('#rkCsv').onclick=()=>baixaCSV(
     [['posicao','territorio','valor','indicador','unidade','fonte','ano','nivel_geografico']].concat(
-      arr.map((o,k)=>[k+1,o.n,o.v,i.n,i.u,(FONTES[i.fonte]||{}).n||i.fonte,i.ano,S.nivel])),
+      arr.map((o,k)=>[k+1,o.n,o.v,i.n,i.u,fonteDe(i,S.nivel).n||i.fonte,i.ano,S.nivel])),
     'ranking_atlas_poa.csv');
   $$('[data-goto2]').forEach(x=>x.onclick=()=>{fechaModais();selecionar(x.dataset.goto2);});
 }
@@ -2052,7 +2184,7 @@ function renderRank(){
 /* ────────────────────────────────────── 16. MATRIZ DE DISPONIBILIDADE ── */
 function renderMatriz(){
   /* a malha das regiões do OP não está no pacote: coluna sem nenhum dado, fica de fora */
-  const nv=['municipio','bairro','setor'];
+  const nv=['municipio','bairro','udh','setor'];
   const st=i=>{
     const out={};
     nv.forEach(n=>{
@@ -2230,6 +2362,8 @@ function renderMetodo(){
   </ul>
   ${(()=>{const c=XT_APLICADOS.get('censo2010_amostra'); return c&&c.e3?xtE3HTML(c,'metodo'):'';})()}
 
+  ${ATLASBR?abMetodoHTML():''}
+
   <h3 class="sec">Séries complementares e Ipeadata</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
     O Ipeadata, do IPEA, reúne numa API pública séries de várias fontes (IBGE, Ministério da Saúde, Tesouro,
@@ -2351,6 +2485,7 @@ function renderMetodo(){
 ├── 8_series_complementares.py vacinação, SNIS, ANA, Abrinq e mais Atlas Brasil (Base dos Dados)
 ├── 9_censo2022_setores.py     Censo 2022 por setor: domicílio, óbitos e entorno (censobr, IPEA)
 ├── 10_censo2010_amostra.py    Censo 2010, amostra: 12 indicadores e conferência da renda (censobr)
+├── 11_atlas_brasil.py         Atlas Brasil: UDHs, regiões de Porto Alegre, 20 RMs e Radar IDHM
 └── R/                         Censo 2010 por área de ponderação, Censo Escolar, equipes do
                                CNES, BigQuery e recorte de arquivos baixados</pre>
   <p style="font-size:11.5px;color:var(--txt3);line-height:1.6">A base censitária (agregados por setor
@@ -2360,7 +2495,12 @@ function renderMetodo(){
 
 function renderFontes(){
   const usos={};
-  IND.forEach(i=>{(usos[i.fonte]=usos[i.fonte]||[]).push(i);});
+  IND.forEach(i=>{(usos[i.fonte]=usos[i.fonte]||[]).push(i);
+    /* a fonte de outro nível (o IDHM da UDH vem da base de UDHs do Atlas Brasil) */
+    for(const n in i.fontePorNivel||{}){const k=i.fontePorNivel[n]; if(k&&k!==i.fonte&&!(usos[k]||[]).includes(i))(usos[k]=usos[k]||[]).push(i);}});
+  /* fontes das tabelas do Contexto metropolitano, que não são indicadores do mapa */
+  if(ATLASBR&&ATLASBR.radar)(usos.ATLASBR_RADAR=usos.ATLASBR_RADAR||[]).push({n:'Diagnóstico regional → Contexto metropolitano (Radar IDHM, 2012 a 2024)',status:'ok'});
+  if(ATLASBR&&(ATLASBR.rms||ATLASBR.regional))(usos.ATLASBR_RM=usos.ATLASBR_RM||[]).push({n:'Diagnóstico regional → Contexto metropolitano (20 RMs e regiões de Porto Alegre)',status:'ok'},{n:'ficha da UDH (região de Porto Alegre)',status:'ok'});
   $('#fontesBody').innerHTML=`
     <div class="note"><b>Regra editorial do Atlas.</b> Nenhum número é inventado. Cada valor carrega
     fonte, ano e nível geográfico; referências históricas são sinalizadas. Indicadores de anos diferentes
@@ -2553,6 +2693,7 @@ Moinhos de Vento;7412,90;99,8</pre>
     <div style="display:flex;gap:7px;flex-wrap:wrap">
       <button class="btn" id="expBairro">Bairros (CSV longo)</button>
       <button class="btn" id="expSetor">Setores (CSV longo)</button>
+      ${S.geo.udh?'<button class="btn" id="expUdh">UDHs (CSV longo)</button>':''}
       <button class="btn" id="expCat">Catálogo de indicadores</button></div>
 
     ${S.importados.length?`<h3 class="sec">Importado nesta sessão</h3>
@@ -2572,6 +2713,7 @@ Moinhos de Vento;7412,90;99,8</pre>
   dp.addEventListener('drop',e=>[...e.dataTransfer.files].forEach(leArquivo));
   $('#expBairro').onclick=()=>exportaNivel('bairro');
   $('#expSetor').onclick=()=>{garanteSetores();exportaNivel('setor');};
+  if($('#expUdh'))$('#expUdh').onclick=()=>exportaNivel('udh');
   $('#expCat').onclick=()=>baixaCSV(
     [['id','categoria','indicador','unidade','fonte','ano','niveis','status','observacao']].concat(
       IND.map(i=>[i.id,(CATS.find(c=>c.id===i.cat)||{}).n,i.n,i.u,(FONTES[i.fonte]||{}).n||i.fonte,
@@ -2809,12 +2951,13 @@ function indiceBusca(){
   (PONTOS&&PONTOS.lojas||[]).forEach((p,i)=>
     out.push({id:'loja:'+i,n:p.nome,sub:'loja Renner',nivel:'loja',
       kn:norm(p.nome),kb:'',ki:String(p.num)}));
-  ['bairro','setor'].forEach(n=>{
+  ['bairro','udh','setor'].forEach(n=>{
     const g=S.geo[n]; if(!g)return;
     g.features.forEach(f=>{
       const p=f.properties;
-      out.push({id:p.id,n:p.nome,sub:n==='setor'?p.bairro:'bairro',nivel:n,
-        kn:norm(p.nome),kb:p.bairro?norm(p.bairro):'',ki:String(p.id)});
+      /* a UDH entra pelo nome; pelo código, a busca continua achando o setor */
+      out.push({id:p.id,n:p.nome,sub:n==='setor'?p.bairro:n==='udh'?'UDH · '+p.muni:'bairro',nivel:n,
+        kn:norm(p.nome),kb:p.bairro?norm(p.bairro):'',ki:n==='udh'?'':String(p.id)});
     });
   });
   IDX_BUSCA=out;
@@ -3333,6 +3476,10 @@ function fontesDoMunicipio(p,codMun){
   if(ADH_IPEA)for(const id in ADH_NOVOS){
     const s=(ADH_IPEA.valores[ADH_NOVOS[id]]||{})[codMun]; if(s&&s[2]!=null)p[id]=s[2];
   }
+  /* Atlas Brasil: o analfabetismo de 2010 (o mesmo indicador das UDHs) e a desigualdade entre as UDHs */
+  const an=ADH_IPEA&&(ADH_IPEA.valores.taxa_analfabetismo_15_mais||{})[codMun];
+  if(an&&an[2]!=null&&getInd('adh_analf_15'))p.adh_analf_15=an[2];
+  Object.assign(p,udhResumo(codMun));
   /* séries municipais (Ipeadata e complementares): o valor do ano do mapa */
   SERIES_REG.forEach(({id,serie:s})=>{const k=s.mun.indexOf(codMun), j=s.anos.indexOf(s.ano);
     const v=k>=0&&j>=0?s.v[j][k]:null; if(v!=null)p[id]=v;});
@@ -3411,6 +3558,9 @@ function montaGeo(){
     })};
   }
 
+  /* --- UDHs do Atlas Brasil: 483 polígonos, montados já no boot --- */
+  garanteUDH();
+
   /* --- camadas de pontos --- */
   const PT=window.ATLAS_PONTOS;
   if(PT){
@@ -3465,6 +3615,73 @@ function garanteSetores(){
     return {type:'Feature',properties:derivados(p),geometry:decGeom(g,P)};
   })};
   return S.geo.setor;
+}
+
+/* ---- UDH do Atlas Brasil: montadas no boot, a partir de ATLASBR.udh (seção 4.3.3b) ----
+   Colunas no formato compacto (dados-atlasbrasil.js) ou em lista de valores (a mesma base
+   lida pela central de extração no navegador). */
+const abCol=(c,escala,n)=>typeof c==='string'?decCol(c,escala,n)
+  :Array.from({length:n},(_,i)=>c&&c[i]!=null&&c[i]!==''&&!isNaN(+c[i])?+c[i]:null);
+/* os valores de um ano de uma parte (udh, regional, rms): {sigla: [valor por território]} */
+function abValores(parte,ano){
+  const P=ATLASBR&&ATLASBR[parte]; if(!P)return null;
+  if(!P._dec)Object.defineProperty(P,'_dec',{value:{},enumerable:false});
+  if(P._dec[ano])return P._dec[ano];
+  const cols=(P.v||{})[String(ano)]; if(!cols)return null;
+  const out={}, n=P.ids.length;
+  P.campos.forEach((s,k)=>{out[s]=abCol(cols[k],P.escalas?P.escalas[k]:1,n);});
+  return P._dec[ano]=out;
+}
+/* região de Porto Alegre (base REGIONAL): código -> nome, e os valores de 2010 com os ids do Atlas */
+function abRegioes(){
+  const R=ATLASBR&&ATLASBR.regional; if(!R)return {};
+  const o={}; R.ids.forEach((c,i)=>{o[String(c)]=R.nomes[i];}); return o;
+}
+const AB_REG_PROPS={};
+function abRegiaoProps(cod){
+  if(AB_REG_PROPS[cod])return AB_REG_PROPS[cod];
+  const R=ATLASBR&&ATLASBR.regional, v=abValores('regional',2010); if(!R||!v)return null;
+  const i=R.ids.map(String).indexOf(String(cod)); if(i<0)return null;
+  const p={id:'reg_'+cod,nome:R.nomes[i]};
+  UDH_IND.forEach(([s,id])=>{if(v[s]&&v[s][i]!=null)p[id]=v[s][i];});
+  return AB_REG_PROPS[cod]=p;
+}
+function garanteUDH(){
+  if(S.geo.udh||!ATLASBR||!ATLASBR.udh)return S.geo.udh||null;
+  const U=ATLASBR.udh, v10=abValores('udh',2010)||{}, v00=abValores('udh',2000)||{};
+  const mapa=UDH_IND.filter(([s])=>v10[s]), regs=abRegioes(), cods=MUNIS_LISTA.ids.map(String);
+  const fs=[];
+  U.ids.forEach((id,i)=>{
+    const k=cods.indexOf(String(U.muni[i])); if(k<0)return;
+    const p={id:String(id),nome:U.nomes[i],muni:MUNIS_LISTA.nomes[k],muni_id:k,_2000:{}};
+    if(U.reg&&U.reg[i]){p._reg=String(U.reg[i]); p.regiao=regs[p._reg]||null;}
+    mapa.forEach(([s,idI])=>{const a=v10[s][i]; if(a!=null)p[idI]=a;
+      const b=v00[s]?v00[s][i]:null; if(b!=null)p._2000[idI]=b;});
+    if(p._2000.idhm!=null)p.m_idhm00=p._2000.idhm;
+    if(p.idhm!=null&&p._2000.idhm!=null)p.udh_var_idhm=Math.round(1000*(p.idhm-p._2000.idhm))/1000;
+    if(p.adh_renda_pc!=null&&p._2000.adh_renda_pc)p.udh_var_rdpc=Math.round(1000*(p.adh_renda_pc/p._2000.adh_renda_pc-1))/10;
+    p._popRef=p.udh_pop??null;
+    fs.push({type:'Feature',properties:p,geometry:decGeom(U.geom[i],U.prec||100000)});
+  });
+  S.geo.udh={type:'FeatureCollection',name:'udh_atlasbrasil',features:fs};
+  IDX_BUSCA=null;
+  return S.geo.udh;
+}
+/* desigualdade dentro do município: as UDHs de 2010 (IDHM e população) */
+function udhResumo(cod){
+  const U=ATLASBR&&ATLASBR.udh, v=U?abValores('udh',2010):null;
+  if(!v||!v.IDHM||!v.PESOTOT||!getInd('udh_n'))return {};
+  let n=0,tot=0,baixo=0,mn=null,mx=null,semI=0;
+  U.muni.forEach((c,i)=>{
+    if(String(c)!==String(cod))return;
+    const pop=v.PESOTOT[i]||0, x=v.IDHM[i]; n++; tot+=pop;
+    if(x==null){semI++;return;}
+    if(mn==null||x<mn)mn=x; if(mx==null||x>mx)mx=x; if(x<0.7)baixo+=pop;
+  });
+  if(!n)return {};
+  /* UDH sem IDHM: a parte abaixo de 0,700 ficaria indefinida; o Atlas não a estima */
+  return {udh_n:n,udh_idhm_min:mn,udh_idhm_max:mx,
+    udh_pop_total:semI?null:tot,udh_pop_idhm_baixo:semI?null:baixo,udh_pct_idhm_baixo:semI?null:raz(baixo,tot)};
 }
 
 function pontoNoAnel(x,y,anel){
@@ -3671,7 +3888,7 @@ function ligaEventos(){
 /* ── Região: soma dos sete municípios. Contagens somam; taxas são recalculadas
    a partir das contagens; os valores de 2010 não se agregam (ficam vazios). */
 let REGIAO=null;
-const ADITIVOS=/^(pop|pop_h|pop_m|pop_15|pop_est_2026|id\d+|criancas_0_14|jovens_15_29|adultos_30_59|idosos_60|raca_[a-z_]+|indigenas|quilombolas|alfab_15|dom_[a-z_]+|dpo|dppo|agua_[a-z_]+|esg_[a-z_]+|lixo_[a-z_]+|ban_[a-z_]+|fcu_pop|fcu_dom|obitos(_[hm])?|resp_n|area_km2|inep_[a-z_]+|cnes_[a-z_]+|seg_[a-z_]+|fin_(receita_total|receita_corrente|receita_tributaria|transferencias|despesa_total|investimentos|resultado_orcamentario)|pib|vab(_[a-z]+)?|impostos|agro_vab|gasto_[a-z_]+|ent_[a-z]+)$/;
+const ADITIVOS=/^(pop|pop_h|pop_m|pop_15|pop_est_2026|id\d+|criancas_0_14|jovens_15_29|adultos_30_59|idosos_60|raca_[a-z_]+|indigenas|quilombolas|alfab_15|dom_[a-z_]+|dpo|dppo|agua_[a-z_]+|esg_[a-z_]+|lixo_[a-z_]+|ban_[a-z_]+|fcu_pop|fcu_dom|obitos(_[hm])?|resp_n|area_km2|inep_[a-z_]+|cnes_[a-z_]+|seg_[a-z_]+|fin_(receita_total|receita_corrente|receita_tributaria|transferencias|despesa_total|investimentos|resultado_orcamentario)|pib|vab(_[a-z]+)?|impostos|agro_vab|gasto_[a-z_]+|ent_[a-z]+|udh_(n|pop_total|pop_idhm_baixo))$/;
 function regiaoProps(){
   if(REGIAO)return REGIAO;
   const fs=((S.geo.municipio||{}).features||[]).map(f=>f.properties);
@@ -3689,6 +3906,13 @@ function regiaoProps(){
     r.pct_vab_ind=raz(r.vab_ind,r.vab); r.pct_vab_serv=raz(r.vab_serv,r.vab);
     r.pct_vab_adm=raz(r.vab_adm,r.vab); r.pct_vab_agro=raz(r.vab_agro,r.vab);
     if(r.agro_vab!=null)r.agro_participacao_vab=raz(r.agro_vab,r.vab);
+  }
+  /* UDHs: a parte abaixo de 0,700 sobre as somas; o menor e o maior IDHM entre os sete */
+  if(r.udh_pop_total){
+    r.udh_pct_idhm_baixo=raz(r.udh_pop_idhm_baixo,r.udh_pop_total);
+    const mn=fs.map(p=>p.udh_idhm_min), mx=fs.map(p=>p.udh_idhm_max);
+    if(mn.every(v=>v!=null))r.udh_idhm_min=Math.min(...mn);
+    if(mx.every(v=>v!=null))r.udh_idhm_max=Math.max(...mx);
   }
   derivados(r); porHabitante(r);
   r.pop_pct_mun=null;
@@ -3924,9 +4148,9 @@ function exportaMapa(){
   };
   /* título */
   c.fillStyle='#15212E'; c.font=`600 19px ${SANS}`; c.fillText(quebra(i.n,W-40)[0]+(quebra(i.n,W-40).length>1?'…':''),20,34);
-  const f=FONTES[i.fonte]||{}, mf=S.muniFiltro!=null&&MUNIS_LISTA?' · '+MUNIS_LISTA.nomes[S.muniFiltro]:'';
+  const f=FONTES[(i.fontePorNivel&&i.fontePorNivel[S.nivel])||i.fonte]||{}, mf=S.muniFiltro!=null&&MUNIS_LISTA?' · '+MUNIS_LISTA.nomes[S.muniFiltro]:'';
   c.fillStyle='#46505A'; c.font=`13px ${SANS}`;
-  c.fillText(`${f.s||i.fonte} · ${i.ano||'s/ ano'} · ${NIVEIS[S.nivel].n.toLowerCase()}${mf}`+(i.status==='est'?' · referência histórica (Censo 2010)':''),20,58);
+  c.fillText(`${f.s||i.fonte} · ${i.ano||'s/ ano'} · ${NIVEIS[S.nivel].min||NIVEIS[S.nivel].n.toLowerCase()}${mf}`+(i.status==='est'?' · referência histórica (Censo 2010)':''),20,58);
   /* mapa */
   c.save(); c.translate(0,TOPO); c.beginPath(); c.rect(0,0,W,H); c.clip();
   c.fillStyle='#F1EFEA'; c.fillRect(0,0,W,H);
@@ -3965,7 +4189,7 @@ function exportaMapa(){
   c.restore();
   /* rodapé */
   c.fillStyle='#636A70'; c.font=`11.5px ${SANS}`;
-  quebra(`Fonte: ${f.n||i.fonte}. Malhas: IBGE 2022 · SMUrb/PMPA. Atlas Metropolitano RMPA, versão 3.`,W-40).slice(0,2)
+  quebra(`Fonte: ${f.n||i.fonte}. Malhas: ${S.nivel==='udh'?'UDHs do Atlas Brasil (Censo 2010)':'IBGE 2022 · SMUrb/PMPA'}. Atlas Metropolitano RMPA, versão 3.`,W-40).slice(0,2)
     .forEach((t,k)=>c.fillText(t,20,TOPO+H+20+15*k));
   const a=document.createElement('a');
   a.href=cv.toDataURL('image/png');
@@ -3986,6 +4210,7 @@ const TABELAS_DIAG=[
   {sec:'7',t:'Renda e economia: dados recentes',c:['resp_renda','pib_pc','pct_vab_ind','pct_vab_serv','pct_vab_adm']},
   {sec:'8',t:'Dimensões da vulnerabilidade: indicadores-chave',c:['pct_fcu','pct_agua_rede','pct_esgoto_inadequado','taxa_analfabetismo','est_sem_fundamental_25','ubs_10mil','cvli_100mil','banda_larga_100hab']},
   {sec:'8',t:'Educação e desenvolvimento humano',c:['idhm','idhm_educacao','ideb_iniciais','ideb_finais','ideb_medio','adh_creche_0_3','adh_fora_escola_4_5']},
+  {sec:'8',t:'Desenvolvimento humano dentro dos municípios: UDHs do Atlas Brasil (Censo 2010)',c:['udh_n','udh_idhm_min','udh_idhm_max','udh_pop_idhm_baixo','udh_pct_idhm_baixo']},
   {sec:'8',t:'Rua e moradia (Censo 2022)',c:['pct_ent_pav','pct_ent_ilum','pct_ent_calcada','pct_ent_rampa','pct_ent_arvore','pct_ent_onibus','pct_agua_naoenc','pct_sem_banheiro']},
   {sec:'10',t:'Rede de serviços registrada',c:['cnes_ubs','ubs_10mil','cnes_caps','cnes_hospitais','cnes_acolhimento','inep_escolas_publicas','inep_escolas_privadas']},
   {sec:'11',t:'Orçamento municipal para políticas sociais',c:['fin_receita_total','fin_transf_pct','gasto_saude_hab','gasto_atencao_basica_hab','gasto_assistencia_hab','gasto_seguranca_hab','gasto_trabalho_hab','gasto_educacao','gasto_educacao_infantil']},
@@ -4001,6 +4226,8 @@ const AUSENTES_DIAG={
   '10':'Não estão no Atlas: CRAS, CREAS, Centro POP, creches e vagas, transferências de renda por família, restaurantes populares, programas habitacionais, organizações comunitárias.',
   get '11'(){return 'Não estão no Atlas: '+(getInd('gasto_educacao')?'':'despesa em educação, ')+'equipes técnicas, conselhos e sistemas de informação.';}
 };
+/* tabelas com algum indicador no catálogo (sem o arquivo de uma fonte, a tabela dela some) */
+const tabelasDiag=()=>TABELAS_DIAG.filter(t=>t.c.some(id=>getInd(id)));
 function diagLinhas(){
   const fs=((S.geo.municipio||{}).features||[]).map(f=>f.properties)
     .filter(p=>S.muniFiltro==null||p.muni_id===S.muniFiltro);
@@ -4060,16 +4287,19 @@ function renderDiag(aba){
   const mf=S.muniFiltro!=null&&MUNIS_LISTA?MUNIS_LISTA.nomes[S.muniFiltro]:null;
   const abas=`<div class="seg diag-abas" role="tablist">
     <button data-aba="tabelas" aria-pressed="${S.diagAba==='tabelas'}">Tabelas do diagnóstico</button>
+    ${ATLASBR?`<button data-aba="contexto" aria-pressed="${S.diagAba==='contexto'}">Contexto metropolitano</button>`:''}
     <button data-aba="matriz" aria-pressed="${S.diagAba==='matriz'}">Matriz de priorização</button></div>`;
   let corpo='';
-  if(S.diagAba==='tabelas'){
+  const TD=tabelasDiag();
+  if(S.diagAba==='contexto')corpo=ctxHTML();
+  else if(S.diagAba==='tabelas'){
     corpo=`<div class="note">Tabelas das seções 6, 7, 8, 10 e 11 do template de diagnóstico regional, para
       ${mf?`<b>${esc(mf)}</b> (com a região como referência)`:'os <b>sete municípios</b> e a região'}.
       Para outro recorte, use o filtro de município no topo. Os valores de 2010 não se somam: na linha da região, ficam vazios.</div>
       <div class="btn-row" style="margin:10px 0"><button class="btn pri" id="diagDoc">Baixar para Word (.doc)</button>
       <button class="btn" id="diagCSV">Baixar planilha (CSV)</button></div>`+
-      TABELAS_DIAG.map((t,k)=>{const d=diagTabela(t);
-        const ult=k===TABELAS_DIAG.length-1||TABELAS_DIAG[k+1].sec!==t.sec;
+      TD.map((t,k)=>{const d=diagTabela(t);
+        const ult=k===TD.length-1||TD[k+1].sec!==t.sec;
         return `<h3 class="sec">Seção ${t.sec} · ${esc(t.t)}</h3>
         <div class="tb-scroll"><table class="tb diag"><thead><tr>${d.cab.map((h,j)=>`<th${j?' style="text-align:right"':''}>${esc(h)}</th>`).join('')}</tr></thead>
         <tbody>${d.linhas.map((l,j)=>`<tr${j===d.linhas.length-1?' class="tot"':''}>${l.map((v,c)=>c?`<td class="n">${esc(v)}</td>`:`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
@@ -4080,7 +4310,8 @@ function renderDiag(aba){
     const sel=(k,c,v)=>`<select data-k="${k}" data-c="${c}" aria-label="${c}">${[1,2,3,4,5].map(n=>`<option${+v===n?' selected':''}>${n}</option>`).join('')}</select>`;
     corpo=`<div class="note">Notas de 1 (baixo) a 5 (alto). A evidência de cada problema vem do Atlas e é recalculada
       com os dados. As notas iniciais são a proposta do grupo; mudanças ficam salvas <b>só neste navegador</b> —
-      use "Baixar" para compartilhar. Tendência: 3 (neutra) enquanto o Atlas não comparar 2010 com 2022.</div>
+      use "Baixar" para compartilhar. Tendência: 3 (neutra) enquanto o Atlas não comparar 2010 com 2022.
+      ${ATLASBR?'Para a RM inteira, a aba Contexto metropolitano mostra o Radar IDHM de 2012 a 2024; nas UDHs, a ficha compara 2000 e 2010.':''}</div>
       <div class="btn-row" style="margin:10px 0"><button class="btn pri" id="mxNovo">Adicionar problema</button>
       <button class="btn" id="mxCSV">Baixar (CSV)</button><button class="btn" id="diagDoc2">Baixar para Word (.doc)</button>
       <button class="btn" id="mxReset">Voltar às notas iniciais</button></div>
@@ -4099,9 +4330,14 @@ function renderDiag(aba){
   const docB=$('#diagDoc')||$('#diagDoc2'); if(docB)docB.onclick=exportaDiagDoc;
   const csv=$('#diagCSV'); if(csv)csv.onclick=()=>{
     const L=[];
-    TABELAS_DIAG.forEach(t=>{const d=diagTabela(t);L.push([`Seção ${t.sec} - ${t.t}`]);L.push(d.cab);d.linhas.forEach(l=>L.push(l));
+    TD.forEach(t=>{const d=diagTabela(t);L.push([`Seção ${t.sec} - ${t.t}`]);L.push(d.cab);d.linhas.forEach(l=>L.push(l));
       L.push(['Fonte: '+d.fontes.join('; ')]);L.push([]);});
     baixaCSV(L,'diagnostico-regional-tabelas.csv');};
+  const cc=$('#ctxCSV'); if(cc)cc.onclick=()=>{
+    const L=[];
+    ctxTabelas().forEach(d=>{L.push([d.t]);L.push(d.cab);d.linhas.forEach(l=>L.push(l));
+      L.push(['Fonte: '+d.fonte+(d.nota?'. '+d.nota:'')]);L.push([]);});
+    baixaCSV(L,'diagnostico-contexto-metropolitano.csv');};
   if(S.diagAba==='matriz'){
     $$('#diagBody select[data-k]').forEach(s=>s.onchange=()=>{MATRIZ[+s.dataset.k][s.dataset.c]=+s.value;matrizGuarda();renderDiag();});
     $$('#diagBody .mx-p').forEach(x=>x.onchange=()=>{MATRIZ[+x.dataset.k].p=x.value;matrizGuarda();});
@@ -4113,14 +4349,206 @@ function renderDiag(aba){
       matrizCarrega().slice().sort((a,b)=>totalM(b)-totalM(a)).map(r=>[r.p,r.g,r.u,r.t,r.a,totalM(r),r.e||''])),'matriz-priorizacao.csv');
   }
 }
+/* ── Contexto metropolitano (Atlas Brasil): o Radar IDHM da RM de Porto Alegre (PNAD Contínua,
+   2012 a 2024), a RM entre as 20 RMs dos Censos 2000 e 2010 e as 17 regiões de Porto Alegre.
+   Só valores publicados pelo Atlas Brasil; nada é somado. A posição entre as RMs segue a
+   polaridade dos metadados do Radar ("quanto maior, melhor" ou "quanto menor, melhor"). */
+const CTX_NOME={IDHM:'IDHM',IDHM_R:'IDHM Renda',IDHM_L:'IDHM Longevidade',IDHM_E:'IDHM Educação',
+  RDPC:'Renda per capita (R$ de ago/2010)',GINI:'Índice de Gini',PMPOB:'Pobres (%)',PIND:'Extremamente pobres (%)',
+  PPOB:'Vulneráveis à pobreza (%)',ESPVIDA:'Esperança de vida (anos)',MORT1:'Mortalidade infantil (por mil nascidos vivos)',
+  T_FUND18M:'18 anos ou mais com fundamental completo (%)',T_SUPER25M:'25 anos ou mais com superior completo (%)',
+  ANOSEST:'Média de anos de estudo',T_ANALF15M:'Analfabetismo, 15 anos ou mais (%)',T_DES18M:'Desocupação, 18 anos ou mais (%)',
+  PESOTOT:'População'};
+const ctxDic=s=>((ATLASBR||{}).dic||{})[s]||{};
+const ctxNome=s=>CTX_NOME[s]||ctxDic(s).n||s;
+const ctxPol=s=>ctxDic(s).pol||null;
+/* formato pelo número de casas: as do Radar vêm nos metadados; as dos Censos, da escala da coluna */
+function ctxFmt(s,casas){
+  const d=ctxDic(s), u=String(d.u||'').toLowerCase();
+  const k=casas!=null?casas:(d.dec!=null&&d.dec!==''?+d.dec:2);
+  if(s==='PESOTOT')return 'int';
+  if(/reais|r\$/.test(u))return 'brl';
+  if(/percentual/.test(u))return k>=2?'pct2':'pct1';
+  return 'dec'+Math.max(0,Math.min(3,k));
+}
+const ctxCasas=(parte,s)=>{const P=ATLASBR&&ATLASBR[parte], k=P?P.campos.indexOf(s):-1;
+  return k<0||!P.escalas?null:Math.round(Math.log10(P.escalas[k]));};
+/* posição de vals[i] entre os valores (1 = o melhor), pela polaridade; empates dividem a posição */
+function ctxPosicao(vals,i,pol){
+  const v=vals[i]; if(v==null||!pol)return null;
+  return vals.filter(x=>x!=null&&(pol==='+'?x>v:x<v)).length+1;
+}
+const RADAR_TAB=['IDHM','IDHM_R','IDHM_L','IDHM_E','RDPC','GINI','PMPOB','PIND','ESPVIDA','T_FUND18M'];
+const RADAR_CMP=['IDHM','IDHM_R','IDHM_L','IDHM_E','RDPC','GINI','PMPOB','PIND','PPOB','ESPVIDA','MORT1','T_FUND18M','T_SUPER25M','ANOSEST','T_ANALF15M'];
+const RADAR_GRUPO=['IDHM','IDHM_R','IDHM_L','IDHM_E','RDPC','PMPOB','ESPVIDA','T_FUND18M','T_SUPER25M','ANOSEST'];
+const RMS_TAB=['IDHM','IDHM_R','IDHM_L','IDHM_E','RDPC','GINI','PMPOB','PIND','ESPVIDA','MORT1','T_FUND18M','T_SUPER25M','T_DES18M'];
+const REG_TAB=[['PESOTOT',2010],['IDHM',2000],['IDHM',2010],['RDPC',2010],['PMPOB',2010],['ESPVIDA',2010],['T_FUND18M',2010]];
+const FONTE_RADAR='Radar IDHM (PNUD, IPEA e FJP), calculado com a PNAD Contínua do IBGE';
+const FONTE_CENSO_AB='Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA e FJP), Censos 2000 e 2010';
+/* as tabelas da aba, cada uma com título, cabeçalho, linhas já formatadas, fonte e nota */
+function ctxTabelas(){
+  const out=[], A=ATLASBR; if(!A)return out;
+  const R=A.radar;
+  if(R&&R.v&&R.v.rm_poa){
+    const an=R.anos, j=an.length-1, ult=an[j], V=R.v, f=s=>ctxFmt(s);
+    const rad=RADAR_TAB.filter(s=>V.rm_poa[s]);
+    out.push({t:`Radar IDHM da RM de Porto Alegre, ${an[0]} a ${ult}`,cab:['Ano'].concat(rad.map(ctxNome)),
+      linhas:an.map((a,k)=>[String(a)].concat(rad.map(s=>fmtN(V.rm_poa[s][k],f(s))))),fonte:FONTE_RADAR,
+      nota:'A PNAD Contínua é uma pesquisa por amostra: o Radar não tem valor por município. De 2012 a 2019 e em 2023, a primeira visita da pesquisa; em 2020 e 2021, a quinta.'});
+    const cmp=RADAR_CMP.filter(s=>V.rm_poa[s]&&V.rs&&V.rs[s]&&V.br&&V.br[s]);
+    out.push({t:`RM de Porto Alegre, Rio Grande do Sul e Brasil (Radar IDHM)`,
+      cab:['Indicador',`RM de Porto Alegre, ${an[0]}`,`RM de Porto Alegre, ${ult}`,`Rio Grande do Sul, ${ult}`,`Brasil, ${ult}`],
+      linhas:cmp.map(s=>[ctxNome(s),fmtN(V.rm_poa[s][0],f(s)),fmtN(V.rm_poa[s][j],f(s)),fmtN(V.rs[s][j],f(s)),fmtN(V.br[s][j],f(s))]),
+      fonte:FONTE_RADAR});
+    const Sx=(R.sexo||{}).rm_poa, Cr=(R.cor||{}).rm_poa;
+    if(Sx&&Cr&&Sx.Homem&&Sx.Mulher&&Cr.Branco&&Cr.Negro){
+      const g=RADAR_GRUPO.filter(s=>Sx.Homem[s]&&Cr.Branco[s]);
+      out.push({t:`Por sexo e por cor ou raça, RM de Porto Alegre, ${ult} (Radar IDHM)`,
+        cab:['Indicador','Homens','Mulheres','Brancos','Negros (pretos e pardos)'],
+        linhas:g.map(s=>[ctxNome(s),fmtN(Sx.Homem[s][j],f(s)),fmtN(Sx.Mulher[s][j],f(s)),fmtN(Cr.Branco[s][j],f(s)),fmtN(Cr.Negro[s][j],f(s))]),
+        fonte:FONTE_RADAR,nota:'O Radar publica cor ou raça em dois grupos: brancos e negros (pretos e pardos somados).'});
+    }
+    const rms=Object.keys(V).filter(k=>k.startsWith('rm_'));
+    const rk=(R.rms_campos||[]).filter(s=>ctxPol(s)&&rms.every(k=>V[k][s]));
+    if(rms.length>1&&rk.length){
+      const ip=rms.indexOf('rm_poa');
+      out.push({t:`A RM de Porto Alegre entre as ${rms.length} RMs do Radar, ${ult}`,
+        cab:['Indicador','RM de Porto Alegre','Posição (1 = melhor)','Melhor RM','Pior RM'],
+        linhas:rk.map(s=>{const vs=rms.map(k=>V[k][s][j]), pol=ctxPol(s);
+          const ord=rms.map((k,i)=>({k,v:vs[i]})).filter(o=>o.v!=null).sort((a,b)=>pol==='+'?b.v-a.v:a.v-b.v);
+          const nm=k=>(R.nomes[k]||k).replace(/^Região (Metropolitana|Administrativa Integrada de Desenvolvimento) d[aeo]s? /,'');
+          return [ctxNome(s),fmtN(vs[ip],f(s)),`${ctxPosicao(vs,ip,pol)}ª de ${ord.length}`,
+            `${nm(ord[0].k)}: ${fmtN(ord[0].v,f(s))}`,`${nm(ord[ord.length-1].k)}: ${fmtN(ord[ord.length-1].v,f(s))}`];}),
+        fonte:FONTE_RADAR,nota:'“Melhor” segue a polaridade dos metadados do Radar: maior é melhor no IDHM, na renda e na escolaridade; menor é melhor no Gini, na pobreza e na mortalidade.'});
+    }
+  }
+  const M=A.rms, v00=abValores('rms',2000), v10=abValores('rms',2010);
+  if(M&&v10){
+    const ip=M.ids.map(String).indexOf(String(M.poa));
+    if(ip>=0){
+      const cs=RMS_TAB.filter(s=>v10[s]);
+      out.push({t:`A RM de Porto Alegre entre as ${M.ids.length} RMs do Atlas Brasil, Censos 2000 e 2010`,
+        cab:['Indicador','2000','2010','Posição em 2010 (1 = melhor)','Melhor RM em 2010','Pior RM em 2010'],
+        linhas:cs.map(s=>{const k=ctxCasas('rms',s), fm=ctxFmt(s,k), vs=v10[s], pol=ctxPol(s);
+          const ord=M.ids.map((c,i)=>({i,v:vs[i]})).filter(o=>o.v!=null).sort((a,b)=>pol==='-'?a.v-b.v:b.v-a.v);
+          return [ctxNome(s),fmtN((v00||{})[s]?v00[s][ip]:null,fm),fmtN(vs[ip],fm),
+            pol?`${ctxPosicao(vs,ip,pol)}ª de ${ord.length}`:'—',
+            pol?`${M.nomes[ord[0].i]}: ${fmtN(ord[0].v,fm)}`:'—',pol?`${M.nomes[ord[ord.length-1].i]}: ${fmtN(ord[ord.length-1].v,fm)}`:'—'];}),
+        fonte:FONTE_CENSO_AB,nota:'A RM de Porto Alegre do Atlas Brasil tem 34 municípios; a “Região” do Atlas Metropolitano, os sete do pacote. Sem polaridade nos metadados (desocupação), a posição fica em branco. Nomes das RMs como na base do Atlas Brasil.'});
+    }
+  }
+  const G=A.regional, g00=abValores('regional',2000), g10=abValores('regional',2010);
+  if(G&&g10&&g10.IDHM){
+    const ord=G.ids.map((c,i)=>i).sort((a,b)=>(g10.IDHM[b]??-1)-(g10.IDHM[a]??-1));
+    const cols=REG_TAB.filter(([s,a])=>(a===2000?g00:g10)&&(a===2000?g00:g10)[s]);
+    out.push({t:'Porto Alegre por região, Censos 2000 e 2010 (Atlas Brasil)',
+      cab:['Região'].concat(cols.map(([s,a])=>`${ctxNome(s)}, ${a}`)),
+      linhas:ord.map(i=>[G.nomes[i]].concat(cols.map(([s,a])=>{const vv=(a===2000?g00:g10)[s][i]; return fmtN(vv,ctxFmt(s,ctxCasas('regional',s)));}))),
+      fonte:FONTE_CENSO_AB,nota:'As 17 regiões de Porto Alegre da base do Atlas Brasil (os nomes são os das Regiões do Orçamento Participativo). Cada região soma as suas UDHs. Em ordem de IDHM de 2010.'});
+  }
+  return out;
+}
+/* gráfico de linhas, um ano por ponto: no máximo três séries, cores fixas, legenda e rótulo no fim de cada linha */
+function ctxGrafico(titulo,anos,series,fmt){
+  const vals=series.flatMap(s=>s.v.filter(x=>x!=null)); if(!vals.length)return '';
+  const w=560,h=220,pad={l:46,r:112,t:12,b:26};
+  let lo=Math.min(...vals), hi=Math.max(...vals); const m=(hi-lo)*.12||Math.abs(hi)*.05||1; lo-=m; hi+=m;
+  const px=a=>pad.l+(a-anos[0])/((anos[anos.length-1]-anos[0])||1)*(w-pad.l-pad.r);
+  const py=v=>pad.t+(hi-v)/(hi-lo)*(h-pad.t-pad.b);
+  const marcas=[0,1,2,3].map(k=>lo+m+(hi-lo-2*m)*k/3);
+  /* rótulos do fim das linhas sem sobreposição: ordena pela altura e afasta no mínimo 14 px */
+  const fim=series.map((s,k)=>{const j=s.v.length-1; return {k,y:py(s.v[j]),txt:`${s.curto||s.nome}: ${fmtN(s.v[j],fmt)}`};}).sort((a,b)=>a.y-b.y);
+  fim.forEach((o,i)=>{if(i&&o.y-fim[i-1].y<14)o.y=fim[i-1].y+14;});
+  return `<figure class="ctx-graf"><figcaption>${esc(titulo)}</figcaption>
+    <div class="ctx-leg">${series.map((s,k)=>`<span><i style="background:${COR.cat[k]}"></i>${esc(s.nome)}</span>`).join('')}</div>
+    <svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(titulo)}">
+    ${marcas.map(v=>`<line x1="${pad.l}" x2="${w-pad.r}" y1="${py(v).toFixed(1)}" y2="${py(v).toFixed(1)}" stroke="var(--line)"/>
+      <text x="${pad.l-6}" y="${(py(v)+4).toFixed(1)}" text-anchor="end">${esc(fmtN(v,fmt))}</text>`).join('')}
+    ${anos.map((a,i)=>i%2===0||i===anos.length-1?`<text x="${px(a).toFixed(1)}" y="${h-6}" text-anchor="middle">${a}</text>`:'').join('')}
+    ${series.map((s,k)=>{const d=s.v.map((v,i)=>v==null?'':(i&&s.v[i-1]!=null?'L':'M')+px(anos[i]).toFixed(1)+' '+py(v).toFixed(1)).join(' ');
+      return `<path d="${d}" fill="none" stroke="${COR.cat[k]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${s.v.map((v,i)=>v==null?'':`<g><title>${esc(s.nome)}, ${anos[i]}: ${esc(fmtN(v,fmt))}</title>
+        <circle cx="${px(anos[i]).toFixed(1)}" cy="${py(v).toFixed(1)}" r="7" fill="transparent"/>
+        <circle cx="${px(anos[i]).toFixed(1)}" cy="${py(v).toFixed(1)}" r="3.5" fill="${COR.cat[k]}" stroke="var(--bg2)" stroke-width="1.5"/></g>`).join('')}`;}).join('')}
+    ${fim.map(o=>`<circle cx="${w-pad.r+10}" cy="${(o.y-4).toFixed(1)}" r="4" fill="${COR.cat[o.k]}"/>
+      <text class="lbl" x="${w-pad.r+18}" y="${o.y.toFixed(1)}">${esc(o.txt)}</text>`).join('')}
+    </svg></figure>`;
+}
+function ctxHTML(){
+  const A=ATLASBR, R=A&&A.radar;
+  const tabs=ctxTabelas();
+  if(!tabs.length)return '<div class="note warn">As bases do Atlas Brasil não estão neste arquivo. Elas entram pela central de extração (cartão “Atlas Brasil”) ou pelo extracao/11_atlas_brasil.py.</div>';
+  let graf='';
+  if(R&&R.v&&R.v.rm_poa&&R.v.rs&&R.v.br){
+    const sr=s=>[{nome:'RM de Porto Alegre',curto:'RM POA',v:R.v.rm_poa[s]},{nome:'Rio Grande do Sul',curto:'RS',v:R.v.rs[s]},{nome:'Brasil',v:R.v.br[s]}];
+    graf=`<div class="ctx-grafs">${ctxGrafico('IDHM, Radar',R.anos,sr('IDHM'),'dec3')}${ctxGrafico('Pobres, % da população (Radar)',R.anos,sr('PMPOB'),'pct1')}</div>`;
+  }
+  return `<div class="note">Esta aba é da <b>RM de Porto Alegre inteira</b> (34 municípios no Atlas Brasil), não da soma dos sete
+    municípios do Atlas. O <b>Radar IDHM</b> é calculado com a PNAD Contínua, ano a ano, de 2012 a 2024; o IDHM dos municípios
+    e das UDHs vem dos Censos (1991, 2000 e 2010). São séries de fontes diferentes: o Atlas não as junta numa linha só.</div>
+    <div class="btn-row" style="margin:10px 0"><button class="btn" id="ctxCSV">Baixar planilha (CSV)</button></div>
+    ${graf}
+    ${tabs.map(d=>`<h3 class="sec">${esc(d.t)}</h3>
+      <div class="tb-scroll"><table class="tb diag"><thead><tr>${d.cab.map((h,j)=>`<th${j?' style="text-align:right"':''}>${esc(h)}</th>`).join('')}</tr></thead>
+      <tbody>${d.linhas.map(l=>`<tr>${l.map((v,c)=>c?`<td class="n">${esc(v)}</td>`:`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      <p class="diag-fonte">Fonte: ${esc(d.fonte)}, via Atlas Metropolitano RMPA.${d.nota?' '+esc(d.nota):''}</p>`).join('')}`;
+}
+/* Metodologia: o que veio das bases do Atlas Brasil e como foi conferido */
+function abMetodoHTML(){
+  const A=ATLASBR, C=A.conferencia||{}, ag=C.agregado||[];
+  const nComp=UDH_IND.filter(x=>x.length===2&&(A.udh.campos||[]).includes(x[0])).length;
+  const nNovos=IND.filter(i=>i.niveis.includes('udh')&&i.fonte==='ATLASBR_UDH').length;
+  const SIG=[['RDPC','Renda per capita','brl'],['PMPOB','Pobres','pct2'],['PIND','Extremamente pobres','pct2'],
+    ['T_FUND18M','18 anos ou mais com fundamental','pct1'],['T_ANALF15M','Analfabetismo, 15 anos ou mais','pct2']];
+  const cods=MUNIS_LISTA.ids.map(String);
+  const tab=ag.length?`<div class="tb-scroll"><table class="tb diag"><thead><tr><th>Município</th>${SIG.map(([,n])=>`<th style="text-align:right">${esc(n)}</th>`).join('')}</tr></thead>
+    <tbody>${cods.map(c=>`<tr><td>${esc(nomeDoCod(c))}</td>${SIG.map(([s,,f])=>{const o=ag.find(x=>x.sigla===s&&x.muni===c);
+      return `<td class="n">${o?`${esc(fmtN(o.udh,f))} · ${esc(fmtN(o.municipio,f))}`:'—'}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>
+    <p class="diag-fonte">Em cada célula: a soma das UDHs de 2010, ponderada pelo denominador da taxa · o valor do município publicado pelo Atlas Brasil.</p>`:'';
+  return `<h3 class="sec">Atlas Brasil: UDHs, regiões, RMs e Radar IDHM</h3>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    As bases vêm da biblioteca do Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA e FJP),
+    atlasbrasil.org.br/acervo/biblioteca, e entram pelo extracao/11_atlas_brasil.py (dados/dados-atlasbrasil.js). A central de
+    extração lê os mesmos arquivos no navegador, no cartão “Atlas Brasil”, e uma base nova vale por cima da que veio no pacote.</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>UDH.</b> A Unidade de Desenvolvimento Humano é o recorte do Atlas Brasil dentro dos municípios das regiões
+      metropolitanas, formado por setores do Censo 2010. São ${nf.format(C.udh_sete||A.udh.ids.length)} UDHs nos sete municípios
+      (${nf.format(C.udh_rm||0)} na RM inteira). O nível UDH do mapa mostra o Censo 2010; a ficha de cada UDH mostra também 2000, na
+      mesma UDH${C.sem_idhm_2000?`. Em 2000, ${C.sem_idhm_2000} UDHs não têm IDHM na base do Atlas Brasil e ficam sem valor`:''}.</li>
+    <li><b>Conferências do script.</b> As UDHs da base são as do shapefile. A população das UDHs soma a de cada município publicada
+      pelo Atlas Brasil: exatamente em 2010, com diferença de até ${nf.format(C.pop2000_dif_max||0)} pessoas em 2000. ${esc(C.idhm_formula||'')}.
+      Cada região de Porto Alegre soma as suas UDHs, e a RM, as das 34 cidades. Se algo não bate, o script para sem gravar.</li>
+    <li><b>Um indicador, dois níveis.</b> ${nComp} indicadores do Atlas Brasil que o Atlas já tinha por município (IDHM e componentes,
+      renda, pobreza, mortalidade, educação, trabalho, moradia e vulnerabilidade) ganharam o nível UDH: mesma fonte, mesmo ano e
+      a mesma definição nos metadados. A soma das UDHs chega perto do valor do município, mas não o reproduz, porque o Atlas Brasil
+      calcula as UDHs e os municípios em separado (tabela abaixo). Cada nível mostra o número que o Atlas Brasil publica para ele.
+      Outros ${nNovos} indicadores vêm só da base de UDHs; o analfabetismo também tem o valor do município.</li>
+    <li><b>Contas do Atlas.</b> Na UDH, a variação do IDHM e a da renda per capita de 2000 a 2010; no município, o número de UDHs,
+      o menor e o maior IDHM e a população em UDHs de IDHM abaixo de 0,700, isto é, nas faixas média, baixa e muito baixa do Atlas Brasil.</li>
+    <li><b>Geometria.</b> O shapefile do Atlas Brasil, simplificado para a tela: de ${nf.format(C.pontos_shapefile||0)} para
+      ${nf.format(C.pontos_atlas||0)} pontos; a área de cada UDH muda no máximo ${fmtN(C.area_dif_max_pct,'dec1')}%.</li>
+    <li><b>Unidade da renda.</b> Os metadados do censo dizem “Em mil Reais de 01/08/2010”, mas os valores estão em reais: a renda
+      per capita de Porto Alegre em 2010 é R$ 1.758,27 no Atlas Brasil municipal. O Atlas mostra em reais.</li>
+    <li><b>Radar IDHM.</b> A Fundação João Pinheiro calcula o IDHM e outros ${(A.radar&&A.radar.campos?A.radar.campos.length:1)-1} indicadores com a PNAD Contínua, ano a ano, de
+      ${A.radar?A.radar.anos[0]:''} a ${A.radar?A.radar.anos[A.radar.anos.length-1]:''}, para o Brasil, as grandes regiões, as UFs e as regiões metropolitanas. Não há valor por município. O Atlas mostra a RM de
+      Porto Alegre, o RS e o Brasil no <b>Diagnóstico regional → Contexto metropolitano</b> e não emenda o Radar à série dos Censos.</li>
+  </ul>
+  ${tab}`;
+}
 function exportaDiagDoc(){
   const mf=S.muniFiltro!=null&&MUNIS_LISTA?MUNIS_LISTA.nomes[S.muniFiltro]:null;
   const tab=(cab,linhas,dir)=>`<table><tr>${cab.map((h,j)=>`<th${dir&&j?' class="n"':''}>${esc(h)}</th>`).join('')}</tr>${
     linhas.map(l=>`<tr>${l.map((v,j)=>`<td${dir&&j?' class="n"':''}>${esc(String(v))}</td>`).join('')}</tr>`).join('')}</table>`;
   let h='';
-  TABELAS_DIAG.forEach((t,k)=>{const d=diagTabela(t);
+  const TD=tabelasDiag();
+  TD.forEach((t,k)=>{const d=diagTabela(t);
     h+=`<h3>Seção ${t.sec} – ${esc(t.t)}</h3>${tab(d.cab,d.linhas,true)}<p class="f">Fonte: ${esc(d.fontes.join('; '))}, via Atlas Metropolitano RMPA.</p>`;
-    if((k===TABELAS_DIAG.length-1||TABELAS_DIAG[k+1].sec!==t.sec)&&AUSENTES_DIAG[t.sec])h+=`<p class="f"><i>${esc(AUSENTES_DIAG[t.sec])}</i></p>`;});
+    if((k===TD.length-1||TD[k+1].sec!==t.sec)&&AUSENTES_DIAG[t.sec])h+=`<p class="f"><i>${esc(AUSENTES_DIAG[t.sec])}</i></p>`;});
+  const ctx=ctxTabelas();
+  if(ctx.length){
+    h+=`<h3>Contexto metropolitano (Atlas Brasil)</h3><p class="f">Valores da RM de Porto Alegre inteira (34 municípios no Atlas Brasil), não da soma dos sete municípios.</p>`;
+    ctx.forEach(d=>{h+=`<h3>${esc(d.t)}</h3>${tab(d.cab,d.linhas,true)}<p class="f">Fonte: ${esc(d.fonte)}, via Atlas Metropolitano RMPA.${d.nota?' '+esc(d.nota):''}</p>`;});
+  }
   const M=matrizCarrega().slice().sort((a,b)=>totalM(b)-totalM(a));
   h+=`<h3>Seção 15 – Matriz de priorização</h3>`+tab(['Problema','Gravidade','Urgência','Tendência','Pessoas afetadas','Total','Evidência no Atlas'],
     M.map(r=>[r.p,r.g,r.u,r.t,r.a,totalM(r),r.e||'']),false)+
@@ -4588,6 +5016,7 @@ const chavesPonto=()=>['lojas','escolas','saude','acolhimento']
 
 /* Põe um item extraído no Atlas: fonte, indicadores, valores e pontos. */
 function xtAplica(item){
+  if(item.atlasbr)abAplica(item.atlasbr);
   const fk='XT_'+item.id;
   FONTES[fk]={n:item.fonte.n,s:item.fonte.s||item.fonte.n,u:item.fonte.u||'',
     d:(item.fonte.d||'')+(item.pacote?` Calculado para o pacote do Atlas em ${new Date(item.quando).toLocaleDateString('pt-BR')}`
@@ -4597,6 +5026,7 @@ function xtAplica(item){
   const fx=item.fontesExtra||{};
   for(const k in fx)FONTES[k]=Object.assign({},fx[k],{d:(fx[k].d||'')+` Extraído no navegador em ${new Date(item.quando).toLocaleDateString('pt-BR')}.`});
   if((item.indicadores||[]).some(d=>d.cat==='ipeadata')&&!CATS.some(c=>c.id==='ipeadata'))CATS.push({id:'ipeadata',n:'Ipeadata (IPEA)'});
+  if((item.indicadores||[]).some(d=>d.cat==='atlasbr')&&!CATS.some(c=>c.id==='atlasbr'))CATS.push({id:'atlasbr',n:'Atlas Brasil (outras siglas)'});
   (item.indicadores||[]).forEach(d=>{
     const o=Object.assign({},d,{fonte:d.fonte&&fx[d.fonte]?d.fonte:fk,ano:d.ano??item.ano,status:d.status||item.status||'ok'});
     const ex=getInd(d.id);
@@ -4828,7 +5258,7 @@ const xtEhTexto=n=>/\.(csv|txt|tsv)(\.gz)?$/i.test(n);
    usar os valores (uma linha por município), contar linhas ou somar colunas
    (uma linha por unidade: escola, CRAS, organização...). Com latitude e
    longitude, as linhas também viram pontos no mapa e contagem por bairro. */
-const XT_COL_MUN=/^(co_?municipio(_ibge)?|cod_?municipio|codigo_?municipio|id_?municipio|code_?muni|codufmun|cod_?ibge|ibge|cd_?mun(icipio)?|cod_?mun|municipio_?codigo|co_?ibge|codmun7?|cod_?mun_?ibge)$/;
+const XT_COL_MUN=/^(co_?municipio(_ibge)?|cod_?municipio|codigo_?municipio|id_?municipio|code_?muni|codufmun|cod_?ibge|ibge|cd_?mun(icipio)?|cod_?mun|municipio_?codigo|co_?ibge|codmun[67]?|cod_?mun_?ibge)$/;
 const XT_COL_LAT=/^(lat|latitude|nu_?latitude|lat_?(y|dec)?)$/, XT_COL_LON=/^(lon|lng|long|longitude|nu_?longitude|lon_?(x|dec)?)$/;
 const XT_COL_ANO=/^(ano|year|nu_?ano(_censo)?|ano_?referencia|competencia)$/;
 const xtNorm=s=>norm(s).replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
@@ -5774,8 +6204,501 @@ function xtIpdErro(el,e){
   else xtErro(el,'Ipeadata: '+((e&&e.message)||String(e))+(e&&e.tipo==='rede'?'. Sem acesso pelo navegador, rode o script extracao/7_ipeadata.py.':''));
 }
 
+/* ---- 27.8 Atlas Brasil: bases da biblioteca --------------------------------
+   Lê no navegador os arquivos da biblioteca do Atlas Brasil (atlasbrasil.org.br/acervo/biblioteca)
+   do mesmo jeito que o extracao/11_atlas_brasil.py lê no computador, e grava no mesmo formato de
+   dados/dados-atlasbrasil.js (seção 4.3.3b). Reconhece cada tabela pelo cabeçalho:
+   - base de UDHs, base das regiões de Porto Alegre e base das RMs (Censos 2000 e 2010), com o
+     shapefile das UDHs ou, sem ele, a geometria que já está no Atlas;
+   - base do Radar IDHM (PNAD Contínua), com as abas por sexo e por cor;
+   - metadados e dicionários (dão nome, unidade, definição e polaridade às siglas);
+   - qualquer outra base com código de município e siglas do Atlas Brasil (os registros
+     administrativos, por exemplo): vira indicador municipal, com série quando há vários anos.
+   O navegador não abre .rar: o dados_pa.zip traz dois, que se extraem no computador.
+   As conferências são as do script; se uma falha, nada entra no Atlas. */
+const AB_CAMPOS_UDH=['IDHM','IDHM_R','IDHM_L','IDHM_E','ESPVIDA','RDPC','RDPC1','GINI','THEIL','R1040','PREN20','PRENTRAB',
+  'PIND','PMPOB','PPOB','PINDCRI','PMPOBCRI','MORT1','MORT5','FECTOT','RAZDEP','T_ENV','T_M10A17CF','PESOTOT',
+  'E_ANOSESTUDO','T_ANALF15M','T_FUND18M','T_MED25M','T_SUPER25M','T_FREQ0A5','T_FREQ15A17','T_FUND15A17','T_MED18A20',
+  'T_ATRASO_2_FUND','T_FORA6A14','T_ATIV18M','T_DES18M','T_DES1824','P_FORMAL','RENOCUP','T_AGUA','T_BANAGUA','T_LIXO',
+  'T_LUZ','AGUA_ESGOTO','T_DENS','T_FUNDIN18MINF','T_CRIFUNDIN_TODOS','T_FUNDIN_TODOS','T_NESTUDA_NTRAB_MMEIO',
+  'T_MULCHEFEFIF014','T_RMAXIDOSO','T_OCUPDESLOC_1'];
+const AB_RADAR_RMS=['IDHM','IDHM_R','IDHM_L','IDHM_E','ESPVIDA','MORT1','RDPC','GINI','PIND','PMPOB','PPOB','T_FUND18M','ANOSEST','T_ANALF15M'];
+const AB_RENDA_REAIS=new Set(['RDPC','RDPC1','RDPC2','RDPC3','RDPC4','RDPC5','RDPC10','RDPCT','RIND','RMPOB','RPOB','RENOCUP',
+  'CORTE1','CORTE2','CORTE3','CORTE4','CORTE9']);
+const AB_PREC=100000, AB_TOL=3;
+/* siglas de identificação dos dicionários: código, nome, UF, coordenadas; nunca viram indicador */
+const AB_ID_SIGLAS=new Set(['CODMUN6','CODMUN7','NOMEMUN','CODUF','SIGLAUF','UFN','MICRO','MESO','ALTITUDE','LATITUDE','LONGITUDE',
+  'ANOINST','CODRM','SIGLARM','NOMERM','ID','DIVISÃO','ANO','UF']);
+class ErroAB extends Error{}
+const abFalha=m=>{throw new ErroAB(m);};
+
+/* ---- planilha .xlsx sem biblioteca: um ZIP com XML dentro ---- */
+const xmlTexto=s=>String(s).replace(/&(#x[0-9a-fA-F]+|#\d+|lt|gt|quot|apos|amp);/g,(m,e)=>
+  e==='lt'?'<':e==='gt'?'>':e==='quot'?'"':e==='apos'?"'":e==='amp'?'&'
+  :String.fromCodePoint(e[1]==='x'||e[1]==='X'?parseInt(e.slice(2),16):parseInt(e.slice(1),10)));
+const xmlAttrs=s=>{const o={}; for(const m of String(s).matchAll(/([\w:]+)\s*=\s*"([^"]*)"/g))o[m[1]]=xmlTexto(m[2]); return o;};
+const xlsxCol=r=>{let n=0; for(const ch of r.replace(/\d+$/,''))n=n*26+(ch.charCodeAt(0)-64); return n-1;};
+async function xlsxLe(blob){
+  const por={}; (await zipEntradas(blob)).forEach(e=>{por[e.nome.replace(/^\/+/,'')]=e;});
+  const txt=async n=>por[n]?new TextDecoder('utf-8').decode(await zipBytes(por[n])):null;
+  const wb=await txt('xl/workbook.xml'); if(!wb)abFalha('o arquivo não é uma planilha .xlsx');
+  const rels={};
+  for(const m of ((await txt('xl/_rels/workbook.xml.rels'))||'').matchAll(/<Relationship\b([^>]*)>/g)){const a=xmlAttrs(m[1]); rels[a.Id]=a.Target;}
+  const comp=[], ss=await txt('xl/sharedStrings.xml');
+  if(ss)for(const m of ss.matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>/g)){
+    let s=''; for(const t of m[1].replace(/<rPh\b[\s\S]*?<\/rPh>/g,'').matchAll(/<t\b[^>]*>([\s\S]*?)<\/t>/g))s+=t[1];
+    comp.push(xmlTexto(s));
+  }
+  const abas=[];
+  for(const m of wb.matchAll(/<sheet\b([^>]*)>/g)){
+    const a=xmlAttrs(m[1]), alvo=rels[a['r:id']]; if(!alvo)continue;
+    const x=await txt(alvo.startsWith('/')?alvo.slice(1):'xl/'+alvo.replace(/^\.\//,'')); if(x==null)continue;
+    const linhas=[];
+    for(const r of x.matchAll(/<row\b[^>]*?(?:\/>|>([\s\S]*?)<\/row>)/g)){
+      const lin=[]; let k=-1;
+      if(r[1])for(const c of r[1].matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)){
+        const at=xmlAttrs(c[1]), corpo=c[2]||''; k=at.r?xlsxCol(at.r):k+1;
+        const vv=(corpo.match(/<v>([\s\S]*?)<\/v>/)||[])[1];
+        let v=null;
+        if(at.t==='s')v=vv!=null?comp[+vv]:null;
+        else if(at.t==='inlineStr'){let s='';for(const t of corpo.matchAll(/<t\b[^>]*>([\s\S]*?)<\/t>/g))s+=t[1]; v=xmlTexto(s);}
+        else if(at.t==='str')v=vv!=null?xmlTexto(vv):null;
+        else if(at.t==='b')v=vv==='1';
+        else if(at.t!=='e'&&vv!=null&&vv!=='')v=+vv;
+        lin[k]=v;
+      }
+      linhas.push(Array.from(lin,x=>x===undefined?null:x));
+    }
+    abas.push({nome:a.name,linhas});
+  }
+  return abas;
+}
+/* CSV: as linhas como na planilha; número quando o valor inteiro é número */
+async function abCsvLe(fonte){
+  const ls=[]; await xtLinhas(fonte,l=>{if(l.trim())ls.push(l);});
+  if(!ls.length)return [];
+  const sep=xtSeparador(ls.slice(0,20).join('\n'));
+  return [{nome:fonte.nome,linhas:ls.map((l,i)=>xtCampos(l,sep).map(x=>{if(!i)return x; const n=xtNumero(x); return x===''?null:Number.isNaN(n)?x:n;}))}];
+}
+
+/* ---- shapefile de polígonos e a tabela .dbf ---- */
+function shpLe(buf){
+  const dv=new DataView(buf), out=[]; let q=100;
+  while(q+8<=buf.byteLength){
+    const c=q+8, tam=dv.getInt32(q+4,false)*2; q=c+tam;
+    const tipo=dv.getInt32(c,true); if(tipo===0){out.push([]);continue;}
+    if(tipo!==5&&tipo!==15&&tipo!==25)abFalha('o .shp não é de polígonos');
+    const np=dv.getInt32(c+36,true), npt=dv.getInt32(c+40,true), partes=[];
+    for(let i=0;i<np;i++)partes.push(dv.getInt32(c+44+4*i,true));
+    partes.push(npt);
+    const b=c+44+4*np, pts=[];
+    for(let i=0;i<npt;i++)pts.push([dv.getFloat64(b+16*i,true),dv.getFloat64(b+16*i+8,true)]);
+    out.push(partes.slice(0,-1).map((p,i)=>pts.slice(p,partes[i+1])));
+  }
+  return out;
+}
+function dbfLe(buf){
+  const dv=new DataView(buf), u8=new Uint8Array(buf), n=dv.getUint32(4,true), hl=dv.getUint16(8,true), rl=dv.getUint16(10,true);
+  const campos=[];
+  for(let q=32;u8[q]!==0x0D;q+=32){let nome='';for(let i=0;i<11&&u8[q+i];i++)nome+=String.fromCharCode(u8[q+i]); campos.push([nome,u8[q+16]]);}
+  const dec=new TextDecoder('utf-8'), out=[];
+  for(let r=0,q=hl;r<n;r++,q+=rl){
+    if(u8[q]===0x2A)continue;
+    let k=q+1; const o={};
+    campos.forEach(([nome,tam])=>{o[nome]=dec.decode(u8.subarray(k,k+tam)).trim(); k+=tam;});
+    out.push(o);
+  }
+  return out;
+}
+
+/* ---- geometria no formato do Atlas: a mesma conta do 11_atlas_brasil.py ----
+   arredondamento como o round() do Python (metade para o par), para dar os mesmos pontos */
+const rndPy=x=>{const f=Math.floor(x), d=x-f; return d>0.5?f+1:d<0.5?f:(f%2===0?f:f+1);};
+const abArea2=r=>{let a=0; for(let i=0;i<r.length-1;i++)a+=r[i][0]*r[i+1][1]-r[i+1][0]*r[i][1]; return a;};
+function abDentro(x,y,r){
+  let d=false;
+  for(let i=0;i<r.length-1;i++){const [x1,y1]=r[i],[x2,y2]=r[i+1]; if((y1>y)!==(y2>y)&&x<(x2-x1)*(y-y1)/(y2-y1)+x1)d=!d;}
+  return d;
+}
+function abDP(pts,tol){
+  if(pts.length<3)return pts.slice();
+  const manter=new Set([0,pts.length-1]), pilha=[[0,pts.length-1]];
+  while(pilha.length){
+    const [i,j]=pilha.pop(), [x1,y1]=pts[i], [x2,y2]=pts[j], dx=x2-x1, dy=y2-y1, l2=dx*dx+dy*dy;
+    let dmax=-1,kmax=-1;
+    for(let k=i+1;k<j;k++){const [x,y]=pts[k];
+      const d=l2===0?Math.hypot(x-x1,y-y1):Math.abs(dy*x-dx*y+x2*y1-y2*x1)/Math.sqrt(l2);
+      if(d>dmax){dmax=d;kmax=k;}}
+    if(dmax>tol){manter.add(kmax); pilha.push([i,kmax],[kmax,j]);}
+  }
+  return [...manter].sort((a,b)=>a-b).map(k=>pts[k]);
+}
+function abSimplificaAnel(anel){
+  const pts=[];
+  for(const [x,y] of anel){const p=[rndPy(x*AB_PREC),rndPy(y*AB_PREC)], u=pts[pts.length-1]; if(!u||u[0]!==p[0]||u[1]!==p[1])pts.push(p);}
+  if(pts[0][0]!==pts[pts.length-1][0]||pts[0][1]!==pts[pts.length-1][1])pts.push(pts[0]);
+  if(pts.length<5)return pts;
+  const [x0,y0]=pts[0]; let k=0,dm=-1;
+  pts.forEach(([x,y],i)=>{const d=(x-x0)**2+(y-y0)**2; if(d>dm){dm=d;k=i;}});
+  const s=abDP(pts.slice(0,k+1),AB_TOL).slice(0,-1).concat(abDP(pts.slice(k),AB_TOL));
+  return s.length>=4?s:pts;
+}
+function abEncNum(v,out){let r=v>=0?v*2:(-v-1)*2+1; while(r>=32){out.push(String.fromCharCode((32|(r%32))+63)); r=Math.floor(r/32);} out.push(String.fromCharCode(r+63));}
+function abEncAnel(pts){const out=[]; let px=0,py=0; for(const [x,y] of pts){abEncNum(x-px,out);abEncNum(y-py,out);px=x;py=y;} return out.join('');}
+function abGeom(aneis){
+  let ext=[],bur=[];
+  aneis.forEach(r=>{if(r.length<4)return; (abArea2(r)<0?ext:bur).push(r);});
+  if(!ext.length){ext=bur;bur=[];}
+  const polis=ext.map(e=>[e]);
+  bur.forEach(h=>{const alvo=polis.find(p=>abDentro(h[0][0],h[0][1],p[0])); if(alvo)alvo.push(h); else polis.push([h]);});
+  return polis.map(p=>p.map(r=>abEncAnel(abSimplificaAnel(r))));
+}
+/* colunas no formato compacto (o mesmo de decCol) */
+const abCasas=v=>{for(let k=0;k<5;k++){const x=v*10**k; if(Math.abs(x-Math.round(x))<1e-6)return k;} return 4;};
+function abEncCol(vals,escala){const out=[]; vals.forEach(x=>abEncNum(x==null?0:rndPy(x*escala)+1,out)); return out.join('');}
+const abNum=v=>v==null||v===''?null:typeof v==='number'?v:(()=>{const n=xtNumero(v); return Number.isNaN(n)?null:n;})();
+const abEsp=s=>String(s??'').trim().split(/\s+/).join(' ');
+const abCodigo=v=>String(v??'').trim().replace(/\.0+$/,'');
+
+/* ---- conferência do IDHM, a mesma do script ---- */
+function abConfereIDHM(rot,r,completos){
+  const g=k=>abNum(r[k]), I=g('IDHM'); if(I==null)return;
+  const L=g('IDHM_L'), R=g('IDHM_R'), E=g('IDHM_E');
+  if(L==null||R==null||E==null)abFalha(`${rot}: IDHM sem os três subíndices`);
+  if(Math.abs(Math.round(1000*Math.cbrt(L*R*E))/1000-I)>0.0015)abFalha(`${rot}: IDHM ${I} não é a média geométrica de ${L}, ${R} e ${E}`);
+  const ev=g('ESPVIDA'), rd=g('RDPC');
+  if(ev!=null&&Math.abs(Math.min(1,(ev-25)/60)-L)>0.0015)abFalha(`${rot}: IDHM Longevidade ${L} não confere com a esperança de vida ${ev}`);
+  if(rd!=null&&Math.abs(Math.min(1,Math.log(rd/8)/Math.log(4033/8))-R)>0.0015)abFalha(`${rot}: IDHM Renda ${R} não confere com a renda per capita ${rd}`);
+  if(!completos)return;
+  const fp=g('I_FREQ_PROP'), es=g('I_ESCOLARIDADE');
+  if(fp!=null&&es!=null){
+    if(Math.abs(Math.cbrt(fp*fp*es)-E)>0.0015)abFalha(`${rot}: IDHM Educação ${E} não confere com os subíndices de frequência e escolaridade`);
+    const f4=['T_FREQ5A6','T_FUND11A13','T_FUND15A17','T_MED18A20'].map(g);
+    if(!f4.includes(null)&&Math.abs(f4.reduce((a,b)=>a+b,0)/400-fp)>0.0015)abFalha(`${rot}: subíndice de frequência não é a média dos quatro indicadores`);
+    const t18=g('T_FUND18M'); if(t18!=null&&Math.abs(t18/100-es)>0.0015)abFalha(`${rot}: subíndice de escolaridade não é o % de 18+ com fundamental`);
+  }
+}
+
+/* ---- que tabela é esta ---- */
+function abTipo(cab){
+  const C=new Set(cab.map(c=>String(c??'').trim().toUpperCase()));
+  if(C.has('SIGLA')&&(C.has('NOME DO INDICADOR')||C.has('DENOMINAÇÃO')||C.has('NOME')))return 'dic';
+  if(C.has('ANO')&&C.has('AGREGACAO')&&C.has('CODIGO')&&C.has('NOME'))return C.has('SEXO')?'radar_sexo':C.has('COR')?'radar_cor':'radar';
+  if(C.has('UDH_ATLAS')&&C.has('NOME_UDH')&&C.has('ANO'))return 'udh';
+  if(C.has('COD_REG')&&C.has('NOME_REG')&&C.has('ANO'))return 'regional';
+  if(C.has('CODRM')&&C.has('NOME_RM')&&C.has('ANO'))return 'rms';
+  if(cab.some(h=>XT_COL_MUN.test(xtNorm(h))))return 'municipal';
+  return null;
+}
+/* o cabeçalho é a primeira linha com texto em mais da metade das células */
+function abTabela(linhas){
+  const t=xtCabPlanilha(linhas.map(r=>r.map(c=>c==null?null:c)));
+  const cab=t.cab.map(c=>String(c).trim()), regs=[];
+  linhas.slice(t.iCab+1).forEach(r=>{if(!r.some(x=>x!=null&&x!==''))return; const o={}; cab.forEach((c,j)=>{o[c]=r[j]??null;}); regs.push(o);});
+  return {cab,regs};
+}
+/* origem de um dicionário pelo cabeçalho; a ordem de prioridade é a do script */
+function abOrigemDic(cab){
+  const C=new Set(cab.map(c=>String(c).trim().toUpperCase()));
+  if(C.has('DENOMINAÇÃO'))return 'radar';
+  if(C.has('NOME DO INDICADOR')&&C.has('FÓRMULA'))return 'regadm';
+  if(C.has('NOME DO INDICADOR'))return 'censo';
+  return 'base';
+}
+function abDicionario(tabs){
+  const ordem=['radar','censo','regadm','base'], dic={}, fontes=[];
+  const usadas=new Set(AB_CAMPOS_UDH.concat(AB_RADAR_RMS));
+  const v=(r,...ks)=>{for(const k of ks){const c=Object.keys(r).find(x=>x.trim().toUpperCase()===k); if(c&&r[c]!=null&&r[c]!=='')return r[c];} return null;};
+  ordem.forEach(o=>tabs.filter(t=>t.origem===o).forEach(t=>t.regs.forEach(r=>{
+    const s=abEsp(v(r,'SIGLA')); if(!s)return;
+    /* a sigla já veio de um dicionário anterior: só a dimensão, se faltava */
+    if(dic[s]){if(!dic[s].dim&&abEsp(v(r,'DIMENSÃO')))dic[s].dim=abEsp(v(r,'DIMENSÃO')); return;}
+    const e={n:abEsp(v(r,'NOME DO INDICADOR','DENOMINAÇÃO','NOME')),u:abEsp(v(r,'UNIDADE','UNIDADE DE MEDIDA')),dim:abEsp(v(r,'DIMENSÃO')),origem:o};
+    if(AB_RENDA_REAIS.has(s)&&/mil/i.test(e.u)){e.u_original=e.u; e.u='R$ de 01/08/2010';}
+    const d=o==='radar'?abEsp(`${v(r,'DESCRIÇÃO')||''} ${v(r,'FÓRMULA DE CÁLCULO')||''}`):abEsp(v(r,'DEFINIÇÃO'));
+    if(usadas.has(s)&&d)e.d=d.slice(0,700);
+    if(o==='radar'){const dec=v(r,'CASAS DECIMAIS'), pol=String(v(r,'POLARIDADE')||'').toLowerCase();
+      if(dec!=null)e.dec=dec; if(pol.startsWith('quanto maior'))e.pol='+'; else if(pol.startsWith('quanto menor'))e.pol='-';}
+    if(o==='regadm'){const per=v(r,'PERIODICIDADE'), f=abEsp(v(r,'FONTE')).slice(0,400);
+      if(per)e.per=per; if(f){if(!fontes.includes(f))fontes.push(f); e.f=fontes.indexOf(f);}}
+    dic[s]=e;
+  })));
+  return {dic,fontes};
+}
+
+/* ---- as partes: UDH, regiões, RMs e Radar ---- */
+function abPorAno(regs,chave,rot){
+  const out={};
+  regs.forEach(r=>{const a=abNum(r.ANO); if(a!==2000&&a!==2010)abFalha(`${rot} com o ano ${r.ANO}; esperava 2000 e 2010`);
+    const id=abCodigo(r[chave]); (out[a]=out[a]||{}); if(out[a][id])abFalha(`${rot}: ${id} repetida em ${a}`); out[a][id]=r;});
+  return out;
+}
+function abEscalas(listas){
+  return AB_CAMPOS_UDH.map(c=>{let k=0; listas.forEach(ls=>ls.forEach(r=>{const v=abNum(r[c]); if(v!=null)k=Math.max(k,abCasas(v));})); return 10**k;});
+}
+function abColunas(porAno,ordem,escalas){
+  const out={};
+  [2000,2010].forEach(a=>{out[String(a)]=AB_CAMPOS_UDH.map((c,k)=>abEncCol(ordem.map(id=>abNum((porAno[a][id]||{})[c])),escalas[k]));});
+  return out;
+}
+/* monta as partes a partir das tabelas reconhecidas; devolve {partes, relato} ou lança ErroAB */
+function abMonta(T){
+  const relato=[], partes={}, cods=XT_CODS(), cod6=c=>cods.find(x=>x.slice(0,6)===String(c).slice(0,6))||null;
+  const adhPop=ADH_IPEA&&ADH_IPEA.valores.populacao, j10=ADH_IPEA?ADH_IPEA.anos.indexOf(2010):-1, j00=ADH_IPEA?ADH_IPEA.anos.indexOf(2000):-1;
+  /* dicionário */
+  if(T.dic.length){const {dic,fontes}=abDicionario(T.dic); partes.dic={dic,fontes};
+    relato.push(`Dicionário: ${nf.format(Object.keys(dic).length)} siglas (${[...new Set(T.dic.map(t=>t.origem))].join(', ')}).`);}
+  const dicDe=s=>((partes.dic||{}).dic||{})[s]||((ATLASBR||{}).dic||{})[s]||null;
+  /* UDH, regiões e RMs */
+  let U=null, ids=null, regDe={}, geomDe={};
+  if(T.udh){
+    const falt=AB_CAMPOS_UDH.concat(['UDH_Atlas','NOME_UDH','CODMUN6','ANO']).filter(c=>!T.udh.cab.includes(c));
+    if(falt.length)abFalha(`base de UDHs sem as colunas ${falt.join(', ')}`);
+    U=abPorAno(T.udh.regs,'UDH_Atlas','base de UDHs');
+    const k00=Object.keys(U[2000]||{}).sort().join(), k10=Object.keys(U[2010]||{}).sort().join();
+    if(!U[2000]||!U[2010]||k00!==k10)abFalha('base de UDHs: as UDHs de 2000 não são as mesmas de 2010');
+    if(T.shp){
+      if(T.shp.dbf.length!==T.shp.geoms.length)abFalha('shapefile das UDHs: .dbf e .shp com números de feições diferentes');
+      T.shp.dbf.forEach((d,i)=>{const id=abCodigo(d.UDH_ATLAS); if(geomDe[id])abFalha(`UDH ${id} repetida no shapefile`);
+        geomDe[id]={aneis:T.shp.geoms[i],muni:d.CD_GEOCODM,reg:d.REGIONAL||''};});
+      if(Object.keys(geomDe).sort().join()!==k10)abFalha(`UDHs do shapefile (${Object.keys(geomDe).length}) diferentes das da base (${Object.keys(U[2010]).length})`);
+      relato.push(`Shapefile das UDHs: ${nf.format(Object.keys(geomDe).length)} feições, as mesmas da base.`);
+    }
+    ids=[];
+    cods.forEach(c=>{const us=Object.keys(U[2010]).filter(u=>cod6(U[2010][u].CODMUN6)===c).sort();
+      if(!us.length)abFalha(`nenhuma UDH de ${nomeDoCod(c)}`);
+      us.forEach(u=>{if(geomDe[u]&&geomDe[u].muni!==c)abFalha(`UDH ${u}: município ${geomDe[u].muni} no shapefile, ${c} na base`);});
+      ids.push(...us);});
+    /* sem shapefile: a geometria e a região que já estão no Atlas, para as mesmas UDHs */
+    const ant=ATLASBR&&ATLASBR.udh, semGeom=[];
+    if(!T.shp){
+      ids.forEach(u=>{const i=ant?ant.ids.map(String).indexOf(u):-1;
+        if(i<0)semGeom.push(u); else geomDe[u]={pronta:ant.geom[i],reg:(ant.reg||[])[i]||''};});
+      if(semGeom.length)abFalha(`${semGeom.length} UDHs sem geometria no Atlas (${semGeom.slice(0,3).join(', ')}…). Solte junto o shapefile das UDHs (.shp e .dbf)`);
+      relato.push('Geometria: a das UDHs que já estão no Atlas (não veio shapefile).');
+    }
+    ids.forEach(u=>{regDe[u]=geomDe[u].reg||'';});
+    if(adhPop&&j10>=0)cods.forEach(c=>{[[2010,j10],[2000,j00]].forEach(([a,j])=>{
+      const soma=ids.filter(u=>cod6(U[a][u].CODMUN6)===c).reduce((s,u)=>s+(abNum(U[a][u].PESOTOT)||0),0), ref=((adhPop[c]||[])[j]);
+      if(ref==null)return;
+      const dif=Math.abs(soma-ref);
+      if((a===2010&&dif>0.5)||(a===2000&&dif>0.0002*ref))abFalha(`${nomeDoCod(c)} ${a}: as UDHs somam ${nf.format(soma)} pessoas; o Atlas Brasil publica ${nf.format(ref)} para o município`);});});
+    [2000,2010].forEach(a=>Object.keys(U[a]).forEach(u=>abConfereIDHM(`UDH ${u} (${a})`,U[a][u],true)));
+    relato.push(`UDHs: ${nf.format(Object.keys(U[2010]).length)} na base, ${nf.format(ids.length)} nos sete municípios, 2000 e 2010.`
+      +(adhPop?' A população soma a de cada município publicada pelo Atlas Brasil.':'')+' O IDHM confere com os subíndices.');
+  }
+  let G=null, M=null, rmPoa=null;
+  if(T.regional){
+    G={}; T.regional.regs.forEach(r=>{const c=abCodigo(r.Cod_Reg); (G[c]=G[c]||{})[abNum(r.ANO)]=r;});
+    Object.entries(G).forEach(([c,an])=>[2000,2010].forEach(a=>{
+      if(!an[a])abFalha(`região ${c} sem ${a}`);
+      if(ids){const soma=ids.filter(u=>regDe[u]===c).reduce((s,u)=>s+(abNum(U[a][u].PESOTOT)||0),0), ref=abNum(an[a].PESOTOT);
+        if((a===2010&&Math.abs(soma-ref)>0.5)||Math.abs(soma-ref)>0.0005*ref)abFalha(`região ${an[a].NOME_REG} ${a}: as UDHs somam ${nf.format(soma)}; a base da região diz ${nf.format(ref)}`);}
+      abConfereIDHM(`região ${an[a].NOME_REG} (${a})`,an[a],false);}));
+    relato.push(`Regiões de Porto Alegre: ${Object.keys(G).length}${ids?', cada uma soma as suas UDHs':''}.`);
+  }
+  if(T.rms){
+    M={}; T.rms.regs.forEach(r=>{const c=abCodigo(r.CODRM); (M[c]=M[c]||{})[abNum(r.ANO)]=r;});
+    Object.values(M).forEach(an=>Object.entries(an).forEach(([a,r])=>abConfereIDHM(`${r.NOME_RM} (${a})`,r,false)));
+    rmPoa=Object.keys(M).find(c=>/Porto Alegre/.test(String((M[c][2010]||{}).NOME_RM)));
+    if(!rmPoa)abFalha('a base das RMs não tem a RM de Porto Alegre');
+    if(U)[2000,2010].forEach(a=>{const soma=Object.values(U[a]).reduce((s,r)=>s+(abNum(r.PESOTOT)||0),0), ref=abNum(M[rmPoa][a].PESOTOT);
+      if((a===2010&&Math.abs(soma-ref)>0.5)||Math.abs(soma-ref)>0.0005*ref)abFalha(`RM de Porto Alegre ${a}: as UDHs das ${new Set(Object.values(U[a]).map(r=>abCodigo(r.CODMUN6))).size} cidades somam ${nf.format(soma)}; a base das RMs diz ${nf.format(ref)}`);});
+    relato.push(`RMs: ${Object.keys(M).length}${U?'; a de Porto Alegre soma as UDHs de todas as cidades da base':''}.`);
+  }
+  if(U||G||M){
+    const listas=[];
+    if(U)listas.push(Object.values(U[2000]),Object.values(U[2010]));
+    if(G)listas.push(Object.values(G).flatMap(an=>Object.values(an)));
+    if(M)listas.push(Object.values(M).flatMap(an=>Object.values(an)));
+    const escalas=abEscalas(listas);
+    if(U)partes.udh={anos:[2000,2010],prec:AB_PREC,campos:AB_CAMPOS_UDH.slice(),escalas,ids,
+      nomes:ids.map(u=>abEsp(U[2010][u].NOME_UDH)),muni:ids.map(u=>cod6(U[2010][u].CODMUN6)),
+      reg:ids.map(u=>u.slice(1,7)==='431490'?regDe[u]:''),
+      geom:ids.map(u=>geomDe[u].pronta||abGeom(geomDe[u].aneis)),v:abColunas(U,ids,escalas)};
+    if(G){const ord=Object.keys(G).sort(), por={2000:{},2010:{}}; ord.forEach(c=>{por[2000][c]=G[c][2000];por[2010][c]=G[c][2010];});
+      partes.regional={anos:[2000,2010],campos:AB_CAMPOS_UDH.slice(),escalas,ids:ord,nomes:ord.map(c=>abEsp(G[c][2010].NOME_REG)),
+        muni:'4314902',v:abColunas(por,ord,escalas)};}
+    if(M){const poa=rmPoa, ord=Object.keys(M).sort((a,b)=>+a-+b), por={2000:{},2010:{}};
+      ord.forEach(c=>{por[2000][c]=M[c][2000]||{};por[2010][c]=M[c][2010]||{};});
+      partes.rms={anos:[2000,2010],campos:AB_CAMPOS_UDH.slice(),escalas,ids:ord,nomes:ord.map(c=>abEsp((M[c][2010]||M[c][2000]).NOME_RM)),
+        poa,v:abColunas(por,ord,escalas)};}
+  }
+  /* Radar IDHM */
+  if(T.radar){
+    const L=T.radar.regs, anos=[...new Set(L.map(r=>abNum(r.ANO)))].sort((a,b)=>a-b);
+    const campos=T.radar.cab.filter(c=>c&&!['ANO','AGREGACAO','CODIGO','NOME'].includes(c));
+    const chave=r=>{const ag=String(r.AGREGACAO), nm=String(r.NOME), cd=abCodigo(r.CODIGO);
+      if(ag==='Brasil')return 'br'; if(ag.startsWith('Unidade')&&cd==='43')return 'rs';
+      if(ag.startsWith('Região Metropolitana'))return /Porto Alegre/.test(nm)?'rm_poa':'rm_'+cd; return null;};
+    const nomes={}, v={};
+    L.forEach(r=>{const k=chave(r); if(!k)return; nomes[k]=abEsp(r.NOME); const a=anos.indexOf(abNum(r.ANO)), vk=(v[k]=v[k]||{});
+      (['br','rs','rm_poa'].includes(k)?campos:AB_RADAR_RMS).forEach(c=>{(vk[c]=vk[c]||anos.map(()=>null))[a]=abNum(r[c]);});
+      abConfereIDHM(`Radar ${nomes[k]} ${anos[a]}`,r,false);});
+    ['br','rs','rm_poa'].forEach(k=>{if(!v[k]||v[k].IDHM.some(x=>x==null))abFalha(`Radar sem o IDHM de ${k==='br'?'Brasil':k==='rs'?'Rio Grande do Sul':'RM de Porto Alegre'} em todos os anos`);});
+    const des=(t,col)=>{if(!t)return null; const out={};
+      t.regs.forEach(r=>{if(chave(r)!=='rm_poa')return; const a=anos.indexOf(abNum(r.ANO)), g=abEsp(r[col]);
+        const o=(out.rm_poa=out.rm_poa||{}), og=(o[g]=o[g]||{});
+        t.cab.filter(c=>c&&!['ANO','AGREGACAO','CODIGO','NOME',col].includes(c)).forEach(c=>{(og[c]=og[c]||anos.map(()=>null))[a]=abNum(r[c]);});
+        abConfereIDHM(`Radar ${col} ${g} ${anos[a]}`,r,false);});
+      if(Object.keys(out.rm_poa||{}).length!==2)abFalha(`Radar, aba por ${col.toLowerCase()}: a RM de Porto Alegre sem os dois grupos`);
+      return out;};
+    partes.radar={anos,campos,rms_campos:AB_RADAR_RMS.slice(),nomes,v,sexo:des(T.radar_sexo,'SEXO')||((ATLASBR||{}).radar||{}).sexo||{},
+      cor:des(T.radar_cor,'COR')||((ATLASBR||{}).radar||{}).cor||{}};
+    relato.push(`Radar IDHM: ${anos[0]} a ${anos[anos.length-1]}, ${campos.length} indicadores, ${Object.keys(v).filter(k=>k.startsWith('rm_')).length} RMs. O IDHM confere com os subíndices.`);
+  }
+  /* bases municipais (registros administrativos e outras): siglas conhecidas viram indicadores */
+  const muns=[];
+  T.municipal.forEach(t=>{
+    const cMun=t.cab.find(h=>XT_COL_MUN.test(xtNorm(h))), cAno=t.cab.find(h=>XT_COL_ANO.test(xtNorm(h)));
+    if(!cMun)return;
+    const achaSig=h=>{const s=String(h||'').trim(), S2=s.toUpperCase(); if(AB_ID_SIGLAS.has(S2))return null;
+      return dicDe(s)?s:dicDe(S2)?S2:null;};
+    const sig=t.cab.filter(h=>h&&h!==cMun&&h!==cAno&&!XT_COL_MUN.test(xtNorm(h))&&!XT_COL_ANO.test(xtNorm(h))&&achaSig(h));
+    const regs=t.regs.filter(r=>xtMuni(r[cMun]));
+    if(!regs.length||!sig.length)return;
+    const anos=cAno?[...new Set(regs.map(r=>abNum(r[cAno])).filter(a=>a!=null))].sort((a,b)=>a-b):[null];
+    muns.push({nome:t.nome,cMun,cAno,sig:sig.map(achaSig),cabs:sig,regs,anos});
+  });
+  if(muns.length){
+    partes.municipal=muns;
+    muns.forEach(m=>relato.push(`Base municipal ${m.nome}: ${m.sig.length} indicadores com sigla do Atlas Brasil`
+      +(m.anos[0]!=null?`, ${m.anos.length>1?`de ${m.anos[0]} a ${m.anos[m.anos.length-1]}`:`em ${m.anos[0]}`}`:'')+'.'));
+  }
+  if(!Object.keys(partes).length)abFalha('nenhuma base do Atlas Brasil reconhecida nos arquivos');
+  return {partes,relato};
+}
+
+/* ---- categoria e formato de um indicador municipal novo, pelo dicionário ---- */
+/* a dimensão do dicionário decide a categoria; "Desenvolvimento Humano e Renda" vai para renda */
+const AB_DIM_CAT=[['renda','renda'],['educação','educacao'],['saúde','saude'],['trabalho','trabalho'],['habitação','habitacao'],
+  ['vulnerab','vulner'],['meio ambiente','ambiente'],['desenvolvimento humano','idh'],['população','demografia']];
+function abCat(d){const k=String((d&&d.dim)||'').toLowerCase(); const c=AB_DIM_CAT.find(([n])=>k.includes(n)); return c?c[1]:'atlasbr';}
+function abFmtDic(d){const u=String((d&&d.u)||'').toLowerCase();
+  if(/reais|r\$/.test(u))return 'brl'; if(/percentual/.test(u))return 'pct1'; if(/habitantes|pessoas/.test(u))return 'int'; return 'dec2';}
+/* itens da central a partir das partes: um por parte, para trocar só o que veio de novo */
+function abItens(partes,origem){
+  const itens=[], fonteAB={n:'Atlas do Desenvolvimento Humano no Brasil (PNUD, IPEA e FJP) — biblioteca',s:'Atlas Brasil',
+    u:'https://www.atlasbrasil.org.br/acervo/biblioteca',d:'Bases da biblioteca do Atlas Brasil lidas pelo navegador, com as conferências do extracao/11_atlas_brasil.py.'};
+  const base=(id,titulo,resumo,atlasbr,extra)=>Object.assign({id,titulo,resumo,ano:null,status:'ok',origem,fonte:fonteAB,
+    indicadores:[],valores:{},atlasbr},extra||{});
+  if(partes.dic)itens.push(base('atlasbr_dic','Atlas Brasil: dicionário',`${nf.format(Object.keys(partes.dic.dic).length)} siglas`,{dic:partes.dic.dic,dic_fontes:partes.dic.fontes}));
+  if(partes.udh)itens.push(base('atlasbr_udh','Atlas Brasil: UDHs dos sete municípios',`${nf.format(partes.udh.ids.length)} UDHs, Censos 2000 e 2010`,{udh:partes.udh},{ano:2010}));
+  if(partes.regional)itens.push(base('atlasbr_regional','Atlas Brasil: regiões de Porto Alegre',`${partes.regional.ids.length} regiões, 2000 e 2010`,{regional:partes.regional},{ano:2010}));
+  if(partes.rms)itens.push(base('atlasbr_rms','Atlas Brasil: regiões metropolitanas',`${partes.rms.ids.length} RMs, 2000 e 2010`,{rms:partes.rms},{ano:2010}));
+  if(partes.radar){const R=partes.radar; itens.push(base('atlasbr_radar','Radar IDHM (PNAD Contínua)',`${R.anos[0]} a ${R.anos[R.anos.length-1]}, RM de Porto Alegre, RS, Brasil e ${Object.keys(R.v).filter(k=>k.startsWith('rm_')).length} RMs`,{radar:R},{ano:R.anos[R.anos.length-1]}));}
+  (partes.municipal||[]).forEach(m=>{
+    const dic=Object.assign({},(ATLASBR||{}).dic,partes.dic&&partes.dic.dic), fts=(partes.dic&&partes.dic.fontes)||((ATLASBR||{}).dic_fontes)||[];
+    const cods=XT_CODS(), vals={municipio:{}}, inds=[], fx={};
+    cods.forEach(c=>vals.municipio[c]={});
+    m.sig.forEach((s,k)=>{
+      const d=dic[s]||{}, col=m.cabs[k], id='ab_'+slugId(s);
+      const v=m.anos.map(a=>cods.map(c=>{const r=m.regs.find(x=>xtMuni(x[m.cMun])===c&&(a==null||abNum(x[m.cAno])===a)); return r?abNum(r[col]):null;}));
+      const comTodos=m.anos.map((a,j)=>v[j].every(x=>x!=null)?a:null).filter(a=>a!=null);
+      const anoMapa=comTodos.length?comTodos[comTodos.length-1]:m.anos.filter((a,j)=>v[j].some(x=>x!=null)).pop();
+      if(anoMapa===undefined)return;
+      const j=m.anos.indexOf(anoMapa), fk=d.f!=null&&fts[d.f]?'XT_AB_F'+d.f:null;
+      if(fk&&!fx[fk])fx[fk]={n:fts[d.f],s:'Atlas Brasil',u:'https://www.atlasbrasil.org.br/acervo/biblioteca',d:'Fonte informada nos metadados do Atlas Brasil.'};
+      inds.push({id,cat:abCat(d),n:d.n||s,u:d.u||'',ano:anoMapa,fonte:fk||undefined,niveis:['municipio'],fmt:abFmtDic(d),
+        ramp:d.pol==='-'?'brasa':'agua',obs:`${d.d||''} Sigla ${s} do Atlas Brasil${d.per?`, período dos metadados: ${d.per}`:''}.`.trim(),
+        serie:m.anos.length>1?{anos:m.anos,v,ano:anoMapa,mun:cods,titulo:'Série no Atlas Brasil'}:undefined});
+      cods.forEach((c,kk)=>{if(v[j][kk]!=null)vals.municipio[c][id]=v[j][kk];});
+    });
+    if(inds.length)itens.push(base('atlasbr_mun_'+slugId(m.nome).slice(0,30),`Atlas Brasil: ${m.nome}`,`${inds.length} indicadores municipais`,null,
+      {indicadores:inds,valores:vals,fontesExtra:fx,ano:Math.max(...inds.map(i=>i.ano||0))||null}));
+  });
+  return itens;
+}
+
+/* ---- aplica as partes no Atlas: o que vem por cima do pacote ---- */
+function abAplica(p){
+  if(!p)return;
+  if(!ATLASBR)ATLASBR={versao:1,dic:{}};
+  if(p.dic){ATLASBR.dic=Object.assign({},ATLASBR.dic,p.dic); if(p.dic_fontes)ATLASBR.dic_fontes=p.dic_fontes;}
+  ['udh','regional','rms','radar'].forEach(k=>{if(p[k])ATLASBR[k]=p[k];});
+  if(p.udh||p.regional){
+    S.geo.udh=null; for(const k in AB_REG_PROPS)delete AB_REG_PROPS[k];
+    abCatalogo(); garanteUDH();
+    ((S.geo.municipio||{}).features||[]).forEach(f=>{const c=String(MUNIS_LISTA.ids[f.properties.muni_id]); Object.assign(f.properties,udhResumo(c));});
+    const b=$('#segNivel [data-nivel="udh"]'); if(b)b.disabled=!S.geo.udh;
+    if(S.nivel==='udh'){S.sel=null;S.cmp=[];}
+  }
+  for(const k in COBRE)delete COBRE[k];
+  REGIAO=null; IND_IDX=null;
+}
+/* CSV de um item do Atlas Brasil: formato longo (nível, código, território, ano, sigla, valor) */
+function abCSV(item){
+  const A=item.atlasbr||{}, L=[['nivel','codigo','territorio','ano','sigla','valor']];
+  ['udh','regional','rms'].forEach(k=>{const P=A[k]; if(!P)return;
+    [2000,2010].forEach(a=>{const cols=(P.v||{})[String(a)]; if(!cols)return;
+      P.campos.forEach((s,j)=>{const vs=abCol(cols[j],P.escalas?P.escalas[j]:1,P.ids.length);
+        vs.forEach((v,i)=>{if(v!=null)L.push([k,P.ids[i],P.nomes[i],a,s,v]);});});});});
+  if(A.radar){const R=A.radar; for(const t in R.v)for(const s in R.v[t])R.v[t][s].forEach((v,j)=>{if(v!=null)L.push(['radar',t,R.nomes[t]||t,R.anos[j],s,v]);});}
+  if(A.dic){L.length=0; L.push(['sigla','nome','unidade','dimensao','origem']); for(const s in A.dic){const d=A.dic[s]; L.push([s,d.n,d.u,d.dim||'',d.origem||'']);}}
+  baixaCSV(L,`extracao-${item.id}.csv`);
+}
+
+/* ---- o cartão: lê os arquivos, confere, mostra e põe no Atlas ---- */
+const XT_AB={};
+async function xtAtlasBR(files,el){
+  const fontes=[], avisos=[];
+  for(const f of files){
+    const n=f.name.toLowerCase();
+    if(/\.zip$/.test(n)){
+      const ents=await zipEntradas(f);
+      ents.forEach(e=>{const m=e.nome.toLowerCase();
+        if(/\.rar$/.test(m))avisos.push(`${e.nome.split('/').pop()} (dentro de ${f.name}) é um .rar, que o navegador não abre`);
+        else if(/\.(xlsx|csv|txt|shp|dbf)$/.test(m))fontes.push(Object.assign(xtFonteZip(e),{blob:async()=>new Blob([await zipBytes(e)])}));});
+    }else if(/\.rar$/.test(n))avisos.push(`${f.name} é um .rar, que o navegador não abre`);
+    else if(/\.(xlsx|csv|txt|shp|dbf)$/.test(n))fontes.push(Object.assign(xtFonteDe(f),{blob:async()=>f}));
+    else if(/\.xls$|\.ods$/.test(n))avisos.push(`${f.name}: abra no Excel ou no LibreOffice e salve como .xlsx`);
+  }
+  if(!fontes.length)return xtErro(el,avisos.length
+    ?`${avisos.join('; ')}. Extraia o .rar no computador (7-Zip, WinRAR ou The Unarchiver) e solte aqui as planilhas .xlsx e os arquivos .shp e .dbf de dentro. Ou rode o script extracao/11_atlas_brasil.py, que abre o .rar.`
+    :'Nenhuma planilha (.xlsx, .csv) ou shapefile (.shp e .dbf) nos arquivos.');
+  const T={dic:[],udh:null,regional:null,rms:null,radar:null,radar_sexo:null,radar_cor:null,municipal:[],shp:null};
+  const shp={}, ign=[];
+  for(let i=0;i<fontes.length;i++){
+    const f=fontes[i], nm=f.nome.split('/').pop(), ext=nm.toLowerCase().split('.').pop();
+    xtProgresso(el,i/fontes.length,`Lendo ${nm}…`);
+    if(ext==='shp'||ext==='dbf'){(shp[nm.slice(0,-4).toLowerCase()]=shp[nm.slice(0,-4).toLowerCase()]||{})[ext]=f; continue;}
+    const abas=ext==='xlsx'?await xlsxLe(await f.blob()):await abCsvLe(f);
+    const vistas={};
+    abas.forEach(a=>{
+      if(!a.linhas.length)return;
+      const t=abTabela(a.linhas), tipo=abTipo(t.cab); t.nome=nm+(abas.length>1?' · '+a.nome:'');
+      if(!tipo){if(t.regs.length)ign.push(t.nome); return;}
+      /* abas "B" do Radar: têm de repetir a aba sem "B" */
+      const assin=tipo+'|'+t.cab.join('|');
+      if(/ B$/.test(a.nome)&&vistas[assin]){if(JSON.stringify(vistas[assin].regs)!==JSON.stringify(t.regs))abFalha(`${t.nome}: a aba não repete a aba sem "B"`); return;}
+      vistas[assin]=t;
+      if(tipo==='dic'){t.origem=abOrigemDic(t.cab); T.dic.push(t);}
+      else if(tipo==='municipal')T.municipal.push(t);
+      else{if(T[tipo])abFalha(`mais de uma ${tipo==='udh'?'base de UDHs':tipo==='regional'?'base de regiões':tipo==='rms'?'base de RMs':'base do Radar'} nos arquivos: solte uma de cada`); T[tipo]=t;}
+    });
+  }
+  /* o shapefile das UDHs: o par .shp e .dbf cujo .dbf tem a coluna UDH_ATLAS */
+  for(const k in shp){const p=shp[k]; if(!p.shp||!p.dbf)continue;
+    const dbf=dbfLe((await p.dbf.bytes()).buffer.slice(0));
+    if(dbf.length&&'UDH_ATLAS' in dbf[0])T.shp={dbf,geoms:shpLe((await p.shp.bytes()).buffer.slice(0))};}
+  xtProgresso(el,1,'Conferindo…');
+  let r;
+  try{r=abMonta(T);}catch(e){if(e instanceof ErroAB)return xtErro(el,'Nada entrou no Atlas: '+e.message+'.'); throw e;}
+  XT_AB.partes=r.partes; XT_AB.origem=fontes.map(f=>f.nome.split('/').pop()).join(', ');
+  el.innerHTML=`<div class="note"><b>Conferido.</b><ul class="xt-lista">${r.relato.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    ${avisos.length?`<div class="note warn">${esc(avisos.join('; '))}. Extraia no computador e solte as planilhas de dentro.</div>`:''}
+    ${ign.length?`<p class="ref-note">Sem base do Atlas Brasil reconhecida: ${esc(ign.join('; '))}.</p>`:''}
+    <div class="btn-row"><button class="btn pri" id="xtAbPoe">Pôr no Atlas</button></div>`;
+  $('#xtAbPoe').onclick=async()=>{
+    const itens=abItens(XT_AB.partes,XT_AB.origem);
+    for(const it of itens)await xtConclui(it);
+    el.innerHTML=`<div class="note"><b>Pronto.</b> ${esc(itens.map(i=>i.titulo).join('; '))}. ${XT_AB.partes.udh?'O nível <b>UDH</b> do mapa já usa a base nova.':''}
+      ${XT_AB.partes.radar||XT_AB.partes.rms||XT_AB.partes.regional?' O <b>Diagnóstico regional → Contexto metropolitano</b> também.':''}</div>`;
+  };
+}
+
 /* ---- 27.7 a tela "Extrair dados" ------------------------------------------ */
-const XT_RECEITAS={inep:xtInep,censo2010:xtCenso2010,
+const XT_RECEITAS={inep:xtInep,censo2010:xtCenso2010,atlasbr:xtAtlasBR,
   cnes:(files,el)=>xtGeralInicia(files,el), geral:(files,el)=>xtGeralInicia(files,el)};
 function xtCartao(id,titulo,sub,passos,zona){
   return `<div class="xt-card" id="xt-${id}">
@@ -5814,6 +6737,15 @@ function renderExtrair(){
       o mesmo trabalho sai pelo script <code>extracao/7_ipeadata.py</code>.</p>`)}
 
   <h3 class="sec">Arquivo baixado da fonte <span class="chip tag">baixe e solte aqui</span></h3>
+  ${xtCartao('atlasbr','Bases do Atlas Brasil: UDHs, Radar IDHM, regiões, RMs e bases municipais','PNUD, IPEA e FJP · biblioteca do Atlas Brasil',
+    `<ol class="xt-passos"><li>Na ${xtLink('https://www.atlasbrasil.org.br/acervo/biblioteca','biblioteca do Atlas Brasil')}, baixe a base:
+      a da RM de Porto Alegre (dados_pa.zip: UDHs, regiões de Porto Alegre e RMs, Censos 2000 e 2010), o Radar IDHM
+      (adh_radar_base_….xlsx, PNAD Contínua) ou uma base municipal em planilha, como a dos registros administrativos. Os metadados
+      (…_metadados_….xlsx) dão nome, unidade e definição às siglas; os desta versão já vêm no Atlas.</li>
+      <li>O navegador não abre .rar. O dados_pa.zip traz dois: extraia no computador (7-Zip, WinRAR ou The Unarchiver) e solte aqui
+        as planilhas e os arquivos .shp e .dbf de dentro, juntos. Sem o shapefile, as UDHs usam a geometria que já está no Atlas.</li>
+      <li>O Atlas reconhece cada base pelo cabeçalho, faz as conferências do script ${'<code>extracao/11_atlas_brasil.py</code>'}
+        e mostra o resultado antes de pôr no mapa. Se uma conferência falhar, nada entra.</li></ol>`,'XLSX, CSV, SHP e DBF (ou ZIP com eles)')}
   ${xtCartao('inep','Matrículas por etapa e rede','INEP · microdados do Censo Escolar (até a edição de 2024)',
     `<ol class="xt-passos"><li>Baixe os microdados do Censo Escolar no site do INEP: ${xtLink('https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar','microdados do Censo Escolar')}.
       O arquivo é microdados_censo_escolar_AAAA.zip.</li><li>Solte o ZIP aqui, sem descompactar.</li></ol>`,'ZIP do INEP')}
@@ -5893,6 +6825,7 @@ function xtListaHTML(){
 /* CSV de um item: uma linha por município (e por bairro, quando houver) */
 function xtCSV(item){
   if(!item)return;
+  if(item.atlasbr)return abCSV(item);
   const ids=item.indicadores.map(i=>i.id), V=item.valores||{};
   const L=[['nivel','codigo','territorio'].concat(item.indicadores.map(i=>i.n))];
   XT_CODS().forEach(c=>{const v=(V.municipio||{})[c]; if(v)L.push(['municipio',c,nomeDoCod(c)].concat(ids.map(k=>v[k]??'')));});
@@ -5918,6 +6851,8 @@ function xtCSV(item){
     MUN.pop_reportada=rep; MUN.setores_sem_pessoas=semP;
   })();
   iniciaMapa();
+  /* sem as bases do Atlas Brasil, o nível UDH fica desligado até a central trazer uma */
+  {const bu=$('#segNivel [data-nivel="udh"]'); if(bu)bu.disabled=!S.geo.udh;}
   estendeAoMunicipio();
   aplicaAnosCatalogo();
   verificaCatalogo();

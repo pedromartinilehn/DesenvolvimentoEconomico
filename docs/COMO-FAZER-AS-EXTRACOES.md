@@ -1,7 +1,7 @@
 # Como fazer as extrações
 
 Passo a passo para atualizar os dados do Atlas e para extrair os que ainda faltam. Vale para a
-versão 3.8. Como o resultado de cada extração entra no arquivo do Atlas, e o que já entrou, está em
+versão 3.9. Como o resultado de cada extração entra no arquivo do Atlas, e o que já entrou, está em
 [`EXTRACOES-NO-HTML.md`](EXTRACOES-NO-HTML.md).
 
 Os dados entram no Atlas por quatro caminhos:
@@ -9,8 +9,8 @@ Os dados entram no Atlas por quatro caminhos:
 | caminho | quem faz | o que cobre | onde fica o resultado |
 |---|---|---|---|
 | **1. Automático, no navegador** | a própria página, ao abrir | Atlas Brasil, IDEB, Anatel, áreas de risco, população estimada, PIB, finanças municipais | no navegador de quem abriu, por 30 dias |
-| **2. Central de extração, no navegador** | qualquer pessoa, sem instalar nada (*Mais → Extrair dados*) | OpenStreetMap, tabelas do IBGE (SIDRA), séries municipais do Ipeadata, matrículas do INEP, amostra do Censo 2010, equipes do CNES e qualquer arquivo nacional com código de município | no navegador de quem extraiu, até ser removido; com *Baixar o Atlas com os dados*, num novo arquivo do Atlas para distribuir |
-| **3. Scripts Python** | quem mantém o Atlas | os arquivos `dados/*.js` que vão dentro do pacote: pontos de saúde e escolas, serviços municipais, índices, dados do IPEA, séries do Ipeadata e séries complementares, campos do Censo 2022 por setor e o pacote de extrações (Censo 2010, amostra) | no pacote, para todos |
+| **2. Central de extração, no navegador** | qualquer pessoa, sem instalar nada (*Mais → Extrair dados*) | OpenStreetMap, tabelas do IBGE (SIDRA), séries municipais do Ipeadata, bases do Atlas Brasil (UDHs, Radar IDHM, regiões, RMs e bases municipais), matrículas do INEP, amostra do Censo 2010, equipes do CNES e qualquer arquivo nacional com código de município | no navegador de quem extraiu, até ser removido; com *Baixar o Atlas com os dados*, num novo arquivo do Atlas para distribuir |
+| **3. Scripts Python** | quem mantém o Atlas | os arquivos `dados/*.js` que vão dentro do pacote: pontos de saúde e escolas, serviços municipais, índices, dados do IPEA, séries do Ipeadata e séries complementares, campos do Censo 2022 por setor, o pacote de extrações (Censo 2010, amostra) e as bases do Atlas Brasil (UDHs, regiões, RMs e Radar IDHM) | no pacote, para todos |
 | **4. Scripts R e downloads manuais** | quem precisa de um dado que a central ainda não extrai | Censo 2022 por setor, enchente de 2024, RAIS, CAGED e outras consultas da Base dos Dados; também refazem o que a central faz | CSV em `extracao/saida_R/`, que se carrega no Atlas |
 
 Regra que vale para os quatro: **nenhum passo estima, interpola ou completa valor**. Quando a fonte
@@ -56,7 +56,8 @@ Censo Escolar, SSP/RS, Cadastro Único e Censo SUAS. Para esses, os caminhos 2 e
 Para quem não vai usar R nem Python. Abra o `atlas-rmpa.html` e vá em *Mais → Extrair dados*. Tudo
 roda dentro do arquivo do Atlas, no navegador: os arquivos que você soltar não são enviados a
 servidor nenhum. Na central, a internet só é usada para as buscas diretas (OpenStreetMap, IBGE e Ipeadata) e,
-na primeira planilha aberta, para baixar o leitor de planilhas (SheetJS, do cdnjs). O mapa em si
+na primeira planilha aberta no cartão "Qualquer arquivo nacional", para baixar o leitor de planilhas
+(SheetJS, do cdnjs). O cartão "Atlas Brasil" lê as planilhas .xlsx com um leitor próprio, sem internet. O mapa em si
 continua precisando de internet para a biblioteca Leaflet, como antes.
 
 ### 2.1 Busca direta na fonte
@@ -77,6 +78,7 @@ municípios. Arquivos grandes, como o do Censo 2010, demoram mais; a barra mostr
 |---|---|---|
 | Matrículas por etapa e rede | `microdados_censo_escolar_AAAA.zip` do INEP, com o arquivo `microdados_ed_basica_AAAA.csv` dentro (até a edição de 2024; a partir de 2025 o INEP separou as tabelas, e a receita recusa o arquivo dizendo por quê) | 12 indicadores por município: matrículas na educação básica, creche, pré-escola, fundamental, médio e EJA, nas redes pública e privada. Mesmo cálculo do script R `03` |
 | Censo 2010 | `RS.zip` e `Documentacao.zip` do IBGE, soltos juntos | os 12 indicadores do script R `01` por município (desocupação por sexo e idade, jovens que não estudam nem trabalham, chefia feminina, idosos que moram sós, deficiência, não naturais e Bolsa Família) e a conferência da renda de 2010 do script `11` (seção 5.2), com a tabela do achado E3 na tela. Antes de calcular, o Atlas confere a soma dos pesos com a população de 2010 do Atlas Brasil, município a município |
+| Bases do Atlas Brasil | da [biblioteca do Atlas Brasil](https://www.atlasbrasil.org.br/acervo/biblioteca): base de UDHs com o shapefile, base das regiões de Porto Alegre, base das RMs, Radar IDHM, metadados e bases municipais com siglas do Atlas Brasil (como os registros administrativos). Pode soltar vários de uma vez. O `dados_pa.zip` traz dois .rar, que o navegador não abre: extraia no computador e solte as planilhas e o .shp e .dbf de dentro | o nível UDH do mapa (2010, com 2000 na ficha), o Contexto metropolitano do Diagnóstico (Radar IDHM, RMs e regiões) e indicadores municipais com série. Antes de pôr no Atlas, faz as conferências do script `11` (população, IDHM e subíndices, somas das regiões e da RM) e mostra o resultado; se uma falhar, nada entra. Detalhes em [`ATLAS-BRASIL-bases.md`](ATLAS-BRASIL-bases.md) |
 | Equipes de saúde | ZIP da base de dados do CNES do mês | o assistente abre o arquivo de equipes e já sugere: contar as equipes ativas (data de desativação vazia), separadas por tipo |
 | Qualquer arquivo nacional | CSV, TXT, XLSX, XLS ou ZIP com código de município (Censo SUAS, VIS DATA, CECAD, MUNIC, Novo CAGED, Mapa das OSCs, IVS e outros) | veja abaixo |
 
@@ -333,7 +335,41 @@ O resultado vai para `dados/dados-extracoes.js`, no formato de um item da centra
 ao abrir. Para não sobrescrever o resto, o script troca só o próprio item. Ele para se faltar
 município, se a soma dos pesos não der a população de 2010 ou se a renda sair da escala.
 
-### 4.10 Gerar o arquivo único e conferir
+### 4.10 Bases do Atlas Brasil
+
+```bash
+pip install openpyxl                        # uma vez
+python3 extracao/11_atlas_brasil.py
+```
+
+Lê os arquivos da [biblioteca do Atlas Brasil](https://www.atlasbrasil.org.br/acervo/biblioteca)
+guardados em `extracao/fontes/atlasbrasil/` (pasta não versionada):
+
+- o `dados_pa.zip` da RM de Porto Alegre, como vem da biblioteca;
+- o Radar IDHM (`adh_radar_base_….xlsx`);
+- os metadados do Radar, do censo e dos registros administrativos.
+
+O script abre os .rar do zip com a libarchive do sistema (Linux e macOS). No Windows, extraia os
+dois .rar na mesma pasta e rode de novo: ele procura primeiro os arquivos já extraídos.
+
+Grava `dados/dados-atlasbrasil.js` com:
+
+- as UDHs dos sete municípios, com a geometria e 53 indicadores de 2000 e 2010;
+- as regiões de Porto Alegre e as 20 RMs;
+- o Radar IDHM de 2012 a 2024 (RM de Porto Alegre, RS, Brasil e as 21 RMs);
+- o dicionário das siglas.
+
+Antes de gravar, faz as conferências e para se alguma falhar:
+
+- as UDHs da base são as do shapefile;
+- a população das UDHs soma a do município (exata em 2010);
+- o IDHM confere com os subíndices em todas as linhas;
+- as regiões e a RM somam as suas UDHs.
+
+O cartão "Atlas Brasil" da central faz o mesmo no navegador e produz exatamente o mesmo resultado.
+O que veio, o que entrou e como foi conferido está em [`ATLAS-BRASIL-bases.md`](ATLAS-BRASIL-bases.md).
+
+### 4.11 Gerar o arquivo único e conferir
 
 ```bash
 python3 build_single.py

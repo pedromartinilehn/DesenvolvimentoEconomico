@@ -23,8 +23,9 @@ preciso rodar script nem gerar arquivo; o status aparece em *Mais → Dados e fo
 **Extrair dados sem instalar nada:** em *Mais → Extrair dados*, qualquer pessoa traz dados novos
 para o Atlas pelo próprio navegador, sem R nem Python: busca direta no OpenStreetMap e nas tabelas
 do IBGE (SIDRA), varredura das séries municipais do Ipeadata, e leitura dos arquivos baixados do
-INEP (matrículas), do IBGE (amostra do Censo 2010), do CNES (equipes de saúde) ou de qualquer arquivo
-nacional com código de município. Para distribuir, *Baixar o Atlas com os dados* gera um novo arquivo
+INEP (matrículas), do IBGE (amostra do Censo 2010), do CNES (equipes de saúde), da biblioteca do
+Atlas Brasil (UDHs, Radar IDHM, regiões, RMs e bases municipais) ou de qualquer arquivo nacional
+com código de município. Para distribuir, *Baixar o Atlas com os dados* gera um novo arquivo
 único com tudo dentro.
 
 Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
@@ -38,6 +39,7 @@ Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 | [`docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx`](docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx) | template de diagnóstico regional do Instituto Renner com as seções 3, 4 e 5 respondidas (apresentação, escopo e metodologia) |
 | [`docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx`](docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx) | respostas guardadas de todas as seções do template (nome da regional e seções 6 a 15: tabelas por município, 5 mapas, rede de serviços, orçamento, atores, SWOT e priorização) |
 | [`docs/COMO-FAZER-AS-EXTRACOES.md`](docs/COMO-FAZER-AS-EXTRACOES.md) | passo a passo de todas as extrações: o que o Atlas atualiza sozinho, a central de extração no navegador, os scripts Python e R, os downloads manuais e como o resultado entra no Atlas |
+| [`docs/ATLAS-BRASIL-bases.md`](docs/ATLAS-BRASIL-bases.md) | bases da biblioteca do Atlas Brasil: o que veio (UDHs, Radar IDHM, regiões, RMs, metadados), o nível UDH do mapa, o Contexto metropolitano, as conferências e como trazer versões novas pelo navegador ou pelo script |
 | [`docs/EXTRACOES-NO-HTML.md`](docs/EXTRACOES-NO-HTML.md) | como as extrações entram no arquivo do Atlas (arquivos de dados, pacote de extrações, central); o que entrou na 3.8 (Censo 2022 por setor e entorno, Censo 2010 por município, conferência E3) e o que continua de fora, com o motivo |
 | [`docs/VARREDURA-IPEADATA.md`](docs/VARREDURA-IPEADATA.md) | varredura do Ipeadata: o que ele tem para os sete municípios, as 38 séries que entraram no pacote, o que vem pelo cartão do navegador (Bolsa Família, mortes violentas do DATASUS, IFDM) e o que não é municipal |
 | [`docs/ANALISE-IPEA.md`](docs/ANALISE-IPEA.md) | dados do IPEA no Atlas: série 1991–2010 do Atlas do Desenvolvimento Humano e Acesso a Oportunidades 2019 em Porto Alegre, com as conferências feitas e o que os dados mostram |
@@ -53,10 +55,11 @@ Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 
 ## Cobertura
 
-203 indicadores no catálogo, em três níveis: município (191), bairro (110) e setor censitário (94).
-São 4.722 setores nos sete municípios e bairros em Porto Alegre, Canoas, Guaíba e Esteio; Gravataí,
-Sapucaia do Sul e Cachoeirinha não têm divisão de bairros no IBGE. Todo valor exibido informa fonte,
-ano e nível geográfico.
+302 indicadores no catálogo, em quatro níveis: município (269), bairro (132), UDH (56) e setor
+censitário (116). São 4.722 setores nos sete municípios e bairros em Porto Alegre, Canoas, Guaíba e
+Esteio; Gravataí, Sapucaia do Sul e Cachoeirinha não têm divisão de bairros no IBGE. As 483 UDHs
+(Unidades de Desenvolvimento Humano do Atlas Brasil) cobrem os sete municípios, com os Censos de 2000
+e 2010. Todo valor exibido informa fonte, ano e nível geográfico.
 
 Indicadores de trabalho, renda domiciliar, pobreza e escolaridade adulta vêm do **Censo 2010** —
 são dados observados e históricos, identificados como tais em toda a interface. A amostra do
@@ -76,6 +79,7 @@ python3 extracao/7_ipeadata.py                 # séries municipais do Ipeadata 
 python3 extracao/8_series_complementares.py    # 38 séries que faltavam: Atlas DH, PNI, SNIS, ANA, Abrinq
 python3 extracao/9_censo2022_setores.py        # Censo 2022 por setor: domicílio, óbitos e entorno (censobr)
 python3 extracao/10_censo2010_amostra.py       # Censo 2010, amostra: 12 indicadores e conferência E3 (censobr)
+python3 extracao/11_atlas_brasil.py            # Atlas Brasil: UDHs, regiões, RMs e Radar IDHM (biblioteca)
 python3 build_single.py                        # regenera o atlas-rmpa.html
 ```
 

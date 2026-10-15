@@ -39,15 +39,16 @@
     <div class="brand"><b><span class="b-long">Atlas Metropolitano</span><span class="b-short">Atlas RMPA</span></b><span>Região Metropolitana de Porto Alegre</span></div>
 
     <div class="seg" id="segNivel" role="group" aria-label="Nível geográfico">
-      <button data-nivel="municipio" aria-pressed="false">Município</button>
+      <button data-nivel="municipio" aria-pressed="false" aria-label="Município"><span class="nv-l">Município</span><span class="nv-c" aria-hidden="true">Mun.</span></button>
       <button data-nivel="bairro" aria-pressed="true">Bairro</button>
+      <button data-nivel="udh" aria-pressed="false" title="Unidades de Desenvolvimento Humano do Atlas Brasil, Censos 2000 e 2010">UDH</button>
       <button data-nivel="setor" aria-pressed="false">Setor</button>
     </div>
 
     <div class="search">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
         <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="q" type="search" placeholder="Buscar bairro, setor ou loja" autocomplete="off" aria-label="Buscar território">
+      <input id="q" type="search" placeholder="Buscar bairro, UDH, setor ou loja" autocomplete="off" aria-label="Buscar território">
       <div class="sugg" id="sugg" style="display:none"></div>
     </div>
 
@@ -91,7 +92,7 @@
     <div class="side-foot">Todo valor traz fonte, ano e nível geográfico. Onde um território não
       tem dado publicado, o Atlas mostra o do território que o contém, com o nome dele.
       <button class="ao-vivo" id="aoVivoStatus" type="button">Dados embarcados</button>
-      <span class="ver">Versão 3.8 · outubro de 2026</span></div>
+      <span class="ver">Versão 3.9 · outubro de 2026</span></div>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════════ MAPA ═══ -->
@@ -171,6 +172,7 @@
 <script defer src="dados/dados-series.js"></script>
 <script defer src="dados/dados-censo2022.js"></script>
 <script defer src="dados/dados-extracoes.js"></script>
+<script defer src="dados/dados-atlasbrasil.js"></script>
 <script id="carregador">
 /* Fecha o carregamento depois que os scripts `defer` já rodaram (eles executam
    antes do DOMContentLoaded). No layout normal, só acrescenta o atlas.js — que
@@ -180,11 +182,11 @@
   var ARQS = ['dados-nucleo.js', 'dados-bairros.js', 'dados-municipios.js',
               'dados-setores.js', 'dados-estimados.js', 'dados-servicos.js', 'dados-pontos.js',
               'dados-indices.js', 'dados-complementares.js', 'dados-ipea.js', 'dados-ipeadata.js',
-              'dados-series.js', 'dados-censo2022.js', 'dados-extracoes.js'];
+              'dados-series.js', 'dados-censo2022.js', 'dados-extracoes.js', 'dados-atlasbrasil.js'];
   var GLOBAIS = ['ATLAS_NUCLEO', 'ATLAS_BAIRROS', 'ATLAS_MUNICIPIOS',
                  'ATLAS_SETORES', 'ATLAS_EST', 'ATLAS_SERVICOS', 'ATLAS_PONTOS',
                  'ATLAS_INDICES', 'ATLAS_COMPLEMENTOS', 'ATLAS_IPEA', 'ATLAS_IPEADATA',
-                 'ATLAS_SERIES', 'ATLAS_CENSO22', 'ATLAS_PACOTE'];
+                 'ATLAS_SERIES', 'ATLAS_CENSO22', 'ATLAS_PACOTE', 'ATLAS_ATLASBR'];
   window.__ATLAS_ORIGEM = window.__ATLAS_ORIGEM || {};
 
   function carregaAtlas() {
