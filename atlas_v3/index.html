@@ -91,7 +91,7 @@
     <div class="side-foot">Todo valor traz fonte, ano e nível geográfico. Onde um território não
       tem dado publicado, o Atlas mostra o do território que o contém, com o nome dele.
       <button class="ao-vivo" id="aoVivoStatus" type="button">Dados embarcados</button>
-      <span class="ver">Versão 3.7 · outubro de 2026</span></div>
+      <span class="ver">Versão 3.8 · outubro de 2026</span></div>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════════ MAPA ═══ -->
@@ -169,6 +169,8 @@
 <script defer src="dados/dados-ipea.js"></script>
 <script defer src="dados/dados-ipeadata.js"></script>
 <script defer src="dados/dados-series.js"></script>
+<script defer src="dados/dados-censo2022.js"></script>
+<script defer src="dados/dados-extracoes.js"></script>
 <script id="carregador">
 /* Fecha o carregamento depois que os scripts `defer` já rodaram (eles executam
    antes do DOMContentLoaded). No layout normal, só acrescenta o atlas.js — que
@@ -178,11 +180,11 @@
   var ARQS = ['dados-nucleo.js', 'dados-bairros.js', 'dados-municipios.js',
               'dados-setores.js', 'dados-estimados.js', 'dados-servicos.js', 'dados-pontos.js',
               'dados-indices.js', 'dados-complementares.js', 'dados-ipea.js', 'dados-ipeadata.js',
-              'dados-series.js'];
+              'dados-series.js', 'dados-censo2022.js', 'dados-extracoes.js'];
   var GLOBAIS = ['ATLAS_NUCLEO', 'ATLAS_BAIRROS', 'ATLAS_MUNICIPIOS',
                  'ATLAS_SETORES', 'ATLAS_EST', 'ATLAS_SERVICOS', 'ATLAS_PONTOS',
                  'ATLAS_INDICES', 'ATLAS_COMPLEMENTOS', 'ATLAS_IPEA', 'ATLAS_IPEADATA',
-                 'ATLAS_SERIES'];
+                 'ATLAS_SERIES', 'ATLAS_CENSO22', 'ATLAS_PACOTE'];
   window.__ATLAS_ORIGEM = window.__ATLAS_ORIGEM || {};
 
   function carregaAtlas() {

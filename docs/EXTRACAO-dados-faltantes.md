@@ -1,6 +1,6 @@
 # Dados faltantes do Atlas: como extrair cada um
 
-Outubro de 2026 · Atlas versão 3.3, atualizado na 3.5
+Outubro de 2026 · Atlas versão 3.3, atualizado na 3.5 e na 3.8
 
 > **Na versão 3.5, a central de extração do Atlas (*Mais → Extrair dados*) faz pelo navegador, sem
 > R e sem instalar nada,** o que os scripts `01` (no nível município), `03`, `08`, `10` e `11` fazem,
@@ -13,6 +13,17 @@ Outubro de 2026 · Atlas versão 3.3, atualizado na 3.5
 > população estimada, o PIB e as finanças municipais (SICONFI), inclusive a despesa em educação.**
 > Para essas fontes não é mais preciso rodar script nem gerar arquivo; os scripts seguem úteis
 > para gerar um retrato embarcado (uso sem internet). Ver `atlas_v3/LEIA-ME.md`.
+
+> **Na versão 3.8, os arquivos do pacote censobr (IPEA) no GitHub passaram a abrir neste ambiente.**
+> Com eles entraram no arquivo do Atlas, prontos:
+>
+> - o B2, os indicadores do Censo 2010 por município;
+> - o B3, o entorno dos domicílios do Censo 2022;
+> - os campos de domicílio e de óbitos do Censo 2022 por setor que o catálogo previa;
+> - a conferência da renda de 2010 (achado E3).
+>
+> O que entrou e o que continua de fora, com o motivo, está em
+> [EXTRACOES-NO-HTML.md](EXTRACOES-NO-HTML.md).
 
 Este documento responde, item por item, de onde vem cada dado que ainda falta no Atlas e como
 extraí-lo, de preferência com pacotes R. A numeração (B1 a B15) é a da
@@ -93,8 +104,8 @@ estão bloqueados aqui.
 
 | Item | Dado | Pacote R e função | Servidor que precisa estar acessível | Script |
 |---|---|---|---|---|
-| B2 | Desocupação por sexo e idade, jovens que não estudam nem trabalham (todos), chefia feminina, idosos que moram sós, pessoas com deficiência, não naturais do município, Bolsa Família/PETI; por área de ponderação, 2010 | `censobr::read_population(year = 2010, columns = ...)` | github.com (releases `ipea/censobr_prep_data`) | `01_censo2010_areas_ponderacao.R` |
-| B3 | Entorno dos domicílios por setor (pavimentação, iluminação, calçada, arborização, rampa), Censo 2022 | `censobr::read_tracts(year = 2022, dataset = "Entorno")` | github.com | `02_censo2022_setores_e_amostra.R` |
+| B2 | Desocupação por sexo e idade, jovens que não estudam nem trabalham (todos), chefia feminina, idosos que moram sós, pessoas com deficiência, não naturais do município, Bolsa Família/PETI; por área de ponderação, 2010 | `censobr::read_population(year = 2010, columns = ...)` | github.com (releases `ipea/censobr_prep_data`) | `01_censo2010_areas_ponderacao.R`. **No Atlas desde a 3.8**, por município, pelo `10_censo2010_amostra.py` |
+| B3 | Entorno dos domicílios por setor (pavimentação, iluminação, calçada, arborização, rampa), Censo 2022 | `censobr::read_tracts(year = 2022, dataset = "Entorno")` | github.com | `02_censo2022_setores_e_amostra.R`. **No Atlas desde a 3.8**, pelo `9_censo2022_setores.py` |
 | B3 | Resultados da amostra de 2022 (trabalho, rendimento, deslocamento, família) por município | `sidrar::search_sidra()` e `sidrar::get_sidra()` | apisidra.ibge.gov.br | `02_…` (lista as tabelas) |
 | B3 | Amostra de 2022 por área de ponderação | microdados de **acesso controlado**: pedir em microdados.ibge.gov.br e importar com `censobr::import_microdata22()` | microdados.ibge.gov.br | `02_…` (instruções) |
 | B5 | Matrículas por etapa (creche, pré-escola, fundamental, médio, EJA) por escola, com código INEP | `educabR::get_censo_escolar(year, uf = "RS")` | download.inep.gov.br | `03_censo_escolar_matriculas.R` |
@@ -104,7 +115,7 @@ estão bloqueados aqui.
 | B9 | Mancha da enchente de maio de 2024 sobre os setores | Zenodo, registro 11185049 (IPH/UFRGS), mais `geobr::read_census_tract(year = 2022)` | zenodo.org, github.com | `07_enchente_2024.R` |
 | B13 | Parques, praças, quadras, bibliotecas, centros comunitários, teatros | `osmdata::opq()` e `osmdata_sf()` | overpass-api.de | `08_osm_cultura_lazer.R` |
 | B7 | Vínculos formais (RAIS) e saldo de empregos (CAGED) por município | BigQuery da Base dos Dados (`bigrquery`), conjuntos `br_me_rais` e `br_me_caged` | bigquery.googleapis.com, com projeto do Google Cloud | `09_basedosdados_bigquery.R` |
-| Auditoria | Conferência da renda, pobreza e Gini de 2010 (achado E3 de [AUDITORIA-DADOS-v3.2.md](AUDITORIA-DADOS-v3.2.md)) | `censobr::read_population(year = 2010)` | github.com | `11_confere_renda_2010.R` |
+| Auditoria | Conferência da renda, pobreza e Gini de 2010 (achado E3 de [AUDITORIA-DADOS-v3.2.md](AUDITORIA-DADOS-v3.2.md)) | `censobr::read_population(year = 2010)` | github.com | `11_confere_renda_2010.R`. **Feita na 3.8** pelo `10_censo2010_amostra.py`: o cálculo do Atlas está certo |
 | B11 | Registros do SISVAN por município | BigQuery da Base dos Dados, `br_ms_sisvan` | idem | `09_…` |
 | B1, B7 | Bolsa Família (pagamentos) e MEI | BigQuery da Base dos Dados (`br_cgu_beneficios_cidadao`, `br_me_cnpj`): o script lista as tabelas para escolher | idem | `09_…` |
 

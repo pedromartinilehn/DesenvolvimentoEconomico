@@ -227,25 +227,26 @@ ind({id:'taxa_analfabetismo',cat:'educacao',n:'Taxa de analfabetismo (15 anos ou
 ind({id:'resp_renda',cat:'renda',n:'Rendimento nominal médio da pessoa responsável',u:'R$/mês',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'brl',ramp:'terra',obs:'Rendimento nominal médio mensal das pessoas responsáveis com rendimentos, em domicílios particulares permanentes ocupados. No nível de bairro é a média ponderada pelo número de responsáveis em cada setor — cálculo do Atlas, não um valor publicado pelo IBGE.'});
 ind({id:'resp_n',cat:'renda',n:'Pessoas responsáveis por domicílio',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'dom_total',cat:'habitacao',n:'Domicílios recenseados (total)',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
-ind({id:'dom_part',cat:'habitacao',n:'Domicílios particulares',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
-ind({id:'dom_colet',cat:'habitacao',n:'Domicílios coletivos',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
+ind({id:'dom_part',cat:'habitacao',n:'Domicílios particulares',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua',obs:'Domicílios particulares ocupados, vagos e de uso ocasional (variável V0003).'});
+ind({id:'dom_colet',cat:'habitacao',n:'Domicílios coletivos',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua',obs:'Domicílios coletivos com e sem morador, como asilos, hotéis, alojamentos e presídios (variável V0004).'});
 ind({id:'dpo',cat:'habitacao',n:'Domicílios particulares ocupados',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'dppo',cat:'habitacao',n:'Domicílios particulares permanentes ocupados',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
-ind({id:'dens_dom',cat:'habitacao',n:'Densidade domiciliar',u:'dom./km²',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec1',ramp:'agua'});
+ind({id:'dens_dom',cat:'habitacao',n:'Densidade domiciliar',u:'dom./km²',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec1',ramp:'agua',obs:'Domicílios particulares (ocupados, vagos e de uso ocasional) divididos pela área do polígono do território.'});
 ind({id:'dom_casa',cat:'habitacao',n:'Domicílios do tipo casa',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
-ind({id:'dom_vila',cat:'habitacao',n:'Domicílios em casa de vila ou condomínio',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
+ind({id:'dom_vila',cat:'habitacao',n:'Domicílios em casa de vila ou condomínio',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua',obs:'Domicílios particulares permanentes ocupados do tipo casa de vila ou em condomínio.'});
 ind({id:'dom_apto',cat:'habitacao',n:'Domicílios do tipo apartamento',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'dom_cortico',cat:'habitacao',n:'Domicílios em casa de cômodos ou cortiço',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'dom_degrad',cat:'habitacao',n:'Estruturas residenciais degradadas ou inacabadas',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
-ind({id:'pct_casa',cat:'habitacao',n:'Percentual de casas',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'terra'});
+ind({id:'pct_casa',cat:'habitacao',n:'Percentual de casas',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'terra',obs:'Casas e casas de vila ou em condomínio, sobre os domicílios particulares permanentes ocupados. Até a versão 3.7 a casa de vila ficava de fora, porque não estava no pacote: o percentual saía menor.'});
 ind({id:'pct_apto',cat:'habitacao',n:'Percentual de apartamentos',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'agua'});
 ind({id:'pct_cortico_degrad',cat:'habitacao',n:'Percentual em cortiço ou estrutura degradada',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct2',ramp:'brasa'});
 ind({id:'ban_nenhum',cat:'habitacao',n:'Domicílios sem banheiro nem sanitário',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa'});
-ind({id:'ban_comum',cat:'habitacao',n:'Domicílios apenas com banheiro de uso comum',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa'});
-ind({id:'pct_sem_banheiro',cat:'habitacao',n:'Percentual sem banheiro de uso exclusivo',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct2',ramp:'brasa'});
+ind({id:'ban_comum',cat:'habitacao',n:'Domicílios apenas com banheiro de uso comum',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa',obs:'Domicílios particulares permanentes ocupados que só têm banheiro de uso comum a mais de um domicílio.'});
+ind({id:'ban_sanitario',cat:'habitacao',n:'Domicílios apenas com sanitário ou buraco para dejeções',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa',obs:'Domicílios particulares permanentes ocupados sem banheiro, só com sanitário ou buraco para dejeções, inclusive no terreno.'});
+ind({id:'pct_sem_banheiro',cat:'habitacao',n:'Percentual sem banheiro de uso exclusivo',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct2',ramp:'brasa',obs:'Domicílios só com banheiro de uso comum, só com sanitário ou buraco, ou sem banheiro nem sanitário, sobre os domicílios particulares permanentes ocupados. Até a versão 3.7 a conta usava só os sem banheiro nem sanitário, porque os outros dois grupos não estavam no pacote: o percentual saía menor.'});
 ind({id:'agua_rede',cat:'saneamento',n:'Domicílios com água de rede geral',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'pct_agua_rede',cat:'saneamento',n:'Abastecimento de água por rede geral',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'agua'});
-ind({id:'agua_naoenc',cat:'saneamento',n:'Domicílios sem água encanada',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa'});
+ind({id:'agua_naoenc',cat:'saneamento',n:'Domicílios sem água encanada',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa',obs:'Domicílios particulares permanentes ocupados em que a água não chega encanada. Não inclui aqueles em que a água chega encanada só até o terreno.'});
 ind({id:'pct_agua_naoenc',cat:'saneamento',n:'Percentual sem água encanada',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct2',ramp:'brasa'});
 ind({id:'esg_rede',cat:'saneamento',n:'Domicílios com esgoto em rede geral ou pluvial',u:'domicílios',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua'});
 ind({id:'pct_esgoto_rede',cat:'saneamento',n:'Esgoto em rede geral ou pluvial',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'agua'});
@@ -258,13 +259,35 @@ ind({id:'pct_lixo_coletado',cat:'saneamento',n:'Coleta de lixo por serviço de l
 ind({id:'lixo_inadequado',cat:'saneamento',n:'Domicílios com destino inadequado do lixo',u:'domicílios',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa',obs:'Lixo queimado na propriedade + jogado em terreno baldio, encosta ou área pública.'});
 ind({id:'pct_lixo_inadequado',cat:'saneamento',n:'Destino inadequado do lixo',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct2',ramp:'brasa'});
 ind({id:'obitos',cat:'saude',n:'Óbitos de moradores (jan/2019 a jul/2022)',u:'óbitos',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa',obs:'Óbitos declarados de pessoas que moravam no domicílio, no período de janeiro de 2019 a julho de 2022. Cobre 43 meses e não é uma taxa anual.'});
-ind({id:'obitos_h',cat:'saude',n:'Óbitos de homens (jan/2019 a jul/2022)',u:'óbitos',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa'});
-ind({id:'obitos_m',cat:'saude',n:'Óbitos de mulheres (jan/2019 a jul/2022)',u:'óbitos',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa'});
+ind({id:'obitos_h',cat:'saude',n:'Óbitos de homens (jan/2019 a jul/2022)',u:'óbitos',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa',obs:'Óbitos declarados de homens que moravam no domicílio, de janeiro de 2019 a julho de 2022 (43 meses). O IBGE omite o valor nos setores com poucos casos: aí a soma do bairro é parcial.'});
+ind({id:'obitos_m',cat:'saude',n:'Óbitos de mulheres (jan/2019 a jul/2022)',u:'óbitos',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa',obs:'Óbitos declarados de mulheres que moravam no domicílio, de janeiro de 2019 a julho de 2022 (43 meses). O IBGE omite o valor nos setores com poucos casos: aí a soma do bairro é parcial.'});
 ind({id:'obitos_por_mil',cat:'saude',n:'Óbitos por mil habitantes (jan/2019 a jul/2022)',u:'por mil hab.',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'dec2',ramp:'brasa',obs:'Acumulado de 43 meses sobre a população de 2022. Não comparável a taxas anuais de mortalidade.'});
 ind({id:'fcu_pop',cat:'vulner',n:'População em favelas e comunidades urbanas',u:'pessoas',fonte:'FAVELAS',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa',obs:'Recorte oficial Favelas e Comunidades Urbanas do Censo 2022. Em Porto Alegre são 125 FCU, com 175.519 moradores (13,2% da cidade).'});
 ind({id:'fcu_dom',cat:'vulner',n:'Domicílios em favelas e comunidades urbanas',u:'domicílios',fonte:'FAVELAS',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa'});
 ind({id:'pct_fcu',cat:'vulner',n:'Percentual da população em favelas e comunidades urbanas',u:'%',fonte:'ATLAS_CALC',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp:'brasa'});
 ind({id:'fcu_n',cat:'vulner',n:'Favelas e comunidades urbanas no território',u:'unidades',fonte:'FAVELAS',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'brasa'});
+/* Entorno dos domicílios (Censo 2022): o IBGE percorreu as faces de quadra dos setores
+   urbanos e registrou o que há na rua de cada domicílio. Os percentuais são sobre os
+   moradores com entorno pesquisado; "não declarado" fica no total. */
+/* campos de dados/dados-censo2022.js (extracao/9_censo2022_setores.py): por setor, bairro e município */
+const C22=window.ATLAS_CENSO22&&Array.isArray(window.ATLAS_CENSO22.campos)?window.ATLAS_CENSO22:null;
+const ENT_CAMPOS=['ent_pav','ent_ilum','ent_calcada','ent_rampa','ent_arvore','ent_bueiro','ent_obstaculo','ent_onibus','ent_bici'];
+/* soma parcial: o percentual herda o aviso do componente que o IBGE omitiu em algum setor */
+const OMIT_DERIVADO={pct_agua_naoenc:['agua_naoenc'],pct_sem_banheiro:['ban_nenhum','ban_comum','ban_sanitario'],pct_casa:['dom_vila']};
+function omissoesC22(p,origem,i){
+  if(!C22||!origem)return;
+  p._omit=p._omit||{};
+  for(const k in origem){const v=origem[k][i]; if(v)p._omit[k]=v;}
+  for(const k in OMIT_DERIVADO){const v=Math.max(0,...OMIT_DERIVADO[k].map(c=>p._omit[c]||0)); if(v)p._omit[k]=v;}
+}
+const OBS_ENT='Moradores de domicílios particulares permanentes ocupados em face de quadra com a característica, sobre os moradores com entorno pesquisado. O entorno só foi pesquisado nos setores urbanos; "não declarado" conta no total, então o percentual é um piso.';
+ind({id:'ent_mor',cat:'ambiente',n:'Moradores com entorno pesquisado',u:'pessoas',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'int',ramp:'agua',obs:'Moradores de domicílios particulares permanentes ocupados nos setores em que o IBGE pesquisou o entorno (variável V05200). É a base dos percentuais do entorno.'});
+[['pct_ent_pav','ambiente','Moradores em rua pavimentada','agua'],['pct_ent_ilum','ambiente','Moradores em rua com iluminação pública','agua'],
+ ['pct_ent_calcada','ambiente','Moradores em rua com calçada','agua'],['pct_ent_rampa','ambiente','Moradores em rua com rampa para cadeirante','agua'],
+ ['pct_ent_arvore','ambiente','Moradores em rua com árvores','agua'],['pct_ent_bueiro','ambiente','Moradores em rua com bueiro','agua'],
+ ['pct_ent_obstaculo','ambiente','Moradores em rua com obstáculo na calçada','brasa'],
+ ['pct_ent_onibus','mobilidade','Moradores em rua com ponto de ônibus','agua'],['pct_ent_bici','mobilidade','Moradores em rua com via sinalizada para bicicleta','agua']]
+  .forEach(([id,cat,n,ramp])=>ind({id,cat,n,u:'%',fonte:'CENSO22',ano:2022,niveis:['bairro','setor'],status:'ok',fmt:'pct1',ramp,obs:OBS_ENT}));
 
 /* ---- 4.2 FONTE NÃO OFICIAL (sinalizada em toda a interface) ----------- */
 ind({id:'amb_pct_urbana',cat:'ambiente',n:'Cobertura urbanizada do território',u:'% da área seca',
@@ -365,6 +388,22 @@ munInd('banda_larga_100hab','ambiente','Acessos de banda larga fixa por 100 habi
    Acesso a Oportunidades (IPEA), de 2019, que entre as sete cidades só cobre
    Porto Alegre. Sem o arquivo, verificaCatalogo() tira estes indicadores. */
 const IPEA=window.ATLAS_IPEA||{}, ADH_IPEA=IPEA.adh||null, AOP=IPEA.aop||null;
+/* IDHM de 2000 nos sete municípios: a série 1991–2010 do Atlas Brasil traz, para Porto Alegre, o
+   mesmo número do IBGE Cidades (MUN.m_idhm00). Se bater, o indicador deixa de ser só de Porto
+   Alegre. Calculado na primeira chamada, depois que MUN existe. */
+let IDHM00_CACHE;
+function idhm2000(){
+  if(IDHM00_CACHE!==undefined)return IDHM00_CACHE;
+  IDHM00_CACHE=null;
+  const j=ADH_IPEA&&ADH_IPEA.valores.idhm?ADH_IPEA.anos.indexOf(2000):-1;
+  if(j<0)return null;
+  const v={}; for(const c in ADH_IPEA.valores.idhm){const x=ADH_IPEA.valores.idhm[c][j]; if(x!=null)v[c]=x;}
+  if(Object.keys(v).length===7&&Math.abs((v[MUN.cod]??-1)-MUN.m_idhm00)<0.0005){
+    IDHM00_CACHE=v; const i=getInd('m_idhm00');
+    if(i){i.status='ok'; i.obs='IDHM do Censo 2000, do Atlas do Desenvolvimento Humano (PNUD, IPEA e FJP). O valor de Porto Alegre é o mesmo do IBGE Cidades; os dos outros seis municípios vêm da mesma série do Atlas Brasil, que o Atlas já tinha.';}
+  }
+  return IDHM00_CACHE;
+}
 /* id no Atlas -> coluna do Atlas Brasil (mundo_onu_adh.municipio) */
 const ADH_NOVOS={
   adh_expectativa_estudo:'expectativa_anos_estudo', adh_fora_escola_6_14:'taxa_criancas_fora_escola_6_14',
@@ -2167,6 +2206,30 @@ function renderMetodo(){
       de cálculo, o tempo não entra em média; entra na parte da população a mais de 30 minutos.</li>
   </ul>`:''}
 
+  <h3 class="sec">Extrações que vêm no pacote</h3>
+  <p style="font-size:12px;color:var(--txt2);line-height:1.7">
+    Parte do que antes só entrava rodando um script ou a central de extração agora vem pronta, dentro do arquivo do Atlas.
+    Os dados vêm do Censo do IBGE, nos arquivos que o IPEA publica para o pacote censobr.</p>
+  <ul style="font-size:12px;color:var(--txt2);line-height:1.7;margin:6px 0 10px 18px">
+    <li><b>Censo 2022 por setor</b> (dados/dados-censo2022.js, gerado por extracao/9_censo2022_setores.py):
+      ${C22?`casa de vila ou em condomínio, cortiço, estrutura degradada, domicílios particulares e coletivos, banheiro de uso comum,
+      só sanitário, água que não chega encanada, óbitos por sexo e o entorno dos domicílios (pavimentação, iluminação, calçada,
+      rampa, árvores, bueiro, ponto de ônibus, ciclovia). Antes de gravar, o script confere os ${nf.format(C22.conferencia.setores)}
+      setores com o que o Atlas já tinha: ${C22.conferencia.campos_iguais_ao_pacote.length} campos iguais em todos.
+      Onde o IBGE omitiu o valor de um setor (sigilo), o bairro e o município mostram a soma parcial e quantos setores ficaram de fora.`
+      :'o arquivo não está neste pacote.'}</li>
+    <li><b>Censo 2010, amostra</b> (dados/dados-extracoes.js, gerado por extracao/10_censo2010_amostra.py):
+      ${XT_APLICADOS.get('censo2010_amostra')?'os 12 indicadores do cartão “Censo 2010” da central, por município, e a conferência da renda de 2010 (abaixo).'
+        :'o arquivo não está neste pacote.'} O resultado é o mesmo que a central dá com os arquivos do IBGE; ela mostra o item como “no pacote do Atlas”.</li>
+    <li><b>IDHM de 2000</b> nos sete municípios, da série do Atlas Brasil que o Atlas já tinha: o valor de Porto Alegre é o mesmo do IBGE Cidades.</li>
+    <li><b>Correções:</b> “Percentual de casas” passou a contar a casa de vila ou em condomínio, e “Percentual sem banheiro de uso exclusivo”
+      passou a contar o banheiro de uso comum e o só sanitário. Na versão 3.7 os dois saíam menores, porque esses componentes não estavam no pacote.</li>
+    <li><b>Continuam de fora</b>, porque a fonte não abre no ambiente em que o pacote é montado: a despesa em educação (SICONFI, que o Atlas
+      busca ao vivo, no navegador), o IFDM, o IDESE e o IVS (planilhas), o Bolsa Família e as mortes por causa do DATASUS (Ipeadata),
+      o OpenStreetMap, as equipes do CNES e as matrículas do INEP. Entram pela central de extração ou pelos scripts.</li>
+  </ul>
+  ${(()=>{const c=XT_APLICADOS.get('censo2010_amostra'); return c&&c.e3?xtE3HTML(c,'metodo'):'';})()}
+
   <h3 class="sec">Séries complementares e Ipeadata</h3>
   <p style="font-size:12px;color:var(--txt2);line-height:1.7">
     O Ipeadata, do IPEA, reúne numa API pública séries de várias fontes (IBGE, Ministério da Saúde, Tesouro,
@@ -2286,6 +2349,8 @@ function renderMetodo(){
 ├── 6_ipea.py                  Atlas Brasil 1991–2010 e Acesso a Oportunidades (IPEA)
 ├── 7_ipeadata.py              séries municipais do Ipeadata (API do IPEA)
 ├── 8_series_complementares.py vacinação, SNIS, ANA, Abrinq e mais Atlas Brasil (Base dos Dados)
+├── 9_censo2022_setores.py     Censo 2022 por setor: domicílio, óbitos e entorno (censobr, IPEA)
+├── 10_censo2010_amostra.py    Censo 2010, amostra: 12 indicadores e conferência da renda (censobr)
 └── R/                         Censo 2010 por área de ponderação, Censo Escolar, equipes do
                                CNES, BigQuery e recorte de arquivos baixados</pre>
   <p style="font-size:11.5px;color:var(--txt3);line-height:1.6">A base censitária (agregados por setor
@@ -3169,6 +3234,7 @@ function porHabitante(p){
   return p;
 }
 function derivados(p){
+  if(p.dens_dom==null&&p.dom_part!=null&&p.area_km2)p.dens_dom=Math.round(10*p.dom_part/p.area_km2)/10;
   p.pop_2022=p.pop; p.dens_hab_km2=p.dens_hab; p.dens_dom_km2=p.dens_dom;
   /* sobre o município do próprio território — antes era sempre Porto Alegre */
   const popMun=POP_MUNI[p.muni]||(p.muni===MUN.nome?MUN.pop_2022:null);
@@ -3202,7 +3268,9 @@ function derivados(p){
     p.dom_precario=(p.dom_cortico??0)+(p.dom_degrad??0);
   p.pct_apto=raz(p.dom_apto,d);
   p.pct_cortico_degrad=raz(p.dom_precario!=null?p.dom_precario:(p.dom_cortico??0)+(p.dom_degrad??0),d);
-  p.pct_sem_banheiro=raz((p.ban_nenhum??0)+(p.ban_comum??0),d);
+  p.pct_sem_banheiro=raz((p.ban_nenhum??0)+(p.ban_comum??0)+(p.ban_sanitario??0),d);
+  /* entorno: sobre os moradores com entorno pesquisado */
+  if(p.ent_mor)ENT_CAMPOS.forEach(k=>{p['pct_'+k]=raz(p[k],p.ent_mor);});
   if(p.obitos==null&&(p.obitos_h!=null||p.obitos_m!=null))
     p.obitos=(p.obitos_h??0)+(p.obitos_m??0);
   p.pct_agua_rede=raz(p.agua_rede,d);
@@ -3261,6 +3329,7 @@ function fontesDoMunicipio(p,codMun){
   Object.assign(p,((window.ATLAS_SERVICOS||{}).municipios||{})[codMun]||{});
   Object.assign(p,((window.ATLAS_INDICES||{}).municipios||{})[codMun]||{});
   Object.assign(p,((window.ATLAS_COMPLEMENTOS||{}).municipios||{})[codMun]||{});
+  const i00=idhm2000(); if(i00&&i00[codMun]!=null)p.m_idhm00=i00[codMun];
   if(ADH_IPEA)for(const id in ADH_NOVOS){
     const s=(ADH_IPEA.valores[ADH_NOVOS[id]]||{})[codMun]; if(s&&s[2]!=null)p[id]=s[2];
   }
@@ -3298,7 +3367,8 @@ function montaGeo(){
   const nb=B.nomes.length, colB={};
   C.forEach((c,i)=>colB[c]=decCol(B.valores[c],E[i],nb));
   CE.forEach((c,i)=>{if(XE.bairros[c])colB[c]=decCol(XE.bairros[c],EE[i],nb);});
-  const TODOS_B=C.concat(CE).filter(c=>colB[c]);   /* içado do laço */
+  if(C22)C22.campos.forEach((c,i)=>{if(C22.bairros[c])colB[c]=decCol(C22.bairros[c],C22.escalas[i],nb);});
+  const TODOS_B=C.concat(CE,C22?C22.campos:[]).filter(c=>colB[c]);   /* içado do laço */
   S.geo.bairro={type:'FeatureCollection',name:'bairros_poa',features:B.nomes.map((nome,i)=>{
     const p={id:B.ids[i],nome,
       muni:(B.muni&&B.muni[i])||'Porto Alegre',
@@ -3309,6 +3379,7 @@ function montaGeo(){
     p._pir=B.piramide[i]; p._fcu=B.fcu_nomes[i]; p.fcu_n=B.fcu_nomes[i].length;
     p._omit={};
     for(const k in (B.omissoes||{})){const v=B.omissoes[k][i]; if(v)p._omit[k]=v;}
+    if(C22)omissoesC22(p,C22.omissoes_bairro,i);
     if(AOP&&AOP.bairro){
       for(const k in AOP.bairro){const v=AOP.bairro[k][i]; if(v!=null)p[k]=v;}
       if(AOP.cobertura_bairro&&AOP.cobertura_bairro[i]!=null)p._aop_cob=AOP.cobertura_bairro[i];
@@ -3326,10 +3397,14 @@ function montaGeo(){
     const nm=M.nomes.length, colM={}, colME={};
     C.forEach((c,i)=>colM[c]=decCol(M.valores[c],E[i],nm));
     CE.forEach((c,i)=>{if(M.estimados&&M.estimados[c])colME[c]=decCol(M.estimados[c],EE[i],nm);});
+    const colM22={};
+    if(C22)C22.campos.forEach((c,i)=>{if(C22.municipios[c])colM22[c]=decCol(C22.municipios[c],C22.escalas[i],nm);});
     S.geo.municipio={type:'FeatureCollection',name:'municipios',features:M.nomes.map((nome,i)=>{
       const p={id:M.ids[i],nome,muni:nome,muni_id:M.muni_id[i]};
       C.forEach(c=>{const v=colM[c][i]; if(v!=null)p[c]=v;});
       CE.forEach(c=>{const v=colME[c]&&colME[c][i]; if(v!=null)p[c]=v;});
+      for(const c in colM22){const v=colM22[c][i]; if(v!=null)p[c]=v;}
+      if(C22)omissoesC22(p,C22.omissoes_municipio,i);
       fontesDoMunicipio(p,String(N.munis.ids[M.muni_id[i]]));
       /* sem as frestas da dissolução dos setores (Porto Alegre tinha 1.225) */
       return {type:'Feature',properties:derivados(p),geometry:decGeom(M.geom[i],P,true)};
@@ -3370,6 +3445,7 @@ function garanteSetores(){
     for(const k in AOP.setor){colS[k]=decCol(AOP.setor[k],AOP.escala||100,ns);EXTRA.push(k);}
     for(const k in (AOP.setor_acima||{})){colS['_'+k]=decCol(AOP.setor_acima[k],1,ns);EXTRA.push('_'+k);}
   }
+  if(C22)C22.campos.forEach((c,i)=>{if(C22.setores[c]){colS[c]=decCol(C22.setores[c],C22.escalas[i],ns);EXTRA.push(c);}});
   const sufixo=decDic(T.ids,null,ns),muni=decDic(T.m,null,ns);
   const bairroS=decDic(T.bairro,T.bairro_dic,ns),fcuS=decDic(T.fcu,T.fcu_dic,ns);
   const cent=decPts(T.cent,P,ns);
@@ -3595,7 +3671,7 @@ function ligaEventos(){
 /* ── Região: soma dos sete municípios. Contagens somam; taxas são recalculadas
    a partir das contagens; os valores de 2010 não se agregam (ficam vazios). */
 let REGIAO=null;
-const ADITIVOS=/^(pop|pop_h|pop_m|pop_15|pop_est_2026|id\d+|criancas_0_14|jovens_15_29|adultos_30_59|idosos_60|raca_[a-z_]+|indigenas|quilombolas|alfab_15|dom_[a-z_]+|dpo|dppo|agua_[a-z_]+|esg_[a-z_]+|lixo_[a-z_]+|ban_[a-z_]+|fcu_pop|fcu_dom|obitos(_[hm])?|resp_n|area_km2|inep_[a-z_]+|cnes_[a-z_]+|seg_[a-z_]+|fin_(receita_total|receita_corrente|receita_tributaria|transferencias|despesa_total|investimentos|resultado_orcamentario)|pib|vab(_[a-z]+)?|impostos|agro_vab|gasto_[a-z_]+)$/;
+const ADITIVOS=/^(pop|pop_h|pop_m|pop_15|pop_est_2026|id\d+|criancas_0_14|jovens_15_29|adultos_30_59|idosos_60|raca_[a-z_]+|indigenas|quilombolas|alfab_15|dom_[a-z_]+|dpo|dppo|agua_[a-z_]+|esg_[a-z_]+|lixo_[a-z_]+|ban_[a-z_]+|fcu_pop|fcu_dom|obitos(_[hm])?|resp_n|area_km2|inep_[a-z_]+|cnes_[a-z_]+|seg_[a-z_]+|fin_(receita_total|receita_corrente|receita_tributaria|transferencias|despesa_total|investimentos|resultado_orcamentario)|pib|vab(_[a-z]+)?|impostos|agro_vab|gasto_[a-z_]+|ent_[a-z]+)$/;
 function regiaoProps(){
   if(REGIAO)return REGIAO;
   const fs=((S.geo.municipio||{}).features||[]).map(f=>f.properties);
@@ -3902,18 +3978,25 @@ function exportaMapa(){
 const TABELAS_DIAG=[
   {sec:'6',t:'População, densidade e estrutura etária',c:['pop','pop_est_2026','dens_hab','pct_criancas_0_14','pct_jovens_15_29','pct_idosos_60','idx_envelhecimento']},
   {sec:'6',t:'Composição e grupos populacionais',c:['pct_mulheres','pct_preta_parda','pct_preta','indigenas','quilombolas','pct_fcu']},
+  {sec:'6',t:'Famílias, idosos, deficiência e migração (Censo 2010, amostra, cálculo do Atlas)',c:['c10_dom_chefia_feminina','c10_idosos_sos','c10_deficiencia','c10_nao_naturais','c10_dom_bolsa','c10_pessoas_bolsa']},
   {sec:'7',t:'Pobreza, renda, desigualdade e trabalho (Censo 2010, cálculo do Atlas sobre os microdados)',c:['est_pobreza','est_extrema_pobreza','est_rdpc','est_gini','est_desocupacao','est_informalidade','est_conta_propria']},
   {sec:'7',t:'Renda e pobreza de 2010 publicadas pelo Atlas Brasil (referência)',c:['adh_renda_pc','adh_gini','adh_pobreza','adh_extrema_pobreza','adh_vulner_pobreza']},
   {sec:'7',t:'Juventude, famílias e vulnerabilidade (Atlas Brasil, Censo 2010)',c:['adh_vulner_pobreza','adh_nemnem_vulner','adh_desocup_18_24','adh_maes_chefes_sem_fund','adh_dep_idosos_vulner','adh_desloc_1h_vulner']},
+  {sec:'7',t:'Trabalho e juventude por sexo e idade (Censo 2010, amostra, cálculo do Atlas)',c:['c10_desocup_mulheres','c10_desocup_homens','c10_desocup_18_24','c10_desocup_25_29','c10_nem_nem_15_24']},
   {sec:'7',t:'Renda e economia: dados recentes',c:['resp_renda','pib_pc','pct_vab_ind','pct_vab_serv','pct_vab_adm']},
   {sec:'8',t:'Dimensões da vulnerabilidade: indicadores-chave',c:['pct_fcu','pct_agua_rede','pct_esgoto_inadequado','taxa_analfabetismo','est_sem_fundamental_25','ubs_10mil','cvli_100mil','banda_larga_100hab']},
   {sec:'8',t:'Educação e desenvolvimento humano',c:['idhm','idhm_educacao','ideb_iniciais','ideb_finais','ideb_medio','adh_creche_0_3','adh_fora_escola_4_5']},
+  {sec:'8',t:'Rua e moradia (Censo 2022)',c:['pct_ent_pav','pct_ent_ilum','pct_ent_calcada','pct_ent_rampa','pct_ent_arvore','pct_ent_onibus','pct_agua_naoenc','pct_sem_banheiro']},
   {sec:'10',t:'Rede de serviços registrada',c:['cnes_ubs','ubs_10mil','cnes_caps','cnes_hospitais','cnes_acolhimento','inep_escolas_publicas','inep_escolas_privadas']},
   {sec:'11',t:'Orçamento municipal para políticas sociais',c:['fin_receita_total','fin_transf_pct','gasto_saude_hab','gasto_atencao_basica_hab','gasto_assistencia_hab','gasto_seguranca_hab','gasto_trabalho_hab','gasto_educacao','gasto_educacao_infantil']},
 ];
 const AUSENTES_DIAG={
-  '6':'Não estão no Atlas: total de famílias chefiadas por mulheres (há só as mães chefes sem fundamental, de 2010), famílias monoparentais, idosos que vivem sozinhos, pessoas com deficiência, migrantes, população em situação de rua, famílias no Cadastro Único e no Bolsa Família.',
-  '7':'Não estão no Atlas: desocupação de mulheres, total de jovens que não estudam nem trabalham (há só os vulneráveis à pobreza, de 2010), dependência de transferências, microempreendedores, renda e pobreza de 2022.',
+  get '6'(){return getInd('c10_dom_chefia_feminina')
+    ?'Chefia feminina, idosos que moram sós, deficiência, migração e Bolsa Família estão no Atlas só para 2010 (Censo, amostra). Não estão no Atlas: famílias monoparentais, população em situação de rua, famílias no Cadastro Único e o Bolsa Família atual.'
+    :'Não estão no Atlas: total de famílias chefiadas por mulheres (há só as mães chefes sem fundamental, de 2010), famílias monoparentais, idosos que vivem sozinhos, pessoas com deficiência, migrantes, população em situação de rua, famílias no Cadastro Único e no Bolsa Família.';},
+  get '7'(){return getInd('c10_desocup_mulheres')
+    ?'A desocupação por sexo e idade e os jovens que não estudam nem trabalham estão no Atlas só para 2010 (Censo, amostra). Não estão no Atlas: dependência de transferências, microempreendedores, renda e pobreza de 2022 (os microdados de 2022 por município são de acesso controlado).'
+    :'Não estão no Atlas: desocupação de mulheres, total de jovens que não estudam nem trabalham (há só os vulneráveis à pobreza, de 2010), dependência de transferências, microempreendedores, renda e pobreza de 2022.';},
   '8':'Mobilidade só em parte: o acesso a empregos, saúde e escolas do IPEA (2019) cobre Porto Alegre, por bairro e setor. Não estão no Atlas: segurança alimentar, documentação e acesso a direitos, cultura e lazer. Riscos climáticos só em parte: a camada de áreas de risco é a BATER de 2010 (Porto Alegre e Sapucaia do Sul); faltam a setorização do Serviço Geológico do Brasil e a mancha da enchente de 2024.',
   '10':'Não estão no Atlas: CRAS, CREAS, Centro POP, creches e vagas, transferências de renda por família, restaurantes populares, programas habitacionais, organizações comunitárias.',
   get '11'(){return 'Não estão no Atlas: '+(getInd('gasto_educacao')?'':'despesa em educação, ')+'equipes técnicas, conselhos e sistemas de informação.';}
@@ -4507,7 +4590,8 @@ const chavesPonto=()=>['lojas','escolas','saude','acolhimento']
 function xtAplica(item){
   const fk='XT_'+item.id;
   FONTES[fk]={n:item.fonte.n,s:item.fonte.s||item.fonte.n,u:item.fonte.u||'',
-    d:(item.fonte.d||'')+` Extraído no navegador em ${new Date(item.quando).toLocaleDateString('pt-BR')}`+
+    d:(item.fonte.d||'')+(item.pacote?` Calculado para o pacote do Atlas em ${new Date(item.quando).toLocaleDateString('pt-BR')}`
+      :` Extraído no navegador em ${new Date(item.quando).toLocaleDateString('pt-BR')}`)+
       (item.origem?`, de ${item.origem}`:'')+'.',naoOficial:item.status==='ext'};
   /* fontes próprias de alguns indicadores do item (Ipeadata: a fonte original de cada série) */
   const fx=item.fontesExtra||{};
@@ -4548,11 +4632,16 @@ async function xtConclui(item){
 }
 /* No boot: o que veio embutido no arquivo (ATLAS_EXTRAIDOS) e o que está neste navegador. */
 async function xtInicia(){
+  /* ATLAS_PACOTE: extrações já feitas que vêm no pacote (dados/dados-extracoes.js), no mesmo formato
+     das da central. Uma extração mais nova do mesmo item, embutida ou deste navegador, vale por cima. */
+  const pac=Array.isArray(window.ATLAS_PACOTE)?window.ATLAS_PACOTE:[];
   const emb=Array.isArray(window.ATLAS_EXTRAIDOS)?window.ATLAS_EXTRAIDOS:[];
   const loc=await xtLista();
   const porId=new Map();
-  emb.forEach(i=>porId.set(i.id,Object.assign({},i,{_embutido:true})));
-  loc.forEach(i=>{const e=porId.get(i.id); if(!e||String(i.quando)>String(e.quando))porId.set(i.id,i);});
+  const maisNovo=(i,marca)=>{const e=porId.get(i.id); if(!e||String(i.quando)>String(e.quando))porId.set(i.id,marca?Object.assign({},i,marca):i);};
+  pac.forEach(i=>porId.set(i.id,Object.assign({},i,{_pacote:true})));
+  emb.forEach(i=>maisNovo(i,{_embutido:true}));
+  loc.forEach(i=>maisNovo(i));
   if(!porId.size)return;
   porId.forEach(i=>{try{xtAplica(i);}catch(e){console.warn('extração',i.id,e);}});
   xtRedesenha();
@@ -4571,8 +4660,8 @@ async function xtBaixaAtlas(){
     toast('Abra o arquivo único (atlas-rmpa.html) para gerar o Atlas com os dados. Nesta versão em pasta, use "Baixar CSV".','err');
     return;
   }
-  const itens=[...XT_APLICADOS.values()].map(i=>{const c=Object.assign({},i);delete c._embutido;return c;});
-  if(!itens.length){toast('Nada extraído ainda.','err');return;}
+  const itens=[...XT_APLICADOS.values()].filter(i=>!i._pacote).map(i=>{const c=Object.assign({},i);delete c._embutido;return c;});
+  if(!itens.length){toast('Nada extraído ainda neste navegador: o que está no pacote já vai no arquivo do Atlas.','err');return;}
   /* tudo o que vem antes do código do Atlas, sem o bloco de dados de uma geração anterior */
   const k=HTML_ORIGINAL.indexOf(XT_TAG_APP);
   let antes=HTML_ORIGINAL.slice(0,k);
@@ -5281,12 +5370,19 @@ function xtVeredito(E3){
   }).filter(t=>t.melhor);
 }
 const XT_VERSAO={A:'A — renda ausente conta como zero',B:'B — renda ausente fica de fora',C:'C — como B, sem pensionistas e empregados domésticos'};
-function xtE3HTML(item){
+/* modo: '' depois de extrair no cartão; 'pacote' no cartão, quando o resultado já vem no pacote;
+   'metodo' na tela de metodologia */
+function xtE3HTML(item,modo=''){
   const v=item.e3.veredito, fm=o=>/Gini/.test(o)?'dec3':/renda/.test(o)?'brl':'dec2';
   const atl=v.filter(t=>t.quem==='Atlas'), bra=v.filter(t=>t.quem==='Atlas Brasil');
   const conta=l=>{const c={};l.forEach(t=>c[t.melhor.versao]=(c[t.melhor.versao]||0)+1);return Object.entries(c).sort((a,b)=>b[1]-a[1])[0];};
   const va=atl.length?conta(atl):null, vb=bra.length?conta(bra):null;
-  return `<div class="note">Pronto: ${esc(item.resumo)}. Os 12 indicadores estão no catálogo, no nível município, como referência histórica de 2010.</div>
+  const topo=modo==='metodo'?'':modo==='pacote'
+    ?`<div class="note"><b>Já no pacote do Atlas:</b> ${esc(item.resumo)}, calculados por extracao/10_censo2010_amostra.py com os
+      microdados da amostra na versão do pacote censobr (IPEA). Os indicadores estão no catálogo, no nível município, como referência
+      histórica de 2010. Soltar aqui o RS.zip e a Documentacao.zip do IBGE refaz o cálculo com os arquivos originais.</div>`
+    :`<div class="note">Pronto: ${esc(item.resumo)}. Os 12 indicadores estão no catálogo, no nível município, como referência histórica de 2010.</div>`;
+  return `${topo}
   <h4 class="xt-sub">Conferência da renda de 2010 (achado E3 da auditoria)</h4>
   <p class="xt-msg">A pobreza, a renda e o Gini de 2010 foram recalculados de três jeitos. A tabela mostra, para cada número,
     qual versão chega mais perto, e a diferença média nos sete municípios.</p>
@@ -5769,14 +5865,22 @@ function renderExtrair(){
   else if(XT_IPD.series)xtIpdLista($('#xt-corpo-ipeadata'));
   $('#xtSidraTxt').onkeydown=e=>{if(e.key==='Enter')sb();};
   $('#xtBaixaAtlas').onclick=xtBaixaAtlas;
+  const c10=XT_APLICADOS.get('censo2010_amostra');
+  if(c10&&c10._pacote&&c10.e3){
+    $('#xt-corpo-censo2010').innerHTML=xtE3HTML(c10,'pacote')+`<div class="btn-row">
+      ${c10.ap?'<button class="btn" id="xtPacAP">Baixar por área de ponderação (CSV)</button>':''}
+      <button class="btn" id="xtPacE3">Baixar a conferência da renda (CSV)</button></div>`;
+    if(c10.ap)$('#xtPacAP').onclick=()=>baixaCSV(c10.ap,'censo2010-areas-de-ponderacao.csv');
+    const L=c10.e3.linhas; $('#xtPacE3').onclick=()=>baixaCSV([Object.keys(L[0])].concat(L.map(r=>Object.values(r))),'censo2010-conferencia-renda.csv');
+  }
 }
 function xtListaHTML(){
   const el=$('#xtLista'); if(!el)return;
   const itens=[...XT_APLICADOS.values()];
   el.innerHTML=itens.length?itens.map(i=>`<div class="row"><div class="k"><b>${esc(i.titulo)}</b>
-      <span class="ref-note">${esc(i.resumo||'')} · ${esc(i.fonte.s||i.fonte.n)} · ${i._embutido?'embutido neste arquivo':'extraído em '+new Date(i.quando).toLocaleDateString('pt-BR')}</span></div>
+      <span class="ref-note">${esc(i.resumo||'')} · ${esc(i.fonte.s||i.fonte.n)} · ${i._pacote?'no pacote do Atlas':i._embutido?'embutido neste arquivo':'extraído em '+new Date(i.quando).toLocaleDateString('pt-BR')}</span></div>
       <div class="v xt-acoes"><button class="btn" data-xtcsv="${esc(i.id)}">CSV</button>
-      ${i._embutido?'':`<button class="btn" data-xtdel="${esc(i.id)}">Remover</button>`}</div></div>`).join('')
+      ${i._embutido||i._pacote?'':`<button class="btn" data-xtdel="${esc(i.id)}">Remover</button>`}</div></div>`).join('')
     :'<p class="xt-msg">Nada extraído ainda neste navegador.</p>';
   el.querySelectorAll('[data-xtcsv]').forEach(b=>b.onclick=()=>xtCSV(XT_APLICADOS.get(b.dataset.xtcsv)));
   el.querySelectorAll('[data-xtdel]').forEach(b=>b.onclick=async()=>{
@@ -5850,7 +5954,7 @@ function verificaCatalogo(){
       if(!g){
         if(n==='municipio')return true;
         if(n==='setor'&&RAW_SETORES){
-          return Boolean((RAW_SETORES.valores||{})[i.id]||((RAW_EST||{}).setores||{})[i.id]);
+          return Boolean((RAW_SETORES.valores||{})[i.id]||((RAW_EST||{}).setores||{})[i.id]||(C22&&C22.setores[i.id]));
         }
         return false;
       }

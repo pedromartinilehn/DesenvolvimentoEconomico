@@ -1,7 +1,8 @@
 # Como fazer as extrações
 
 Passo a passo para atualizar os dados do Atlas e para extrair os que ainda faltam. Vale para a
-versão 3.7.
+versão 3.8. Como o resultado de cada extração entra no arquivo do Atlas, e o que já entrou, está em
+[`EXTRACOES-NO-HTML.md`](EXTRACOES-NO-HTML.md).
 
 Os dados entram no Atlas por quatro caminhos:
 
@@ -9,7 +10,7 @@ Os dados entram no Atlas por quatro caminhos:
 |---|---|---|---|
 | **1. Automático, no navegador** | a própria página, ao abrir | Atlas Brasil, IDEB, Anatel, áreas de risco, população estimada, PIB, finanças municipais | no navegador de quem abriu, por 30 dias |
 | **2. Central de extração, no navegador** | qualquer pessoa, sem instalar nada (*Mais → Extrair dados*) | OpenStreetMap, tabelas do IBGE (SIDRA), séries municipais do Ipeadata, matrículas do INEP, amostra do Censo 2010, equipes do CNES e qualquer arquivo nacional com código de município | no navegador de quem extraiu, até ser removido; com *Baixar o Atlas com os dados*, num novo arquivo do Atlas para distribuir |
-| **3. Scripts Python** | quem mantém o Atlas | os arquivos `dados/*.js` que vão dentro do pacote: pontos de saúde e escolas, serviços municipais, índices, dados do IPEA, séries do Ipeadata e séries complementares | no pacote, para todos |
+| **3. Scripts Python** | quem mantém o Atlas | os arquivos `dados/*.js` que vão dentro do pacote: pontos de saúde e escolas, serviços municipais, índices, dados do IPEA, séries do Ipeadata e séries complementares, campos do Censo 2022 por setor e o pacote de extrações (Censo 2010, amostra) | no pacote, para todos |
 | **4. Scripts R e downloads manuais** | quem precisa de um dado que a central ainda não extrai | Censo 2022 por setor, enchente de 2024, RAIS, CAGED e outras consultas da Base dos Dados; também refazem o que a central faz | CSV em `extracao/saida_R/`, que se carrega no Atlas |
 
 Regra que vale para os quatro: **nenhum passo estima, interpola ou completa valor**. Quando a fonte
@@ -112,6 +113,9 @@ programa.
   CAGED por consulta) e o FTP do DATASUS: para essas, use os scripts R da seção 5. Os óbitos do
   DATASUS por causa (homicídio, suicídio, trânsito) chegam pelo cartão do Ipeadata, que os
   republica por município.
+- O cartão "Censo 2010" já mostra o resultado que vem no pacote (seção 4.9), com a conferência da
+  renda e os CSV. Soltar o RS.zip e a Documentacao.zip do IBGE refaz o cálculo com os arquivos
+  originais, e a extração nova vale por cima da do pacote.
 - Não divide valor municipal entre bairros. Na central, dado por bairro só entra quando o arquivo
   traz coordenadas (vira contagem de pontos por bairro). Um CSV já organizado por bairro, com o nome
   do bairro, carrega-se em *Mais → Dados e fontes* (seção 7.1).
@@ -292,7 +296,44 @@ faltar município no ano do mapa, se um valor sair da faixa possível ou se os �
 somarem 100%. Os arquivos baixados ficam em `extracao/fontes/basedosdados/`. O que foi varrido, o que
 entrou e o que ficou de fora estão em [`VARREDURA-IPEADATA.md`](VARREDURA-IPEADATA.md).
 
-### 4.8 Gerar o arquivo único e conferir
+### 4.8 Censo 2022 por setor
+
+```bash
+pip install pyarrow                         # uma vez
+python3 extracao/9_censo2022_setores.py
+```
+
+Lê os agregados por setor do Censo 2022 na versão que o IPEA publica para o pacote censobr (releases
+do repositório `ipea/censobr_prep_data` no GitHub). Grava `dados/dados-censo2022.js` com 20 campos
+por setor, bairro e município:
+
+- tipo de domicílio, banheiro e água;
+- óbitos por sexo;
+- o entorno dos domicílios: pavimentação, iluminação, calçada, rampa, árvores, bueiro, ponto de
+  ônibus e ciclovia.
+
+Antes de gravar, confere com o pacote do Atlas 12 campos que ele já tem, nos 4.722 setores, e para se
+algum não bater. Setor em que o IBGE omitiu o valor fica sem valor. O bairro e o município somam os
+outros e o Atlas avisa que a soma é parcial. Os arquivos baixados ficam em `extracao/fontes/censobr/`.
+
+### 4.9 Censo 2010, amostra (pacote de extrações)
+
+```bash
+python3 extracao/10_censo2010_amostra.py
+```
+
+Faz com os microdados da amostra de 2010 (censobr, 820 MB na primeira vez) o mesmo cálculo do cartão
+"Censo 2010" da central:
+
+- 12 indicadores por município (desocupação por sexo e idade, jovens que não estudam nem trabalham,
+  chefia feminina, idosos que moram sós, deficiência, não naturais e Bolsa Família);
+- a conferência da renda de 2010 (achado E3).
+
+O resultado vai para `dados/dados-extracoes.js`, no formato de um item da central, e o Atlas o aplica
+ao abrir. Para não sobrescrever o resto, o script troca só o próprio item. Ele para se faltar
+município, se a soma dos pesos não der a população de 2010 ou se a renda sair da escala.
+
+### 4.10 Gerar o arquivo único e conferir
 
 ```bash
 python3 build_single.py

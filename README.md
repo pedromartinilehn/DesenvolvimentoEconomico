@@ -38,6 +38,7 @@ Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 | [`docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx`](docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx) | template de diagnóstico regional do Instituto Renner com as seções 3, 4 e 5 respondidas (apresentação, escopo e metodologia) |
 | [`docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx`](docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx) | respostas guardadas de todas as seções do template (nome da regional e seções 6 a 15: tabelas por município, 5 mapas, rede de serviços, orçamento, atores, SWOT e priorização) |
 | [`docs/COMO-FAZER-AS-EXTRACOES.md`](docs/COMO-FAZER-AS-EXTRACOES.md) | passo a passo de todas as extrações: o que o Atlas atualiza sozinho, a central de extração no navegador, os scripts Python e R, os downloads manuais e como o resultado entra no Atlas |
+| [`docs/EXTRACOES-NO-HTML.md`](docs/EXTRACOES-NO-HTML.md) | como as extrações entram no arquivo do Atlas (arquivos de dados, pacote de extrações, central); o que entrou na 3.8 (Censo 2022 por setor e entorno, Censo 2010 por município, conferência E3) e o que continua de fora, com o motivo |
 | [`docs/VARREDURA-IPEADATA.md`](docs/VARREDURA-IPEADATA.md) | varredura do Ipeadata: o que ele tem para os sete municípios, as 38 séries que entraram no pacote, o que vem pelo cartão do navegador (Bolsa Família, mortes violentas do DATASUS, IFDM) e o que não é municipal |
 | [`docs/ANALISE-IPEA.md`](docs/ANALISE-IPEA.md) | dados do IPEA no Atlas: série 1991–2010 do Atlas do Desenvolvimento Humano e Acesso a Oportunidades 2019 em Porto Alegre, com as conferências feitas e o que os dados mostram |
 | [`docs/EXTRACAO-dados-faltantes.md`](docs/EXTRACAO-dados-faltantes.md) | de onde vem cada dado que falta no Atlas e como extraí-lo, com scripts R prontos; o que já entrou pelo espelho público da Base dos Dados (IDHM, Atlas Brasil 2010, IDEB, banda larga, áreas de risco) |
@@ -73,6 +74,8 @@ python3 extracao/4_indices_municipais.py       # IDHM, IVS, IDESE, FIRJAN
 python3 extracao/6_ipea.py                     # Atlas do Desenvolvimento Humano e Acesso a Oportunidades
 python3 extracao/7_ipeadata.py                 # séries municipais do Ipeadata (API do IPEA)
 python3 extracao/8_series_complementares.py    # 38 séries que faltavam: Atlas DH, PNI, SNIS, ANA, Abrinq
+python3 extracao/9_censo2022_setores.py        # Censo 2022 por setor: domicílio, óbitos e entorno (censobr)
+python3 extracao/10_censo2010_amostra.py       # Censo 2010, amostra: 12 indicadores e conferência E3 (censobr)
 python3 build_single.py                        # regenera o atlas-rmpa.html
 ```
 

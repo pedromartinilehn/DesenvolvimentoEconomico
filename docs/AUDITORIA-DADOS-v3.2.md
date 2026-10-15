@@ -39,7 +39,7 @@ Os pontos do mapa não guardam esses códigos.
 |---|---|---|
 | E1 | ✅ corrigido | Tipo 81 fora do Atlas; tipo 83 na camada própria "Comunidades terapêuticas e residenciais", com o indicador `cnes_acolhimento`; legenda corrigida. Regra no `2_atualiza_cnes.py`, que tem o modo `--reclassificar` |
 | E2 | ✅ corrigido | Unidades prisionais e socioeducativas marcadas como de acesso restrito: aparecem no mapa com aviso e saem das contagens de estabelecimentos, de UBS e do entorno das lojas |
-| E3 | ◐ em parte | O rótulo "oficial" saiu da interface e dos documentos. Os números do Atlas Brasil (renda, Gini, pobreza e extrema pobreza) entraram como referência. O **recálculo** depende de rodar `11_confere_renda_2010.R` fora deste ambiente |
+| E3 | ✅ resolvido na 3.8 | O rótulo "oficial" saiu da interface e dos documentos, e os números do Atlas Brasil entraram como referência (3.4). Na 3.8 a conferência rodou com os microdados reais (seção E3, "Resultado da conferência"): o cálculo do Atlas está certo para o que diz medir, e a hipótese do viés não se confirmou |
 | E4 | ✅ corrigido | Gini de bairro só nos 45 bairros contidos numa única área de ponderação |
 | E5 | ◐ em parte | Os scripts 2 e 3 guardam o código CNES e INEP; os pontos embarcados ganham o código na próxima extração |
 | L2, L3 | ✅ declarado | Notas nos indicadores de esgoto e de moradores por domicílio |
@@ -158,6 +158,42 @@ superior aos 25 anos bate exatamente.
 - até lá, exibir ao lado o número do Atlas Brasil, que já está no pacote
   (`dados-complementares.js`).
 
+**Resultado da conferência (versão 3.8, outubro de 2026).** A conferência rodou com os microdados
+da amostra de 2010 na versão que o IPEA publica para o pacote censobr (as variáveis e os códigos
+originais do IBGE), pelo [`extracao/10_censo2010_amostra.py`](../atlas_v3/extracao/10_censo2010_amostra.py).
+O cálculo é o mesmo do script 11 e do cartão "Censo 2010" da central de extração. Cada número foi
+refeito de três jeitos:
+
+- A: renda ausente conta como zero;
+- B: renda ausente fica de fora;
+- C: como B, sem pensionistas e empregados domésticos.
+
+| município | abaixo de ½ SM: Atlas | A | B | C | Atlas Brasil (até R$ 255) | renda per capita: Atlas | A | B | Atlas Brasil | Gini: Atlas | A | B | C | Atlas Brasil |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Porto Alegre | 13,76 | 14,44 | 13,76 | 13,78 | 12,51 | 1.730 | 1.716 | 1.730 | 1.758 | 0,6152 | 0,6183 | 0,6152 | 0,6144 | 0,60 |
+| Canoas | 16,59 | 16,78 | 16,59 | 16,60 | 15,72 | 932 | 930 | 932 | 952 | 0,5179 | 0,5190 | 0,5179 | 0,5178 | 0,51 |
+| Gravataí | 19,72 | 19,87 | 19,72 | 19,73 | 18,01 | 715 | 713 | 715 | 737 | 0,4577 | 0,4587 | 0,4577 | 0,4577 | 0,44 |
+| Sapucaia do Sul | 18,69 | 18,82 | 18,69 | 18,69 | 18,29 | 718 | 717 | 718 | 733 | 0,4501 | 0,4511 | 0,4501 | 0,4499 | 0,44 |
+| Cachoeirinha | 14,53 | 14,68 | 14,53 | 14,54 | 13,22 | 823 | 821 | 823 | 844 | 0,4494 | 0,4504 | 0,4494 | 0,4495 | 0,44 |
+| Guaíba | 19,89 | 20,03 | 19,89 | 19,88 | 19,29 | 743 | 742 | 743 | 759 | 0,4794 | 0,4803 | 0,4794 | 0,4793 | 0,47 |
+| Esteio | 13,91 | 14,16 | 13,91 | 13,91 | 13,59 | 943 | 940 | 943 | 956 | 0,4845 | 0,4860 | 0,4845 | 0,4845 | 0,48 |
+
+O que a tabela mostra:
+
+- **O cálculo do Atlas é a versão B.** Ele já deixa a renda ausente de fora. Nos sete municípios, a
+  versão B reproduz a pobreza, a extrema pobreza, a renda e o Gini do Atlas. A diferença média é de
+  0,003 ponto na pobreza e de R$ 0,001 na renda, e o Gini sai igual até a quarta casa.
+- **A hipótese não se confirmou.** A versão A, com a renda ausente contada como zero, fica mais
+  longe do Atlas Brasil, e não mais perto.
+- **Nenhuma das três versões reproduz o Atlas Brasil.** A versão mais próxima fica, em média,
+  2 pontos acima na pobreza e R$ 19 abaixo na renda. A diferença vem da metodologia do próprio Atlas
+  Brasil (universo e tratamento da renda), que estes microdados sozinhos não reproduzem.
+
+**Decisão:** os números de 2010 do Atlas ficam como estão. São o cálculo do Atlas sobre os
+microdados do IBGE, como o rótulo diz, e não há viés a corrigir. Os do Atlas Brasil seguem ao lado,
+como referência publicada. A tabela também aparece em *Mais → Metodologia* e no cartão "Censo 2010"
+da central de extração.
+
 ### E4. Gini de bairro como média de áreas de ponderação
 
 No setor, o valor de 2010 é o da área de ponderação que o contém. No bairro, é a média dos setores
@@ -263,12 +299,14 @@ dado nesse nível.
 | SICONFI 2024 (receitas e despesas) | servidor do Tesouro bloqueado | rodar `1_servicos_municipais.py` ou `05_siconfi_educacao.R` e comparar |
 | SSP/RS 2025 | servidor da SSP bloqueado | planilha citada em `dados-servicos.js` |
 | CNES e Censo Escolar (lista de pontos) | servidores bloqueados | regenerar os pontos com o código (E5) e conferir o total por tipo |
-| Renda de 2010 (E3) | microdados no GitHub do IPEA, bloqueado | `11_confere_renda_2010.R` |
+| Renda de 2010 (E3) | feito na 3.8: os microdados no GitHub do IPEA passaram a abrir | `10_censo2010_amostra.py` (e `11_confere_renda_2010.R`, fora daqui) |
 
 ## 6. Correções propostas, por prioridade
 
 1. **E3:** trocar "valor oficial" por "calculado pelo Atlas" e rodar o script 11. É o achado com mais
    peso no diagnóstico: a pobreza de 2010 aparece em fichas, tabelas e na matriz de priorização.
+   *Feito: o rótulo mudou na 3.4, e a conferência rodou na 3.8. O cálculo do Atlas está certo e os
+   números ficam (ver E3).*
 2. **E1 e E2:** reclassificar os tipos 81 e 83 e as unidades prisionais. Muda as contagens de saúde
    de quatro municípios.
 3. **E4:** Gini de bairro só onde há uma área de ponderação.

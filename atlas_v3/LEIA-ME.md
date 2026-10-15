@@ -1,4 +1,4 @@
-# Atlas Metropolitano RMPA — versão 3.7
+# Atlas Metropolitano RMPA — versão 3.8
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios:
 Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio.
@@ -10,7 +10,54 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
 - O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
 
-## O que mudou na versão 3.7: varredura do Ipeadata
+## O que mudou na versão 3.8: extrações dentro do HTML
+
+O que antes só entrava rodando uma extração agora vem pronto dentro do arquivo do Atlas. Os arquivos
+do IPEA para o pacote censobr, com os dados do Censo do IBGE, passaram a abrir no ambiente em que o
+pacote é montado. Dois scripts novos usam esses arquivos.
+
+- **`extracao/9_censo2022_setores.py` → `dados/dados-censo2022.js`.** Traz 20 campos do Censo 2022 por
+  setor, bairro e município:
+  - os 11 indicadores que o catálogo previa e estavam sem dado: domicílios particulares e coletivos,
+    casa de vila, cortiço, estrutura degradada, banheiro de uso comum, sem água encanada, óbitos de
+    homens e de mulheres e densidade domiciliar;
+  - o só sanitário ou buraco;
+  - o entorno dos domicílios: pavimentação, iluminação, calçada, rampa, árvores, bueiro, obstáculo
+    na calçada, ponto de ônibus e ciclovia.
+
+  Antes de gravar, o script confere 12 campos com o pacote, nos 4.722 setores. Onde o IBGE omitiu o
+  valor de um setor, o bairro e o município mostram a soma parcial e quantos setores faltaram.
+- **`extracao/10_censo2010_amostra.py` → `dados/dados-extracoes.js`.** É o resultado do cartão
+  "Censo 2010" da central, calculado com os microdados da amostra:
+  - 12 indicadores por município (desocupação por sexo e idade, jovens que não estudam nem
+    trabalham, chefia feminina, idosos que moram sós, deficiência, não naturais e Bolsa Família);
+  - a tabela por área de ponderação;
+  - a conferência da renda de 2010.
+
+  O arquivo é um **pacote de extrações**: guarda itens no formato da central, que o Atlas aplica ao
+  abrir. A central os mostra como "no pacote do Atlas", e uma extração nova do navegador vale por
+  cima.
+- **IDHM de 2000** nos sete municípios, da série do Atlas Brasil que já estava no pacote.
+- **Correções.** "Percentual de casas" passa a contar a casa de vila, e "Percentual sem banheiro de
+  uso exclusivo", o banheiro de uso comum e o só sanitário. Os dois saíam menores, porque esses
+  componentes não estavam no pacote.
+- **Achado E3 da auditoria, resolvido.** A conferência mostra que o cálculo de 2010 do Atlas deixa a
+  renda ausente de fora e reproduz os microdados. A hipótese de viés não se confirmou, e os números
+  ficam.
+- **Diagnóstico regional.** Ganhou três tabelas: famílias, idosos, deficiência e migração (2010);
+  trabalho e juventude por sexo e idade (2010); rua e moradia (2022).
+
+```bash
+pip install pyarrow                          # uma vez
+python3 extracao/9_censo2022_setores.py      # Censo 2022 por setor
+python3 extracao/10_censo2010_amostra.py     # Censo 2010, amostra
+python3 build_single.py
+```
+
+Como cada caminho leva um dado para dentro do HTML, o que entrou e o que continua de fora (e por
+quê) estão em [`../docs/EXTRACOES-NO-HTML.md`](../docs/EXTRACOES-NO-HTML.md).
+
+## Versão 3.7: varredura do Ipeadata
 
 A varredura procurou no Ipeadata as séries com valor para os sete municípios que o Atlas ainda não
 tinha. O resultado está em [`../docs/VARREDURA-IPEADATA.md`](../docs/VARREDURA-IPEADATA.md) e entra
@@ -370,7 +417,9 @@ atlas_v3/
 │   ├── dados-complementares.js
 │   ├── dados-ipea.js
 │   ├── dados-ipeadata.js
-│   └── dados-series.js
+│   ├── dados-series.js
+│   ├── dados-censo2022.js
+│   └── dados-extracoes.js
 └── extracao/
     ├── 1_servicos_municipais.py
     ├── 2_atualiza_cnes.py
@@ -380,6 +429,8 @@ atlas_v3/
     ├── 6_ipea.py
     ├── 7_ipeadata.py
     ├── 8_series_complementares.py
+    ├── 9_censo2022_setores.py
+    ├── 10_censo2010_amostra.py
     ├── indices.json
     ├── R/                 (scripts R para os dados que faltam; ver docs/EXTRACAO-dados-faltantes.md)
     ├── saida_R/           (saídas dos scripts R, não versionadas)
@@ -399,6 +450,8 @@ python3 extracao/4_indices_municipais.py
 python3 extracao/6_ipea.py
 python3 extracao/7_ipeadata.py
 python3 extracao/8_series_complementares.py
+python3 extracao/9_censo2022_setores.py
+python3 extracao/10_censo2010_amostra.py
 python3 build_single.py
 ```
 

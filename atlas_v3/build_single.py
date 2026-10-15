@@ -12,7 +12,8 @@ import re, pathlib, sys
 D = pathlib.Path(__file__).parent
 ARQS = ['dados-nucleo.js', 'dados-bairros.js', 'dados-municipios.js',
         'dados-setores.js', 'dados-estimados.js', 'dados-servicos.js', 'dados-pontos.js',
-        'dados-indices.js', 'dados-complementares.js', 'dados-ipea.js', 'dados-ipeadata.js', 'dados-series.js']
+        'dados-indices.js', 'dados-complementares.js', 'dados-ipea.js', 'dados-ipeadata.js', 'dados-series.js',
+        'dados-censo2022.js', 'dados-extracoes.js']
 
 html = (D / 'index.html').read_text(encoding='utf-8')
 
@@ -26,7 +27,7 @@ html = html.replace('<link rel="stylesheet" href="atlas.css">',
 # preload do atlas.js não têm o que fazer: saem antes de embutir o conteúdo.
 html = re.sub(r'<link rel="preload" as="script" href="atlas\.js">\n', '', html)
 html = re.sub(r'<!--[^>]*?Os arquivos de dados baixam.*?-->\n', '', html, flags=re.S)
-html, nd = re.subn(r'<script defer src="dados/dados-[a-z]+\.js"></script>\n', '', html)
+html, nd = re.subn(r'<script defer src="dados/dados-[a-z0-9]+\.js"></script>\n', '', html)
 if nd != len(ARQS):
     sys.exit(f'ERRO: esperava {len(ARQS)} tags defer de dados, removi {nd}')
 
@@ -60,7 +61,7 @@ for marca, rotulo in [('ATLAS_NUCLEO', 'dados-nucleo'), ('ATLAS_SETORES', 'dados
                       ('ATLAS_EST', 'dados-estimados'), ('ATLAS_PONTOS', 'dados-pontos'),
                       ('ATLAS_SERVICOS', 'dados-servicos'),
                       ('ATLAS_COMPLEMENTOS', 'dados-complementares'), ('ATLAS_IPEA=', 'dados-ipea'),
-                      ('ATLAS_IPEADATA=', 'dados-ipeadata'), ('ATLAS_SERIES=', 'dados-series'),
+                      ('ATLAS_IPEADATA=', 'dados-ipeadata'), ('ATLAS_SERIES=', 'dados-series'), ('ATLAS_CENSO22=', 'dados-censo2022'), ('ATLAS_PACOTE=', 'dados-extracoes'),
                       ('function montaGeo', 'atlas.js'), ('--atlas-css-ok', 'atlas.css')]:
     if marca not in html:
         sys.exit(f'ERRO: {rotulo} não entrou no arquivo final')
