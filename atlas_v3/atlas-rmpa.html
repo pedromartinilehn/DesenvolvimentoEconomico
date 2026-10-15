@@ -6330,9 +6330,10 @@ const ipdPerto=(a,b)=>Math.abs(a-b)<=Math.max(0.003*Math.abs(b),0.006);
 function ipdNoAtlas(cod,nome,r,vet){
   if(IPD_SERIES.some(s=>s.cod===cod))return {k:'mesmo',t:'no arquivo do Ipeadata do pacote'};
   if(getInd('ipdn_'+slugId(String(cod))))return {k:'mesmo',t:'trazida desta varredura'};
-  if(r)for(const x of vet){
-    const j=r.anos.indexOf(x.ano); if(j<0)continue;
-    if(r.v[j].every((y,k)=>y!=null&&ipdPerto(y,x.v[k])))return {k:'mesmo',t:`${x.n} (mesmos valores em ${x.ano})`};
+  /* o ano em comum mais recente primeiro: "IDHM (mesmos valores em 2010)" diz mais que o de 2000 */
+  if(r){
+    const ok=vet.filter(x=>{const j=r.anos.indexOf(x.ano); return j>=0&&r.v[j].every((y,k)=>y!=null&&ipdPerto(y,x.v[k]));});
+    if(ok.length){const x=ok.reduce((a,b)=>b.ano>a.ano?b:a); return {k:'mesmo',t:`${x.n} (mesmos valores em ${x.ano})`};}
   }
   const m=IPD_NO_ATLAS.find(([re])=>re.test(ipdNome(nome))), i=m&&getInd(m[1]);
   return i?(m[2]?{k:'outro',t:`${i.n}, ${m[2]}`}:{k:'nome',t:i.n}):null;
