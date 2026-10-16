@@ -9,3 +9,6 @@ __pycache__/
 
 # Saídas dos scripts R de extração (extracao/R/): regeradas por quem roda
 atlas_v3/extracao/saida_R/
+
+# Atlas 2.0: arquivos baixados das fontes (grandes); os scripts baixam de novo
+atlas2/extracao/fontes/*

@@ -1,10 +1,41 @@
-# Atlas Metropolitano RMPA
+# Atlas socioeconômicos
+
+Dois mapas no mesmo repositório:
+
+| pasta | versão | o que cobre |
+|---|---|---|
+| [`atlas2/`](atlas2/) | Atlas 2.0 — Brasil | os 5.570 municípios e os 17.575 bairros do Censo 2022, uma grande região por vez |
+| [`atlas_v3/`](atlas_v3/) | Atlas Metropolitano RMPA 3.9 | sete municípios da Região Metropolitana de Porto Alegre, com bairros, setores censitários e UDHs |
+
+## Atlas 2.0 — Brasil
+
+Mapa do Brasil inteiro, por município e por bairro. Escolhe-se uma região (Norte, Nordeste,
+Centro-Oeste, Sudeste ou Sul) e o Atlas abre só ela. São 92 indicadores, 43 também por bairro:
+- Censo 2022, somado a partir dos setores, com o sigilo do IBGE tratado sem estimativa;
+- IDHM e indicadores do Atlas Brasil;
+- PIB, IDEB, SNIS, vacinação, Anatel, Abrinq e ANA.
+
+Todo valor mostra fonte, ano e nível, e o que a fonte não publica fica em branco.
+
+- **Arquivo único:** `atlas2/atlas2-brasil.html` (12 MB), abre direto do disco.
+- **Pasta:** `atlas2/index.html` com `atlas2.css`, `atlas2.js` e `dados/`; também serve no
+  GitHub Pages.
+
+```bash
+cd atlas2
+python3 extracao/1_malhas.py && python3 extracao/2_censo2022.py && \
+python3 extracao/3_municipais.py && python3 extracao/4_monta.py && python3 build_single.py
+```
+
+Fontes, regras, conferências e limites em [`atlas2/LEIA-ME.md`](atlas2/LEIA-ME.md).
+
+## Atlas Metropolitano RMPA
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios
 da Região Metropolitana de Porto Alegre: Porto Alegre, Canoas, Gravataí, Sapucaia do Sul,
 Cachoeirinha, Guaíba e Esteio.
 
-## Como abrir
+### Como abrir
 
 - **Mais simples:** `atlas_v3/atlas-rmpa.html` — versão standalone, com interface, dados e
   código embutidos.
@@ -31,7 +62,7 @@ com código de município. Para distribuir, *Baixar o Atlas com os dados* gera u
 Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 [`atlas_v3/LEIA-ME.md`](atlas_v3/LEIA-ME.md).
 
-## Documentos
+### Documentos
 
 | arquivo | o que é |
 |---|---|
@@ -53,7 +84,7 @@ Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
 | [`docs/DIAGNOSTICO-PERFORMANCE.md`](docs/DIAGNOSTICO-PERFORMANCE.md) | diagnóstico que originou as otimizações |
 | [`docs/RELATORIO-OTIMIZACAO.md`](docs/RELATORIO-OTIMIZACAO.md) | otimizações aplicadas, com medição antes/depois |
 
-## Cobertura
+### Cobertura
 
 302 indicadores no catálogo, em quatro níveis: município (269), bairro (132), UDH (56) e setor
 censitário (116). São 4.722 setores nos sete municípios e bairros em Porto Alegre, Canoas, Guaíba e
@@ -65,7 +96,7 @@ Indicadores de trabalho, renda domiciliar, pobreza e escolaridade adulta vêm do
 são dados observados e históricos, identificados como tais em toda a interface. A amostra do
 Censo 2022 é de acesso controlado e não tem arquivo público.
 
-## Atualização
+### Atualização
 
 ```bash
 cd atlas_v3
