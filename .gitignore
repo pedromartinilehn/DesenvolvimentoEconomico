@@ -1,8 +1,14 @@
 # Planilhas baixadas das fontes de índices: grandes e, no caso da FIRJAN,
 # com termos de uso próprios. Cada um baixa as suas.
-atlas_v2/extracao/fontes/*
-!atlas_v2/extracao/fontes/.gitkeep
+atlas_v3/extracao/fontes/*
+!atlas_v3/extracao/fontes/.gitkeep
 
 __pycache__/
 *.pyc
 .DS_Store
+
+# Saídas dos scripts R de extração (extracao/R/): regeradas por quem roda
+atlas_v3/extracao/saida_R/
+
+# Atlas 2.0: arquivos baixados das fontes (grandes); os scripts baixam de novo
+atlas2/extracao/fontes/*
