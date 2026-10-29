@@ -29,6 +29,10 @@ python3 extracao/3_municipais.py && python3 extracao/4_monta.py && python3 build
 
 Fontes, regras, conferências e limites em [`atlas2/LEIA-ME.md`](atlas2/LEIA-ME.md).
 
+Fontes estaduais e municipais (segurança, índices estaduais, portais das prefeituras) avaliadas antes
+de extrair, com o que já foi conferido e o que depende de acesso:
+[`docs/LEVANTAMENTO-FONTES-ESTADUAIS-MUNICIPAIS.md`](docs/LEVANTAMENTO-FONTES-ESTADUAIS-MUNICIPAIS.md).
+
 ## Atlas Metropolitano RMPA
 
 Mapa socioeconômico para análise territorial e do entorno das lojas Renner em sete municípios
