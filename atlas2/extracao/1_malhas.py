@@ -33,6 +33,9 @@ Confere antes de gravar e para se algo não bater:
 - bairro montado pelos setores com a mesma área do bairro do geobr;
 - nenhum polígono some na simplificação.
 
+Nome com caractere de controle herdado do Windows-1252 (Mont’Serrat vem como
+'Mont\\x92Serrat') é corrigido para o caractere que era.
+
 Precisa de shapely 2.1 ou mais novo (GEOS 3.12+) e de pyarrow. Os arquivos
 baixados ficam em extracao/fontes/ (não versionados) e não são baixados de novo.
 """
@@ -128,6 +131,20 @@ def le_gpkg(arq: pathlib.Path, campos: list[str]):
     for linha in con.execute(f"select geom, {', '.join(campos)} from '{tabela}'"):
         yield shapely.from_wkb(wkb_do_gpkg(linha[0])), linha[1:]
     con.close()
+
+
+def limpa_nome(s: str) -> str:
+    """Caractere de controle herdado do Windows-1252 (0x80 a 0x9F) volta a ser o que era:
+    o IBGE grava Mont’Serrat como 'Mont\\x92Serrat'. Caractere sem equivalente para o script."""
+    out = []
+    for c in s:
+        if 0x80 <= ord(c) <= 0x9F:
+            try:
+                c = bytes([ord(c)]).decode("cp1252")
+            except UnicodeDecodeError:
+                raise Falha(f"nome com caractere de controle sem equivalente: {s!r}")
+        out.append(c)
+    return "".join(out)
 
 
 # ── geometria ───────────────────────────────────────────────────────────────
@@ -339,10 +356,10 @@ def main() -> int:
             continue
         cm = int(cm)
         setor_mun[ct] = cm
-        nome_mun[cm], uf_mun[cm], reg_mun[cm] = nm, int(cu), int(cr)
+        nome_mun[cm], uf_mun[cm], reg_mun[cm] = limpa_nome(nm), int(cu), int(cr)
         area_mun[cm] += a
         if cb is not None:
-            nome_bai[int(cb)] = (nb, cm)
+            nome_bai[int(cb)] = (limpa_nome(nb), cm)
             area_bai[int(cb)] += a
     if len(nome_mun) != ESPERADO["municipios"] or len(nome_bai) != ESPERADO["bairros"]:
         raise Falha(f"Censo 2022: {len(nome_mun)} municípios e {len(nome_bai)} bairros nos setores")

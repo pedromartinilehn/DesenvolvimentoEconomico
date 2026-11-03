@@ -217,13 +217,15 @@ const RAMPAS = {
   alerta: ['#ef8a5e', '#e2663a', '#c24e21', '#963a14', '#66260a'],
   neutra: ['#a99ee3', '#8b7ed8', '#6a5bc6', '#4a3aa7', '#2b2068'],
 };
-const DIV = {quebras: [-10, -2, 2, 10, 25], cores: ['#a8322d', '#e2716c', '#bdb8ad', '#6da7ec', '#256abf', '#0d366b']};
+/* faixas fixas das escalas divergentes: em torno de zero (variação) ou de 100 (razão de sexo, paridade) */
+const DIV_CORES = ['#a8322d', '#e2716c', '#bdb8ad', '#6da7ec', '#256abf', '#0d366b'];
+const DIV = {padrao: {quebras: [-10, -2, 2, 10, 25], meio: 'zero'}, razao_sexo: {quebras: [90, 97, 103, 110, 120], meio: '100'}};
 const SEM_DADO = '#CFC9BC';     // a fonte não publica valor
 const FORA = '#F4F2EC';         // fora do nível: município sem bairros, UF de outra região
 const COM_BAIRRO = '#E0E5EB';   // município com bairros: área fora dos bairros
 
-function classes(vals, rampa) {
-  if (rampa === 'div') return {quebras: DIV.quebras, cores: DIV.cores};
+function classes(vals, rampa, id) {
+  if (rampa === 'div') return {quebras: (DIV[id] || DIV.padrao).quebras, cores: DIV_CORES};
   const v = vals.filter(x => x != null).sort((a, b) => a - b);
   const cores = RAMPAS[rampa] || RAMPAS.seq;
   if (!v.length) return {quebras: [], cores: [cores[2]]};
@@ -289,7 +291,7 @@ function dicaUF(u, e) {
 
 function estiloUFs() {
   const c = IND[S.ind], arr = BR.comp.uf[S.ind];
-  const C = arr ? classes(arr, c.rampa) : null;
+  const C = arr ? classes(arr, c.rampa, S.ind) : null;
   const codR = S.regiao ? REG_POR_SIG[S.regiao].cod : null;
   BR.ufs.forEach(u => {
     const pol = u._layer, daRegiao = codR && u.r === codR;
@@ -401,7 +403,7 @@ function desenha() {
   const D = DADOS[S.regiao];
   const K = conjunto(); conjuntoAtual = K;
   const B = D[K.nv], vals = B.col(S.ind);
-  const C = vals ? classes(K.idx.map(i => vals[i]), c.rampa) : null;
+  const C = vals ? classes(K.idx.map(i => vals[i]), c.rampa, S.ind) : null;
   classeAtual = C;
   if (S.nivel === 'mun') {
     if (camadaBai) { map.removeLayer(camadaBai); map.removeLayer(camadaContorno); }
@@ -522,7 +524,7 @@ function renderLegenda(L_) {
     linhas.push(`<div class="lin"><span class="sw" style="background:${COM_BAIRRO}"></span>município com bairros, fora deles</div>`);
     linhas.push(`<div class="lin"><span class="sw" style="background:${FORA}"></span>município sem bairros no IBGE</div>`);
   }
-  const tipo = c.rampa === 'div' ? 'faixas fixas em torno de zero' : 'quintis (cinco grupos com o mesmo número de unidades)';
+  const tipo = c.rampa === 'div' ? `faixas fixas em torno de ${(DIV[S.ind] || DIV.padrao).meio}` : 'quintis (cinco grupos com o mesmo número de unidades)';
   let escala = '';
   if (S.regiao && S.nivel === 'bai' && S.foco && DADOS[S.regiao].bai.porMun.has(S.foco)) {
     escala = `<div class="esc" role="group" aria-label="Unidades que entram nas classes">
@@ -1020,7 +1022,7 @@ function renderMetodo() {
     <p>Atlas do Desenvolvimento Humano (Censos de 1991, 2000 e 2010), PIB dos Municípios (até ${cf.municipais.pib_ano}), IDEB, SNIS, PNI, Anatel, Fundação Abrinq e ANA, lidos no espelho público da Base dos Dados, que republica as bases oficiais sem alterar os valores (arquivos do plano pago nunca são usados). Cada indicador entra no ano mais recente publicado; o painel mostra a série quando há. UF e Brasil são os valores oficiais da fonte (Atlas Brasil, IDEB) ou a soma dos municípios (PIB).</p>
     <p>O Atlas Brasil não publica os 5 municípios criados depois de 2010; o SNIS só tem quem informou; o IDEB só sai onde o INEP publicou. Esses ficam em branco.</p>
     <h3>Classes do mapa</h3>
-    <p>Quintis: cinco grupos com o mesmo número de unidades da região (ou da UF escolhida, ou do município, no nível de bairro). A variação da população usa faixas fixas em torno de zero.</p>
+    <p>Quintis: cinco grupos com o mesmo número de unidades da região (ou da UF escolhida, ou do município, no nível de bairro). A variação da população usa faixas fixas em torno de zero, e a razão de sexo, em torno de 100 (o mesmo número de homens e de mulheres).</p>
     <h3>Como atualizar</h3>
     <p>Na pasta <code>atlas2/</code>: <code>python3 extracao/1_malhas.py</code>, <code>2_censo2022.py</code>, <code>3_municipais.py</code> e <code>4_monta.py</code>. Cada script baixa o que falta, confere e para se algo não bater.</p>
     <p class="muted">Gerado em ${esc(BR.gerado_em)} · Atlas ${esc(BR.v)}.</p>`;

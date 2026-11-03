@@ -132,10 +132,14 @@ a série quando há, com UF e Brasil quando a fonte publica esses valores.
   pré-escola, entram como publicados, e a descrição do indicador explica. No SNIS, atendimento
   acima de 100% ficaria de fora; nesta versão não há nenhum.
 - Os valores com duas casas na fonte aparecem com duas casas, sem arredondar.
+- Cinco nomes de bairro vêm do IBGE com um caractere de controle do Windows-1252 no lugar do
+  apóstrofo (Mont’Serrat, Parque Saint’Hilaire, Olho D’Água, Porto D’Areia e Alto da Caixa
+  d’Água). O `1_malhas.py` devolve o apóstrofo.
 
 **Classes do mapa.** Quintis: cinco grupos com o mesmo número de unidades da região, da UF
 escolhida ou do município, no nível de bairro. A variação da população usa faixas fixas em
-torno de zero. As rampas de cor têm um tom só, do claro ao escuro, e passaram no validador de
+torno de zero, e a razão de sexo, em torno de 100 (até a versão de 29/10/2026 ela usava as
+mesmas faixas da variação e o mapa saía de uma cor só). As rampas de cor têm um tom só, do claro ao escuro, e passaram no validador de
 paleta: monotonia de luminosidade, distância entre passos e contraste do tom mais claro com o
 fundo.
 
