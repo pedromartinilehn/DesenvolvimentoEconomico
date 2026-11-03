@@ -229,7 +229,9 @@ seção 3.2.
   mostraria a tendência.
 - **IDESE.** É um índice anual para os sete municípios, para ler ao lado do IDHM de 2010.
 - **Dados abertos de Porto Alegre.** Acidentes de trânsito por bairro.
-- A mancha da enchente de 2024 (IPH/UFRGS) já está na versão 3.
+- A mancha da enchente de 2024 (IPH/UFRGS, no Zenodo) tem um script R na versão 3
+  (`atlas_v3/extracao/R/07_enchente_2024.R`), mas o dado ainda não está embutido: o Zenodo não
+  abriu no ambiente em que o Atlas é montado.
 
 ## 5. Como os dados entram no HTML
 

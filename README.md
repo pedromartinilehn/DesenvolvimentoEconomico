@@ -1,10 +1,11 @@
 # Atlas socioeconômicos
 
-Dois mapas no mesmo repositório:
+Três mapas no mesmo repositório:
 
 | pasta | versão | o que cobre |
 |---|---|---|
 | [`atlas2/`](atlas2/) | Atlas 2.0 — Brasil | os 5.570 municípios e os 17.575 bairros do Censo 2022, uma grande região por vez |
+| [`atlas_poa/`](atlas_poa/) | Atlas Porto Alegre — lojas Panvel | os 94 bairros e os 2.744 setores de Porto Alegre, com as 130 lojas Panvel do CNES e o entorno de cada uma |
 | [`atlas_v3/`](atlas_v3/) | Atlas Metropolitano RMPA 3.9 | sete municípios da Região Metropolitana de Porto Alegre, com bairros, setores censitários e UDHs |
 
 ## Atlas 2.0 — Brasil
@@ -32,6 +33,32 @@ Fontes, regras, conferências e limites em [`atlas2/LEIA-ME.md`](atlas2/LEIA-ME.
 Fontes estaduais e municipais (segurança, índices estaduais, portais das prefeituras) avaliadas antes
 de extrair, com o que já foi conferido e o que depende de acesso:
 [`docs/LEVANTAMENTO-FONTES-ESTADUAIS-MUNICIPAIS.md`](docs/LEVANTAMENTO-FONTES-ESTADUAIS-MUNICIPAIS.md).
+
+## Atlas Porto Alegre — lojas Panvel
+
+Mapa de Porto Alegre por bairro e por setor censitário. Mostra as 130 lojas Panvel ativas no
+CNES de abril de 2026, que são os estabelecimentos com o CNPJ da Dimed S/A. A ficha de cada loja
+traz:
+
+- o entorno em raios de 500 m, 1 km e 2 km;
+- os moradores que têm a loja como a Panvel mais próxima;
+- os equipamentos de saúde e as escolas do raio.
+
+Há também cinco indicadores de cobertura por bairro, entre eles a distância até a loja mais
+próxima e os moradores a até 500 m e a até 1 km. Os indicadores do Censo 2022 seguem as regras do
+Atlas 2.0.
+
+- **Arquivo único:** `atlas_poa/atlas-poa.html` (1,1 MB), abre direto do disco.
+- **Pasta:** `atlas_poa/index.html` com `atlas-poa.css`, `atlas-poa.js` e `dados/`.
+
+```bash
+cd atlas_poa
+python3 extracao/1_malhas.py && python3 extracao/2_censo2022.py && \
+python3 extracao/3_pontos.py && python3 extracao/4_monta.py && python3 build_single.py
+```
+
+A origem das lojas, a regra de localização, o entorno, as conferências e os limites estão em
+[`atlas_poa/LEIA-ME.md`](atlas_poa/LEIA-ME.md).
 
 ## Atlas Metropolitano RMPA
 

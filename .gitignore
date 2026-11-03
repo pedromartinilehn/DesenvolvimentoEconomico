@@ -12,3 +12,6 @@ atlas_v3/extracao/saida_R/
 
 # Atlas 2.0: arquivos baixados das fontes (grandes); os scripts baixam de novo
 atlas2/extracao/fontes/*
+
+# Atlas Porto Alegre: arquivos baixados das fontes (grandes); os scripts baixam de novo
+atlas_poa/extracao/fontes/*

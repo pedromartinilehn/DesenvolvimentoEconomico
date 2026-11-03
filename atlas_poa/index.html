@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atlas Porto Alegre · lojas Panvel</title>
+<meta name="description" content="Mapa socioeconômico de Porto Alegre: os 94 bairros e os 2.744 setores do Censo 2022, com as 130 lojas Panvel ativas no CNES e o entorno de cada uma.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="atlas-poa.css">
+</head>
+<body>
+<header class="top">
+  <button class="ico mobile-only" id="btnSide" aria-label="Indicadores" aria-controls="side">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  </button>
+  <button type="button" class="brand" title="Voltar à vista da cidade"><b>Atlas Porto Alegre</b><span>bairros, setores e lojas Panvel</span></button>
+
+  <div class="seg" id="segNivel" role="radiogroup" aria-label="Nível geográfico">
+    <button type="button" role="radio" aria-checked="true" data-n="bai">Bairro</button>
+    <button type="button" role="radio" aria-checked="false" data-n="set">Setor</button>
+  </div>
+
+  <select id="selLoja" aria-label="Entorno de uma loja Panvel"><option value="">Entorno de uma loja…</option></select>
+
+  <div class="busca">
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <input id="q" type="search" placeholder="Buscar bairro, loja ou setor" autocomplete="off" aria-label="Buscar bairro, loja ou setor" aria-controls="sugg">
+    <div id="sugg" role="listbox" hidden></div>
+  </div>
+
+  <button type="button" class="tbtn" id="btnLojas">Lojas</button>
+  <div class="mais">
+    <button type="button" id="btnMais" aria-haspopup="true" aria-expanded="false">Mais
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
+    <div id="menuMais" role="menu" hidden>
+      <button type="button" role="menuitem" data-acao="ranking">Ranking do nível</button>
+      <button type="button" role="menuitem" data-acao="csv">Baixar a tabela do nível (CSV)</button>
+      <button type="button" role="menuitem" data-acao="csvlojas">Baixar as lojas com o entorno (CSV)</button>
+      <button type="button" role="menuitem" data-acao="metodo">Metodologia</button>
+      <button type="button" role="menuitem" data-acao="fontes">Fontes</button>
+      <button type="button" role="menuitem" data-acao="fundo">Mapa de fundo (OpenStreetMap)</button>
+    </div>
+  </div>
+</header>
+
+<div class="corpo">
+  <nav id="side" aria-label="Indicadores">
+    <div class="side-head"><h2>Indicadores</h2><span id="nInd" class="muted"></span></div>
+    <input id="filtro" type="search" placeholder="Filtrar indicadores" aria-label="Filtrar indicadores">
+    <p class="side-nota" id="sideNota"></p>
+    <div id="cats"></div>
+  </nav>
+
+  <main id="centro">
+    <div id="map" aria-label="Mapa"></div>
+    <div id="cardMapa" class="card"></div>
+    <div id="legenda" class="card"></div>
+    <div id="camadas" class="card" aria-label="Camadas do mapa"></div>
+  </main>
+
+  <aside id="panel" aria-label="Ficha">
+    <button type="button" class="ico mobile-only" id="btnFechaPainel" aria-label="Fechar a ficha">×</button>
+    <div id="panelBody"></div>
+  </aside>
+</div>
+<div id="backdrop"></div>
+<div id="tip" role="tooltip" hidden></div>
+
+<div class="modal" id="mdRanking" role="dialog" aria-modal="true" aria-labelledby="ttRanking">
+  <div class="mbox wide"><div class="mhead"><h2 id="ttRanking">Ranking</h2><button type="button" class="mx" aria-label="Fechar">×</button></div>
+  <div class="mbody" id="rankBody"></div></div>
+</div>
+<div class="modal" id="mdLojas" role="dialog" aria-modal="true" aria-labelledby="ttLojas">
+  <div class="mbox wide"><div class="mhead"><h2 id="ttLojas">Lojas Panvel em Porto Alegre</h2><button type="button" class="mx" aria-label="Fechar">×</button></div>
+  <div class="mbody" id="lojasBody"></div></div>
+</div>
+<div class="modal" id="mdMetodo" role="dialog" aria-modal="true" aria-labelledby="ttMetodo">
+  <div class="mbox wide"><div class="mhead"><h2 id="ttMetodo">Metodologia</h2><button type="button" class="mx" aria-label="Fechar">×</button></div>
+  <div class="mbody prosa" id="metodoBody"></div></div>
+</div>
+<div class="modal" id="mdFontes" role="dialog" aria-modal="true" aria-labelledby="ttFontes">
+  <div class="mbox wide"><div class="mhead"><h2 id="ttFontes">Fontes</h2><button type="button" class="mx" aria-label="Fechar">×</button></div>
+  <div class="mbody prosa" id="fontesBody"></div></div>
+</div>
+<div id="toast" role="status" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="dados/poa.js"></script>
+<script src="atlas-poa.js"></script>
+</body>
+</html>
