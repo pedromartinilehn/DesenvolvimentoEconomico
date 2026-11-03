@@ -7,7 +7,7 @@ Norte, Nordeste, Centro-Oeste, Sudeste ou Sul. Trocar de região fecha a anterio
 Todo valor mostra a fonte, o ano e o nível. O que a fonte não publica aparece em branco: o
 Atlas não estima, não interpola e não completa valor.
 
-Esta versão é independente do Atlas Metropolitano (`atlas_v3/`): não tem lojas e não mostra
+Esta versão é independente do Atlas Metropolitano (`renner/atlas_v3/`): não tem lojas e não mostra
 setores censitários como nível. Os setores entram só por dentro, para somar bairros e
 municípios.
 

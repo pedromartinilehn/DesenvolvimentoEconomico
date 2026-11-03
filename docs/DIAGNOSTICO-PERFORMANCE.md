@@ -1,7 +1,7 @@
 # Atlas RMPA v2 — melhorias de performance
 
 > Documento sobre a versão 2 recebida. O que ele propõe está incorporado na versão 3,
-> em `atlas_v3/`; ver `atlas_v3/LEIA-ME.md`.
+> em `renner/atlas_v3/`; ver `renner/atlas_v3/LEIA-ME.md`.
 
 Objetivo: maximizar a velocidade de processamento da aplicação.
 

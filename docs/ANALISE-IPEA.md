@@ -235,7 +235,7 @@ cidade.
 
 ## 4. Como os dados entraram no Atlas
 
-- **Script:** `atlas_v3/extracao/6_ipea.py`, que grava `atlas_v3/dados/dados-ipea.js` (60 KB). Ele
+- **Script:** `renner/atlas_v3/extracao/6_ipea.py`, que grava `renner/atlas_v3/dados/dados-ipea.js` (60 KB). Ele
   baixa as duas tabelas do espelho da Base dos Dados, refaz as conferências da seção 2 e para se
   alguma falhar.
 - **Catálogo:** 19 indicadores novos do Atlas Brasil, por município, nas categorias de cada tema.

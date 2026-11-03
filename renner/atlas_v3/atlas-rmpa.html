@@ -4624,7 +4624,7 @@ function ligaEventos(){
   $('#btnFechaPainel').onclick=()=>$('#panel').classList.remove('open');
 }
 /* ═══════════════════ 25. REGIÃO, BOLSÕES, EXPORTAÇÃO E DIAGNÓSTICO ═══════
-   Sugestões do template de diagnóstico regional (docs/DIAGNOSTICO-REGIONAL-
+   Sugestões do template de diagnóstico regional (renner/docs/DIAGNOSTICO-REGIONAL-
    analise-do-template.md): linha "Região", bolsões como camada, exportação
    do mapa, tabelas do diagnóstico e matriz de priorização. Tudo calculado
    sobre os dados já carregados; nada é estimado. */
@@ -4678,7 +4678,7 @@ function quintisSetores(){
 
 /* ── Bolsões: setores do quintil mais pobre a até 5 km de uma unidade Renner,
    agrupados quando a distância entre seus centros é de até 600 m. Mesmo método
-   de docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md (123 bolsões, 323.725 pessoas). */
+   de renner/docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md (123 bolsões, 323.725 pessoas). */
 let BOLSOES=null, camadaBolsoes=null;
 const ESTILO_BOLSAO={fillColor:'#FBFAF7',fillOpacity:.42,color:'#15212E',weight:1.3,opacity:.95}, ESTILO_BOLSAO_SEL={fillColor:'#FBFAF7',fillOpacity:.6,color:'#C2502A',weight:2.8,opacity:1};
 function calculaBolsoes(){

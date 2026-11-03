@@ -89,7 +89,7 @@ O Polo Academia da Saúde, programa público, é o tipo 74.
 | **total** | **567** | **27** | **61** | **479** |
 
 Afeta `cnes_estabelecimentos` (município e bairro), a camada de saúde, o entorno das lojas e a
-coluna `estab_saude` de `docs/entorno-lojas.csv`. Não afeta UBS, hospitais nem CAPS.
+coluna `estab_saude` de `renner/docs/entorno-lojas.csv`. Não afeta UBS, hospitais nem CAPS.
 
 **Correção proposta:** corrigir os rótulos de 81 e 83 e tirá-los da contagem de "estabelecimentos de
 saúde". Se fizer sentido para o diagnóstico, mostrá-los como camada própria, porque comunidades
@@ -140,7 +140,7 @@ deveria ser a inversa.
 Pobreza para cima, Gini para cima e média para baixo, todos ao mesmo tempo, é o que acontece quando
 pessoas sem rendimento domiciliar declarado entram como renda zero. Com cerca de 1,5% delas, os três
 desvios ficam do tamanho observado. É uma **hipótese**: o processamento que gerou o bloco não está
-no repositório. O script [`11_confere_renda_2010.R`](../atlas_v3/extracao/R/11_confere_renda_2010.R)
+no repositório. O script [`11_confere_renda_2010.R`](../renner/atlas_v3/extracao/R/11_confere_renda_2010.R)
 resolve a dúvida. Ele recalcula os números contando a renda ausente como zero, excluindo-a, e no
 universo do Atlas Brasil, e mostra qual versão reproduz cada fonte.
 
@@ -160,7 +160,7 @@ superior aos 25 anos bate exatamente.
 
 **Resultado da conferência (versão 3.8, outubro de 2026).** A conferência rodou com os microdados
 da amostra de 2010 na versão que o IPEA publica para o pacote censobr (as variáveis e os códigos
-originais do IBGE), pelo [`extracao/10_censo2010_amostra.py`](../atlas_v3/extracao/10_censo2010_amostra.py).
+originais do IBGE), pelo [`extracao/10_censo2010_amostra.py`](../renner/atlas_v3/extracao/10_censo2010_amostra.py).
 O cálculo é o mesmo do script 11 e do cartão "Censo 2010" da central de extração. Cada número foi
 refeito de três jeitos:
 
@@ -284,9 +284,9 @@ antes. Sem o código também não dá para confirmar duplicatas (L6).
 - todos os pontos dentro do município declarado;
 - nenhum código INEP ou CNES repetido (não há códigos; ver E5);
 - 25 áreas de risco válidas e dentro dos seus municípios;
-- `docs/entorno-lojas.csv`: 80 entornos idênticos ao Atlas em setores, população, renda, escolas e
+- `renner/docs/entorno-lojas.csv`: 80 entornos idênticos ao Atlas em setores, população, renda, escolas e
   saúde; percentuais com até 0,05 ponto de diferença, por arredondamento;
-- `docs/bolsoes-quintil-inferior.csv`: 123 bolsões e 323.725 pessoas, iguais ao Atlas.
+- `renner/docs/bolsoes-quintil-inferior.csv`: 123 bolsões e 323.725 pessoas, iguais ao Atlas.
 
 **Catálogo:** todo indicador tem fonte existente e ano, e todo indicador declarado num nível tem
 dado nesse nível.

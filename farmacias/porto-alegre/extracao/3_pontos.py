@@ -11,7 +11,9 @@ Fontes (releases do repositório ipea/geobr_prep_data no GitHub, base do pacote 
 
 Lojas Panvel: os estabelecimentos ativos no CNES com o CNPJ da Dimed S/A
 Distribuidora de Medicamentos (raiz 92.665.611), a empresa que opera a Panvel, com
-endereço em Porto Alegre. Farmácia que oferece serviço de saúde precisa de registro
+endereço em Porto Alegre e registrados como farmácia (tipo 43). Os outros tipos da
+empresa (clínica, consultório, centro de imunização, central de abastecimento) não
+são loja: ficam de fora e entram na conferência. Farmácia que oferece serviço de saúde precisa de registro
 no CNES; uma loja aberta depois da competência, ou sem registro, não aparece.
 
 Coordenada de cada loja (regra do Atlas, mais estrita que a do geobr, porque o
@@ -25,7 +27,7 @@ entorno usa raios de 500 m):
 4. senão, a coordenada do CNES, marcada como não confirmada.
 Cada loja leva a classe e a incerteza em metros.
 
-Unidades de saúde: as mesmas regras da camada da RMPA (atlas_v3/extracao/2_atualiza_cnes.py):
+Unidades de saúde: as mesmas regras da camada da RMPA (renner/atlas_v3/extracao/2_atualiza_cnes.py):
 tipos de atendimento à população, ativos, unidades prisionais e socioeducativas
 marcadas. Escolas: em atividade. Nessas duas camadas a coordenada é a que o geobr
 escolheu.
@@ -69,7 +71,7 @@ TIPOS_SAUDE = {
     71: "Centro de apoio à saúde da família", 72: "Unidade de atenção à saúde indígena",
     73: "Pronto atendimento",
 }
-TIPOS_LOJA = {43: "Farmácia", 36: "Clínica ou centro de especialidade"}
+TIPOS_LOJA = {43: "Farmácia"}          # loja = farmácia; os outros tipos da empresa ficam de fora, contados
 RESTRITO = re.compile(r"PRISION|PENITENC|PRESIDI|SOCIOEDUC|\bCASE\b|\bCASEF\b")
 DEPENDENCIA = {1: "Federal", 2: "Estadual", 3: "Municipal", 4: "Privada"}
 PEQUENAS = {"de", "da", "do", "das", "dos", "e"}
@@ -183,10 +185,11 @@ def main() -> int:
     rep = [c for c, k in Counter(r["nu_cnpj"] for r in poa).items() if k > 1]
     if rep:
         raise Falha(f"CNPJ repetido entre as lojas: {rep}")
+    conf["dimed_poa_outros_tipos"] = [{"cnes": r["co_cnes"], "tipo": int(r["tp_unidade"]), "end": titulo(r["logradouro"])
+                                        + (f", {str(r['numero_endereco']).strip()}" if r["numero_endereco"] else "")}
+                                       for r in poa if r["tp_unidade"] not in TIPOS_LOJA]
+    poa = [r for r in poa if r["tp_unidade"] in TIPOS_LOJA]
     tipos = Counter(r["tp_unidade"] for r in poa)
-    sem_regra = set(tipos) - set(TIPOS_LOJA)
-    if sem_regra:
-        raise Falha(f"loja Panvel com tipo de estabelecimento sem regra: {sorted(sem_regra)}")
     lojas = []
     for r in poa:
         x, y, classe, incerteza, d = coordenada_loja(r)

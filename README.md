@@ -5,8 +5,8 @@ Três mapas no mesmo repositório:
 | pasta | versão | o que cobre |
 |---|---|---|
 | [`atlas2/`](atlas2/) | Atlas 2.0 — Brasil | os 5.570 municípios e os 17.575 bairros do Censo 2022, uma grande região por vez |
-| [`atlas_poa/`](atlas_poa/) | Atlas Porto Alegre — lojas Panvel | os 94 bairros e os 2.744 setores de Porto Alegre, com as 130 lojas Panvel do CNES e o entorno de cada uma |
-| [`atlas_v3/`](atlas_v3/) | Atlas Metropolitano RMPA 3.9 | sete municípios da Região Metropolitana de Porto Alegre, com bairros, setores censitários e UDHs |
+| [`farmacias/porto-alegre/`](farmacias/porto-alegre/) | Atlas Porto Alegre — lojas Panvel | os 94 bairros e os 2.744 setores de Porto Alegre, com as 129 lojas Panvel do CNES e o entorno de cada uma |
+| [`renner/atlas_v3/`](renner/atlas_v3/) | Atlas Metropolitano RMPA 3.9 | sete municípios da Região Metropolitana de Porto Alegre, com bairros, setores censitários e UDHs |
 
 ## Atlas 2.0 — Brasil
 
@@ -36,7 +36,7 @@ de extrair, com o que já foi conferido e o que depende de acesso:
 
 ## Atlas Porto Alegre — lojas Panvel
 
-Mapa de Porto Alegre por bairro e por setor censitário. Mostra as 130 lojas Panvel ativas no
+Mapa de Porto Alegre por bairro e por setor censitário. Mostra as 129 lojas Panvel ativas no
 CNES de abril de 2026, que são os estabelecimentos com o CNPJ da Dimed S/A. A ficha de cada loja
 traz:
 
@@ -48,17 +48,17 @@ Há também cinco indicadores de cobertura por bairro, entre eles a distância a
 próxima e os moradores a até 500 m e a até 1 km. Os indicadores do Censo 2022 seguem as regras do
 Atlas 2.0.
 
-- **Arquivo único:** `atlas_poa/atlas-poa.html` (1,1 MB), abre direto do disco.
-- **Pasta:** `atlas_poa/index.html` com `atlas-poa.css`, `atlas-poa.js` e `dados/`.
+- **Arquivo único:** `farmacias/porto-alegre/atlas-poa.html` (1,1 MB), abre direto do disco.
+- **Pasta:** `farmacias/porto-alegre/index.html` com `atlas-poa.css`, `atlas-poa.js` e `dados/`.
 
 ```bash
-cd atlas_poa
+cd farmacias/porto-alegre
 python3 extracao/1_malhas.py && python3 extracao/2_censo2022.py && \
 python3 extracao/3_pontos.py && python3 extracao/4_monta.py && python3 build_single.py
 ```
 
 A origem das lojas, a regra de localização, o entorno, as conferências e os limites estão em
-[`atlas_poa/LEIA-ME.md`](atlas_poa/LEIA-ME.md).
+[`farmacias/porto-alegre/LEIA-ME.md`](farmacias/porto-alegre/LEIA-ME.md).
 
 ## Atlas Metropolitano RMPA
 
@@ -68,7 +68,7 @@ Cachoeirinha, Guaíba e Esteio.
 
 ### Como abrir
 
-- **Mais simples:** `atlas_v3/atlas-rmpa.html` — versão standalone, com interface, dados e
+- **Mais simples:** `renner/atlas_v3/atlas-rmpa.html` — versão standalone, com interface, dados e
   código embutidos.
 - **Para desenvolvimento:** mantenha `index.html`, `atlas.css`, `atlas.js` e a pasta `dados/`
   juntos, e sirva a pasta por HTTP.
@@ -91,27 +91,27 @@ com código de município. Para distribuir, *Baixar o Atlas com os dados* gera u
 único com tudo dentro.
 
 Detalhes de estrutura, fontes, regra editorial e atualização dos dados em
-[`atlas_v3/LEIA-ME.md`](atlas_v3/LEIA-ME.md).
+[`renner/atlas_v3/LEIA-ME.md`](renner/atlas_v3/LEIA-ME.md).
 
 ### Documentos
 
 | arquivo | o que é |
 |---|---|
-| [`docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md`](docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md) | análise do entorno das 20 unidades para desenho de projetos de desenvolvimento comunitário: bolsões de baixa renda, carências, frentes de projeto e lacunas de dados (versão 2) |
-| [`docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx`](docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx) | template de diagnóstico regional do Instituto Renner com as seções 3, 4 e 5 respondidas (apresentação, escopo e metodologia) |
-| [`docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx`](docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx) | respostas guardadas de todas as seções do template (nome da regional e seções 6 a 15: tabelas por município, 5 mapas, rede de serviços, orçamento, atores, SWOT e priorização) |
+| [`renner/docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md`](renner/docs/ANALISE-DESENVOLVIMENTO-entorno-lojas.md) | análise do entorno das 20 unidades para desenho de projetos de desenvolvimento comunitário: bolsões de baixa renda, carências, frentes de projeto e lacunas de dados (versão 2) |
+| [`renner/docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx`](renner/docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx) | template de diagnóstico regional do Instituto Renner com as seções 3, 4 e 5 respondidas (apresentação, escopo e metodologia) |
+| [`renner/docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx`](renner/docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx) | respostas guardadas de todas as seções do template (nome da regional e seções 6 a 15: tabelas por município, 5 mapas, rede de serviços, orçamento, atores, SWOT e priorização) |
 | [`docs/COMO-FAZER-AS-EXTRACOES.md`](docs/COMO-FAZER-AS-EXTRACOES.md) | passo a passo de todas as extrações: o que o Atlas atualiza sozinho, a central de extração no navegador, os scripts Python e R, os downloads manuais e como o resultado entra no Atlas |
 | [`docs/ATLAS-BRASIL-bases.md`](docs/ATLAS-BRASIL-bases.md) | bases da biblioteca do Atlas Brasil: o que veio (UDHs, Radar IDHM, regiões, RMs, metadados), o nível UDH do mapa, o Contexto metropolitano, as conferências e como trazer versões novas pelo navegador ou pelo script |
 | [`docs/EXTRACOES-NO-HTML.md`](docs/EXTRACOES-NO-HTML.md) | como as extrações entram no arquivo do Atlas (arquivos de dados, pacote de extrações, central); o que entrou na 3.8 (Censo 2022 por setor e entorno, Censo 2010 por município, conferência E3) e o que continua de fora, com o motivo |
 | [`docs/VARREDURA-IPEADATA.md`](docs/VARREDURA-IPEADATA.md) | varredura do Ipeadata: o que ele tem para os sete municípios, as 38 séries que entraram no pacote, o que vem pelo cartão do navegador (Bolsa Família, mortes violentas do DATASUS, IFDM) e o que não é municipal |
 | [`docs/ANALISE-IPEA.md`](docs/ANALISE-IPEA.md) | dados do IPEA no Atlas: série 1991–2010 do Atlas do Desenvolvimento Humano e Acesso a Oportunidades 2019 em Porto Alegre, com as conferências feitas e o que os dados mostram |
 | [`docs/EXTRACAO-dados-faltantes.md`](docs/EXTRACAO-dados-faltantes.md) | de onde vem cada dado que falta no Atlas e como extraí-lo, com scripts R prontos; o que já entrou pelo espelho público da Base dos Dados (IDHM, Atlas Brasil 2010, IDEB, banda larga, áreas de risco) |
-| [`docs/DIAGNOSTICO-REGIONAL-analise-do-template.md`](docs/DIAGNOSTICO-REGIONAL-analise-do-template.md) | análise das perguntas do template, cobertura do Atlas por seção e sugestões de dados e funções para completar o diagnóstico |
-| [`docs/APRESENTACAO-entorno-lojas.pptx`](docs/APRESENTACAO-entorno-lojas.pptx) | a análise em 21 slides de PowerPoint, com gráficos e tabelas editáveis e notas do apresentador |
+| [`renner/docs/DIAGNOSTICO-REGIONAL-analise-do-template.md`](renner/docs/DIAGNOSTICO-REGIONAL-analise-do-template.md) | análise das perguntas do template, cobertura do Atlas por seção e sugestões de dados e funções para completar o diagnóstico |
+| [`renner/docs/APRESENTACAO-entorno-lojas.pptx`](renner/docs/APRESENTACAO-entorno-lojas.pptx) | a análise em 21 slides de PowerPoint, com gráficos e tabelas editáveis e notas do apresentador |
 | [`docs/AUDITORIA-DADOS-v3.2.md`](docs/AUDITORIA-DADOS-v3.2.md) | auditoria de todos os dados da versão 3.2: somas, identidades, geometria, pontos, catálogo e comparação com IBGE e Atlas Brasil; quatro erros de classificação e rótulo, com correções propostas |
 | [`docs/AUDITORIA-arquivos-e-modelos.md`](docs/AUDITORIA-arquivos-e-modelos.md) | auditoria dos arquivos, dos dados e dos modelos de cálculo, com os erros visíveis na interface |
-| [`docs/entorno-lojas.csv`](docs/entorno-lojas.csv) | 20 unidades × 4 raios × 34 colunas, com comparação ao próprio município e quintil de renda |
-| [`docs/bolsoes-quintil-inferior.csv`](docs/bolsoes-quintil-inferior.csv) | 123 bolsões do quintil mais pobre a até 5 km de alguma unidade, com coordenadas e loja mais próxima |
+| [`renner/docs/entorno-lojas.csv`](renner/docs/entorno-lojas.csv) | 20 unidades × 4 raios × 34 colunas, com comparação ao próprio município e quintil de renda |
+| [`renner/docs/bolsoes-quintil-inferior.csv`](renner/docs/bolsoes-quintil-inferior.csv) | 123 bolsões do quintil mais pobre a até 5 km de alguma unidade, com coordenadas e loja mais próxima |
 | [`docs/DIAGNOSTICO-PERFORMANCE.md`](docs/DIAGNOSTICO-PERFORMANCE.md) | diagnóstico que originou as otimizações |
 | [`docs/RELATORIO-OTIMIZACAO.md`](docs/RELATORIO-OTIMIZACAO.md) | otimizações aplicadas, com medição antes/depois |
 
@@ -130,7 +130,7 @@ Censo 2022 é de acesso controlado e não tem arquivo público.
 ### Atualização
 
 ```bash
-cd atlas_v3
+cd renner/atlas_v3
 python3 extracao/2_atualiza_cnes.py --arquivo /caminho/healthfacilities_AAAAMM.parquet
 python3 extracao/3_atualiza_escolas.py --arquivo /caminho/schools_AAAA.parquet
 python3 extracao/1_servicos_municipais.py      # SICONFI, SSP/RS, contagens de equipamentos

@@ -230,7 +230,7 @@ seção 3.2.
 - **IDESE.** É um índice anual para os sete municípios, para ler ao lado do IDHM de 2010.
 - **Dados abertos de Porto Alegre.** Acidentes de trânsito por bairro.
 - A mancha da enchente de 2024 (IPH/UFRGS, no Zenodo) tem um script R na versão 3
-  (`atlas_v3/extracao/R/07_enchente_2024.R`), mas o dado ainda não está embutido: o Zenodo não
+  (`renner/atlas_v3/extracao/R/07_enchente_2024.R`), mas o dado ainda não está embutido: o Zenodo não
   abriu no ambiente em que o Atlas é montado.
 
 ## 5. Como os dados entram no HTML
@@ -239,7 +239,7 @@ seção 3.2.
 
 - A extração roda do nosso lado, com as conferências da seção 2.
 - O resultado vai para `atlas2/dados/*.js` e para o arquivo único `atlas2-brasil.html`. Na RMPA, vai
-  para `atlas_v3/dados/` e para `atlas-rmpa.html`.
+  para `renner/atlas_v3/dados/` e para `atlas-rmpa.html`.
 - Quem usa só abre o HTML. Não precisa de Python, de R nem de internet para os dados.
 
 **Busca ao vivo pelo navegador.**

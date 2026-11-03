@@ -476,7 +476,7 @@ def main() -> int:
     conf.update({k: P["conferencia"][k] for k in ("lojas_poa", "lojas_por_tipo", "lojas_por_classe",
                                                    "lojas_mesmo_endereco", "lojas_a_menos_de_50m", "lojas_bairros",
                                                    "dimed_cnes_brasil",
-                                                   "dimed_poa_desativados", "saude", "escolas",
+                                                   "dimed_poa_desativados", "dimed_poa_outros_tipos", "saude", "escolas",
                                                    "escolas_fora_dos_setores")})
     conf["malha"] = M["conferencia"]
     conf["censo"] = {k: C["conferencia"][k] for k in ("populacao_poa", "populacao_rs", "setores_sem_dado_pessoas",

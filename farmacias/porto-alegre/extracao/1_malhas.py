@@ -49,7 +49,7 @@ import pyarrow.parquet as pq
 import shapely
 from shapely.geometry import MultiPolygon, Polygon
 
-RAIZ = pathlib.Path(__file__).resolve().parent.parent          # atlas_poa/
+RAIZ = pathlib.Path(__file__).resolve().parent.parent          # farmacias/porto-alegre/
 FONTES = RAIZ / "extracao" / "fontes"
 GEOBR = FONTES / "geobr"
 CENSOBR = FONTES / "censobr"

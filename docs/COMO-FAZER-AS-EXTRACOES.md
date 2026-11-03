@@ -127,7 +127,7 @@ programa.
 ## 3. Preparar a máquina
 
 Use um computador com acesso normal à internet. Redes corporativas costumam bloquear alguns dos
-servidores da tabela da seção 5. Os comandos deste guia partem da pasta **`atlas_v3/`** (a que tem
+servidores da tabela da seção 5. Os comandos deste guia partem da pasta **`atlas_v3/`**, que fica em `renner/atlas_v3/` (a que tem
 `index.html`); os scripts Python precisam ser rodados dali.
 
 **Os scripts R rodam de qualquer pasta.** Cada um acha a pasta do Atlas pelo próprio local e grava

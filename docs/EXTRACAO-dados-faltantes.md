@@ -12,7 +12,7 @@ Outubro de 2026 · Atlas versão 3.3, atualizado na 3.5 e na 3.8
 > **Desde a versão 3.3, o Atlas busca sozinho, pelo navegador, as fontes da seção 1 e também a
 > população estimada, o PIB e as finanças municipais (SICONFI), inclusive a despesa em educação.**
 > Para essas fontes não é mais preciso rodar script nem gerar arquivo; os scripts seguem úteis
-> para gerar um retrato embarcado (uso sem internet). Ver `atlas_v3/LEIA-ME.md`.
+> para gerar um retrato embarcado (uso sem internet). Ver `renner/atlas_v3/LEIA-ME.md`.
 
 > **Na versão 3.8, os arquivos do pacote censobr (IPEA) no GitHub passaram a abrir neste ambiente.**
 > Com eles entraram no arquivo do Atlas, prontos:
@@ -27,7 +27,7 @@ Outubro de 2026 · Atlas versão 3.3, atualizado na 3.5 e na 3.8
 
 Este documento responde, item por item, de onde vem cada dado que ainda falta no Atlas e como
 extraí-lo, de preferência com pacotes R. A numeração (B1 a B15) é a da
-[análise do template de diagnóstico](DIAGNOSTICO-REGIONAL-analise-do-template.md).
+[análise do template de diagnóstico](../renner/docs/DIAGNOSTICO-REGIONAL-analise-do-template.md).
 
 Regra mantida em todo o trabalho: nenhum valor foi estimado, interpolado ou completado. O que a
 fonte não traz fica fora do Atlas, com aviso.
@@ -37,7 +37,7 @@ fonte não traz fica fora do Atlas, com aviso.
 O ambiente de trabalho bloqueia os servidores do IBGE, do Tesouro, do DATASUS, do gov.br, do CRAN
 e as *releases* do GitHub do IPEA. Mas a **Base dos Dados** mantém um espelho público de arquivos
 CSV no Google Cloud Storage, que não exige conta, e esse espelho está acessível. O script novo
-[`atlas_v3/extracao/5_base_dos_dados.py`](../atlas_v3/extracao/5_base_dos_dados.py) baixa dali só os
+[`renner/atlas_v3/extracao/5_base_dos_dados.py`](../renner/atlas_v3/extracao/5_base_dos_dados.py) baixa dali só os
 arquivos gratuitos (nunca os `_bdpro`, que são do plano pago):
 
 | Dado | Fonte original | Tabela no espelho | Nível | Cobre |
@@ -80,7 +80,7 @@ educação, saúde, desenvolvimento humano e ambiente urbano. Também aparecem n
 
 ## 2. Scripts R para o que depende de servidores bloqueados aqui
 
-Pasta [`atlas_v3/extracao/R/`](../atlas_v3/extracao/R/). Rode numa máquina com acesso normal à
+Pasta [`renner/atlas_v3/extracao/R/`](../renner/atlas_v3/extracao/R/). Rode numa máquina com acesso normal à
 internet, no terminal a partir da pasta `atlas_v3/` ou no RStudio, abrindo o script e clicando em
 *Source* (os scripts acham a pasta do Atlas sozinhos):
 
@@ -91,7 +91,7 @@ Rscript extracao/R/01_censo2010_areas_ponderacao.R
 ```
 
 Cada script confere colunas e municípios antes de calcular e **para com erro** se a fonte mudou de
-formato, mostrando o que veio. As saídas vão para `atlas_v3/extracao/saida_R/` (não versionada).
+formato, mostrando o que veio. As saídas vão para `renner/atlas_v3/extracao/saida_R/` (não versionada).
 
 Como foram verificados: os códigos de variável, nomes de função e argumentos foram conferidos no
 código-fonte dos próprios pacotes (censobr 1.0.0, microdatasus 3.0.0, educabR 1.2, rsiconfi, aopdata,

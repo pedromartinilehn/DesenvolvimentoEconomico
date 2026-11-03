@@ -48,7 +48,7 @@ python3 build_single.py
 ```
 
 O que veio da biblioteca, o que entrou e como foi conferido estão em
-[`../docs/ATLAS-BRASIL-bases.md`](../docs/ATLAS-BRASIL-bases.md).
+[`../../docs/ATLAS-BRASIL-bases.md`](../../docs/ATLAS-BRASIL-bases.md).
 
 ## Versão 3.8: extrações dentro do HTML
 
@@ -95,12 +95,12 @@ python3 build_single.py
 ```
 
 Como cada caminho leva um dado para dentro do HTML, o que entrou e o que continua de fora (e por
-quê) estão em [`../docs/EXTRACOES-NO-HTML.md`](../docs/EXTRACOES-NO-HTML.md).
+quê) estão em [`../../docs/EXTRACOES-NO-HTML.md`](../../docs/EXTRACOES-NO-HTML.md).
 
 ## Versão 3.7: varredura do Ipeadata
 
 A varredura procurou no Ipeadata as séries com valor para os sete municípios que o Atlas ainda não
-tinha. O resultado está em [`../docs/VARREDURA-IPEADATA.md`](../docs/VARREDURA-IPEADATA.md) e entra
+tinha. O resultado está em [`../../docs/VARREDURA-IPEADATA.md`](../../docs/VARREDURA-IPEADATA.md) e entra
 no Atlas por dois caminhos.
 
 **38 séries novas dentro do pacote.** O script `extracao/8_series_complementares.py` lê as mesmas
@@ -217,7 +217,7 @@ O `extracao/6_ipea.py` lê duas bases do IPEA no espelho público da Base dos Da
   acesso*. Só Porto Alegre está no projeto. Os dados entram também no entorno das lojas e na ficha
   dos bolsões.
 
-A análise, com as conferências feitas, está em [`docs/ANALISE-IPEA.md`](../docs/ANALISE-IPEA.md).
+A análise, com as conferências feitas, está em [`docs/ANALISE-IPEA.md`](../../docs/ANALISE-IPEA.md).
 
 ### Metodologia
 
@@ -256,7 +256,7 @@ Correções dos achados de `docs/AUDITORIA-DADOS-v3.2.md`:
   de escolas tiram a competência e o ano do nome do arquivo, em vez de gravar sempre 202604 e 2025.
 
 O passo a passo de todas as extrações, automáticas e manuais, está em
-[`docs/COMO-FAZER-AS-EXTRACOES.md`](../docs/COMO-FAZER-AS-EXTRACOES.md).
+[`docs/COMO-FAZER-AS-EXTRACOES.md`](../../docs/COMO-FAZER-AS-EXTRACOES.md).
 
 ## O que mudou na versão 3.3: a página busca os dados sozinha
 
@@ -381,7 +381,7 @@ navegador sobre a base completa, comparando antes e depois:
 
 ### Versão 3.1: diagnóstico regional (outubro de 2026)
 
-Implementa as sugestões de `docs/DIAGNOSTICO-REGIONAL-analise-do-template.md` que dependem só de dados
+Implementa as sugestões de `renner/docs/DIAGNOSTICO-REGIONAL-analise-do-template.md` que dependem só de dados
 já incluídos no pacote.
 
 - **Valores de 2010 do município inteiro.** Gini, pobreza, renda per capita, trabalho e escolaridade de

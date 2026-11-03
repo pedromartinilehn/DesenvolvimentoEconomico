@@ -143,7 +143,7 @@ The Unarchiver) e solte aqui as planilhas e o shapefile de dentro, ou use o scri
 ### Pelo script
 
 ```bash
-cd atlas_v3
+cd renner/atlas_v3
 pip install openpyxl                       # uma vez
 # arquivos da biblioteca em extracao/fontes/atlasbrasil/ (pasta não versionada)
 python3 extracao/11_atlas_brasil.py        # grava dados/dados-atlasbrasil.js

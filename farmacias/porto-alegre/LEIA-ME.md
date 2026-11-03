@@ -3,7 +3,7 @@
 Mapa socioeconômico de Porto Alegre com:
 
 - os 94 bairros e os 2.744 setores censitários do Censo 2022;
-- as 130 lojas Panvel ativas no CNES de abril de 2026;
+- as 129 lojas Panvel ativas no CNES de abril de 2026;
 - o entorno de cada loja, com raios de 500 m, 1 km e 2 km;
 - os moradores que têm cada loja como a Panvel mais próxima;
 - a cobertura das lojas por bairro;
@@ -13,7 +13,7 @@ Todo valor mostra a fonte, o ano e o nível. O que a fonte não publica aparece 
 Atlas não estima, não interpola e não completa valor. O que é conta do próprio Atlas leva o
 selo "cálculo do Atlas".
 
-Esta versão é independente do Atlas Metropolitano (`atlas_v3/`) e do Atlas 2.0 (`atlas2/`).
+Esta versão é independente do Atlas Metropolitano (`renner/atlas_v3/`) e do Atlas 2.0 (`atlas2/`).
 Ela usa as mesmas definições e regras do Atlas 2.0 para o Censo 2022, e os bairros de Porto
 Alegre dão os mesmos números nos dois.
 
@@ -24,7 +24,7 @@ Alegre dão os mesmos números nos dois.
   da internet.
 - **Pasta:** `index.html`, `atlas-poa.css`, `atlas-poa.js` e `dados/poa.js`. Também abre
   direto do disco e serve no GitHub Pages
-  (`https://<usuário>.github.io/<repositório>/atlas_poa/`).
+  (`https://<usuário>.github.io/<repositório>/farmacias/porto-alegre/`).
 
 O endereço guarda o estado e serve para compartilhar uma vista. Exemplos:
 
@@ -40,7 +40,7 @@ O endereço guarda o estado e serve para compartilhar uma vista. Exemplos:
 | Ficha do bairro | valor, posição entre os 94 bairros, comparação com Porto Alegre, RS e Brasil, lojas do bairro e todos os indicadores |
 | Ficha do setor | o mesmo, com a comparação com o bairro e a loja Panvel mais próxima |
 | Ficha da loja | entorno em três raios, "mais próximos", Porto Alegre ao lado, equipamentos no raio e avisos de localização |
-| Lista das lojas | as 130 lojas com o entorno no raio escolhido, ordenáveis, e CSV com os três raios |
+| Lista das lojas | as 129 lojas com o entorno no raio escolhido, ordenáveis, e CSV com os três raios |
 | Camadas | lojas Panvel, raio de 500 m de cada loja, unidades de saúde (CNES) e escolas (Censo Escolar 2025) |
 | Ranking e CSV | ranking do nível, tabela inteira de bairros ou setores, ficha e entorno de uma loja |
 
@@ -71,8 +71,10 @@ O endereço guarda o estado e serve para compartilhar uma vista. Exemplos:
 O arquivo é o que o IPEA publica para o pacote geobr. Farmácia que oferece serviço de saúde
 precisa de registro no CNES.
 
-- Em Porto Alegre são 130 lojas, em 52 bairros: 129 farmácias e uma registrada como clínica
-  (Av. Ipiranga, 6690).
+- Só conta como loja o estabelecimento registrado como farmácia (tipo 43 do CNES), a mesma regra
+  das farmácias do Brasil (`farmacias/brasil/`).
+- Em Porto Alegre são 129 lojas, em 52 bairros. Uma unidade da empresa registrada como clínica
+  (Av. Ipiranga, 6690) fica de fora.
 - No Brasil, o CNES tem 597 estabelecimentos ativos com esse CNPJ: RS 398, PR 102, SC 85 e
   SP 12.
 - Uma loja aberta depois de abril de 2026, ou sem registro no CNES, não aparece.
@@ -101,7 +103,7 @@ coordenada do CNES a até 800 m do endereço:
 | O geocodebr achou o número do endereço (incerteza de até 50 m): ponto do endereço | 26 |
 | A coordenada do CNES cai na área do CEP do endereço (desvio do CEP de até 800 m), ou a até 150 m do ponto do geocodebr: coordenada do CNES | 53 |
 | A coordenada do CNES fica fora da área do CEP: centro do CEP do endereço (incerteza de até 800 m) | 34 |
-| O endereço não confirma nada (CEP muito extenso ou sem localização): coordenada do CNES, em cinza no mapa | 17 |
+| O endereço não confirma nada (CEP muito extenso ou sem localização): coordenada do CNES, em cinza no mapa | 16 |
 
 Cada loja mostra a sua classe e a incerteza em metros.
 
@@ -165,7 +167,7 @@ roda no script e no navegador.
 ## Como atualizar
 
 ```bash
-cd atlas_poa
+cd farmacias/porto-alegre
 python3 extracao/1_malhas.py      # setores, bairros e município (geobr)
 python3 extracao/2_censo2022.py   # Censo 2022 por setor e bairro, RS e Brasil (censobr)
 python3 extracao/3_pontos.py      # lojas Panvel, unidades de saúde e escolas (CNES e INEP, via geobr)
@@ -184,7 +186,7 @@ Precisa de Python 3.10 ou mais novo, com `numpy`, `pyarrow` e `shapely` 2.1 ou m
 ## Estrutura
 
 ```
-atlas_poa/
+farmacias/porto-alegre/
 ├── atlas-poa.html     arquivo único
 ├── index.html  atlas-poa.css  atlas-poa.js
 ├── dados/poa.js       malhas, valores, lojas e pontos (gerado)
@@ -196,13 +198,13 @@ atlas_poa/
 
 Feitos no Chromium, na pasta e no arquivo único aberto direto do disco.
 
-- **Auditoria: 21.667 de 21.667 valores iguais.** Os valores do navegador foram comparados com
+- **Auditoria: 21.648 de 21.648 valores iguais.** Os valores do navegador foram comparados com
   um cálculo independente, feito direto nos Parquet do Censo e nas coordenadas:
   - população, domicílios, rendimento, 60 anos ou mais e analfabetismo, nos setores e bairros
     onde o valor é exato;
   - distância até a loja mais próxima e loja mais próxima de cada setor;
   - cobertura de cada bairro;
-  - entorno das 130 lojas nos três raios: setores, moradores, domicílios, rendimento, favelas
+  - entorno das 129 lojas nos três raios: setores, moradores, domicílios, rendimento, favelas
     e outras lojas;
   - "mais próximos".
 - **Atlas 2.0.** Os 41 indicadores em comum batem nos 94 bairros. As únicas diferenças são de
@@ -223,7 +225,7 @@ Feitos no Chromium, na pasta e no arquivo único aberto direto do disco.
 
 - **Lojas.** A lista vem do CNES. Uma loja sem registro ou aberta depois de abril de 2026
   fica de fora.
-- **Posição.** 17 lojas têm só a coordenada do CNES, que o endereço não confirma. O entorno
+- **Posição.** 16 lojas têm só a coordenada do CNES, que o endereço não confirma. O entorno
   delas pode estar deslocado.
 - **Distâncias.** São em linha reta, não pelo caminho das ruas. O entorno trabalha com setores
   inteiros.
