@@ -1,0 +1,64 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Farmácias do Brasil · o que se soma ao atlas2/atlas2.css
+   Camada das lojas, ficha da loja (entorno) e lista das lojas.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ponto de cada rede (cor da paleta categórica validada do Atlas 2.0) */
+.pt{display:inline-block;width:10px;height:10px;border-radius:50%;border:1.5px solid #fff;
+  box-shadow:0 0 0 1px rgba(21,33,46,.28);margin-right:6px;vertical-align:-1px;flex:none}
+
+/* cartão das camadas: abaixo do zoom */
+#cardRedes{position:absolute;top:84px;right:10px;z-index:500;padding:10px 12px;width:226px}
+#cardRedes h3{font-size:12px;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#cardRedes h3 button{font-size:11.5px;font-weight:500;color:var(--txt3)}
+#cardRedes label{display:flex;align-items:center;gap:6px;font-size:12.5px;line-height:1.35;padding:4px 0;cursor:pointer}
+#cardRedes label small{display:block;color:var(--txt3);font-size:11px}
+#cardRedes input{accent-color:var(--acc);width:15px;height:15px;flex:none;margin-right:2px}
+#cardRedes .nc{font-size:11px;color:var(--txt3);margin-top:4px;line-height:1.4}
+#cardRedes.fechado label,#cardRedes.fechado .nc{display:none}
+#cardRedes.fechado h3{margin-bottom:0}
+
+/* ficha da loja */
+.raios{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.raios > span{font-size:12.5px;color:var(--txt2)}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.kpis div{background:var(--bg3);border-radius:8px;padding:8px 10px}
+.kpis span{display:block;font-size:11.5px;color:var(--txt3);line-height:1.3}
+.kpis b{display:block;font-size:17px;font-variant-numeric:tabular-nums;margin-top:2px}
+.ent{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.ent th{font-size:11.5px;font-weight:600;color:var(--txt3);text-align:right;padding:4px 0 4px 8px;border-bottom:1px solid var(--line2);vertical-align:bottom}
+.ent th:first-child{text-align:left;padding-left:0}
+.ent td{padding:5px 0 5px 8px;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ent td:first-child{text-align:left;padding-left:0;white-space:normal}
+.ent td.eu{font-weight:600}
+.ent .fx{display:block;font-size:11px;font-weight:400;color:var(--txt3)}
+.comp td small,.perto td small{display:block;font-size:11.5px;color:var(--txt3);font-weight:400;white-space:normal}
+.perto{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+.perto th{font-size:11.5px;font-weight:600;color:var(--txt3);text-align:left;padding:4px 0;border-bottom:1px solid var(--line2)}
+.perto td{padding:5px 0;border-top:1px solid var(--line);vertical-align:top}
+.perto td:first-child{padding-right:8px}
+.perto .r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:8px}
+.perto tr.clic,.comp tr.clic{cursor:pointer}
+.perto tr.clic:hover td{background:var(--accsoft)}
+.perto.lista td:first-child{width:100%}
+
+/* lista das lojas */
+.chk{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.chk input{accent-color:var(--acc);width:15px;height:15px}
+.tabela td.nw{white-space:nowrap}
+.seta{color:var(--acc)}
+#lojasBody .rk-top input[type="search"]{flex:1;min-width:240px}
+/* o atlas2.css dá altura, borda e 220 px a todo input do .rk-top: as caixas de seleção voltam ao normal */
+#lojasBody .rk-top input[type="checkbox"]{height:15px;width:15px;min-width:0;padding:0;border:none;border-radius:0}
+#lojasBody .rk-top{gap:6px 14px}
+#lojasBody .tabela th{white-space:normal;vertical-align:bottom;line-height:1.3}
+
+@media (max-width:900px){
+  #cardRedes{top:auto;bottom:12px;right:10px;width:172px;padding:8px 10px}
+  #legenda{max-width:calc(100% - 206px)}
+  .kpis b{font-size:15px}
+}
+@media (max-width:560px){
+  #cardRedes{width:160px}
+  #legenda{max-width:calc(100% - 192px)}
+}

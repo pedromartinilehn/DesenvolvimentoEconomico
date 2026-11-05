@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Atlas Socioeconômico Interativo — Região Metropolitana de Porto Alegre</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
+<link rel="stylesheet" href="atlas.css">
+<style id="boot-guarda-css">
+/* Estilo mínimo embutido: vale mesmo se atlas.css não carregar, para que a
+   página nunca apareça como HTML cru. */
+.modal{display:none}
+#boot-guarda{display:none;font:14px/1.6 Arial,Helvetica,sans-serif;color:#152B34;
+  background:#EEF2F3;position:fixed;inset:0;z-index:9999;overflow:auto;padding:6vh 6vw}
+#boot-guarda h1{font-size:22px;margin:0 0 6px;color:#A45120}
+#boot-guarda h2{font-size:15px;margin:22px 0 8px;color:#0057B8;font-weight:600}
+#boot-guarda p{max-width:62ch;margin:0 0 10px;color:#50666F}
+#boot-guarda ol{max-width:62ch;color:#50666F;padding-left:20px}
+#boot-guarda li{margin-bottom:7px}
+#boot-guarda code,#boot-guarda pre{font-family:Consolas,monospace;font-size:12.5px;
+  background:#E2E9EB;color:#005B75;padding:2px 5px;border-radius:3px}
+#boot-guarda pre{display:block;padding:12px;line-height:1.7;color:#50666F;overflow:auto}
+#boot-guarda .falta{color:#A45120;font-weight:bold}
+#boot-guarda .ok{color:#16835A}
+</style>
+
+</head>
+<body>
+<div id="boot-guarda"></div>
+
+<div id="app">
+  <!-- ═════════════════════════════════════════════════════════ TOPO ═══ -->
+  <header>
+    <button class="ibtn mobile-only" id="btnSide" aria-label="Abrir lista de indicadores">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="brand"><b><span class="b-long">Atlas Metropolitano</span><span class="b-short">Atlas RMPA</span></b><span>Região Metropolitana de Porto Alegre</span></div>
+
+    <div class="seg" id="segNivel" role="group" aria-label="Nível geográfico">
+      <button data-nivel="municipio" aria-pressed="false" aria-label="Município"><span class="nv-l">Município</span><span class="nv-c" aria-hidden="true">Mun.</span></button>
+      <button data-nivel="bairro" aria-pressed="true">Bairro</button>
+      <button data-nivel="udh" aria-pressed="false" title="Unidades de Desenvolvimento Humano do Atlas Brasil, Censos 2000 e 2010">UDH</button>
+      <button data-nivel="setor" aria-pressed="false">Setor</button>
+    </div>
+
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="Buscar bairro, UDH, setor ou loja" autocomplete="off" aria-label="Buscar território">
+      <div class="sugg" id="sugg" style="display:none"></div>
+    </div>
+
+    <div class="tools">
+      <select id="selMuni" class="sel" aria-label="Filtrar por município"></select>
+      <select id="selLoja" class="sel store-select" aria-label="Analisar o entorno de uma loja">
+        <option value="">Entorno de uma loja…</option>
+      </select>
+      <button id="btnLojas" class="tbtn">Lojas</button>
+      <button id="btnAnalise" class="tbtn">Análise</button>
+      <div class="menu-wrap">
+        <button id="btnMais" class="tbtn" aria-haspopup="true" aria-expanded="false">Mais
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="menu" id="menuMais" role="menu">
+          <button id="btnDiag" role="menuitem">Diagnóstico regional</button>
+          <button id="btnBolsoes" role="menuitem">Bolsões do quintil mais pobre</button>
+          <button id="btnExportar" role="menuitem">Exportar mapa (PNG)</button>
+          <div class="menu-sep"></div>
+          <button id="btnMetodo" role="menuitem">Metodologia</button>
+          <button id="btnMatriz" role="menuitem">Cobertura dos dados</button>
+          <button id="btnFontes" role="menuitem">Fontes</button>
+          <button id="btnDados" role="menuitem">Dados e fontes</button>
+          <button id="btnExtrair" role="menuitem">Extrair dados</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════ SIDEBAR ═══ -->
+  <nav id="side">
+    <div class="side-h">
+      <div class="side-title"><span>Indicadores</span><span class="side-n" id="nInd"></span></div>
+      <input id="filtroInd" class="filtro" type="search" placeholder="Filtrar indicadores" aria-label="Filtrar indicadores">
+      <div class="side-key">
+        <span class="k-ok"><i class="dot"></i>oficial</span>
+        <span class="k-est"><i class="dot"></i>histórico, 2010</span>
+        <span class="k-ext"><i class="dot"></i>não oficial</span>
+      </div>
+    </div>
+    <div id="cats"></div>
+    <div class="side-foot">Todo valor traz fonte, ano e nível geográfico. Onde um território não
+      tem dado publicado, o Atlas mostra o do território que o contém, com o nome dele.
+      <button class="ao-vivo" id="aoVivoStatus" type="button">Dados embarcados</button>
+      <span class="ver">Versão 3.9 · outubro de 2026</span></div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════ MAPA ═══ -->
+  <div id="mapwrap">
+    <div class="prov" id="prov"></div>
+    <div id="map"></div>
+    <div class="legend" id="legend"></div>
+    <div class="layers" id="layers"></div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ PAINEL ═══ -->
+  <aside id="panel"><button class="sheet-x mobile-only" id="btnFechaPainel" aria-label="Fechar painel">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9m0-9l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div class="p-pad" id="panelBody"></div></aside>
+</div>
+
+<div id="backdrop"></div>
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════════ MODAIS ═══ -->
+<div class="modal" id="mdLojas"><div class="mbox wide">
+  <div class="mhead"><h2>Unidades Renner</h2>
+    <span class="chip">20 unidades</span><button class="x" data-close>×</button></div>
+  <div class="mbody" id="lojasBody"></div></div></div>
+
+<div class="modal" id="mdAnalise"><div class="mbox wide">
+  <div class="mhead"><h2>Análise territorial — ranking e comparação</h2>
+    <span class="chip" id="cmpLvl"></span><button class="x" data-close>×</button></div>
+  <div class="mbody" id="analiseBody"></div></div></div>
+
+
+<div class="modal" id="mdDiag"><div class="mbox wide">
+  <div class="mhead"><h2>Diagnóstico regional</h2>
+    <span class="chip">template do Instituto Renner</span><button class="x" data-close>×</button></div>
+  <div class="mbody" id="diagBody"></div></div></div>
+
+<div class="modal" id="mdBolsoes"><div class="mbox wide">
+  <div class="mhead"><h2>Bolsões do quintil mais pobre</h2><button class="x" data-close>×</button></div>
+  <div class="mbody" id="bolsoesBody"></div></div></div>
+
+<div class="modal" id="mdMetodo"><div class="mbox wide">
+  <div class="mhead"><h2>Metodologia</h2><button class="x" data-close>×</button></div>
+  <div class="mbody" id="metodoBody"></div></div></div>
+
+<div class="modal" id="mdMatriz"><div class="mbox wide">
+  <div class="mhead"><h2>Matriz de disponibilidade</h2><button class="x" data-close>×</button></div>
+  <div class="mbody" id="matrizBody"></div></div></div>
+
+<div class="modal" id="mdFontes"><div class="mbox wide">
+  <div class="mhead"><h2>Fontes e metodologia</h2><button class="x" data-close>×</button></div>
+  <div class="mbody" id="fontesBody"></div></div></div>
+
+<div class="modal" id="mdExtrair"><div class="mbox wide">
+  <div class="mhead"><h2>Extrair dados</h2><button class="x" data-close>×</button></div>
+  <div class="mbody" id="extrairBody"></div></div></div>
+
+<div class="modal" id="mdDados"><div class="mbox">
+  <div class="mhead"><h2>Dados e fontes</h2><button class="x" data-close>×</button></div>
+  <div class="mbody" id="dadosBody"></div></div></div>
+<link rel="preload" as="script" href="atlas.js">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<!-- Os arquivos de dados baixam em paralelo. `defer` preserva a ordem de
+     execução, que era a única razão de existir o carregador em cadeia: antes
+     cada arquivo só começava a baixar quando o anterior terminava, somando
+     oito idas e voltas em série. -->
+<script defer src="dados/dados-nucleo.js"></script>
+<script defer src="dados/dados-bairros.js"></script>
+<script defer src="dados/dados-municipios.js"></script>
+<script defer src="dados/dados-setores.js"></script>
+<script defer src="dados/dados-estimados.js"></script>
+<script defer src="dados/dados-servicos.js"></script>
+<script defer src="dados/dados-pontos.js"></script>
+<script defer src="dados/dados-indices.js"></script>
+<script defer src="dados/dados-complementares.js"></script>
+<script defer src="dados/dados-ipea.js"></script>
+<script defer src="dados/dados-ipeadata.js"></script>
+<script defer src="dados/dados-series.js"></script>
+<script defer src="dados/dados-censo2022.js"></script>
+<script defer src="dados/dados-extracoes.js"></script>
+<script defer src="dados/dados-atlasbrasil.js"></script>
+<script id="carregador">
+/* Fecha o carregamento depois que os scripts `defer` já rodaram (eles executam
+   antes do DOMContentLoaded). No layout normal, só acrescenta o atlas.js — que
+   já veio pelo preload. No layout plano, sem a pasta `dados/`, cai no
+   carregamento em série dos arquivos que faltaram, como antes. */
+(function () {
+  var ARQS = ['dados-nucleo.js', 'dados-bairros.js', 'dados-municipios.js',
+              'dados-setores.js', 'dados-estimados.js', 'dados-servicos.js', 'dados-pontos.js',
+              'dados-indices.js', 'dados-complementares.js', 'dados-ipea.js', 'dados-ipeadata.js',
+              'dados-series.js', 'dados-censo2022.js', 'dados-extracoes.js', 'dados-atlasbrasil.js'];
+  var GLOBAIS = ['ATLAS_NUCLEO', 'ATLAS_BAIRROS', 'ATLAS_MUNICIPIOS',
+                 'ATLAS_SETORES', 'ATLAS_EST', 'ATLAS_SERVICOS', 'ATLAS_PONTOS',
+                 'ATLAS_INDICES', 'ATLAS_COMPLEMENTOS', 'ATLAS_IPEA', 'ATLAS_IPEADATA',
+                 'ATLAS_SERIES', 'ATLAS_CENSO22', 'ATLAS_PACOTE', 'ATLAS_ATLASBR'];
+  window.__ATLAS_ORIGEM = window.__ATLAS_ORIGEM || {};
+
+  function carregaAtlas() {
+    var a = document.createElement('script');
+    a.src = 'atlas.js';
+    a.onerror = function () { window.__ATLAS_SEM_JS = true; };
+    document.body.appendChild(a);
+  }
+  function emSerie(i, faltam) {
+    if (i >= faltam.length) return carregaAtlas();
+    var s = document.createElement('script');
+    s.src = faltam[i];
+    s.onload = function () { window.__ATLAS_ORIGEM[faltam[i]] = faltam[i]; emSerie(i + 1, faltam); };
+    s.onerror = function () { s.remove(); window.__ATLAS_ORIGEM[faltam[i]] = null; emSerie(i + 1, faltam); };
+    document.head.appendChild(s);
+  }
+  function pronto() {
+    var faltam = [];
+    for (var i = 0; i < ARQS.length; i++) {
+      if (window[GLOBAIS[i]]) window.__ATLAS_ORIGEM[ARQS[i]] = 'dados/' + ARQS[i];
+      else faltam.push(ARQS[i]);            // tenta a pasta plana
+    }
+    if (!faltam.length) return carregaAtlas();
+    emSerie(0, faltam);
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', pronto);
+  else pronto();
+})();
+</script>
+<script id="boot-guarda-js">
+/* ─────────────────────────────────────────────────────────────────────────
+   Guarda de inicialização. Roda sem depender de atlas.css nem de atlas.js,
+   justamente para conseguir avisar quando um deles não chegou.
+
+   O caso comum: abrir o index.html de dentro do ZIP. O Windows extrai só
+   esse arquivo para uma pasta temporária e deixa o resto para trás — a
+   página abre como HTML cru, sem estilo e sem dados.
+   ───────────────────────────────────────────────────────────────────────── */
+function bootGuarda() {
+  var css = getComputedStyle(document.documentElement)
+              .getPropertyValue('--atlas-css-ok').trim() === '1';
+  var js = typeof window.montaGeo === 'function';
+  var leaflet = typeof window.L !== 'undefined';
+  var dados = [
+    ['dados/dados-nucleo.js', window.ATLAS_NUCLEO],
+    ['dados/dados-bairros.js', window.ATLAS_BAIRROS],
+    ['dados/dados-municipios.js', window.ATLAS_MUNICIPIOS],
+    ['dados/dados-setores.js', window.ATLAS_SETORES],
+    ['dados/dados-estimados.js', window.ATLAS_EST],
+    ['dados/dados-servicos.js', window.ATLAS_SERVICOS],
+    ['dados/dados-pontos.js', window.ATLAS_PONTOS]
+  ];
+  var faltaDados = dados.filter(function (d) { return !d[1]; });
+
+  if (!css && !js && !faltaDados.length) return;            // ainda carregando
+  if (css && js && leaflet && !faltaDados.length) return;   // tudo certo
+
+  var g = document.getElementById('boot-guarda');
+  // atlas.js carregou e já explicou a falta por conta própria (telaDeErro):
+  // ele reescreve o body, então a div da guarda some. Nada a fazer aqui.
+  if (!g) return;
+
+  var lista = [];
+  if (!css) lista.push('atlas.css');
+  if (!js) lista.push('atlas.js');
+  faltaDados.forEach(function (d) { lista.push(d[0]); });
+
+  var zip = !css && !js && faltaDados.length === dados.length;
+  g.innerHTML =
+    '<h1>A aplicação não encontrou seus arquivos</h1>' +
+    (zip
+      ? '<p>Pelo que faltou, o <b>index.html</b> foi aberto de dentro do arquivo compactado. ' +
+        'O Windows extrai só o arquivo em que você clica e deixa o resto dentro do ZIP, ' +
+        'então o estilo, o programa e os dados não vieram junto.</p>' +
+        '<h2>Como resolver</h2><ol>' +
+        '<li>Feche esta janela.</li>' +
+        '<li>Clique com o botão direito no ZIP e escolha <b>Extrair tudo…</b> ' +
+        '(no macOS, duplo clique no .zip).</li>' +
+        '<li>Abra a pasta extraída e só então dê duplo clique em <b>index.html</b>.</li>' +
+        '</ol>'
+      : '<p>Estes arquivos não chegaram:</p><ul>' +
+        lista.map(function (x) { return '<li class="falta">' + x + '</li>'; }).join('') +
+        '</ul><p>Confira se estão na mesma pasta do <b>index.html</b>, ' +
+        'com a pasta <b>dados/</b> ao lado.</p>') +
+    (!leaflet && css && js
+      ? '<h2>Sem conexão</h2><p>A biblioteca de mapas (Leaflet) vem da internet. ' +
+        'Sem conexão o mapa não desenha, mas o restante da interface funciona.</p>'
+      : '') +
+    '<h2>Estrutura esperada</h2>' +
+    '<pre>atlas/\n' +
+    '├── index.html\n' +
+    '├── atlas.css\n' +
+    '├── atlas.js\n' +
+    '└── dados/\n' +
+    '    ├── dados-nucleo.js\n' +
+    '    ├── dados-bairros.js\n' +
+    '    ├── dados-setores.js      (687 KB)\n' +
+    '    ├── dados-estimados.js    (169 KB)\n' +
+    '    ├── dados-servicos.js\n' +
+    '    └── dados-pontos.js</pre>' +
+    '<h2>O que foi verificado</h2><pre>' +
+    (css ? '<span class="ok">ok  </span>' : '<span class="falta">FALTA</span>') + '  atlas.css\n' +
+    (js ? '<span class="ok">ok  </span>' : '<span class="falta">FALTA</span>') + '  atlas.js\n' +
+    dados.map(function (d) {
+      return (d[1] ? '<span class="ok">ok  </span>' : '<span class="falta">FALTA</span>') +
+             '  ' + d[0];
+    }).join('\n') + '</pre>' +
+    '<p style="margin-top:18px;color:#7E93A3;font-size:12.5px">' +
+    'Alternativa sem pasta: o arquivo <b>atlas-rmpa.html</b> traz tudo embutido ' +
+    'e funciona sozinho, em qualquer lugar.</p>';
+  g.style.display = 'block';
+  var app = document.getElementById('app');
+  if (app) app.style.display = 'none';
+}
+/* o carregador é assíncrono: espera ele terminar antes de julgar */
+window.addEventListener('load', function () {
+  var t = 0;
+  (function espera() {
+    var pronto = typeof window.montaGeo === 'function' || window.__ATLAS_SEM_JS;
+    if (pronto || t > 40) return bootGuarda();
+    t++; setTimeout(espera, 50);
+  })();
+});
+</script>
+</body>
+</html>
