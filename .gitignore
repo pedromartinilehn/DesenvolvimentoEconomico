@@ -15,3 +15,6 @@ atlas2/extracao/fontes/*
 
 # Atlas Porto Alegre: arquivos baixados das fontes (grandes); os scripts baixam de novo
 farmacias/porto-alegre/extracao/fontes/*
+
+# Farmácias do Brasil: arquivos baixados das fontes (grandes); os scripts baixam de novo
+farmacias/brasil/extracao/fontes/*

@@ -208,13 +208,15 @@ def main() -> int:
         })
     lojas.sort(key=lambda l: (sem_acento(l["end"]).lower(), l["cnes"]))
     # mesmo endereço (com grafias diferentes) ou a menos de 50 m: o CNES mantém os dois
-    # registros ativos; o Atlas mostra os dois e avisa, porque pode ser registro repetido
+    # registros ativos; o Atlas mostra os dois e avisa, porque pode ser registro repetido.
+    # Loja posta no centro do CEP fica fora da conta dos 50 m: o centro do CEP não diz onde
+    # ela fica dentro dele (a mesma regra do atlas das farmácias do Brasil)
     por_end = {}
     for l in lojas:
         por_end.setdefault(chave_endereco(l["end"]), []).append(l["cnes"])
     for l in lojas:
         l["mesmo_end"] = [c for c in por_end[chave_endereco(l["end"])] if c != l["cnes"]]
-        l["perto_50m"] = [o["cnes"] for o in lojas if o is not l
+        l["perto_50m"] = [o["cnes"] for o in lojas if o is not l and "centro_cep" not in (l["classe"], o["classe"])
                           and distancia_m(l["y"], l["x"], o["y"], o["x"]) < 50]
     conf["lojas_poa"] = len(lojas)
     conf["lojas_por_tipo"] = {TIPOS_LOJA[k]: v for k, v in tipos.items()}

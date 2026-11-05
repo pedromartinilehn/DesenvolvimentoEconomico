@@ -11,6 +11,9 @@ Esta versão é independente do Atlas Metropolitano (`renner/atlas_v3/`): não t
 setores censitários como nível. Os setores entram só por dentro, para somar bairros e
 municípios.
 
+O atlas das farmácias do Brasil (`farmacias/brasil/`) usa esta mesma interface e estes dados,
+com as lojas por cima (veja *Extensões*).
+
 ## Como abrir
 
 - **Arquivo único:** `atlas2-brasil.html` (12 MB), com interface, código e as cinco regiões
@@ -22,7 +25,8 @@ municípios.
   `https://<usuário>.github.io/<repositório>/atlas2/`.
 
 O endereço guarda o estado e serve para compartilhar uma vista. Por exemplo,
-`index.html#r=S&i=idhm&u=4314902` abre a região Sul, o IDHM e a ficha de Porto Alegre.
+`index.html#r=S&i=idhm&u=4314902` abre a região Sul, o IDHM e a ficha de Porto Alegre, com o mapa
+aproximado no município.
 
 ## O que tem
 
@@ -180,6 +184,21 @@ Cada script baixa o que falta para `extracao/fontes/` (não versionado, cerca de
 para se algo não bater. Requisitos: Python 3.11, `shapely` 2.1 ou mais novo (GEOS 3.12+),
 `pyarrow` e `numpy`. Os arquivos intermediários ficam em `extracao/fontes/intermediario/`.
 
+## Extensões
+
+O `atlas2.js` aceita uma configuração e uma extensão, as duas opcionais. Sem elas, nada muda.
+
+- `window.ATLAS2_CFG = {dados: '…/', ind: '…'}`: a pasta dos arquivos de região e o indicador
+  inicial.
+- `window.ATLAS2_EXT`: ganchos que a interface chama. Há gancho para:
+  - o mapa pronto, a região carregada (antes de decodificar) e cada desenho;
+  - a ficha e os blocos da ficha;
+  - a busca, o endereço, o menu e a metodologia.
+- No catálogo, `zero: true` faz o mapa separar uma classe só para o zero e dividir o resto em
+  quartis. Serve para indicadores com muitos zeros, como lojas por município.
+
+O atlas das farmácias do Brasil (`farmacias/brasil/`) usa as três coisas, com os dados desta pasta.
+
 ## Estrutura
 
 ```
@@ -210,6 +229,13 @@ No Chromium (Playwright), na pasta e no arquivo único (aberto também direto do
 Auditoria de ponta a ponta: 300 unidades sorteadas por região, comparando o que o navegador
 decodifica com os valores calculados pelos scripts. São 108.164 comparações (valores,
 intervalos do sigilo e contornos), todas iguais, na pasta e no arquivo único.
+
+Depois dos ganchos das farmácias (novembro de 2026), na pasta e no arquivo único:
+- as cinco regiões, o catálogo (92 indicadores em 13 categorias) e a busca ficam iguais;
+- o link com município (`#u=`) passou a aproximar o município. Antes, o Leaflet descartava o
+  zoom pedido durante a animação da região, e o mapa ficava no zoom da região (6,25 em vez de 11
+  em Porto Alegre);
+- o selo da fonte deixou de repetir o ano ("Censo 2022 · 2022" virou "Censo 2022").
 
 ## Limites
 

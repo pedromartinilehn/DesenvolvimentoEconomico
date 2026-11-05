@@ -382,6 +382,9 @@ window.ATLAS2_BR={"v":"2.0","gerado_em":"2026-10-16","fontes":{"CENSO22":{"n":"I
    Dados: dados/brasil.js (sempre) e dados/regiao-<sigla>.js (sob demanda),
    gerados por extracao/4_monta.py. Nada aqui estima valor: o que a fonte não
    publica aparece em branco.
+   O atlas das farmácias (farmacias/brasil) usa esta mesma interface, com uma
+   extensão (window.ATLAS2_EXT) e os dados do Atlas 2.0 em outra pasta
+   (window.ATLAS2_CFG). Sem as duas, nada muda.
    ═══════════════════════════════════════════════════════════════════════ */
 'use strict';
 
@@ -445,6 +448,17 @@ const UF_POR_COD = BR ? Object.fromEntries(BR.ufs.map((u, i) => { u.i = i; retur
 const REG_POR_SIG = BR ? Object.fromEntries(BR.regioes.map(r => [r.sig, r])) : {};
 const REG_POR_COD = BR ? Object.fromEntries(BR.regioes.map(r => [r.cod, r])) : {};
 const NOME_REG = {N: 'Norte', NE: 'Nordeste', CO: 'Centro-Oeste', SE: 'Sudeste', S: 'Sul'};
+
+/* configuração e extensão (opcionais): pasta dos dados, indicador inicial e ganchos */
+const CFG = window.ATLAS2_CFG || {};
+const DIR_DADOS = CFG.dados || 'dados/';
+const EXT = window.ATLAS2_EXT || {};
+function gancho(nome, ...args) { return typeof EXT[nome] === 'function' ? EXT[nome](...args) : undefined; }
+/* "Censo 2022 · 2022" vira "Censo 2022": o ano só entra quando o nome da fonte não o traz */
+function rotFonte(c) {
+  const s = FONTES[c.fonte] ? FONTES[c.fonte].s : c.fonte;
+  return String(s).includes(String(c.ano)) ? s : `${s} · ${c.ano}`;
+}
 
 /* inteiros de tamanho variável (5 bits por caractere, a partir do '?'), em zigue-zague.
    Aritmética comum em vez de operações de bits: códigos de bairro passam de 2^31. */
@@ -539,7 +553,8 @@ function preparaRegiao(R) {
 }
 
 /* ─────────────────────────────────────────────────────────── 3. estado ── */
-const S = {regiao: null, nivel: 'mun', ind: 'pop', uf: null, foco: null, sel: null, escala: 'regiao', fundo: false};
+const S = {regiao: null, nivel: 'mun', ind: CFG.ind && IND[CFG.ind] ? CFG.ind : 'pop', uf: null, foco: null, sel: null,
+           escala: 'regiao', fundo: false};
 const DADOS = {};                     // sigla → região preparada
 const CARGA = {};                     // sigla → promessa de carga
 
@@ -557,6 +572,7 @@ function gravaHash() {
   if (S.uf) h.set('uf', S.uf);
   if (S.foco) h.set('f', S.foco);
   if (S.sel) h.set('u', S.sel.id);
+  gancho('hash', h);
   history.replaceState(null, '', '#' + h.toString());
 }
 
@@ -567,7 +583,7 @@ function carregaRegiao(sig) {
   const R0 = window.ATLAS2_REGIAO && window.ATLAS2_REGIAO[sig];
   CARGA[sig] = new Promise((ok, falha) => {
     const pronto = () => {
-      try { DADOS[sig] = preparaRegiao(window.ATLAS2_REGIAO[sig]); ok(DADOS[sig]); }
+      try { gancho('regiao', window.ATLAS2_REGIAO[sig], sig); DADOS[sig] = preparaRegiao(window.ATLAS2_REGIAO[sig]); ok(DADOS[sig]); }
       catch (e) { falha(e); }
     };
     if (R0) { pronto(); return; }
@@ -579,10 +595,10 @@ function carregaRegiao(sig) {
       setTimeout(pronto, 0); return;
     }
     const sc = document.createElement('script');
-    sc.src = `dados/regiao-${sig.toLowerCase()}.js`;
+    sc.src = `${DIR_DADOS}regiao-${sig.toLowerCase()}.js`;
     sc.onload = () => (window.ATLAS2_REGIAO && window.ATLAS2_REGIAO[sig]) ? pronto()
       : falha(new Error('arquivo sem os dados da região'));
-    sc.onerror = () => falha(new Error(`não encontrei dados/regiao-${sig.toLowerCase()}.js`));
+    sc.onerror = () => falha(new Error(`não encontrei ${DIR_DADOS}regiao-${sig.toLowerCase()}.js`));
     document.head.appendChild(sc);
   });
   CARGA[sig].catch(() => { delete CARGA[sig]; });
@@ -607,15 +623,21 @@ function classes(vals, rampa, id) {
   const v = vals.filter(x => x != null).sort((a, b) => a - b);
   const cores = RAMPAS[rampa] || RAMPAS.seq;
   if (!v.length) return {quebras: [], cores: [cores[2]]};
-  const uniq = [...new Set(v)];
+  // com muitos zeros (lojas por município, por exemplo), quintis viram "zero e o resto":
+  // o indicador pode pedir uma classe só do zero e quartis dos valores acima de zero
+  const pos = IND[id] && IND[id].zero && v[0] === 0 ? v.filter(x => x > 0) : null;
+  const w = pos && pos.length ? pos : v;
+  const ps = pos && pos.length ? [0.25, 0.5, 0.75] : [0.2, 0.4, 0.6, 0.8];
+  const uniq = [...new Set(w)];
   let q;
-  if (uniq.length <= 5) q = uniq.slice(0, -1);
-  else q = [...new Set([0.2, 0.4, 0.6, 0.8].map(p => v[Math.min(v.length - 1, Math.floor(p * v.length))]))];
+  if (uniq.length <= ps.length + 1) q = uniq.slice(0, -1);
+  else q = [...new Set(ps.map(p => w[Math.min(w.length - 1, Math.floor(p * w.length))]))];
   q = q.filter((x, i) => i === 0 || x > q[i - 1]);
-  if (q.length && q[q.length - 1] >= v[v.length - 1]) q.pop();
+  if (q.length && q[q.length - 1] >= w[w.length - 1]) q.pop();
+  if (pos && pos.length) q = [0, ...q];
   const k = q.length + 1;
   const pick = k >= 5 ? cores : (k === 1 ? [cores[2]] : cores.filter((_, i) => [[0, 4], [0, 2, 4], [0, 1, 3, 4]][k - 2].includes(i)));
-  return {quebras: q, cores: pick};
+  return {quebras: q, cores: pick, zero: !!(pos && pos.length)};
 }
 function cor(v, C) {
   if (v == null) return SEM_DADO;
@@ -655,6 +677,7 @@ function iniciaMapa() {
     camadaRegs.addLayer(r._layer);
   });
   map.fitBounds(L.latLngBounds(BR.ufs.map(u => u._bounds)), {padding: [20, 20]});
+  gancho('mapa', map);
 }
 
 function dicaUF(u, e) {
@@ -775,6 +798,7 @@ function desenha() {
   if (!S.regiao) {
     const C = estiloUFs(); classeAtual = C; conjuntoAtual = null;
     renderCard(); renderLegenda(C ? {C, vals: BR.comp.uf[S.ind]} : null); renderPainel(); gravaHash();
+    gancho('desenha');
     return;
   }
   estiloUFs();
@@ -799,6 +823,7 @@ function desenha() {
   }
   if (S.sel && S.sel.nv === 'mun') camadaMun.getLayers()[S.sel.i].bringToFront();
   renderCard(); renderLegenda(C ? {C, vals: K.idx.map(i => vals[i])} : null); renderPainel(); gravaHash();
+  gancho('desenha');
 }
 
 /* dica do mapa */
@@ -836,6 +861,7 @@ function dicaUnidade(pol, ev) {
   mostraDica(titulo + '<br>' + corpo, ev);
 }
 function motivoSemValor(c, nv) {
+  const m = gancho('motivo', c, nv); if (m) return m;
   if (c.fonte === 'CENSO22') return nv === 'bai'
     ? 'Sem valor: o IBGE omitiu os setores deste bairro (sigilo) ou o indicador não se aplica.'
     : 'Sem valor: setores com dado omitido pelo IBGE ou indicador que não se aplica.';
@@ -863,7 +889,7 @@ function posicao(nv, i) {
 /* ───────────────────────────────────────────── 7. cartão e legenda ── */
 function seloFonte(c) {
   const f = FONTES[c.fonte], calc = !!c.calc;
-  return `<span class="selo ${calc ? 'calc' : ''}" title="${esc(calc ? 'Cálculo do Atlas: ' + c.calc : f.n)}"><span class="dot"></span>${esc(f ? f.s : c.fonte)} · ${c.ano}${calc ? ' · cálculo do Atlas' : ''}</span>`;
+  return `<span class="selo ${calc ? 'calc' : ''}" title="${esc(calc ? 'Cálculo do Atlas: ' + c.calc : f.n)}"><span class="dot"></span>${esc(rotFonte(c))}${calc ? ' · cálculo do Atlas' : ''}</span>`;
 }
 function renderCard() {
   const c = IND[S.ind], el = $('#cardMapa');
@@ -892,8 +918,9 @@ function renderLegenda(L_) {
   for (let k = 0; k < C.cores.length; k++) {
     let rot;
     if (q.length === 0) rot = vals.length ? `${fmt(mn, c.fmt)}${mx !== mn ? ' a ' + fmt(mx, c.fmt) : ''}` : '—';
-    else if (k === 0) rot = `até ${fmt(q[0], c.fmt)}`;
+    else if (k === 0) rot = C.zero ? fmt(0, c.fmt) : `até ${fmt(q[0], c.fmt)}`;
     else if (k === C.cores.length - 1) rot = `acima de ${fmt(q[q.length - 1], c.fmt)}`;
+    else if (C.zero && k === 1) rot = `acima de ${fmt(0, c.fmt)} até ${fmt(q[1], c.fmt)}`;
     else rot = `${fmt(q[k - 1], c.fmt)} a ${fmt(q[k], c.fmt)}`;
     linhas.push(`<div class="lin"><span class="sw" style="background:${C.cores[k]}"></span>${rot}</div>`);
   }
@@ -902,7 +929,8 @@ function renderLegenda(L_) {
     linhas.push(`<div class="lin"><span class="sw" style="background:${COM_BAIRRO}"></span>município com bairros, fora deles</div>`);
     linhas.push(`<div class="lin"><span class="sw" style="background:${FORA}"></span>município sem bairros no IBGE</div>`);
   }
-  const tipo = c.rampa === 'div' ? `faixas fixas em torno de ${(DIV[S.ind] || DIV.padrao).meio}` : 'quintis (cinco grupos com o mesmo número de unidades)';
+  const tipo = c.rampa === 'div' ? `faixas fixas em torno de ${(DIV[S.ind] || DIV.padrao).meio}`
+    : (C.zero ? 'zero e quartis dos valores acima de zero' : 'quintis (cinco grupos com o mesmo número de unidades)');
   let escala = '';
   if (S.regiao && S.nivel === 'bai' && S.foco && DADOS[S.regiao].bai.porMun.has(S.foco)) {
     escala = `<div class="esc" role="group" aria-label="Unidades que entram nas classes">
@@ -917,6 +945,7 @@ function renderLegenda(L_) {
 function seleciona(nv, i, zoom) {
   const D = DADOS[S.regiao]; if (!D) return;
   S.sel = {nv, i, id: D[nv].ids[i]};
+  gancho('seleciona', nv, i);
   // bairro de outro município: o foco das classes passa a ser o município dele
   if (nv === 'bai' && S.foco && S.foco !== D.bai.mun[i]) S.foco = D.bai.mun[i];
   if (zoom) map.fitBounds(D[nv].bounds[i], {padding: [40, 40], maxZoom: nv === 'bai' ? 15 : 11});
@@ -940,10 +969,11 @@ async function escolheRegiao(sig, depois) {
     if (mudou) {
       liberaOutras(sig);
       S.regiao = sig; S.sel = null; S.uf = null; S.foco = null; S.escala = 'regiao';
+      gancho('trocaRegiao', sig);
       montaCamadas(D);
       camadaBai = null;
       preencheUFs();
-      map.fitBounds(R._bounds, {padding: [20, 20]});
+      map.fitBounds(R._bounds, {padding: [20, 20], animate: !depois});
     }
     if (depois) depois(D);
     if (S.nivel === 'bai' && !IND[S.ind].niv.includes('bai')) S.ind = 'pop';
@@ -1023,7 +1053,7 @@ function renderCats() {
         const ok = c.niv.includes(nv);
         return `<button type="button" class="ind ${c.id === S.ind ? 'on' : ''}" data-id="${c.id}" ${ok ? '' : 'disabled'}>
           <span class="nm">${esc(c.n)}</span>
-          <span class="mt">${esc(FONTES[c.fonte].s)} · ${c.ano} · ${c.niv.includes('bai') ? 'município e bairro' : 'município'}${ok ? '' : ' (troque para município)'}</span></button>`;
+          <span class="mt">${esc(rotFonte(c))} · ${c.niv.includes('bai') ? 'município e bairro' : 'município'}${ok ? '' : ' (troque para município)'}</span></button>`;
       }).join('')}</div></div>`;
   }).join('');
   $('#nInd').textContent = `${total}`;
@@ -1174,6 +1204,7 @@ function fichaMunicipio(i) {
     <div class="f-sub">Código IBGE ${cod} · região ${esc(D.nome)}</div>
     <div class="chips">${chips}</div><div class="acoes">${acoes}</div>
     ${blocoDestaque('mun', i)}
+    ${gancho('bloco', 'mun', i) || ''}
     ${listaIndicadores('mun', i)}`;
 }
 function fichaBairro(i) {
@@ -1191,6 +1222,7 @@ function fichaBairro(i) {
     <div class="f-sub">Código IBGE ${B.ids[i]} · um dos ${nb} bairros do município</div>
     <div class="chips">${chips}</div><div class="acoes">${acoes}</div>
     ${blocoDestaque('bai', i)}
+    ${gancho('bloco', 'bai', i) || ''}
     ${listaIndicadores('bai', i)}`;
 }
 function listaIndicadores(nv, i) {
@@ -1203,7 +1235,7 @@ function listaIndicadores(nv, i) {
       const at = c.id === 'renda_resp' && B.atip.has(i) ? ' · puxado por um setor atípico' : '';
       return `<button type="button" class="linha ${c.id === S.ind ? 'on' : ''}" data-id="${c.id}">
         <span class="n">${esc(c.n)}</span><span class="v ${v == null ? 'nd' : ''}">${v == null ? 'sem dado' : (fx ? '≈ ' : '') + fmt(v, c.fmt)}</span>
-        <span class="m">${esc(FONTES[c.fonte].s)} · ${c.ano}${unid(c) ? ' · ' + esc(c.u) : ''}${fx ? ` · entre ${fmt(fx[0], c.fmt)} e ${fmt(fx[1], c.fmt)}` : ''}${at}</span></button>`;
+        <span class="m">${esc(rotFonte(c))}${unid(c) ? ' · ' + esc(c.u) : ''}${fx ? ` · entre ${fmt(fx[0], c.fmt)} e ${fmt(fx[1], c.fmt)}` : ''}${at}</span></button>`;
     }).join('')}</div>`;
   }).join('');
 }
@@ -1234,6 +1266,7 @@ function resumoRegiao() {
       <span class="chip"><b>${NF[0].format(R.n_mun)}</b> municípios</span>
       <span class="chip"><b>${NF[0].format(R.n_bai)}</b> bairros em ${R.n_mun_bai} municípios</span></div>
     <p class="muted" style="font-size:12.5px;margin-top:8px">Clique num ${S.nivel === 'mun' ? 'município' : 'bairro'} para ver a ficha. ${S.nivel === 'bai' ? 'Municípios em cinza não têm bairros delimitados pelo IBGE.' : ''}</p>
+    ${gancho('bloco', 'regiao') || ''}
     ${blocoInd}`;
 }
 function resumoBrasil() {
@@ -1252,11 +1285,14 @@ function resumoBrasil() {
     <div class="chips"><span class="chip"><b>${fmt(tot, 'int')}</b> pessoas (Censo 2022)</span></div>
     <div class="regs-lista">${BR.regioes.map(r => `<button type="button" data-regiao="${r.sig}"><b>${esc(r.nome)}</b>
       <span>${NF[0].format(r.n_mun)} municípios · ${NF[0].format(r.n_bai)} bairros · ${fmt(r.pop, 'int')} pessoas</span></button>`).join('')}</div>
+    ${gancho('bloco', 'brasil') || ''}
     ${blocoInd}`;
 }
 function renderPainel() {
   const b = $('#panelBody');
-  if (!S.regiao) b.innerHTML = resumoBrasil();
+  const ext = gancho('painel');
+  if (ext != null) b.innerHTML = ext;
+  else if (!S.regiao) b.innerHTML = resumoBrasil();
   else if (S.sel && S.sel.nv === 'mun') b.innerHTML = fichaMunicipio(S.sel.i);
   else if (S.sel && S.sel.nv === 'bai') b.innerHTML = fichaBairro(S.sel.i);
   else b.innerHTML = resumoRegiao();
@@ -1269,6 +1305,7 @@ function renderPainel() {
   $$('.top5 tr', b).forEach(x => x.onclick = () => seleciona(x.dataset.nv, +x.dataset.i, true));
   $$('[data-acao]', b).forEach(x => x.onclick = () => acao(x.dataset.acao));
   ligaSeries(b);
+  gancho('painelPronto', b);
 }
 function acao(a) {
   const D = DADOS[S.regiao];
@@ -1304,7 +1341,7 @@ function renderRanking() {
   bus.oninput = () => { const p = bus.selectionStart; renderRanking(); const n = $('#rkBusca'); n.focus(); n.setSelectionRange(p, p); };
   $('#rkOrd').onclick = () => { rkOrdem = -rkOrdem; renderRanking(); };
   $('#rkCSV').onclick = () => baixaCSV([['posição', 'código IBGE', K.nv === 'mun' ? 'município' : 'bairro', K.nv === 'mun' ? 'UF' : 'município',
-    `${c.n} (${c.u}, ${FONTES[c.fonte].s} ${c.ano})`], ...lin.map((i, k) => [vals && vals[i] != null ? k + 1 : '', String(B.ids[i]), B.nomes[i], lugar(i), vals ? vals[i] : ''])],
+    `${c.n} (${c.u}, ${rotFonte(c)})`], ...lin.map((i, k) => [vals && vals[i] != null ? k + 1 : '', String(B.ids[i]), B.nomes[i], lugar(i), vals ? vals[i] : ''])],
     `ranking_${S.ind}_${K.nv === 'mun' ? 'municipios' : 'bairros'}_${S.regiao.toLowerCase()}.csv`);
   $$('#rankBody tbody tr').forEach(tr => tr.onclick = () => { fechaModais(); seleciona(K.nv, +tr.dataset.i, true); });
 }
@@ -1315,7 +1352,7 @@ function csvNivel() {
   const cab = ['código IBGE', K.nv === 'mun' ? 'município' : 'bairro', 'UF', ...(K.nv === 'bai' ? ['município'] : [])];
   const cols = [];
   inds.forEach(c => {
-    cab.push(`${c.n} (${c.u}; ${FONTES[c.fonte].s} ${c.ano})`); cols.push([c.id, 'v']);
+    cab.push(`${c.n} (${c.u}; ${rotFonte(c)})`); cols.push([c.id, 'v']);
     if (B.faixa(c.id).size) { cab.push(`${c.n}: mínimo pelo sigilo`); cols.push([c.id, 'lo']); cab.push(`${c.n}: máximo pelo sigilo`); cols.push([c.id, 'hi']); }
   });
   const linhas = [cab];
@@ -1352,17 +1389,18 @@ function buscar(q) {
   const D = S.regiao ? DADOS[S.regiao] : null;
   const bai = [];
   if (D) for (let i = 0; i < D.bai.n && bai.length < 8; i++) if (norm(D.bai.nomes[i]).includes(t)) bai.push(i);
-  sugAtual = [...mun.map(m => ({tipo: 'mun', m})), ...bai.map(i => ({tipo: 'bai', i}))];
+  sugAtual = [...mun.map(m => ({tipo: 'mun', m})), ...bai.map(i => ({tipo: 'bai', i})), ...(gancho('busca', t) || [])];
   sugIdx = -1;
-  s.innerHTML = sugAtual.length ? sugAtual.map((x, k) => x.tipo === 'mun'
+  s.innerHTML = sugAtual.length ? sugAtual.map((x, k) => x.tipo === 'ext' ? `<div role="option" data-k="${k}">${x.html}</div>` : (x.tipo === 'mun'
     ? `<div role="option" data-k="${k}"><span>${esc(x.m.nome)}</span><small>município · ${UF_POR_COD[x.m.uf].sigla}</small></div>`
-    : `<div role="option" data-k="${k}"><span>${esc(D.bai.nomes[x.i])}</span><small>bairro · ${esc(nomeMun(D.bai.mun[x.i]))}</small></div>`).join('')
+    : `<div role="option" data-k="${k}"><span>${esc(D.bai.nomes[x.i])}</span><small>bairro · ${esc(nomeMun(D.bai.mun[x.i]))}</small></div>`)).join('')
     : `<div class="vazio">Nada encontrado${S.regiao ? '' : '. Bairros aparecem depois de escolher a região.'}</div>`;
   s.hidden = false;
   $$('#sugg [data-k]').forEach(d => d.onmousedown = e => { e.preventDefault(); vaiPara(sugAtual[+d.dataset.k]); });
 }
 function vaiPara(x) {
   $('#sugg').hidden = true; $('#q').blur();
+  if (x.tipo === 'ext') { x.ir(); return; }
   if (x.tipo === 'mun') {
     const sig = REG_POR_COD[Math.floor(x.m.uf / 10)].sig;
     const ir = D => { const i = D.mun.pos.get(x.m.id); if (S.nivel === 'bai' && !D.bai.porMun.has(x.m.id)) escolheNivel('mun'); seleciona('mun', i, true); };
@@ -1380,7 +1418,7 @@ function renderMetodo() {
   const nb = BR.regioes.reduce((a, r) => a + r.n_bai, 0), nmb = BR.regioes.reduce((a, r) => a + r.n_mun_bai, 0);
   const br = c.brasil;
   const p = (k) => br[k] ? `${NF[2].format(br[k][0][0])}%` : '—';
-  $('#metodoBody').innerHTML = `
+  $('#metodoBody').innerHTML = (gancho('metodo') || '') + `
     <h3>O que é</h3>
     <p>Mapa socioeconômico do Brasil com os ${NF[0].format(m.municipios)} municípios e os ${NF[0].format(nb)} bairros que o IBGE delimitou no Censo 2022, em ${nmb} municípios. Todo valor mostra a fonte, o ano e o nível. O que a fonte não publica aparece em branco: o Atlas não estima, não interpola e não completa valor.</p>
     <h3>Uma região por vez</h3>
@@ -1459,7 +1497,7 @@ function liga() {
       S.fundo = !S.fundo; b.setAttribute('aria-pressed', String(S.fundo));
       if (S.fundo) fundo.addTo(map).bringToBack(); else map.removeLayer(fundo);
       desenha();
-    }
+    } else gancho('menu', a);
   });
   $$('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m || e.target.closest('.mx')) fechaModais(); }));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') fechaModais(); });
@@ -1472,6 +1510,7 @@ function voltaBrasil() {
   [camadaMun, camadaBai, camadaContorno].forEach(l => l && map.removeLayer(l));
   camadaMun = camadaBai = camadaContorno = null;
   S.regiao = null; S.sel = null; S.uf = null; S.foco = null; S.escala = 'regiao';
+  gancho('trocaRegiao', null);
   liberaOutras(null);
   if (S.nivel === 'bai') { S.nivel = 'mun'; $$('#segNivel button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.n === 'mun'))); }
   marcaRegiao(null); preencheUFs(); renderCats();
@@ -1485,6 +1524,7 @@ function aplicaHash(h) {
   const nivel = h.n === 'bai' && h.r ? 'bai' : 'mun';
   if (nivel !== S.nivel) { S.nivel = nivel; $$('#segNivel button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.n === nivel))); }
   renderCats();
+  if (gancho('aplicaHash', h)) return;
   if (!h.r) { if (S.regiao) voltaBrasil(); else { desenha(); convite(); } return; }
   escolheRegiao(h.r, D => {
     S.uf = null; S.foco = null; S.escala = 'regiao'; S.sel = null;

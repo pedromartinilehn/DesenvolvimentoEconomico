@@ -87,9 +87,9 @@ Ele não decide se são lojas distintas ou registros repetidos no CNES.
 - Dois endereços têm duas lojas ativas cada, com CNPJs diferentes:
   - Av. Severo Dullius, 90.010, o endereço do aeroporto;
   - Rua Vinte e Quatro de Outubro, 742, escrito de duas formas no CNES.
-- Dois pares de lojas ficam a menos de 50 m uma da outra:
-  - Rua dos Andradas, 1238 e 1401;
-  - Felipe de Oliveira, 465 e Vicente da Fontoura, 2759.
+- Nenhum par de lojas fica a menos de 50 m um do outro. A conta deixa de fora a loja posta no
+  centro do CEP, porque esse ponto não diz onde ela fica dentro do CEP: é por isso que Rua dos
+  Andradas, 1238 e 1401, e Felipe de Oliveira, 465 e Vicente da Fontoura, 2759, não entram.
 - Doze registros da Dimed em Porto Alegre estão desativados no CNES e ficam de fora.
 
 **Onde fica cada loja.** O CNES traz a coordenada declarada pelo estabelecimento. O arquivo do
