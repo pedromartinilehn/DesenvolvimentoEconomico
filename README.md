@@ -183,6 +183,7 @@ a execução falha em vez de completar por conta própria.
 | [`renner/docs/bolsoes-quintil-inferior.csv`](renner/docs/bolsoes-quintil-inferior.csv) | 123 bolsões do quintil mais pobre a até 5 km de alguma unidade, com coordenadas e loja mais próxima |
 | [`renner/docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx`](renner/docs/DIAGNOSTICO-REGIONAL-template-secoes-3-4-5.docx) | template de diagnóstico regional do Instituto Renner com as seções 3, 4 e 5 respondidas (apresentação, escopo e metodologia) |
 | [`renner/docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx`](renner/docs/DIAGNOSTICO-REGIONAL-respostas-guardadas-completas.docx) | respostas guardadas de todas as seções do template (nome da regional e seções 6 a 15: tabelas por município, 5 mapas, rede de serviços, orçamento, atores, SWOT e priorização) |
+| [`renner/docs/DIAGNOSTICO-REGIONAL-template-preenchido.docx`](renner/docs/DIAGNOSTICO-REGIONAL-template-preenchido.docx) | template enviado pelo grupo (equipe e seções 3, 4, 5 e 12 do grupo, sem alteração) com as seções 6 a 11 e 13 a 15 preenchidas com os números atuais do Atlas: tabelas por município (inclusive Censo 2010 amostra, Atlas Brasil, UDHs e Radar IDHM), 5 mapas, rede de serviços, orçamento, atores, SWOT e priorização |
 | [`renner/docs/DIAGNOSTICO-REGIONAL-analise-do-template.md`](renner/docs/DIAGNOSTICO-REGIONAL-analise-do-template.md) | análise das perguntas do template, cobertura do Atlas por seção e sugestões de dados e funções para completar o diagnóstico |
 
 ## Documentos gerais
