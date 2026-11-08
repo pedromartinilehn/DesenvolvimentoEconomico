@@ -104,122 +104,162 @@ function tabela(s, cab, linhas, x, y, colW, fs, al) {
     lon = cid('Londrina'), bc = cid('Balneário Camboriú'), sp = cid('São Paulo'), stos = cid('Santos'), cps = cid('Campinas'),
     rio = cid('Rio de Janeiro'), nit = cid('Niterói'), bh = cid('Belo Horizonte');
 
+  // números dos releases do 3T26 (Panvel 05/11/2026; RD Saúde 03/11/2026; Pague Menos 04/11/2026)
+  const REL = { pv: { lojas: 677, uf: { RS: 425, SC: 105, PR: 130, SP: 17 }, ab3t: 14, abUF: 'RS 5, SC 2, PR 5, SP 2', share: { Sul: 13.5, RS: 22.4, SC: 7.9, PR: 7.4 },
+      venda: 837, vendaMad: 887, ticket: 101.15, roic: { 2023: 34.3, 2024: 24.3, 2025: 13.1 }, madSP: 47.1, madRS: 83.7, capexAb: 20.1 },
+    rd: { lojas: 3770, ab3t: 92, abLTM: 333, guid: '330 a 350', uf: { SP: 1485, RJ: 295, MG: 269, PR: 217, RS: 140, SC: 121, ES: 82 }, share: { SP: 33.0, Sul: 11.5, SE: 14.3 }, spPct: 35, cds: 16 },
+    pm: { lojas: 1705, ticket: 97.39, venda: 868, ne: 62, share: { Sul: 1.1, SE: 2.0 } } };
+  const FR = 'Releases de resultados do 3T26 (Panvel, RD Saúde, Pague Menos); market share: IQVIA, conforme os releases.';
+
   // 1 ─ resposta
   pres.addSection({ title: 'Onde crescer' });
   let s = pres.addSlide({ masterName: 'FECHO', sectionTitle: 'Onde crescer' });
   s.addText('Onde a Panvel deve crescer', { placeholder: 'title' });
-  T(s, `Em lugares com renda alta e muitos idosos, o perfil que a rede já atende. No Sul e no Sudeste, ${br(SP.pop_perfil_sem_panvel / 1e6, 2)} milhões de pessoas vivem nesse perfil sem uma Panvel a até 1 km.`,
-    { x: 0.7, y: 1.45, w: 7.3, h: 1.0, fontSize: 17, color: 'DCE6F2', objectName: 'Mensagem' });
-  const fr = [['FaStoreAlt', C.accent2, '1. Desenvolver SC e PR', `Adensar Curitiba, Florianópolis, Maringá e Joinville e abrir Balneário Camboriú. A marca e a logística já estão lá.`],
-    ['FaCity', C.accent3, '2. Crescer em São Paulo', `Capital (a partir das 12 lojas), Santos e Campinas: ${br(ufp('SP').sem_panvel / 1e6, 2)} mi de pessoas no perfil sem Panvel.`],
-    ['FaRoute', C.accent1, '3. Avaliar nova UF', 'Rio, Niterói e Belo Horizonte: muito público, mas a mais de 340 km da Panvel mais próxima.']];
+  T(s, `A rede voltou a acelerar: ${REL.pv.ab3t} aberturas no 3T26 e ${REL.pv.lojas} lojas. O alvo das próximas: lugares com renda alta e muitos idosos, onde ${br(SP.pop_perfil_sem_panvel / 1e6, 2)} milhões de pessoas no Sul e no Sudeste ainda não têm uma Panvel a até 1 km.`,
+    { x: 0.7, y: 1.4, w: 7.3, h: 1.1, fontSize: 16, color: 'DCE6F2', objectName: 'Mensagem' });
+  const fr = [['FaStoreAlt', C.accent2, '1. Desenvolver SC e PR', `Market share de ${br(REL.pv.share.SC, 1)}% em SC e ${br(REL.pv.share.PR, 1)}% no PR, contra ${br(REL.pv.share.RS, 1)}% no RS. Marca e logística já estão lá.`],
+    ['FaCity', C.accent3, '2. Crescer em São Paulo', `${REL.pv.uf.SP} lojas hoje e ${br(ufp('SP').sem_panvel / 1e6, 2)} mi de pessoas no perfil sem Panvel. Escolher pontos com pouca Raia.`],
+    ['FaRoute', C.accent1, '3. Avaliar nova UF', 'Rio, Niterói e BH: muito público, mas a mais de 340 km da loja Panvel mais próxima.']];
   for (let i = 0; i < 3; i++) {
-    const y = 2.65 + i * 1.4;
+    const y = 2.7 + i * 1.38;
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.7, y, w: 7.3, h: 1.22, rectRadius: 0.12, fill: { color: '1F4677' }, line: { type: 'none' }, objectName: 'Frente ' + i });
     await bolinha(s, 0.95, y + 0.24, 0.74, fr[i][0], fr[i][1], 'frente ' + i);
     T(s, [{ text: fr[i][2], options: { bold: true, fontFace: 'Cambria', fontSize: 18, color: 'FFFFFF', breakLine: true } }, { text: fr[i][3], options: { fontSize: 14, color: 'DCE6F2' } }],
-      { x: 1.95, y: y + 0.12, w: 5.9, h: 1.0, valign: 'middle', objectName: 'Frente texto ' + i });
+      { x: 1.95, y: y + 0.1, w: 5.9, h: 1.02, valign: 'middle', objectName: 'Frente texto ' + i });
   }
   s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 8.4, y: 0.55, w: 4.5, h: 6.4, rectRadius: 0.15, fill: { color: 'FFFFFF' }, line: { type: 'none' }, objectName: 'Moldura' });
   s.addImage({ path: MAPA, x: 8.55, y: 0.65, w: 4.2, h: 4.2 * 1716 / 1538, altText: 'Mapa de oportunidades', objectName: 'Mapa' });
   T(s, 'Vermelho: Panvel · cinza: Raia Drogasil · círculos: pontos com mais público no perfil sem Panvel (verde: RS/SC/PR; laranja: SP; azul: RJ/MG/ES)',
     { x: 8.6, y: 5.45, w: 4.15, h: 1.35, fontSize: 11, color: HEX.dk1, objectName: 'Legenda mapa' });
-  s.addNotes('A resposta primeiro: três frentes, em ordem de esforço. Desenvolver SC e PR, onde a Panvel já está mas ainda deixa muito público-perfil descoberto; crescer em São Paulo a partir das lojas da capital; e, por último, avaliar a entrada no Rio e em BH.');
+  s.addNotes(`A resposta primeiro. A própria Panvel retomou a aceleração no 3T26 (${REL.pv.ab3t} inaugurações: ${REL.pv.abUF}). Três frentes, em ordem de esforço: desenvolver SC e PR, onde o market share é um terço do gaúcho; crescer em SP com seletividade; avaliar a entrada no Rio e em BH.`);
 
-  // 2 ─ por quê: o perfil
+  // 2 ─ por quê: o perfil e a economia da loja
   s = pres.addSlide({ masterName: 'CONTEUDO', sectionTitle: 'Onde crescer' });
-  s.addText('O critério: o perfil que a Panvel já atende', { placeholder: 'title' });
-  T(s, 'Moradores a até 1 km de uma Panvel no RS, SC e PR (%)', { x: 0.5, y: 1.45, w: 6.8, h: 0.4, fontSize: 15, bold: true, color: C.text2, objectName: 'Título matriz' });
+  s.addText('O critério: renda alta e idosos, onde a loja Panvel rende', { placeholder: 'title' });
+  T(s, 'Moradores a até 1 km de uma Panvel no RS, SC e PR (%)', { x: 0.5, y: 1.45, w: 6.6, h: 0.4, fontSize: 15, bold: true, color: C.text2, objectName: 'Título matriz' });
   const cores = v => v >= 40 ? '13315C' : v >= 20 ? '2A6F8F' : v >= 10 ? '5FA8B8' : v >= 5 ? 'A9D3DA' : 'DCEDF0';
   const rotR = ['Renda alta', 'Renda média', 'Renda baixa'], rot6 = ['Poucos idosos', 'Médio', 'Muitos idosos'];
   for (let a = 0; a < 3; a++) {
-    T(s, rotR[a], { x: 0.5, y: 2.0 + a * 1.25, w: 1.4, h: 1.15, fontSize: 14, valign: 'middle', objectName: 'Linha ' + a });
+    T(s, rotR[a], { x: 0.5, y: 2.0 + a * 1.2, w: 1.35, h: 1.1, fontSize: 14, valign: 'middle', objectName: 'Linha ' + a });
     for (let b = 0; b < 3; b++) {
       const v = mat[2 - a][b];
-      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 2.0 + b * 1.75, y: 2.0 + a * 1.25, w: 1.65, h: 1.15, rectRadius: 0.08, fill: { color: cores(v) }, line: { type: 'none' }, objectName: `C${a}${b}` });
-      T(s, br(v, 1) + '%', { x: 2.0 + b * 1.75, y: 2.0 + a * 1.25, w: 1.65, h: 1.15, fontSize: 24, bold: true, align: 'center', valign: 'middle', color: v >= 20 ? 'FFFFFF' : HEX.dk2, objectName: `V${a}${b}` });
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 1.9 + b * 1.7, y: 2.0 + a * 1.2, w: 1.6, h: 1.1, rectRadius: 0.08, fill: { color: cores(v) }, line: { type: 'none' }, objectName: `C${a}${b}` });
+      T(s, br(v, 1) + '%', { x: 1.9 + b * 1.7, y: 2.0 + a * 1.2, w: 1.6, h: 1.1, fontSize: 22, bold: true, align: 'center', valign: 'middle', color: v >= 20 ? 'FFFFFF' : HEX.dk2, objectName: `V${a}${b}` });
     }
   }
-  for (let b = 0; b < 3; b++) T(s, rot6[b], { x: 2.0 + b * 1.75, y: 5.8, w: 1.65, h: 0.35, fontSize: 13, align: 'center', objectName: 'Coluna ' + b });
-  T(s, 'Onde mirar', { x: 7.9, y: 1.45, w: 4.9, h: 0.45, fontFace: 'Cambria', fontSize: 20, bold: true, color: C.text2, objectName: 'Onde mirar' });
-  const reg = [['FaCoins', `Renda média do responsável de pelo menos R$ ${br(crit.renda_min)} no raio de 1 km`],
-    ['FaUserFriends', `Pelo menos ${br(crit.p60_min, 1)}% de moradores com 60 anos ou mais`],
-    ['FaUsers', `Pelo menos ${br(crit.pop1km_min)} moradores no raio de 1 km`]];
+  for (let b = 0; b < 3; b++) T(s, rot6[b], { x: 1.9 + b * 1.7, y: 5.65, w: 1.6, h: 0.35, fontSize: 13, align: 'center', objectName: 'Coluna ' + b });
+  T(s, `Critério de busca (mediana das lojas): renda média do responsável ≥ R$ ${br(crit.renda_min)}, 60+ ≥ ${br(crit.p60_min, 1)}% e ≥ ${br(crit.pop1km_min)} moradores no raio de 1 km.`,
+    { x: 0.5, y: 6.05, w: 6.6, h: 0.5, fontSize: 12, color: C.text2, objectName: 'Critério' });
+  T(s, 'O que os releases confirmam', { x: 7.6, y: 1.45, w: 5.2, h: 0.45, fontFace: 'Cambria', fontSize: 20, bold: true, color: C.text2, objectName: 'Releases' });
+  const ev = [['FaReceipt', `Ticket médio de R$ ${br(REL.pv.ticket, 2)}`, `Acima da Pague Menos (R$ ${br(REL.pm.ticket, 2)}). Higiene e beleza tem "grande penetração entre os consumidores de maior renda".`],
+    ['FaStore', `R$ ${REL.pv.venda} mil por loja por mês`, `R$ ${REL.pv.vendaMad} mil nas lojas maduras; venda nas mesmas lojas +13,3% no 3T26.`],
+    ['FaChartLine', 'Lojas novas dão retorno', `ROIC das safras: ${br(REL.pv.roic[2023], 1)}% (2023), ${br(REL.pv.roic[2024], 1)}% (2024) e ${br(REL.pv.roic[2025], 1)}% (2025, ainda em maturação).`]];
   for (let i = 0; i < 3; i++) {
-    await bolinha(s, 7.9, 2.1 + i * 0.95, 0.66, reg[i][0], C.accent2, 'critério ' + i);
-    T(s, reg[i][1], { x: 8.75, y: 2.1 + i * 0.95, w: 4.08, h: 0.7, fontSize: 15, valign: 'middle', objectName: 'Critério ' + i });
+    const y = 2.05 + i * 1.45;
+    cartao(s, 7.6, y, 5.23, 1.3, C.background2, 'Evidência ' + i);
+    await bolinha(s, 7.8, y + 0.3, 0.66, ev[i][0], C.accent2, 'evidência ' + i);
+    T(s, [{ text: ev[i][1], options: { bold: true, color: C.text2, breakLine: true } }, { text: ev[i][2] }], { x: 8.65, y: y + 0.12, w: 4.05, h: 1.1, fontSize: 13, valign: 'middle', objectName: 'Evidência texto ' + i });
   }
-  cartao(s, 7.9, 5.0, 4.93, 1.4, C.background2, 'Por que');
-  T(s, `É o retrato da Panvel típica (medianas das 593 lojas). ${br(PV.pct_renda_acima_uf, 0)}% das lojas estão em entornos mais ricos que a média do estado.`,
-    { x: 8.15, y: 5.12, w: 4.5, h: 1.2, fontSize: 14, valign: 'middle', objectName: 'Texto por que' });
-  fonte(s, 'Sem dado de venda: o ticket é aproximado pela renda do responsável pelo domicílio (Censo 2022). Lojas: CNES abr./2026. Raio de 1 km em linha reta.');
-  s.addNotes('Por que esses lugares: nos estados onde é forte, a Panvel cobre 45% dos moradores com renda alta e muitos idosos, e só 2,4% no extremo oposto. Os três critérios à direita são o retrato da loja Panvel típica e foram usados para achar os pontos dos próximos slides.');
+  fonte(s, 'Matriz: Censo 2022 e lojas do CNES (abr./2026); terços da população por renda do responsável e por 60+. Evidências: release 3T26 da Panvel e da Pague Menos.');
+  s.addNotes('Por que esses lugares: nos estados onde é forte, a Panvel cobre 45% dos moradores com renda alta e muitos idosos, e só 2,4% no extremo oposto. O release reforça o critério: o ticket da Panvel é o maior entre as redes comparadas, a categoria de higiene e beleza depende do público de maior renda e as lojas abertas desde 2023 já dão ROIC de dois dígitos.');
 
-  // 3 ─ SC e PR: por que adensar
+  // 3 ─ SC e PR
   s = pres.addSlide({ masterName: 'CONTEUDO', sectionTitle: 'Onde crescer' });
-  s.addText('Por que adensar SC e PR: ainda longe do nível de Porto Alegre', { placeholder: 'title' });
+  s.addText('Por que adensar SC e PR: share de um terço do RS', { placeholder: 'title' });
+  [['RS', C.accent4], ['SC', C.accent2], ['PR', C.accent2]].forEach(([u, cor], i) => {
+    const x = 0.5 + i * 2.1;
+    cartao(s, x, 1.45, 1.95, 1.25, C.background2, 'Share ' + u);
+    T(s, br(REL.pv.share[u], 1) + '%', { x: x + 0.2, y: 1.5, w: 1.6, h: 0.65, fontFace: 'Cambria', fontSize: 28, bold: true, color: cor, objectName: 'Share n ' + u });
+    T(s, `share em ${u} · ${REL.pv.uf[u]} lojas`, { x: x + 0.2, y: 2.15, w: 1.65, h: 0.45, fontSize: 12, objectName: 'Share t ' + u });
+  });
   const cs = [poa, lon, cwb, fln, mga, jvl, bc];
   s.addChart(pres.charts.BAR, [{ name: 'Sem Panvel', labels: cs.map(m => m.mun), values: cs.map(m => Math.round(semPct(m))) }],
-    { x: 0.5, y: 1.4, w: 6.1, h: 5.1, barDir: 'bar', chartColors: [HEX.accent4, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent1],
-      showTitle: true, title: 'Público no perfil sem Panvel a até 1 km (%)', titleFontFace: '+mn-lt', titleFontSize: 14, titleColor: HEX.dk1,
-      showValue: true, dataLabelFormatCode: '0"%"', dataLabelFontFace: '+mn-lt', dataLabelFontSize: 13, dataLabelColor: HEX.dk1,
+    { x: 0.5, y: 2.85, w: 6.1, h: 3.7, barDir: 'bar', chartColors: [HEX.accent4, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent1],
+      showTitle: true, title: 'Público no perfil sem Panvel a até 1 km (%)', titleFontFace: '+mn-lt', titleFontSize: 13, titleColor: HEX.dk1,
+      showValue: true, dataLabelFormatCode: '0"%"', dataLabelFontFace: '+mn-lt', dataLabelFontSize: 12, dataLabelColor: HEX.dk1,
       valAxisHidden: true, valGridLine: { style: 'none' }, catGridLine: { style: 'none' }, catAxisOrientation: 'maxMin', catAxisLabelFontFace: '+mn-lt',
-      catAxisLabelFontSize: 13, catAxisLabelColor: '4A5868', showLegend: false, barGapWidthPct: 50, valAxisMinVal: 0, valAxisMaxVal: 115, objectName: 'Gráfico cidades' });
-  const motivos = [['FaCheckCircle', 'Porto Alegre mostra o potencial', `Lá, só ${br(semPct(poa), 0)}% do público no perfil fica sem Panvel a 1 km. Em Curitiba são ${br(semPct(cwb), 0)}% (${br(cwb.perfil_sem_panvel)} pessoas).`],
-    ['FaTruck', 'Marca e logística já estão lá', 'Os pontos candidatos de Curitiba, Florianópolis e Maringá ficam a 1 ou 2 km de lojas atuais.'],
-    ['FaFlag', 'A Raia está ocupando o espaço', `Já tem mais lojas que a Panvel em Curitiba (${cwb.rd} × ${cwb.panvel}), Maringá (${mga.rd} × ${mga.panvel}) e Joinville (${jvl.rd} × ${jvl.panvel}).`],
+      catAxisLabelFontSize: 12, catAxisLabelColor: '4A5868', showLegend: false, barGapWidthPct: 45, valAxisMinVal: 0, valAxisMaxVal: 118, objectName: 'Gráfico cidades' });
+  const motivos = [['FaCheckCircle', 'Porto Alegre mostra o teto', `Só ${br(semPct(poa), 0)}% do público no perfil fica sem Panvel a 1 km. Em Curitiba, ${br(semPct(cwb), 0)}% (${br(cwb.perfil_sem_panvel)} pessoas); em Joinville, ${br(semPct(jvl), 0)}%.`],
+    ['FaFlag', 'A Raia tem mais lojas', `PR: ${REL.rd.uf.PR} da Raia contra ${REL.pv.uf.PR} da Panvel; SC: ${REL.rd.uf.SC} contra ${REL.pv.uf.SC}. No RS a Panvel tem ${REL.pv.uf.RS} contra ${REL.rd.uf.RS}.`],
+    ['FaTruck', 'Abrir perto custa menos', 'Os pontos de Curitiba, Florianópolis e Maringá ficam a 1 ou 2 km de lojas atuais. A Panvel já abriu 5 lojas no PR e 2 em SC no 3T26.'],
     ['FaUmbrellaBeach', 'Balneário Camboriú está vazio', `${br(bc.perfil_sem_panvel)} pessoas no perfil, nenhuma Panvel e só ${bc.rd} lojas da Raia.`]];
   for (let i = 0; i < 4; i++) {
-    const y = 1.45 + i * 1.27;
-    await bolinha(s, 7.0, y + 0.08, 0.62, motivos[i][0], i === 2 ? C.accent1 : C.accent2, 'motivo ' + i);
-    T(s, [{ text: motivos[i][1], options: { bold: true, color: C.text2, breakLine: true } }, { text: motivos[i][2] }],
-      { x: 7.8, y, w: 5.03, h: 1.15, fontSize: 14, objectName: 'Motivo ' + i });
+    const y = 1.45 + i * 1.28;
+    await bolinha(s, 7.0, y + 0.08, 0.62, motivos[i][0], i === 1 ? C.accent1 : C.accent2, 'motivo ' + i);
+    T(s, [{ text: motivos[i][1], options: { bold: true, color: C.text2, breakLine: true } }, { text: motivos[i][2] }], { x: 7.8, y, w: 5.03, h: 1.18, fontSize: 13.5, objectName: 'Motivo ' + i });
   }
-  fonte(s, 'Público no perfil: moradores de setores com renda e parcela de 60+ iguais ou acima das medianas das Panvel. Censo 2022; CNES abr./2026.');
-  s.addNotes(`O porquê de adensar: Porto Alegre é a prova do que a rede consegue quando está madura, com só 4% do público-perfil sem Panvel por perto. Em Curitiba, Florianópolis, Maringá e Joinville essa parcela vai de 22% a 49%. A Panvel já tem marca e logística nessas cidades, e a Raia Drogasil já tem mais lojas que ela em várias delas. Levar Curitiba ao nível de Porto Alegre significaria alcançar cerca de ${br(Math.round((cwb.perfil_sem_panvel - cwb.perfil * semPct(poa) / 100) / 1000))} mil pessoas no perfil a mais.`);
+  fonte(s, 'Share e lojas por UF: releases 3T26 (IQVIA). Gráfico: Censo 2022 e lojas do CNES (abr./2026). Público no perfil: renda e 60+ acima das medianas das Panvel.');
+  s.addNotes(`O porquê de adensar, agora com os números da própria empresa: no RS a Panvel tem ${br(REL.pv.share.RS, 1)}% do mercado; em SC e no PR, cerca de um terço disso. Porto Alegre mostra até onde a rede chega quando madura. A Raia Drogasil tem mais lojas que a Panvel no PR e em SC. O release da Panvel diz que a empresa vê muitas oportunidades na Região Sul, em especial no interior dos estados. Levar Curitiba ao nível de Porto Alegre alcançaria cerca de ${br(Math.round((cwb.perfil_sem_panvel - cwb.perfil * semPct(poa) / 100) / 1000))} mil pessoas no perfil a mais.`);
 
   // 4 ─ São Paulo
   s = pres.addSlide({ masterName: 'CONTEUDO', sectionTitle: 'Onde crescer' });
-  s.addText('São Paulo: o maior mercado descoberto, perto das lojas atuais', { placeholder: 'title' });
+  s.addText('São Paulo: o maior mercado, com a Raia dominante', { placeholder: 'title' });
   const sps = [['Capital', sp], ['Santos', stos], ['Campinas', cps]];
   for (let i = 0; i < 3; i++) {
-    const x = 0.5 + i * 4.21, m = sps[i][1];
-    cartao(s, x, 1.45, 3.91, 1.75, C.background2, 'SP ' + i);
-    T(s, br(m.perfil_sem_panvel / 1000) + ' mil', { x: x + 0.3, y: 1.55, w: 3.4, h: 0.7, fontFace: 'Cambria', fontSize: 30, bold: true, color: C.accent2, objectName: 'SP número ' + i });
-    T(s, `${sps[i][0]}: pessoas no perfil sem Panvel a 1 km (${br(semPct(m), 0)}% do perfil). Panvel ${m.panvel} · Raia ${m.rd}.`,
-      { x: x + 0.3, y: 2.25, w: 3.4, h: 0.85, fontSize: 14, objectName: 'SP texto ' + i });
+    const x = 0.5 + i * 2.75, m = sps[i][1];
+    cartao(s, x, 1.45, 2.6, 1.55, C.background2, 'SP ' + i);
+    T(s, br(m.perfil_sem_panvel / 1000) + ' mil', { x: x + 0.2, y: 1.52, w: 2.3, h: 0.6, fontFace: 'Cambria', fontSize: 26, bold: true, color: C.accent2, objectName: 'SP n ' + i });
+    T(s, `${sps[i][0]}: no perfil sem Panvel a 1 km`, { x: x + 0.2, y: 2.12, w: 2.3, h: 0.8, fontSize: 13, objectName: 'SP t ' + i });
   }
+  cartao(s, 8.85, 1.45, 3.98, 1.55, 'FBEAE5', 'Raia SP');
+  T(s, [{ text: `Raia: ${br(REL.rd.uf.SP)} lojas e ${br(REL.rd.share.SP, 1)}% de share em SP`, options: { bold: true, color: C.accent6, breakLine: true } },
+    { text: `${REL.rd.spPct}% das aberturas da Raia no último ano foram em SP. A Panvel tem ${REL.pv.uf.SP} lojas, ${br(REL.pv.madSP, 1)}% delas maduras.` }],
+    { x: 9.05, y: 1.55, w: 3.6, h: 1.4, fontSize: 13, objectName: 'Texto Raia SP' });
   const ptsSP = R.pontos.filter(h => h.uf === 'SP');
   const pick = ['Santana', 'Pompeia', 'Mirandopolis', 'Gonzaga', 'Embaré', 'Cambui'].map(k => ptsSP.find(h => (h.bairro || h.ref_cnes).includes(k)));
   tabela(s, ['Ponto candidato', 'Público no perfil (1 km)', 'Renda média', '60+', 'Raia + Pague Menos (1 km)', 'Panvel mais próxima'],
     pick.map(h => [rotulo(h), br(h.perfil_sem_panvel_1km), 'R$ ' + br(h.renda_1km), br(h.p60_1km, 1) + '%', String(h.rd_1km + h.pm_1km), br(h.panvel_mais_proxima_km, 1) + ' km']),
-    0.5, 3.45, [3.6, 1.85, 1.55, 1.05, 2.3, 1.98]);
-  fonte(s, 'Por que: as 12 lojas da capital já dão base de marca e logística, e Santos tem mais de 30% de idosos. Cuidado: a Raia tem 482 lojas na capital. * Bairro do CNES da farmácia mais próxima.');
-  s.addNotes('São Paulo concentra o maior público no perfil sem Panvel. A capital já tem 12 lojas, então os pontos próximos (Santana, Pompeia, Mirandópolis) aproveitam essa base. Santos é o caso mais forte de público idoso. A concorrência é a maior da região: escolher pontos com poucos concorrentes, como Santana.');
+    0.5, 3.25, [3.6, 1.85, 1.55, 1.05, 2.3, 1.98]);
+  fonte(s, 'Pontos: Censo 2022 e CNES (abr./2026); * bairro do CNES da farmácia mais próxima. Raia e Panvel em SP: releases 3T26 (IQVIA).');
+  s.addNotes('São Paulo tem o maior público no perfil sem Panvel, mas é o mercado mais disputado: a Raia tem 33% de share no estado e concentra lá um terço das aberturas. A Panvel tem 17 lojas, metade ainda em maturação. Crescer com seletividade: pontos perto das lojas da capital e com pouca concorrência, como Santana; Santos é o caso mais forte de público idoso.');
 
-  // 5 ─ nova UF e sequência
+  // 5 ─ concorrência e sequência
   s = pres.addSlide({ masterName: 'CONTEUDO', sectionTitle: 'Onde crescer' });
-  s.addText('Nova UF por último, e a sequência recomendada', { placeholder: 'title' });
-  tabela(s, ['Cidade', 'Público no perfil sem Panvel', 'Lojas da Raia', 'Melhores pontos'],
-    [[rio.mun, br(rio.perfil_sem_panvel), String(rio.rd), 'Copacabana, Laranjeiras, Vila Isabel'], [bh.mun, br(bh.perfil_sem_panvel), String(bh.rd), 'Sion, Barroca'],
-     [nit.mun, br(nit.perfil_sem_panvel), String(nit.rd), 'Icaraí']], 0.5, 1.5, [2.2, 2.4, 1.5, 3.6], 13, ['left', 'right', 'right', 'left']);
-  T(s, 'Por que por último: é o maior volume de público, mas a Panvel mais próxima fica a mais de 340 km. Exige montar logística e marca do zero.',
-    { x: 10.4, y: 1.5, w: 2.43, h: 1.65, fontSize: 14, objectName: 'Por que último' });
-  const seq = [['1', 'SC e PR', 'Balneário Camboriú e adensar Curitiba, Florianópolis, Maringá e Joinville', C.accent2],
-    ['2', 'São Paulo', 'Pontos perto das 12 lojas da capital; testar Santos', C.accent3],
-    ['3', 'RJ e MG', 'Estudo de entrada: Rio, Niterói e Belo Horizonte', C.accent1]];
+  s.addText('Concorrência e sequência recomendada', { placeholder: 'title' });
+  const conc = [['FaFlag', C.accent1, 'Raia Drogasil', `${br(REL.rd.lojas)} lojas, ${REL.rd.ab3t} aberturas no 3T26 e guidance de ${REL.rd.guid} por ano. ${REL.rd.cds} CDs; share de ${br(REL.rd.share.Sul, 1)}% no Sul, contra ${br(REL.pv.share.Sul, 1)}% da Panvel.`],
+    ['FaMapMarkerAlt', C.accent4, 'Pague Menos', `${br(REL.pm.lojas)} lojas, ${REL.pm.ne}% no Nordeste e expansão no Norte, Nordeste e Centro-Oeste. Share de ${br(REL.pm.share.Sul, 1)}% no Sul e ${br(REL.pm.share.SE, 1)}% no Sudeste: não disputa o Sul.`],
+    ['FaCity', C.accent3, 'RJ e MG', `Rio (${br(rio.perfil_sem_panvel / 1000)} mil no perfil), BH (${br(bh.perfil_sem_panvel / 1000)} mil) e Niterói (${br(nit.perfil_sem_panvel / 1000)} mil), com ${REL.rd.uf.RJ} lojas da Raia no RJ e ${REL.rd.uf.MG} em MG.`]];
   for (let i = 0; i < 3; i++) {
     const x = 0.5 + i * 4.21;
-    cartao(s, x, 3.45, 3.91, 2.1, C.background2, 'Etapa ' + i);
-    s.addShape(pres.shapes.OVAL, { x: x + 0.3, y: 3.7, w: 0.6, h: 0.6, fill: { color: seq[i][3] }, line: { type: 'none' }, objectName: 'Número etapa ' + i });
-    T(s, seq[i][0], { x: x + 0.3, y: 3.7, w: 0.6, h: 0.6, fontSize: 20, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle', objectName: 'Etapa n ' + i });
-    T(s, seq[i][1], { x: x + 1.05, y: 3.7, w: 2.7, h: 0.6, fontFace: 'Cambria', fontSize: 20, bold: true, color: C.text2, valign: 'middle', objectName: 'Etapa título ' + i });
-    T(s, seq[i][2], { x: x + 0.3, y: 4.45, w: 3.4, h: 1.0, fontSize: 15, objectName: 'Etapa texto ' + i });
+    cartao(s, x, 1.45, 3.91, 1.95, C.background2, 'Concorrente ' + i);
+    await bolinha(s, x + 0.25, 1.65, 0.6, conc[i][0], conc[i][1], 'conc ' + i);
+    T(s, conc[i][2], { x: x + 1.0, y: 1.65, w: 2.8, h: 0.6, fontFace: 'Cambria', fontSize: 18, bold: true, color: C.text2, valign: 'middle', objectName: 'Conc título ' + i });
+    T(s, conc[i][3], { x: x + 0.25, y: 2.32, w: 3.45, h: 1.0, fontSize: 12.5, objectName: 'Conc texto ' + i });
   }
-  T(s, [{ text: 'Antes de abrir: ', options: { bold: true } }, { text: 'cruzar com venda, ticket e margem das lojas atuais e conferir o ponto (aluguel, fluxo). Lista completa: pontos-oportunidade.csv.' }],
-    { x: 0.5, y: 5.8, w: 12.33, h: 0.6, fontSize: 14, objectName: 'Antes de abrir' });
-  fonte(s, 'CNES abr./2026 (lojas); Censo 2022 (setores). O CNES não é a lista oficial das redes; a renda é aproximação do ticket.');
-  s.addNotes('O Sudeste fora de SP tem o maior volume de público no perfil, mas a entrada exige logística nova. A sequência vai do menor para o maior esforço.');
+  const seq = [['1', 'SC e PR', 'Balneário Camboriú e adensar Curitiba, Florianópolis, Maringá e Joinville', C.accent2],
+    ['2', 'São Paulo', 'Pontos perto das 17 lojas, com pouca Raia; testar Santos', C.accent3],
+    ['3', 'RJ e MG', 'Estudo de entrada: exige logística nova (a mais de 340 km)', C.accent1]];
+  for (let i = 0; i < 3; i++) {
+    const x = 0.5 + i * 4.21;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 3.65, w: 3.91, h: 1.85, rectRadius: 0.12, fill: { color: HEX.dk2 }, line: { type: 'none' }, objectName: 'Etapa ' + i });
+    s.addShape(pres.shapes.OVAL, { x: x + 0.25, y: 3.85, w: 0.55, h: 0.55, fill: { color: seq[i][3] }, line: { type: 'none' }, objectName: 'Número etapa ' + i });
+    T(s, seq[i][0], { x: x + 0.25, y: 3.85, w: 0.55, h: 0.55, fontSize: 18, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle', objectName: 'Etapa n ' + i });
+    T(s, seq[i][1], { x: x + 0.95, y: 3.85, w: 2.8, h: 0.55, fontFace: 'Cambria', fontSize: 19, bold: true, color: 'FFFFFF', valign: 'middle', objectName: 'Etapa título ' + i });
+    T(s, seq[i][2], { x: x + 0.25, y: 4.55, w: 3.45, h: 0.85, fontSize: 13.5, color: 'DCE6F2', objectName: 'Etapa texto ' + i });
+  }
+  T(s, [{ text: 'Antes de abrir: ', options: { bold: true } }, { text: 'cruzar com venda, ticket e margem internos e conferir o ponto (aluguel, fluxo). Lista completa: pontos-oportunidade.csv.' }],
+    { x: 0.5, y: 5.75, w: 12.33, h: 0.5, fontSize: 13, objectName: 'Antes de abrir' });
+  fonte(s, FR + ' Público no perfil: Censo 2022.');
+  s.addNotes('A Raia é a concorrente que importa: cresce mais de 300 lojas por ano e já tem mais lojas que a Panvel em SC e no PR. A Pague Menos está concentrada no Norte e no Nordeste e quase não aparece no Sul. Por isso a ordem: primeiro defender e ocupar SC e PR, depois SP com seletividade, e só então estudar novas UFs.');
+
+  // 6 ─ anexo: validação
+  pres.addSection({ title: 'Anexo' });
+  s = pres.addSlide({ masterName: 'CONTEUDO', sectionTitle: 'Anexo' });
+  s.addText('Anexo: as bases batem? CNES × releases', { placeholder: 'title' });
+  const linhasV = [['Panvel', 'RS', LU.RS.panvel, REL.pv.uf.RS], ['Panvel', 'SC', LU.SC.panvel, REL.pv.uf.SC], ['Panvel', 'PR', LU.PR.panvel, REL.pv.uf.PR], ['Panvel', 'SP', LU.SP.panvel, REL.pv.uf.SP],
+    ['Raia', 'SP', LU.SP.rd, REL.rd.uf.SP], ['Raia', 'RJ', LU.RJ.rd, REL.rd.uf.RJ], ['Raia', 'MG', LU.MG.rd, REL.rd.uf.MG], ['Raia', 'PR', LU.PR.rd, REL.rd.uf.PR],
+    ['Raia', 'RS', LU.RS.rd, REL.rd.uf.RS], ['Raia', 'SC', LU.SC.rd, REL.rd.uf.SC], ['Raia', 'ES', LU.ES.rd, REL.rd.uf.ES]];
+  tabela(s, ['Rede', 'UF', 'CNES (abr./2026)', 'Release (set./2026)', 'CNES ÷ release'],
+    linhasV.map(([r, u, a, b]) => [r, u, br(a), br(b), br(100 * a / b, 0) + '%']), 0.5, 1.45, [1.3, 0.8, 1.7, 1.8, 1.6], 12, ['left', 'left', 'right', 'right', 'right']);
+  T(s, 'Como ler', { x: 8.0, y: 1.45, w: 4.8, h: 0.45, fontFace: 'Cambria', fontSize: 20, bold: true, color: C.text2, objectName: 'Como ler' });
+  T(s, [
+    { text: 'O CNES tem 88% das lojas Panvel e 89% das da Raia no Sul e no Sudeste que os releases informam. Falta loja sem registro de serviço de saúde ou aberta depois de abril.', options: { bullet: true, breakLine: true } },
+    { text: 'Efeito: a cobertura a 1 km e o "público sem Panvel" estão um pouco superestimados; a ordem dos lugares tende a se manter.', options: { bullet: true, breakLine: true } },
+    { text: 'O argumento de SC e PR não depende do CNES: o market share da IQVIA vem dos releases.', options: { bullet: true, breakLine: true } },
+    { text: 'Sem dado de venda por loja: a renda do responsável (Censo 2022) é aproximação do ticket. Raio em linha reta.', options: { bullet: true } }],
+    { x: 8.0, y: 2.0, w: 4.83, h: 4.4, fontSize: 14, paraSpaceAfter: 8, objectName: 'Notas validação' });
+  fonte(s, 'CNES: farmácias ativas, competência abr./2026 (geobr/IPEA). Releases 3T26: lojas em operação em 30/09/2026. Raia Drogasil = Droga Raia + Drogasil.');
+  s.addNotes('Anexo para perguntas sobre a base. As lojas foram localizadas pelo CNES, que tem cerca de 88% das lojas que as empresas informam. Isso não muda as conclusões: o argumento central de SC e PR vem do market share publicado pela própria Panvel.');
 
   await pres.writeFile({ fileName: SAIDA });
   await applyTheme(SAIDA, THEME);

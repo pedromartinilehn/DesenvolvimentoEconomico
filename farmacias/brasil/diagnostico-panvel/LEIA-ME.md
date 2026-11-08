@@ -2,7 +2,7 @@
 
 | arquivo | conteúdo |
 |---|---|
-| `APRESENTACAO-panvel-sul-sudeste.pptx` | 5 slides com notas do apresentador: onde crescer (três frentes e mapa), o critério (renda e 60+), por que adensar SC e PR (comparação com Porto Alegre), São Paulo, e nova UF com a sequência recomendada |
+| `APRESENTACAO-panvel-sul-sudeste.pptx` | 5 slides e 1 anexo, com notas: onde crescer, o critério (renda e 60+) com a economia da loja nos releases, por que adensar SC e PR (market share por UF), São Paulo, concorrência e sequência, e o anexo que compara o CNES com as lojas dos releases do 3T26 |
 | `deck.js` | gera a apresentação a partir de `analise.json` e do mapa (pptxgenjs) |
 | `pontos-oportunidade.csv` | os 442 pontos candidatos, em ordem de nota |
 | `municipios-oportunidade.csv` | os 120 municípios do Sul e do Sudeste com mais moradores de perfil sem Panvel a até 1 km |
@@ -34,3 +34,9 @@ Os dois scripts leem `../extracao/fontes/intermediario/` (setores e lojas), gera
 - As regras descrevem onde a Panvel escolheu estar, não quanto cada loja vende. Antes de abrir, cruzar com venda, ticket e
   margem internos e conferir o ponto (aluguel, fluxo, estacionamento).
 - Distância em linha reta, sem o caminho a pé.
+
+## Releases do 3T26
+
+Os números de lojas por UF, market share (IQVIA), ticket, venda por loja, ROIC das safras e expansão das concorrentes
+vêm dos releases do 3T26 da Panvel (05/11/2026), da RD Saúde (03/11/2026) e da Pague Menos (04/11/2026). O CNES de
+abril de 2026 tem 88% das lojas Panvel (593 de 677) e 89% das lojas da Raia no Sul e no Sudeste que os releases informam.
