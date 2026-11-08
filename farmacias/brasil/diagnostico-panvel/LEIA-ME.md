@@ -2,7 +2,8 @@
 
 | arquivo | conteúdo |
 |---|---|
-| `APRESENTACAO-panvel-sul-sudeste.pptx` | 11 slides com notas do apresentador: resumo, matriz renda × 60+, comparação com Raia Drogasil e Pague Menos, SWOT, quatro regras de localização, mapa e pontos candidatos no RS/SC/PR, em SP e no RJ/MG/ES, prioridades |
+| `APRESENTACAO-panvel-sul-sudeste.pptx` | 5 slides com notas do apresentador: onde crescer (três frentes e mapa), o critério (renda e 60+), por que adensar SC e PR (comparação com Porto Alegre), São Paulo, e nova UF com a sequência recomendada |
+| `deck.js` | gera a apresentação a partir de `analise.json` e do mapa (pptxgenjs) |
 | `pontos-oportunidade.csv` | os 442 pontos candidatos, em ordem de nota |
 | `municipios-oportunidade.csv` | os 120 municípios do Sul e do Sudeste com mais moradores de perfil sem Panvel a até 1 km |
 | `analise_panvel.py` | a análise (`python3 analise_panvel.py <raiz do repositório> analise.json`) |
