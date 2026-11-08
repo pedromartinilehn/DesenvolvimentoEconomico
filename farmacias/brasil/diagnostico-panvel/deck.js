@@ -101,7 +101,7 @@ function tabela(s, cab, linhas, x, y, colW, fs, al) {
   const PV = R.perfil_1km.panvel, SP = R.setores_perfil, LU = R.lojas_por_uf, CU = R.cobertura_uf, crit = R.criterio, mat = R.matriz_renda_60_casa;
   const ufp = u => SP.por_uf[u];
   const poa = cid('Porto Alegre'), cwb = cid('Curitiba'), fln = cid('Florianópolis'), mga = cid('Maringá'), jvl = cid('Joinville'),
-    lon = cid('Londrina'), bc = cid('Balneário Camboriú'), sp = cid('São Paulo'), stos = cid('Santos'), cps = cid('Campinas'),
+    lon = cid('Londrina'), sp = cid('São Paulo'), stos = cid('Santos'), cps = cid('Campinas'),
     rio = cid('Rio de Janeiro'), nit = cid('Niterói'), bh = cid('Belo Horizonte');
 
   // números dos releases do 3T26 (Panvel 05/11/2026; RD Saúde 03/11/2026; Pague Menos 04/11/2026)
@@ -161,7 +161,7 @@ function tabela(s, cab, linhas, x, y, colW, fs, al) {
     T(s, [{ text: ev[i][1], options: { bold: true, color: C.text2, breakLine: true } }, { text: ev[i][2] }], { x: 8.65, y: y + 0.12, w: 4.05, h: 1.1, fontSize: 13, valign: 'middle', objectName: 'Evidência texto ' + i });
   }
   fonte(s, 'Matriz: Censo 2022 e lojas do CNES (abr./2026); terços da população por renda do responsável e por 60+. Evidências: release 3T26 da Panvel e da Pague Menos.');
-  s.addNotes('Por que esses lugares: nos estados onde é forte, a Panvel cobre 45% dos moradores com renda alta e muitos idosos, e só 2,4% no extremo oposto. O release reforça o critério: o ticket da Panvel é o maior entre as redes comparadas, a categoria de higiene e beleza depende do público de maior renda e as lojas abertas desde 2023 já dão ROIC de dois dígitos.');
+  s.addNotes('Por que esses lugares: nos estados onde é forte, a Panvel cobre 46% dos moradores com renda alta e muitos idosos, e só 2,4% no extremo oposto. O release reforça o critério: o ticket da Panvel é o maior entre as redes comparadas, a categoria de higiene e beleza depende do público de maior renda e as lojas abertas desde 2023 já dão ROIC de dois dígitos.');
 
   // 3 ─ SC e PR
   s = pres.addSlide({ masterName: 'CONTEUDO', sectionTitle: 'Onde crescer' });
@@ -172,9 +172,9 @@ function tabela(s, cab, linhas, x, y, colW, fs, al) {
     T(s, br(REL.pv.share[u], 1) + '%', { x: x + 0.2, y: 1.5, w: 1.6, h: 0.65, fontFace: 'Cambria', fontSize: 28, bold: true, color: cor, objectName: 'Share n ' + u });
     T(s, `share em ${u} · ${REL.pv.uf[u]} lojas`, { x: x + 0.2, y: 2.15, w: 1.65, h: 0.45, fontSize: 12, objectName: 'Share t ' + u });
   });
-  const cs = [poa, lon, cwb, fln, mga, jvl, bc];
+  const cs = [poa, lon, cwb, fln, mga, jvl];
   s.addChart(pres.charts.BAR, [{ name: 'Sem Panvel', labels: cs.map(m => m.mun), values: cs.map(m => Math.round(semPct(m))) }],
-    { x: 0.5, y: 2.85, w: 6.1, h: 3.7, barDir: 'bar', chartColors: [HEX.accent4, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent1],
+    { x: 0.5, y: 2.85, w: 6.1, h: 3.7, barDir: 'bar', chartColors: [HEX.accent4, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent2, HEX.accent2],
       showTitle: true, title: 'Público no perfil sem Panvel a até 1 km (%)', titleFontFace: '+mn-lt', titleFontSize: 13, titleColor: HEX.dk1,
       showValue: true, dataLabelFormatCode: '0"%"', dataLabelFontFace: '+mn-lt', dataLabelFontSize: 12, dataLabelColor: HEX.dk1,
       valAxisHidden: true, valGridLine: { style: 'none' }, catGridLine: { style: 'none' }, catAxisOrientation: 'maxMin', catAxisLabelFontFace: '+mn-lt',
@@ -182,7 +182,7 @@ function tabela(s, cab, linhas, x, y, colW, fs, al) {
   const motivos = [['FaCheckCircle', 'Porto Alegre mostra o teto', `Só ${br(semPct(poa), 0)}% do público no perfil fica sem Panvel a 1 km. Em Curitiba, ${br(semPct(cwb), 0)}% (${br(cwb.perfil_sem_panvel)} pessoas); em Joinville, ${br(semPct(jvl), 0)}%.`],
     ['FaFlag', 'A Raia tem mais lojas', `PR: ${REL.rd.uf.PR} da Raia contra ${REL.pv.uf.PR} da Panvel; SC: ${REL.rd.uf.SC} contra ${REL.pv.uf.SC}. No RS a Panvel tem ${REL.pv.uf.RS} contra ${REL.rd.uf.RS}.`],
     ['FaTruck', 'Abrir perto custa menos', 'Os pontos de Curitiba, Florianópolis e Maringá ficam a 1 ou 2 km de lojas atuais. A Panvel já abriu 5 lojas no PR e 2 em SC no 3T26.'],
-    ['FaUmbrellaBeach', 'Balneário Camboriú está vazio', `${br(bc.perfil_sem_panvel)} pessoas no perfil, nenhuma Panvel e só ${bc.rd} lojas da Raia.`]];
+    ['FaSearch', 'O CNES não registra toda a rede', `SC: ${LU.SC.panvel} lojas no CNES, ${REL.pv.uf.SC} no release. Em Balneário Camboriú há várias Panvel e só 1 registro, como vacinação.`]];
   for (let i = 0; i < 4; i++) {
     const y = 1.45 + i * 1.28;
     await bolinha(s, 7.0, y + 0.08, 0.62, motivos[i][0], i === 1 ? C.accent1 : C.accent2, 'motivo ' + i);
@@ -226,7 +226,7 @@ function tabela(s, cab, linhas, x, y, colW, fs, al) {
     T(s, conc[i][2], { x: x + 1.0, y: 1.65, w: 2.8, h: 0.6, fontFace: 'Cambria', fontSize: 18, bold: true, color: C.text2, valign: 'middle', objectName: 'Conc título ' + i });
     T(s, conc[i][3], { x: x + 0.25, y: 2.32, w: 3.45, h: 1.0, fontSize: 12.5, objectName: 'Conc texto ' + i });
   }
-  const seq = [['1', 'SC e PR', 'Balneário Camboriú e adensar Curitiba, Florianópolis, Maringá e Joinville', C.accent2],
+  const seq = [['1', 'SC e PR', 'Adensar Curitiba, Florianópolis, Maringá e Joinville; depois, cidades médias de SC já conferidas', C.accent2],
     ['2', 'São Paulo', 'Pontos perto das 17 lojas, com pouca Raia; testar Santos', C.accent3],
     ['3', 'RJ e MG', 'Estudo de entrada: exige logística nova (a mais de 340 km)', C.accent1]];
   for (let i = 0; i < 3; i++) {
@@ -253,12 +253,12 @@ function tabela(s, cab, linhas, x, y, colW, fs, al) {
     linhasV.map(([r, u, a, b]) => [r, u, br(a), br(b), br(100 * a / b, 0) + '%']), 0.5, 1.45, [1.3, 0.8, 1.7, 1.8, 1.6], 12, ['left', 'left', 'right', 'right', 'right']);
   T(s, 'Como ler', { x: 8.0, y: 1.45, w: 4.8, h: 0.45, fontFace: 'Cambria', fontSize: 20, bold: true, color: C.text2, objectName: 'Como ler' });
   T(s, [
-    { text: 'O CNES tem 88% das lojas Panvel e 89% das da Raia no Sul e no Sudeste que os releases informam. Falta loja sem registro de serviço de saúde ou aberta depois de abril.', options: { bullet: true, breakLine: true } },
+    { text: 'O CNES tem 88% das lojas Panvel e 89% das da Raia no Sul e no Sudeste que os releases informam. Falta loja aberta depois de abril ou sem registro de farmácia: em Balneário Camboriú, o único registro da Panvel é um centro de vacinação.', options: { bullet: true, breakLine: true } },
     { text: 'Efeito: a cobertura a 1 km e o "público sem Panvel" estão um pouco superestimados; a ordem dos lugares tende a se manter.', options: { bullet: true, breakLine: true } },
     { text: 'O argumento de SC e PR não depende do CNES: o market share da IQVIA vem dos releases.', options: { bullet: true, breakLine: true } },
     { text: 'Sem dado de venda por loja: a renda do responsável (Censo 2022) é aproximação do ticket. Raio em linha reta.', options: { bullet: true } }],
     { x: 8.0, y: 2.0, w: 4.83, h: 4.4, fontSize: 14, paraSpaceAfter: 8, objectName: 'Notas validação' });
-  fonte(s, 'CNES: farmácias ativas, competência abr./2026 (geobr/IPEA). Releases 3T26: lojas em operação em 30/09/2026. Raia Drogasil = Droga Raia + Drogasil.');
+  fonte(s, 'CNES abr./2026 (geobr/IPEA): farmácias ativas; na Panvel, mais 4 registros ativos da Dimed em outros tipos (vacinação, clínica). Releases 3T26: lojas em operação em 30/09/2026. Raia Drogasil = Droga Raia + Drogasil.');
   s.addNotes('Anexo para perguntas sobre a base. As lojas foram localizadas pelo CNES, que tem cerca de 88% das lojas que as empresas informam. Isso não muda as conclusões: o argumento central de SC e PR vem do market share publicado pela própria Panvel.');
 
   await pres.writeFile({ fileName: SAIDA });

@@ -22,11 +22,11 @@ minutos com os slides 25, 27 e 31. Os demais ficam de apoio para perguntas.
 
 | afirmação do documento | o que os dados mostram | slide |
 |---|---|---|
-| Renda alta e envelhecimento são o encaixe da Panvel | confirmado: 45% de cobertura no terço mais rico e mais velho do RS/SC/PR, contra 2,4% no oposto | 26 |
+| Renda alta e envelhecimento são o encaixe da Panvel | confirmado: 46% de cobertura no terço mais rico e mais velho do RS/SC/PR, contra 2,4% no oposto | 26 |
 | Acessibilidade (ônibus, calçada, rampa) é o "imóvel-troféu" | as lojas estão em entornos mais urbanizados que a média (calçada 99% contra 83%), mas Panvel e Raia são iguais: não diferencia | 30 (notas) |
 | A Raia satura a praça ("paredão") | a Panvel faz o mesmo em Porto Alegre: a Panvel mais próxima fica a 352 m na mediana, contra 515 m entre lojas da Raia em SP; 46% das Panvel têm uma Raia a até 500 m | 30 |
 | Isócronas de 15–30 min para entrega rápida | sem malha viária; usado o raio de 1,5 km (métrica da própria Raia). Buracos em Curitiba (86% × 94%), Joinville (50% × 89%) e SP (41% × 100%) | 30 |
-| Ocupar o interior antes da chegada da Raia | a Raia já chegou: 19 das 20 cidades médias do Sul sem Panvel têm Raia; no RS a Panvel está nas 33 | 28 |
+| Ocupar o interior antes da chegada da Raia | a Raia já chegou: 18 das 19 cidades médias do Sul sem Panvel no CNES têm Raia; no RS a Panvel está nas 33. Balneário Camboriú saiu da lista: tem várias Panvel, mas o CNES só a registra como centro de imunização | 28 |
 | Pague Menos domina áreas vulneráveis: evitar guerra de preço com ela | não vale no Sul/Sudeste: share de 1,1% no Sul e 2,0% no Sudeste (release 3T26); a concorrente relevante é a Raia | 31 |
 | Clusterização para o mix | três perfis de loja (k-médias): premium (218), renda alta e mais jovem (127) e bairro (246) | 30 |
 

@@ -58,3 +58,16 @@ python3 calc3t26.py                                   # grava n3t26.json com os 
 python3 edita_e2.py entrada.pptx saida.pptx n3t26.json  # entrada: a Entrega 2 com os 4 slides duplicados após o 15
 python3 junta.py base.pptx final.pptx analise.json mapa_oportunidades.png  # base: saída acima com a capa e 6 slides duplicados no fim
 ```
+
+## Correção: lojas fora do CNES (Balneário Camboriú)
+
+A primeira versão dizia que Balneário Camboriú não tinha Panvel. A cidade tem várias lojas (Google Maps, nov./2026), mas
+o CNES só tem um registro da rede lá (Av. Brasil, 2880), cadastrado como centro de imunização (tipo 85), e a análise só
+usava farmácias (tipo 43). A análise agora inclui os 4 registros ativos da Dimed em outros tipos e tira Balneário
+Camboriú das listas de oportunidade. O perfil de loja (critério de renda e 60+) não muda. Slides alterados: 25 (total sem
+Panvel e mapa), 26 (matriz), 27 (gráfico e motivo 4), 28 (cidades médias), 31 (sequência) e 32 (anexo).
+
+```bash
+python3 corrige_cnes.py antes.pptx final.pptx analise.json analise_md.json mapa_oportunidades.png  # só sobre a versão anterior; junta.py e junta2.py já geram o texto corrigido
+```
+

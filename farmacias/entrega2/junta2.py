@@ -183,18 +183,18 @@ for i, u in enumerate(('RS', 'SC', 'PR')):
     texto(s, x + 0.18, 1.62, 1.65, 0.55, [[(f'{c} de {n}', {'bold': True, 'color': GRAY if c == n else NAVY, 'size': 22})]])
     texto(s, x + 0.18, 2.18, 1.7, 0.42, f'cidades médias de {u} com Panvel', size=10, color=GRAY)
 cartao(s, 7.1, 1.55, 5.45, 1.1, fill='FCEEE6', borda='F2C2A5')
-texto(s, 7.3, 1.63, 5.1, 0.95, [[(f'{cm["sem_panvel_com_rd"]} das {cm["sem_panvel"]} cidades médias sem Panvel já têm Raia', {'bold': True, 'color': ORANGE})],
+texto(s, 7.3, 1.63, 5.1, 0.95, [[(f'{cm["sem_panvel_com_rd"]} das {cm["sem_panvel"]} cidades médias sem Panvel no CNES já têm Raia', {'bold': True, 'color': ORANGE})],
       'O vácuo existe em SC e no PR; no RS a Panvel já está em todas.'], size=11.5)
 lin = []
 for d in cm['top'][:8]:
-    lin.append([d['nome'], d['uf'], br(d['pop']), ('+' if d['var_pop'] > 0 else '') + br(d['var_pop'], 1) + '%', 'R$ ' + br(d['renda_resp']),
+    lin.append([d['nome'] + ('*' if d['nome'] == 'Indaial' else ''), d['uf'], br(d['pop']), ('+' if d['var_pop'] > 0 else '') + br(d['var_pop'], 1) + '%', 'R$ ' + br(d['renda_resp']),
                 br(d['pct_60mais'], 1) + '%', 'R$ ' + br(d['pib_pc'] / 1000) + ' mil', str(d['rd'])])
-tabela(s, ['Cidade sem Panvel', 'UF', 'População 2022', 'Cresc. 2010–22', 'Renda do responsável', '60+', 'PIB per capita', 'Lojas da Raia'],
+tabela(s, ['Cidade sem Panvel no CNES', 'UF', 'População 2022', 'Cresc. 2010–22', 'Renda do responsável', '60+', 'PIB per capita', 'Lojas da Raia'],
        lin, 0.78, 2.85, [2.75, 0.55, 1.45, 1.45, 1.75, 0.9, 1.5, 1.42], ['left', 'left'] + ['right'] * 6, size=10.5, rowh=0.31)
-leitura(s, 'a "batalha do interior" já começou: quase todas as cidades médias sem Panvel têm Raia. As melhores ficam no litoral e no Vale do Itajaí (SC), perto da rede atual. Ordem pela média dos percentis de renda, 60+ e crescimento.', y=5.75, h=0.6)
-fonte(s, 'Cidades médias: 50 a 200 mil habitantes (Censo 2022). Indicadores: Atlas 2.0 (Censo 2022 e 2010, PIB dos Municípios 2021). Lojas: CNES abr./2026.', y=6.45)
-s.notes_slide.notes_text_frame.text = ('O documento estratégico sugere ocupar as cidades médias antes da chegada da Raia. Os dados mostram que, no Sul, ela já chegou: das 20 cidades médias sem Panvel, 19 têm Raia. '
-                                       'No RS todas as 33 cidades médias têm Panvel; o espaço está em SC e no PR, com destaque para Balneário Camboriú, Navegantes, Gaspar, Indaial e Rio do Sul.')
+leitura(s, 'quase todas as cidades médias sem Panvel têm Raia, e as melhores ficam em SC. Mas a lista vem do CNES, que não registra toda a rede (Balneário Camboriú saiu por isso): conferir cada cidade antes de decidir. Ordem: média dos percentis de renda, 60+ e crescimento.', y=5.75, h=0.6)
+fonte(s, 'Cidades médias: 50 a 200 mil hab. (Censo 2022). Indicadores: Atlas 2.0 (Censos 2022 e 2010, PIB 2021). Lojas: CNES abr./2026, qualquer tipo de registro. * Um diretório na web lista uma Panvel em Indaial (não confirmado).', y=6.45)
+s.notes_slide.notes_text_frame.text = (f'O documento estratégico sugere ocupar as cidades médias antes da chegada da Raia. No Sul ela já chegou: das {cm["sem_panvel"]} cidades médias sem Panvel no CNES, {cm["sem_panvel_com_rd"]} têm Raia. '
+                                       'No RS todas as 33 cidades médias têm Panvel; o espaço está em SC e no PR. Cuidado com a base: o CNES tem 88% das lojas da Panvel. Balneário Camboriú tem várias lojas, mas só um registro, como centro de imunização, e saiu da lista. Antes de levar uma cidade adiante, conferir no localizador de lojas da Panvel.')
 
 # ── 30: cobertura e aglomeração ──
 um, pr_, vz, mi, pf = A['ultima_milha'], A['panvel_ate_raia'], A['vizinho_mesma_rede'], A['micro_500m'], A['perfis']

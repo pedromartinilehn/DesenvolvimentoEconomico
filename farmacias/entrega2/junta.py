@@ -150,7 +150,7 @@ munis = {m['mun']: m for m in R['municipios']}
 SP_ = R['setores_perfil']; LU = R['lojas_por_uf']; crit = R['criterio']; mat = R['matriz_renda_60_casa']
 ufp = lambda u: SP_['por_uf'][u]
 sem = lambda m: 100 * m['perfil_sem_panvel'] / m['perfil']
-poa, cwb, fln, mga, jvl, lon, bc = (munis[n] for n in ('Porto Alegre', 'Curitiba', 'Florianópolis', 'Maringá', 'Joinville', 'Londrina', 'Balneário Camboriú'))
+poa, cwb, fln, mga, jvl, lon = (munis[n] for n in ('Porto Alegre', 'Curitiba', 'Florianópolis', 'Maringá', 'Joinville', 'Londrina'))
 spc, stos, cps, rio, nit, bh = (munis[n] for n in ('São Paulo', 'Santos', 'Campinas', 'Rio de Janeiro', 'Niterói', 'Belo Horizonte'))
 REL = {'pv': {'lojas': 677, 'uf': {'RS': 425, 'SC': 105, 'PR': 130, 'SP': 17}, 'share': {'Sul': 13.5, 'RS': 22.4, 'SC': 7.9, 'PR': 7.4},
               'venda': 837, 'vendaMad': 887, 'ticket': 101.15, 'roic': (34.3, 24.3, 13.1), 'madSP': 47.1},
@@ -239,7 +239,7 @@ for i, (tt, tx) in enumerate(ev):
     cartao(s, 7.6, y, 4.95, 1.13)
     numero(s, 7.78, y + 0.33, 0.45, i + 1, NAVY)
     texto(s, 8.4, y + 0.1, 4.0, 0.95, [[(tt, {'bold': True, 'color': NAVY})], tx], size=11, anchor=MSO_ANCHOR.MIDDLE)
-leitura(s, f'nos estados onde a Panvel é forte, ela cobre 45% dos moradores com renda alta e muitos idosos, e só 2,4% no extremo oposto. Critério de busca (mediana das lojas): renda do responsável ≥ R$ {br(crit["renda_min"])}, 60+ ≥ {br(crit["p60_min"], 1)}% e ≥ {br(crit["pop1km_min"])} moradores a 1 km.')
+leitura(s, f'nos estados onde a Panvel é forte, ela cobre {br(mat[2][2])}% dos moradores com renda alta e muitos idosos, e só 2,4% no extremo oposto. Critério de busca (mediana das lojas): renda do responsável ≥ R$ {br(crit["renda_min"])}, 60+ ≥ {br(crit["p60_min"], 1)}% e ≥ {br(crit["pop1km_min"])} moradores a 1 km.')
 fonte(s, 'Matriz: Censo 2022 e lojas do CNES (abr./2026), terços da população por renda do responsável e por 60+. Evidências: releases 3T26 da Panvel e da Pague Menos.')
 s.notes_slide.notes_text_frame.text = 'O critério sai do padrão que a própria Panvel já segue. Os releases reforçam: ticket mais alto, higiene e beleza puxada pelo público de maior renda e lojas novas com ROIC de dois dígitos.'
 
@@ -251,7 +251,7 @@ for i, (u, cor) in enumerate((('RS', GRAY), ('SC', NAVY), ('PR', NAVY))):
     cartao(s, x, 1.55, 1.95, 1.1)
     texto(s, x + 0.18, 1.62, 1.6, 0.55, [[(br(REL['pv']['share'][u], 1) + '%', {'bold': True, 'color': cor, 'size': 24})]])
     texto(s, x + 0.18, 2.18, 1.7, 0.4, f'share em {u} · {REL["pv"]["uf"][u]} lojas', size=10, color=GRAY)
-cs = [poa, lon, cwb, fln, mga, jvl, bc]
+cs = [poa, lon, cwb, fln, mga, jvl]
 cd = CategoryChartData(); cd.categories = [m['mun'] for m in cs]; cd.add_series('Sem Panvel', [round(sem(m)) for m in cs])
 cartao(s, 0.78, 2.8, 6.1, 3.0)
 gf = s.shapes.add_chart(XL_CHART_TYPE.BAR_CLUSTERED, Inches(0.9), Inches(2.85), Inches(5.9), Inches(2.9), cd)
@@ -264,14 +264,14 @@ dl = pl.data_labels; dl.number_format = '0"%"'; dl.number_format_is_linked = Fal
 dl.font.name = FONTE; dl.font.size = Pt(10); dl.font.color.rgb = rgb(TEXT)
 ser = pl.series[0]
 for k in range(len(cs)):
-    pt = ser.points[k]; pt.format.fill.solid(); pt.format.fill.fore_color.rgb = rgb(GRAY if k == 0 else ORANGE if k == len(cs) - 1 else NAVY)
+    pt = ser.points[k]; pt.format.fill.solid(); pt.format.fill.fore_color.rgb = rgb(GRAY if k == 0 else NAVY)
 ca = ch.category_axis; ca.reverse_order = True; ca.tick_labels.font.name = FONTE; ca.tick_labels.font.size = Pt(10); ca.tick_labels.font.color.rgb = rgb(TEXT)
 ca.format.line.fill.background(); ca.has_major_gridlines = False
 va = ch.value_axis; va.visible = False; va.has_major_gridlines = False; va.maximum_scale = 118; va.minimum_scale = 0
 mot = [('Porto Alegre mostra o teto', f'Só {br(sem(poa))}% do público no perfil fica sem Panvel a 1 km. Em Curitiba, {br(sem(cwb))}% ({br(cwb["perfil_sem_panvel"])} pessoas); em Joinville, {br(sem(jvl))}%.'),
        ('A Raia tem mais lojas', f'PR: {REL["rd"]["uf"]["PR"]} da Raia contra {REL["pv"]["uf"]["PR"]} da Panvel; SC: {REL["rd"]["uf"]["SC"]} contra {REL["pv"]["uf"]["SC"]}. No RS, {REL["pv"]["uf"]["RS"]} contra {REL["rd"]["uf"]["RS"]}.'),
        ('Abrir perto custa menos', 'Os pontos de Curitiba, Florianópolis e Maringá ficam a 1 ou 2 km de lojas atuais. No 3T26 a Panvel abriu 5 lojas no PR e 2 em SC.'),
-       ('Balneário Camboriú está vazio', f'{br(bc["perfil_sem_panvel"])} pessoas no perfil, nenhuma Panvel e só {bc["rd"]} lojas da Raia.')]
+       ('O CNES não registra toda a rede', f'SC: {LU["SC"]["panvel"]} lojas no CNES, 105 no release. Em Balneário Camboriú há várias Panvel e só 1 registro, como vacinação.')]
 for i, (tt, tx) in enumerate(mot):
     y = 1.55 + i * 1.08
     cartao(s, 7.1, y, 5.45, 0.96)
@@ -311,7 +311,7 @@ for i, (cor, tt, tx) in enumerate(conc):
     x = 0.78 + i * 3.97
     cartao(s, x, 1.55, 3.8, 1.8)
     texto(s, x + 0.2, 1.67, 3.4, 1.6, [[(tt, {'bold': True, 'color': cor, 'size': 14})], tx], size=11, espaco=4)
-seq = [(NAVY, 'SC e PR', 'Balneário Camboriú e adensar Curitiba, Florianópolis, Maringá e Joinville'),
+seq = [(NAVY, 'SC e PR', 'Adensar Curitiba, Florianópolis, Maringá e Joinville; depois, cidades médias de SC já conferidas'),
        (GREEN, 'São Paulo', 'Pontos perto das 17 lojas, com pouca Raia; testar Santos'),
        (GRAY, 'RJ e MG', 'Estudo de entrada: exige logística nova (a mais de 340 km)')]
 for i, (cor, tt, tx) in enumerate(seq):

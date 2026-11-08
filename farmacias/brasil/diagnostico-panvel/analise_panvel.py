@@ -42,12 +42,17 @@ arv = cKDTree(P)
 C1, C2 = M.corda(1000), M.corda(2000)
 
 L = json.load(open(EXT / 'fontes/intermediario/lojas.json', encoding='utf-8'))['lojas']
+import sys as _s; _s.path.insert(0, str(pathlib.Path(__file__).resolve().parent)); from lojas_extra import lojas_extra
+L = L + [d for d in lojas_extra(EXT, L) if d['entra']]  # registros Panvel ativos fora do tipo 43 (ver lojas_extra.py)
 lx = np.array([l['x'] for l in L]); ly = np.array([l['y'] for l in L])
 rede = np.array([l['rede'] for l in L]); luf = np.array([l['uf'] for l in L])
 LP = M.xyz(lx, ly)
 arvL = {r: cKDTree(LP[rede == r]) for r in ('panvel', 'rd', 'pm')}
 idxL = {r: np.where(rede == r)[0] for r in ('panvel', 'rd', 'pm')}
-assert (rede == 'panvel').sum() == 593
+assert (rede == 'panvel').sum() == 597  # 593 farmácias tipo 43 + 4 registros de outros tipos
+farm43 = np.array(['tp_unidade' not in l for l in L])  # o perfil de loja usa só as farmácias tipo 43; a cobertura usa todos os pontos
+# cidades onde a Panvel tem lojas que o CNES não registra como farmácia: saem das listas de oportunidade
+PRESENCA_FORA_CNES = {4202008: 'Balneário Camboriú: várias lojas abertas (Google Maps, nov/2026); o CNES só tem 1 registro, como centro de imunização'}
 
 # nomes
 regs, _ = M.le_atlas2()
@@ -84,7 +89,7 @@ for u in ALVO:
 R['uf_media'] = ufbase
 perfil, ent_lojas = {}, {}
 for r in ('panvel', 'rd', 'pm'):
-    ii = idxL[r][np.isin(luf[idxL[r]], list(ALVO))]
+    ii = idxL[r][np.isin(luf[idxL[r]], list(ALVO)) & farm43[idxL[r]]]
     E = entorno(LP[ii], C1)
     ent_lojas[r] = (ii, E)
     rel_r = np.array([E[k, 1] / ufbase[UF_SIG[luf[i]]]['renda'] for k, i in enumerate(ii)])
@@ -137,9 +142,10 @@ R['matriz_renda_60_casa'] = mat
 # ── 3. oportunidades: setores com o perfil típico do entorno da Panvel e sem Panvel a até 1 km ──
 T_R, T_6, T_POP = perfil['panvel']['renda_med'], perfil['panvel']['p60_med'], perfil['panvel']['pop1km_p25']
 R['criterio'] = {'renda_min': T_R, 'p60_min': T_6, 'pop1km_min': T_POP}
+R['presenca_fora_cnes'] = {str(k): v for k, v in PRESENCA_FORA_CNES.items()}
 alvo = np.isin(uf, list(ALVO)) & (pop > 0)
 perf = alvo & (renda >= T_R) & (p60 >= T_6)
-sem = perf & (dist_p > 1000)
+sem = perf & (dist_p > 1000) & ~np.isin(mun, list(PRESENCA_FORA_CNES))
 R['setores_perfil'] = {'pop_perfil': float(pop[perf].sum()), 'pop_perfil_sem_panvel': float(pop[sem].sum()),
                        'por_uf': {UF_SIG[u]: {'perfil': float(pop[perf & (uf == u)].sum()), 'sem_panvel': float(pop[sem & (uf == u)].sum())}
                                   for u in ALVO}}
