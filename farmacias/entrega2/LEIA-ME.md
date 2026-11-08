@@ -71,3 +71,10 @@ Panvel e mapa), 26 (matriz), 27 (gráfico e motivo 4), 28 (cidades médias), 31 
 python3 corrige_cnes.py antes.pptx final.pptx analise.json analise_md.json mapa_oportunidades.png  # só sobre a versão anterior; junta.py e junta2.py já geram o texto corrigido
 ```
 
+
+## Slide 27: margem por UF como motivo para adensar
+
+O motivo 4 do slide 27 passou a ser a margem por UF: EBITDA LTM do 3T26 de 12,6% no RS, 11,2% em SC, 9,2% no PR e 6,2%
+em SP, que acompanha a parcela de lojas maduras (83,7%, 75,2%, 72,3% e 47,1%). Fonte: apresentação de resultados do 3T26
+da Panvel, slide 16. A ressalva sobre o CNES (Balneário Camboriú) segue no anexo e nas notas do slide.
+`python3 motivo_ebitda.py antes.pptx final.pptx` aplica a troca na versão anterior; `junta.py` já gera o texto novo.

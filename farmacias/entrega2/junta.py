@@ -271,14 +271,14 @@ va = ch.value_axis; va.visible = False; va.has_major_gridlines = False; va.maxim
 mot = [('Porto Alegre mostra o teto', f'Só {br(sem(poa))}% do público no perfil fica sem Panvel a 1 km. Em Curitiba, {br(sem(cwb))}% ({br(cwb["perfil_sem_panvel"])} pessoas); em Joinville, {br(sem(jvl))}%.'),
        ('A Raia tem mais lojas', f'PR: {REL["rd"]["uf"]["PR"]} da Raia contra {REL["pv"]["uf"]["PR"]} da Panvel; SC: {REL["rd"]["uf"]["SC"]} contra {REL["pv"]["uf"]["SC"]}. No RS, {REL["pv"]["uf"]["RS"]} contra {REL["rd"]["uf"]["RS"]}.'),
        ('Abrir perto custa menos', 'Os pontos de Curitiba, Florianópolis e Maringá ficam a 1 ou 2 km de lojas atuais. No 3T26 a Panvel abriu 5 lojas no PR e 2 em SC.'),
-       ('O CNES não registra toda a rede', f'SC: {LU["SC"]["panvel"]} lojas no CNES, 105 no release. Em Balneário Camboriú há várias Panvel e só 1 registro, como vacinação.')]
+       ('Rede madura e densa dá mais margem', 'EBITDA LTM: RS 12,6% (83,7% das lojas maduras), SC 11,2%, PR 9,2% e SP 6,2% (47,1% maduras).')]
 for i, (tt, tx) in enumerate(mot):
     y = 1.55 + i * 1.08
     cartao(s, 7.1, y, 5.45, 0.96)
     numero(s, 7.27, y + 0.26, 0.44, i + 1, ORANGE if i == 1 else NAVY)
     texto(s, 7.88, y + 0.07, 4.55, 0.85, [[(tt, {'bold': True, 'color': NAVY})], tx], size=10.5, anchor=MSO_ANCHOR.MIDDLE)
 leitura(s, 'Porto Alegre mostra até onde a rede chega quando madura. Em SC e no PR a marca e a logística já existem, o share é um terço do gaúcho e a Raia ocupa o espaço. O release da Panvel aponta "muitas oportunidades" no Sul, em especial no interior.')
-fonte(s, 'Share e lojas por UF: releases 3T26 (IQVIA). Gráfico: Censo 2022 e lojas do CNES (abr./2026). Público no perfil: renda e 60+ acima das medianas das Panvel.')
+fonte(s, 'Share, lojas, EBITDA LTM e maturidade por UF: release e apresentação 3T26 da Panvel (IQVIA). Gráfico: Censo 2022 e lojas do CNES (abr./2026). Público no perfil: renda e 60+ acima das medianas das Panvel.')
 s.notes_slide.notes_text_frame.text = f'Levar Curitiba ao nível de Porto Alegre alcançaria cerca de {br(round((cwb["perfil_sem_panvel"] - cwb["perfil"] * sem(poa) / 100) / 1000))} mil pessoas no perfil a mais.'
 
 # ── 27: São Paulo ──

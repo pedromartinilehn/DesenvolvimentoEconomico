@@ -182,14 +182,14 @@ function tabela(s, cab, linhas, x, y, colW, fs, al) {
   const motivos = [['FaCheckCircle', 'Porto Alegre mostra o teto', `Só ${br(semPct(poa), 0)}% do público no perfil fica sem Panvel a 1 km. Em Curitiba, ${br(semPct(cwb), 0)}% (${br(cwb.perfil_sem_panvel)} pessoas); em Joinville, ${br(semPct(jvl), 0)}%.`],
     ['FaFlag', 'A Raia tem mais lojas', `PR: ${REL.rd.uf.PR} da Raia contra ${REL.pv.uf.PR} da Panvel; SC: ${REL.rd.uf.SC} contra ${REL.pv.uf.SC}. No RS a Panvel tem ${REL.pv.uf.RS} contra ${REL.rd.uf.RS}.`],
     ['FaTruck', 'Abrir perto custa menos', 'Os pontos de Curitiba, Florianópolis e Maringá ficam a 1 ou 2 km de lojas atuais. A Panvel já abriu 5 lojas no PR e 2 em SC no 3T26.'],
-    ['FaSearch', 'O CNES não registra toda a rede', `SC: ${LU.SC.panvel} lojas no CNES, ${REL.pv.uf.SC} no release. Em Balneário Camboriú há várias Panvel e só 1 registro, como vacinação.`]];
+    ['FaChartLine', 'Rede madura e densa dá mais margem', 'EBITDA LTM: RS 12,6% (83,7% das lojas maduras), SC 11,2%, PR 9,2% e SP 6,2% (47,1% maduras).']];
   for (let i = 0; i < 4; i++) {
     const y = 1.45 + i * 1.28;
     await bolinha(s, 7.0, y + 0.08, 0.62, motivos[i][0], i === 1 ? C.accent1 : C.accent2, 'motivo ' + i);
     T(s, [{ text: motivos[i][1], options: { bold: true, color: C.text2, breakLine: true } }, { text: motivos[i][2] }], { x: 7.8, y, w: 5.03, h: 1.18, fontSize: 13.5, objectName: 'Motivo ' + i });
   }
-  fonte(s, 'Share e lojas por UF: releases 3T26 (IQVIA). Gráfico: Censo 2022 e lojas do CNES (abr./2026). Público no perfil: renda e 60+ acima das medianas das Panvel.');
-  s.addNotes(`O porquê de adensar, agora com os números da própria empresa: no RS a Panvel tem ${br(REL.pv.share.RS, 1)}% do mercado; em SC e no PR, cerca de um terço disso. Porto Alegre mostra até onde a rede chega quando madura. A Raia Drogasil tem mais lojas que a Panvel no PR e em SC. O release da Panvel diz que a empresa vê muitas oportunidades na Região Sul, em especial no interior dos estados. Levar Curitiba ao nível de Porto Alegre alcançaria cerca de ${br(Math.round((cwb.perfil_sem_panvel - cwb.perfil * semPct(poa) / 100) / 1000))} mil pessoas no perfil a mais.`);
+  fonte(s, 'Share, lojas, EBITDA LTM e maturidade por UF: release e apresentação 3T26 da Panvel (IQVIA). Gráfico: Censo 2022 e lojas do CNES (abr./2026). Público no perfil: renda e 60+ acima das medianas das Panvel.');
+  s.addNotes(`O porquê de adensar, agora com os números da própria empresa: no RS a Panvel tem ${br(REL.pv.share.RS, 1)}% do mercado; em SC e no PR, cerca de um terço disso. Porto Alegre mostra até onde a rede chega quando madura. A Raia Drogasil tem mais lojas que a Panvel no PR e em SC. O release da Panvel diz que a empresa vê muitas oportunidades na Região Sul, em especial no interior dos estados. A margem acompanha a maturidade: EBITDA LTM de 12,6% no RS, 11,2% em SC, 9,2% no PR e 6,2% em SP (apresentação 3T26, slide 16). Levar Curitiba ao nível de Porto Alegre alcançaria cerca de ${br(Math.round((cwb.perfil_sem_panvel - cwb.perfil * semPct(poa) / 100) / 1000))} mil pessoas no perfil a mais.`);
 
   // 4 ─ São Paulo
   s = pres.addSlide({ masterName: 'CONTEUDO', sectionTitle: 'Onde crescer' });
