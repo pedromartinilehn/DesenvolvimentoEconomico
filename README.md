@@ -64,6 +64,8 @@ python3 extracao/3_monta.py && python3 build_single.py
 A origem das lojas, a marca, a regra de localização, o entorno, a cobertura, a auditoria e os
 limites estão em [`farmacias/brasil/LEIA-ME.md`](farmacias/brasil/LEIA-ME.md).
 
+**Diagnóstico da Panvel:** [`farmacias/brasil/diagnostico-panvel/`](farmacias/brasil/diagnostico-panvel/) traz a apresentação *Panvel: o que replicar e onde crescer* (perfil de renda e de 60+ do entorno das lojas, SWOT e pontos candidatos no Sul e no Sudeste), com os CSVs dos pontos e dos municípios e o script da análise.
+
 ### Atlas Porto Alegre — lojas Panvel
 
 Mapa de Porto Alegre por bairro e por setor censitário. Mostra as 129 lojas Panvel ativas no
