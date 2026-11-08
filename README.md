@@ -64,7 +64,7 @@ python3 extracao/3_monta.py && python3 build_single.py
 A origem das lojas, a marca, a regra de localização, o entorno, a cobertura, a auditoria e os
 limites estão em [`farmacias/brasil/LEIA-ME.md`](farmacias/brasil/LEIA-ME.md).
 
-**Diagnóstico da Panvel:** [`farmacias/brasil/diagnostico-panvel/`](farmacias/brasil/diagnostico-panvel/) traz a apresentação *Panvel: o que replicar e onde crescer* (perfil de renda e de 60+ do entorno das lojas, SWOT e pontos candidatos no Sul e no Sudeste), com os CSVs dos pontos e dos municípios e o script da análise. A pasta [`farmacias/entrega2/`](farmacias/entrega2/) traz a Entrega 2 (análise das demonstrações da Panvel) atualizada com o release do 3T26.
+**Diagnóstico da Panvel:** [`farmacias/brasil/diagnostico-panvel/`](farmacias/brasil/diagnostico-panvel/) traz a apresentação *Panvel: o que replicar e onde crescer* (perfil de renda e de 60+ do entorno das lojas, SWOT e pontos candidatos no Sul e no Sudeste), com os CSVs dos pontos e dos municípios e o script da análise. A pasta [`farmacias/entrega2/`](farmacias/entrega2/) traz a Entrega 2 (análise das demonstrações da Panvel, atualizada com o 3T26) e o diagnóstico de lojas numa só apresentação, no template do grupo.
 
 ### Atlas Porto Alegre — lojas Panvel
 

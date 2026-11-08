@@ -1,7 +1,15 @@
-# Entrega 2 · Panvel, atualizada com o 3T26
+# Entrega 2 · Panvel, atualizada com o 3T26, e diagnóstico de lojas
 
-`Panvel_Entrega2_Analise_Demonstracoes_3T26.pptx` é a apresentação do Grupo 5 (Finanças Corporativas de Curto
-Prazo), com os recortes originais (2025 × 2024 e 2T26 × 2T25) e uma atualização pelo release do 3T26.
+`Panvel_Entrega2_e_Diagnostico_de_Lojas.pptx` junta as duas apresentações no template do Grupo 5 (Finanças
+Corporativas de Curto Prazo), com 29 slides:
+
+- **Parte 1 (slides 1 a 22):** análise das demonstrações, com os recortes originais (2025 × 2024 e 2T26 × 2T25) e a
+  atualização pelo release do 3T26.
+- **Parte 2 (slides 23 a 29):** diagnóstico de abertura de lojas (divisória, três frentes, critério, SC e PR, São
+  Paulo, concorrência e sequência, anexo CNES × releases), refeito no mesmo visual (Nunito Sans, azul 143C8C,
+  laranja E8631A). O mapa `mapa_oportunidades.png` usa as cores do template.
+
+A versão da Parte 2 no visual próprio continua em `../brasil/diagnostico-panvel/`.
 
 ## O que mudou
 
@@ -11,7 +19,8 @@ Prazo), com os recortes originais (2025 × 2024 e 2T26 × 2T25) e uma atualizaç
 | 16 a 19 (novos) | indicadores set/26 × set/25 (fluxos 9M, sem anualizar), prazos e ciclos 9M (base 270 dias), NCG e CDG com set/25 e set/26, FCA 9M26 × 9M25 |
 | 20 | benchmark com a linha do 3T26 das três redes |
 | 21 e 22 | respostas e conclusões com os números de setembro |
-| todos | numeração `NN / 22` |
+| 23 a 29 (novos) | Parte 2: diagnóstico de lojas |
+| todos | numeração `NN / 29` |
 
 O release do 3T26 não traz o 9M24, então não dá para montar o LTM do 3T25: os indicadores de fluxo do 3T26 usam
 o acumulado de nove meses dos dois anos. Balanço e DRE em IFRS (consolidado), como no resto da apresentação.
@@ -47,4 +56,5 @@ fornecedores também encurtou.
 ```bash
 python3 calc3t26.py                                   # grava n3t26.json com os números do release 3T26
 python3 edita_e2.py entrada.pptx saida.pptx n3t26.json  # entrada: a Entrega 2 com os 4 slides duplicados após o 15
+python3 junta.py base.pptx final.pptx analise.json mapa_oportunidades.png  # base: saída acima com a capa e 6 slides duplicados no fim
 ```
