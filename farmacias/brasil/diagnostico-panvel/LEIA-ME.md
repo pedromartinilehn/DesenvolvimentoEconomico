@@ -9,6 +9,8 @@
 | `analise_panvel.py` | a análise (`python3 analise_panvel.py <raiz do repositório> analise.json`) |
 | `mapa.py` | o mapa do Sul e do Sudeste usado nos slides |
 | `lojas_extra.py` | registros ativos da Panvel no CNES fora do tipo farmácia |
+| `analise_cnes_panvel.py` | a Panvel em todo o CNES: registros, desativações, CNES × release, qualidade (ver `ANALISE-CNES-PANVEL.md`) |
+| `registros-cnes-panvel.csv` | os 628 registros da Dimed no CNES, ativos e desativados |
 | `exporta_csv.py` | grava os dois CSVs a partir do `analise.json` |
 
 Os dois scripts leem `../extracao/fontes/intermediario/` (setores e lojas), gerado pelos scripts do atlas
