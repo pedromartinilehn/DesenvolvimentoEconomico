@@ -31,13 +31,19 @@ html, nd = re.subn(r'<script defer src="dados/dados-[a-z0-9]+\.js"></script>\n',
 if nd != len(ARQS):
     sys.exit(f'ERRO: esperava {len(ARQS)} tags defer de dados, removi {nd}')
 
-# O Leaflet precisa voltar a ser bloqueante: no standalone o atlas.js fica
-# embutido e roda durante a análise do documento, antes de qualquer script
-# `defer`. Com defer no Leaflet, o atlas.js rodaria sem o L definido.
-html, nl = re.subn(r'<script defer (src="[^"]*leaflet[^"]*")></script>',
-                   r'<script \1></script>', html)
-if nl != 1:
-    sys.exit(f'ERRO: esperava 1 tag do Leaflet para tirar o defer, achei {nl}')
+# Leaflet embutido (vendor/leaflet, versão 1.9.4, licença BSD-2). Sem isso o arquivo depende da
+# internet para abrir o mapa, e em visualizadores que bloqueiam scripts externos (como a prévia de
+# arquivos do celular) o atlas para com "L is not defined" e a tela fica vazia. O script fica
+# bloqueante: o atlas.js embutido roda durante a análise do documento e precisa do L já definido.
+import base64
+lcss = (D / 'vendor/leaflet/leaflet.css').read_text(encoding='utf-8')
+for img in sorted((D / 'vendor/leaflet/images').glob('*.png')):
+    lcss = lcss.replace(f'images/{img.name}', 'data:image/png;base64,' + base64.b64encode(img.read_bytes()).decode())
+html, nc = re.subn(r'<link rel="stylesheet" href="vendor/leaflet/leaflet\.css">', lambda m: '<style>\n' + lcss + '\n</style>', html)
+ljs = (D / 'vendor/leaflet/leaflet.js').read_text(encoding='utf-8').replace('</script', '<\\/script')
+html, nl = re.subn(r'<script defer src="vendor/leaflet/leaflet\.js"></script>', lambda m: '<script>' + ljs + '</script>', html)
+if nc != 1 or nl != 1:
+    sys.exit(f'ERRO: esperava 1 CSS e 1 JS do Leaflet para embutir, achei {nc} e {nl}')
 
 # --- dados + aplicação, no lugar do carregador -----------------------------
 def ache(nome):
@@ -66,7 +72,7 @@ for marca, rotulo in [('ATLAS_NUCLEO', 'dados-nucleo'), ('ATLAS_SETORES', 'dados
                       ('function montaGeo', 'atlas.js'), ('--atlas-css-ok', 'atlas.css')]:
     if marca not in html:
         sys.exit(f'ERRO: {rotulo} não entrou no arquivo final')
-if 'src="dados/' in html:
+if 'src="dados/' in html or 'vendor/leaflet' in html or 'leaflet.min.js' in html:
     sys.exit('ERRO: sobrou referência externa a dados/')
 
 out = D / 'atlas-rmpa.html'

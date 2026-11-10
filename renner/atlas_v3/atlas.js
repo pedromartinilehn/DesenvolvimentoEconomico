@@ -3318,7 +3318,7 @@ function abreModal(id){
   $('#'+id).classList.add('show');
 }
 function fechaModais(){$$('.modal').forEach(m=>m.classList.remove('show'));}
-function fecharSide(){$('#side').classList.remove('open');$('#backdrop').classList.remove('show');}
+function fecharSide(){$('#side').classList.remove('open');$('#backdrop').classList.remove('show');$('#btnSide').setAttribute('aria-expanded','false');}
 
 /* ──────────────────────────────────────────────────────── 22. BOOT ──── */
 function decRing(str,prec){
@@ -3871,8 +3871,12 @@ function ligaEventos(){
   });
   let t; $('#q').oninput=e=>{clearTimeout(t);t=setTimeout(()=>buscar(e.target.value),140);};
   $('#q').onblur=()=>setTimeout(()=>$('#sugg').style.display='none',180);
+  // celular: placeholder curto (o campo é estreito); o aria-label continua descritivo
+  if(window.innerWidth<=620)$('#q').placeholder='Buscar';
+  $('#btnSide').setAttribute('aria-expanded','false');$('#btnSide').setAttribute('aria-controls','side');
   $('#btnSide').onclick=()=>{
     const s=$('#side'); s.classList.toggle('open');
+    $('#btnSide').setAttribute('aria-expanded',String(s.classList.contains('open')));
     $('#backdrop').classList.toggle('show',s.classList.contains('open'));
   };
   $('#backdrop').onclick=()=>{fecharSide();$('#panel').classList.remove('open');};

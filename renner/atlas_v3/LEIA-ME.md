@@ -8,7 +8,20 @@ Porto Alegre, Canoas, Gravataí, Sapucaia do Sul, Cachoeirinha, Guaíba e Esteio
 - Mais simples: abra `atlas-rmpa.html`. É a versão standalone, com interface, dados e código embutidos.
 - Para desenvolvimento: mantenha `index.html`, `atlas.css`, `atlas.js` e a pasta `dados/` juntos.
 - Não abra o HTML de dentro do ZIP; extraia a pasta antes.
-- O mapa-base opcional e a biblioteca Leaflet usam internet. Os dados do Atlas estão no pacote.
+- A biblioteca Leaflet vem embutida (`vendor/leaflet`, versão 1.9.4, licença BSD-2): o mapa abre sem internet. Só o
+  mapa de fundo opcional, as fontes da interface e a leitura de .xlsx na central de extração usam internet.
+
+## Versão 3.9.1: celular e acessibilidade
+
+- **O mapa abre sem internet.** O Leaflet passou a vir dentro do arquivo. Antes, onde o script externo não
+  carregava (como na prévia de arquivos do app no celular), o atlas parava com "L is not defined" e a tela
+  ficava vazia abaixo do topo.
+- **Topo em três linhas no celular:** menu, título e "Mais"; os quatro níveis na largura toda; busca e entorno
+  de loja. Nada mais passa da borda da tela em aparelhos de 320 a 390 px.
+- **Alvos de toque de 44 px** (níveis, zoom, menus, legenda e camadas) e **campos com 16 px de fonte**, para o
+  iOS não dar zoom ao tocar na busca.
+- **Leitor de tela e teclado:** a gaveta de indicadores e o painel fechados saem da ordem de foco; o botão do
+  menu informa se a gaveta está aberta (`aria-expanded`); o foco fica visível.
 
 ## O que mudou na versão 3.9: bases do Atlas Brasil, UDHs e Radar IDHM
 

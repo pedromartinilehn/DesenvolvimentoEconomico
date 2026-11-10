@@ -549,3 +549,42 @@ table.tb.av td:first-child{width:46%}
 table.tb.ipd th,table.tb.ipd td{padding:7px 6px}
 table.tb.ipd th.n{text-align:right}
 table.tb.ipd .destaque{background:var(--bg4);font-weight:700;color:var(--txt)}
+
+/* ───────────────────────────────────────── celular: acessibilidade (v3.9.1) ── */
+/* Topo em três linhas no celular: menu, título e "Mais"; os quatro níveis ocupando a largura;
+   busca e entorno de loja. Antes, os níveis e o "Mais" passavam da borda da tela em aparelhos
+   de 320 a 390 px. Alvos de toque com pelo menos 44 px e campos com 16 px de fonte (no iOS,
+   fonte menor faz a página dar zoom ao tocar no campo). */
+@media(max-width:620px){
+  :root{--top:154px}
+  header{grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:52px 46px 46px;gap:0 8px;padding:0 10px 8px}
+  .tools{display:contents}
+  .brand{min-width:0;overflow:hidden}
+  .menu-wrap{grid-column:3;grid-row:1}
+  .seg,#segNivel{grid-column:1/4;grid-row:2;width:100%}
+  #segNivel button{flex:1 1 0;height:40px;padding:0 4px;font-size:14px}
+  .search{grid-column:1/3;grid-row:3}
+  .store-select{grid-column:3;grid-row:3;max-width:44vw}
+  .search input,.sel,.filtro,#filtroInd,input[type=search],select{font-size:16px}
+  .search input,.sel,.tbtn{height:44px}
+  .ibtn{width:44px;height:44px}
+  .menu{max-width:calc(100vw - 20px)}
+  .menu button{min-height:44px;font-size:15px}
+  .leaflet-touch .leaflet-bar a{width:44px;height:44px;line-height:44px}
+  .prov{right:64px}
+  .menu-wrap{justify-self:end}
+  .lg-hd{min-height:40px}
+}
+@media(max-width:380px){
+  #segNivel button{font-size:13px}
+  .brand b{font-size:16px}
+}
+/* gaveta de indicadores e painel fechados ficam fora da ordem de foco e do leitor de tela */
+@media(max-width:960px){
+  #side:not(.open){visibility:hidden;transition:transform .24s,visibility 0s .24s}
+  #side.open{visibility:visible}
+  #panel:not(.open){visibility:hidden;transition:transform .26s,visibility 0s .26s}
+  #panel.open{visibility:visible}
+}
+/* foco visível para quem navega por teclado ou leitor de tela */
+:focus-visible{outline:3px solid #1f6feb;outline-offset:2px}
