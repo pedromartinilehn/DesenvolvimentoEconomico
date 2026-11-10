@@ -139,6 +139,7 @@
   }
   function renderCardRedes() {
     const el = $('#cardRedes'); if (!el) return;
+    if (!el.dataset.ini) { el.dataset.ini = '1'; if (window.innerWidth <= 620) el.classList.add('fechado'); }
     const fechado = el.classList.contains('fechado');
     el.innerHTML = `<h3>Lojas no mapa <button type="button" id="redesX" aria-expanded="${!fechado}">${fechado ? 'mostrar' : 'ocultar'}</button></h3>
       ${REDES.map(r => `<label><input type="checkbox" data-rede="${r.id}" ${F.on[r.id] ? 'checked' : ''}>

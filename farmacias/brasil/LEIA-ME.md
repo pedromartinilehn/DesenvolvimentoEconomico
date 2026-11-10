@@ -19,14 +19,26 @@ não estima, não interpola e não completa valor.
 ## Como abrir
 
 - **Arquivo único:** `farmacias-brasil.html` (14,5 MB), com o Atlas 2.0, as cinco regiões e as
-  lojas dentro. Abre direto do disco. Só a biblioteca do mapa (Leaflet, do cdnjs) e as fontes
-  tipográficas vêm da internet.
+  lojas dentro. Abre direto do disco. A biblioteca do mapa (Leaflet) vem embutida; só as fontes
+  tipográficas e o mapa de fundo vêm da internet.
 - **Pasta:** `index.html`, com `farmacias-brasil.js`, `farmacias-brasil.css` e
   `dados/farmacias.js`. A interface e os dados do Censo vêm de `../../atlas2/`, então a pasta
   precisa estar dentro do repositório, ao lado de `atlas2/`. Também abre direto do disco.
 
 O endereço guarda o estado. `index.html#l=0269832` abre a loja de CNES 0269832 (Panvel da Rua
 Silveiro, em Porto Alegre), com a região e o entorno.
+
+## Celular e acessibilidade (novembro de 2026)
+
+- **Abre sem internet.** O Leaflet passou a vir dentro do arquivo único (`vendor/leaflet` na raiz do repositório,
+  versão 1.9.4, licença BSD-2, embutido por `vendor/embute_leaflet.py`). Antes, onde o script externo não carregava
+  (como na prévia de arquivos do app no celular), o atlas parava com "L is not defined" e a tela ficava vazia.
+- **Topo em duas linhas no celular**, sem nada passando da borda em telas de 320 a 390 px.
+- **Alvos de toque de 44 px** (níveis, zoom, menu, caixas das camadas) e **campos com 16 px**, para o iOS não dar
+  zoom ao tocar na busca; no celular o campo de busca mostra só "Buscar".
+- **Painéis do mapa compactos:** legenda com altura máxima; o cartão de camadas começa recolhido.
+- **Leitor de tela e teclado:** gaveta e painel fechados saem da ordem de foco, o botão do menu informa se a gaveta
+  está aberta (`aria-expanded`) e o foco fica visível.
 
 ## O que tem
 

@@ -264,3 +264,36 @@ select{height:34px;border:1px solid var(--line2);border-radius:8px;background:va
   .modal{padding:8px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ───────────────────────────────────────────────────── celular: acessibilidade ── */
+/* Topo em duas linhas: menu, níveis e "Mais"; busca e "Lojas". Antes, em 320 px, o topo quebrava em
+   mais linhas que a altura reservada e o menu saía da tela. Alvos de toque de 44 px e campos com 16 px. */
+@media (max-width:620px){
+  :root{--top:112px}
+  header.top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:46px 46px;gap:6px 8px;
+    align-content:center;height:var(--top);padding:4px 10px 6px;flex-wrap:nowrap}
+  .brand{display:none}
+  #btnSide{grid-column:1;grid-row:1}
+  #segNivel{grid-column:2;grid-row:1;justify-self:start}
+  .mais{grid-column:3;grid-row:1}
+  .busca{grid-column:1/3;grid-row:2;order:0;min-width:0;max-width:none}
+  #btnLojas{grid-column:3;grid-row:2;margin-left:0}
+  #segNivel button{height:40px;padding:0 14px;font-size:14px}
+  .ico{width:44px;height:44px}
+  #btnMais,#btnLojas,.busca input{height:44px}
+  input,select,textarea{font-size:16px!important}
+  .leaflet-touch .leaflet-bar a{width:44px;height:44px;line-height:44px}
+  #legenda{max-height:34vh;overflow:auto;max-width:calc(100% - 150px)}
+  #camadas.fechado{width:auto}
+  #camadas{max-height:40vh;overflow:auto;width:170px}
+  #camadas label{min-height:40px}
+  #camadas input[type="checkbox"]{width:20px;height:20px}
+  #camX{min-height:36px;padding:0 8px}
+}
+@media (max-width:900px){
+  #side:not(.open){visibility:hidden;transition:transform .2s,visibility 0s .2s}
+  #side.open{visibility:visible}
+  #panel:not(.open){visibility:hidden;transition:transform .2s,visibility 0s .2s}
+  #panel.open{visibility:visible}
+}
+:focus-visible{outline:3px solid #1f6feb;outline-offset:2px}

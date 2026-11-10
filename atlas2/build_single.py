@@ -5,13 +5,16 @@
 
 Junta index.html, atlas2.css, atlas2.js e os arquivos de dados/. As regiões entram
 como JSON (<script type="application/json">) e o Atlas só lê a região escolhida.
-O mapa base (Leaflet) e as fontes continuam vindo da internet, como na pasta.
+O Leaflet vem embutido (vendor/leaflet); só as fontes e o mapa de fundo vêm da internet, como na pasta.
 """
 from __future__ import annotations
 
 import json
 import pathlib
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "vendor"))
+from embute_leaflet import leaflet_css, leaflet_js  # noqa: E402
 
 RAIZ = pathlib.Path(__file__).resolve().parent
 SAIDA = RAIZ / "atlas2-brasil.html"
@@ -40,6 +43,11 @@ def main() -> int:
     html = html.replace('<script src="dados/brasil.js"></script>',
                         "<script>\n" + br.replace("</script", "<\\/script") + "\n</script>\n" + "\n".join(blocos))
     html = html.replace('<script src="atlas2.js"></script>', "<script>\n" + js.replace("</script", "<\\/script") + "\n</script>")
+    for marca, novo in (('<link rel="stylesheet" href="../vendor/leaflet/leaflet.css">', leaflet_css()),
+                        ('<script src="../vendor/leaflet/leaflet.js"></script>', leaflet_js())):
+        if html.count(marca) != 1:
+            sys.exit(f"index.html sem a marca esperada: {marca}")
+        html = html.replace(marca, novo)
     SAIDA.write_text(html, encoding="utf-8")
     print(f"{SAIDA.name}: {SAIDA.stat().st_size / 1e6:.1f} MB")
     return 0

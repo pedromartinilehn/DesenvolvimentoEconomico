@@ -62,3 +62,13 @@
   #cardRedes{width:160px}
   #legenda{max-width:calc(100% - 192px)}
 }
+
+/* celular: "Lojas no mapa" começa recolhido (farmacias-brasil.js), alvos de toque maiores e altura máxima */
+@media (max-width:620px){
+  #cardRedes{max-height:40vh;overflow:auto;width:168px}
+  #cardRedes label{min-height:40px}
+  #cardRedes input[type="checkbox"]{width:20px;height:20px}
+  #redesX{min-height:36px;padding:0 8px}
+  #cardRedes.fechado{width:auto}
+  #legenda{max-width:calc(100% - 150px)}
+}

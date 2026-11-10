@@ -3,14 +3,17 @@
 
     python3 build_single.py
 
-Junta index.html, atlas-poa.css, atlas-poa.js e dados/poa.js. O mapa base
-(Leaflet) e as fontes continuam vindo da internet, como na pasta.
+Junta index.html, atlas-poa.css, atlas-poa.js e dados/poa.js. O Leaflet vem embutido
+(vendor/leaflet); só as fontes e o mapa de fundo vêm da internet, como na pasta.
 """
 from __future__ import annotations
 
 import json
 import pathlib
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent / "vendor"))
+from embute_leaflet import leaflet_css, leaflet_js  # noqa: E402
 
 RAIZ = pathlib.Path(__file__).resolve().parent
 SAIDA = RAIZ / "atlas-poa.html"
@@ -34,6 +37,11 @@ def main() -> int:
                         "<script>\n" + dados.replace("</script", "<\\/script") + "\n</script>")
     html = html.replace('<script src="atlas-poa.js"></script>',
                         "<script>\n" + js.replace("</script", "<\\/script") + "\n</script>")
+    for marca, novo in (('<link rel="stylesheet" href="../../vendor/leaflet/leaflet.css">', leaflet_css()),
+                        ('<script src="../../vendor/leaflet/leaflet.js"></script>', leaflet_js())):
+        if html.count(marca) != 1:
+            sys.exit(f"index.html sem a marca esperada: {marca}")
+        html = html.replace(marca, novo)
     SAIDA.write_text(html, encoding="utf-8")
     print(f"{SAIDA.name}: {SAIDA.stat().st_size / 1e6:.1f} MB")
     return 0

@@ -497,7 +497,9 @@ function renderLegenda(L_) {
   el.innerHTML = `<h3>${tipo}${unid(c) ? ` <span class="muted" style="font-weight:400">(${esc(c.u)})</span>` : ''}</h3>${linhas.join('')}`;
 }
 function renderCamadas() {
-  const el = $('#camadas'), fechado = el.classList.contains('fechado');
+  const el = $('#camadas');
+  if (!el.dataset.ini) { el.dataset.ini = '1'; if (window.innerWidth <= 620) el.classList.add('fechado'); }
+  const fechado = el.classList.contains('fechado');
   const n = (k, txt, simb, nota) => `<label><input type="checkbox" data-cam="${k}" ${S.cam[k] ? 'checked' : ''}>
     <span class="simb ${simb}"></span><span>${txt}${nota ? `<small>${nota}</small>` : ''}</span></label>`;
   const inc = D.lojas.filter(l => l.classe === 'cnes_sem_confirmacao').length;
@@ -507,6 +509,7 @@ function renderCamadas() {
     ${n('saude', `Unidades de saúde (${D.saude.length})`, 'saude', 'CNES: UBS, hospitais, CAPS, pronto atendimento')}
     ${n('escolas', `Escolas (${D.escolas.length})`, 'escola', 'Censo Escolar 2025, públicas e privadas')}`;
   $$('[data-cam]', el).forEach(x => x.onchange = () => { S.cam[x.dataset.cam] = x.checked; desenhaPontos(); });
+  $('#camX').setAttribute('aria-expanded', String(!fechado));
   $('#camX').onclick = () => { el.classList.toggle('fechado'); renderCamadas(); };
 }
 
@@ -1128,7 +1131,9 @@ function liga() {
   });
   $$('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m || e.target.closest('.mx')) fechaModais(); }));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') fechaModais(); });
-  $('#btnSide').onclick = () => { $('#side').classList.toggle('open'); $('#backdrop').classList.toggle('show', $('#side').classList.contains('open')); };
+  if (window.innerWidth <= 620) $('#q').placeholder = 'Buscar';   // campo estreito no celular; o aria-label segue descritivo
+  $('#btnSide').setAttribute('aria-expanded', 'false');
+  $('#btnSide').onclick = () => { $('#side').classList.toggle('open'); const ab = $('#side').classList.contains('open'); $('#backdrop').classList.toggle('show', ab); $('#btnSide').setAttribute('aria-expanded', String(ab)); };
   $('#backdrop').onclick = () => { fechaSideMobile(); $('#panel').classList.remove('open'); };
   $('#btnFechaPainel').onclick = () => $('#panel').classList.remove('open');
 }

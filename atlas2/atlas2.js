@@ -1123,7 +1123,9 @@ function liga() {
   });
   $$('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m || e.target.closest('.mx')) fechaModais(); }));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') fechaModais(); });
-  $('#btnSide').onclick = () => { $('#side').classList.toggle('open'); $('#backdrop').classList.toggle('show', $('#side').classList.contains('open')); };
+  if (window.innerWidth <= 620) $('#q').placeholder = 'Buscar';   // campo estreito no celular; o aria-label segue descritivo
+  $('#btnSide').setAttribute('aria-expanded', 'false');
+  $('#btnSide').onclick = () => { $('#side').classList.toggle('open'); const ab = $('#side').classList.contains('open'); $('#backdrop').classList.toggle('show', ab); $('#btnSide').setAttribute('aria-expanded', String(ab)); };
   $('#backdrop').onclick = () => { fechaSideMobile(); $('#panel').classList.remove('open'); };
   $('#btnFechaPainel').onclick = () => $('#panel').classList.remove('open');
 }
