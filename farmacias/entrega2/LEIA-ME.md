@@ -83,7 +83,7 @@ da Panvel, slide 16. A ressalva sobre o CNES (Balneário Camboriú) segue no ane
 
 | arquivo | conteúdo |
 |---|---|
-| `Relatorio_Executivo_Panvel_Entrega2.docx` / `.pdf` | relatório impresso (11 páginas, A4): sumário executivo, BP, AH/AV, fluxo de caixa, indicadores, capital de giro, benchmark, respostas, recomendação, diagnóstico de lojas e limitações |
+| `Relatorio_Executivo_Panvel_Entrega2.docx` / `.pdf` | relatório impresso (12 páginas, A4): sumário executivo, BP, AH/AV, fluxo de caixa, indicadores, capital de giro, benchmark, respostas, recomendação, diagnóstico de lojas e limitações |
 | `Apresentacao_20min_Panvel_Entrega2.pptx` | 33 slides: 1 a 19 apresentados (cerca de 15 min na Parte 1 e 4 min na Parte 2), 20 = divisória do apêndice, 21 a 33 = apoio para perguntas |
 | `relatorio/` | `graficos.py` (gráficos do relatório), `relatorio.js` (docx), `monta20.py` (reordena o deck de 32 slides) |
 
