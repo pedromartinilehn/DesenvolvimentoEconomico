@@ -11,8 +11,8 @@
 | Ciclo operacional e ciclo financeiro | slides 13, 14 e 18 | ok |
 | NCG e CDG | slides 15, 16 e 19 | ok |
 | Recomendação de melhoria com base em aspectos financeiros calculados | slides 2 (valor de cada dia de capital de giro) e 23 | ok |
-| Relatório impresso entregue ao executivo | — | **pendente**: imprimir a apresentação ou fazer o relatório em Word |
-| Apresentação de 20 minutos | 32 slides | **atenção**: a Parte 1 tem 23 slides; a Parte 2 (diagnóstico de lojas) não é pedida pelo enunciado |
+| Relatório impresso entregue ao executivo | `Relatorio_Executivo_Panvel_Entrega2.docx` (e `.pdf` para imprimir), 11 páginas | ok |
+| Apresentação de 20 minutos | `Apresentacao_20min_Panvel_Entrega2.pptx`: 19 slides principais (15 da Parte 1, 4 da Parte 2) e 13 de apoio após a divisória do apêndice | ok |
 
 Sugestão de roteiro para 20 minutos: resumo (2), BP e AH/AV (4 a 7), fluxo de caixa (8 e 20), indicadores (11 e 17),
 prazos e NCG (13, 18 e 19), benchmark (21), respostas e conclusão (22 e 23), cerca de 16 minutos; Parte 2 em 3 a 4

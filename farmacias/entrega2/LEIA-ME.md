@@ -78,3 +78,19 @@ O motivo 4 do slide 27 passou a ser a margem por UF: EBITDA LTM do 3T26 de 12,6%
 em SP, que acompanha a parcela de lojas maduras (83,7%, 75,2%, 72,3% e 47,1%). Fonte: apresentação de resultados do 3T26
 da Panvel, slide 16. A ressalva sobre o CNES (Balneário Camboriú) segue no anexo e nas notas do slide.
 `python3 motivo_ebitda.py antes.pptx final.pptx` aplica a troca na versão anterior; `junta.py` já gera o texto novo.
+
+## Relatório ao executivo e apresentação de 20 minutos
+
+| arquivo | conteúdo |
+|---|---|
+| `Relatorio_Executivo_Panvel_Entrega2.docx` / `.pdf` | relatório impresso (11 páginas, A4): sumário executivo, BP, AH/AV, fluxo de caixa, indicadores, capital de giro, benchmark, respostas, recomendação, diagnóstico de lojas e limitações |
+| `Apresentacao_20min_Panvel_Entrega2.pptx` | 33 slides: 1 a 19 apresentados (cerca de 15 min na Parte 1 e 4 min na Parte 2), 20 = divisória do apêndice, 21 a 33 = apoio para perguntas |
+| `relatorio/` | `graficos.py` (gráficos do relatório), `relatorio.js` (docx), `monta20.py` (reordena o deck de 32 slides) |
+
+```bash
+python3 relatorio/graficos.py img/
+node relatorio/relatorio.js img/ mapa_oportunidades.png Relatorio_Executivo_Panvel_Entrega2.docx
+python3 add_slide.py deck32.pptx slide24.xml --after slide32.xml -o base33.pptx   # duplica a divisória (skill pptx)
+python3 relatorio/monta20.py base33.pptx Apresentacao_20min_Panvel_Entrega2.pptx
+```
+
