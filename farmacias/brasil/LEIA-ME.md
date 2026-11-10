@@ -30,6 +30,9 @@ Silveiro, em Porto Alegre), com a região e o entorno.
 
 ## Celular e acessibilidade (novembro de 2026)
 
+- **No iPhone, use o link:** a prévia de arquivos do celular não executa JavaScript, então o arquivo .html não abre o
+  mapa ali (aparece um aviso). Versão publicada, privada, que abre no navegador do celular: https://claude.ai/artifact/BgxRy4r2nRPtfcht4J5LHo
+  Nela, os botões que baixam arquivos (CSV, PNG) não funcionam; para exportar, use o arquivo no computador.
 - **Abre sem internet.** O Leaflet passou a vir dentro do arquivo único (`vendor/leaflet` na raiz do repositório,
   versão 1.9.4, licença BSD-2, embutido por `vendor/embute_leaflet.py`). Antes, onde o script externo não carregava
   (como na prévia de arquivos do app no celular), o atlas parava com "L is not defined" e a tela ficava vazia.
